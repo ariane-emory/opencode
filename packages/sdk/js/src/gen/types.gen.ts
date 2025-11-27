@@ -889,7 +889,21 @@ export type AgentConfig = {
    */
   color?: string
   permission?: {
-    edit?: "ask" | "allow" | "deny"
+    read?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    write?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    edit?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
     bash?:
       | ("ask" | "allow" | "deny")
       | {
@@ -909,7 +923,21 @@ export type AgentConfig = {
     | boolean
     | ("subagent" | "primary" | "all")
     | {
-        edit?: "ask" | "allow" | "deny"
+        read?:
+          | ("ask" | "allow" | "deny")
+          | {
+              [key: string]: "ask" | "allow" | "deny"
+            }
+        write?:
+          | ("ask" | "allow" | "deny")
+          | {
+              [key: string]: "ask" | "allow" | "deny"
+            }
+        edit?:
+          | ("ask" | "allow" | "deny")
+          | {
+              [key: string]: "ask" | "allow" | "deny"
+            }
         bash?:
           | ("ask" | "allow" | "deny")
           | {
@@ -1059,6 +1087,34 @@ export type Config = {
    */
   username?: string
   /**
+   * Default permissions for agents
+   */
+  permission?: {
+    read?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    write?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    edit?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    bash?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    webfetch?: "ask" | "allow" | "deny"
+    doom_loop?: "ask" | "allow" | "deny"
+    external_directory?: "ask" | "allow" | "deny"
+  }
+  /**
    * @deprecated Use `agent` field instead.
    */
   mode?: {
@@ -1072,7 +1128,6 @@ export type Config = {
   agent?: {
     plan?: AgentConfig
     build?: AgentConfig
-    general?: AgentConfig
     [key: string]: AgentConfig | undefined
   }
   /**
@@ -1190,17 +1245,6 @@ export type Config = {
    */
   instructions?: Array<string>
   layout?: LayoutConfig
-  permission?: {
-    edit?: "ask" | "allow" | "deny"
-    bash?:
-      | ("ask" | "allow" | "deny")
-      | {
-          [key: string]: "ask" | "allow" | "deny"
-        }
-    webfetch?: "ask" | "allow" | "deny"
-    doom_loop?: "ask" | "allow" | "deny"
-    external_directory?: "ask" | "allow" | "deny"
-  }
   tools?: {
     [key: string]: boolean
   }
@@ -1445,7 +1489,21 @@ export type Agent = {
   temperature?: number
   color?: string
   permission: {
-    edit: "ask" | "allow" | "deny"
+    read:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    write:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    edit:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
     bash: {
       [key: string]: "ask" | "allow" | "deny"
     }

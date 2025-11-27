@@ -77,7 +77,6 @@ export namespace Plugin {
     const hooks = await state().then((x) => x.hooks)
     const config = await Config.get()
     for (const hook of hooks) {
-      // @ts-expect-error - Config type has been extended with new permission types
       await hook.config?.(config)
     }
     Bus.subscribeAll(async (input) => {

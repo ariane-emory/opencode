@@ -516,6 +516,18 @@ export namespace Config {
         .string()
         .optional()
         .describe("Custom username to display in conversations instead of system username"),
+      permission: z
+        .object({
+          read: z.union([Permission, z.record(z.string(), Permission)]).optional(),
+          write: z.union([Permission, z.record(z.string(), Permission)]).optional(),
+          edit: z.union([Permission, z.record(z.string(), Permission)]).optional(),
+          bash: z.union([Permission, z.record(z.string(), Permission)]).optional(),
+          webfetch: Permission.optional(),
+          doom_loop: Permission.optional(),
+          external_directory: Permission.optional(),
+        })
+        .optional()
+        .describe("Default permissions for agents"),
       mode: z
         .object({
           build: Agent.optional(),
@@ -528,7 +540,6 @@ export namespace Config {
         .object({
           plan: Agent.optional(),
           build: Agent.optional(),
-          general: Agent.optional(),
         })
         .catchall(Agent)
         .optional()
@@ -626,15 +637,6 @@ export namespace Config {
         ),
       instructions: z.array(z.string()).optional().describe("Additional instruction files or patterns to include"),
       layout: Layout.optional().describe("@deprecated Always uses stretch layout."),
-      permission: z
-        .object({
-          edit: Permission.optional(),
-          bash: z.union([Permission, z.record(z.string(), Permission)]).optional(),
-          webfetch: Permission.optional(),
-          doom_loop: Permission.optional(),
-          external_directory: Permission.optional(),
-        })
-        .optional(),
       tools: z.record(z.string(), z.boolean()).optional(),
       enterprise: z
         .object({

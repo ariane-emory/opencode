@@ -131,10 +131,44 @@ export namespace ToolRegistry {
   ): Promise<Record<string, boolean>> {
     const result: Record<string, boolean> = {}
 
-    if (agent.permission.edit === "deny") {
+    // Check if edit is globally denied
+    const editPermission = agent.permission.edit
+    if (typeof editPermission === "string" && editPermission === "deny") {
+      result["edit"] = false
+      result["write"] = false
+    } else if (
+      typeof editPermission === "object" &&
+      editPermission["*"] === "deny" &&
+      Object.keys(editPermission).length === 1
+    ) {
       result["edit"] = false
       result["write"] = false
     }
+
+    // Check if write is specifically globally denied
+    const writePermission = agent.permission.write
+    if (typeof writePermission === "string" && writePermission === "deny") {
+      result["write"] = false
+    } else if (
+      typeof writePermission === "object" &&
+      writePermission["*"] === "deny" &&
+      Object.keys(writePermission).length === 1
+    ) {
+      result["write"] = false
+    }
+
+    // Check if read is globally denied
+    const readPermission = agent.permission.read
+    if (typeof readPermission === "string" && readPermission === "deny") {
+      result["read"] = false
+    } else if (
+      typeof readPermission === "object" &&
+      readPermission["*"] === "deny" &&
+      Object.keys(readPermission).length === 1
+    ) {
+      result["read"] = false
+    }
+
     if (agent.permission.bash["*"] === "deny" && Object.keys(agent.permission.bash).length === 1) {
       result["bash"] = false
     }

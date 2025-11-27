@@ -377,7 +377,9 @@ export namespace Config {
         .describe("Hex color code for the agent (e.g., #FF5733)"),
       permission: z
         .object({
-          edit: Permission.optional(),
+          read: z.union([Permission, z.record(z.string(), Permission)]).optional(),
+          write: z.union([Permission, z.record(z.string(), Permission)]).optional(),
+          edit: z.union([Permission, z.record(z.string(), Permission)]).optional(),
           bash: z.union([Permission, z.record(z.string(), Permission)]).optional(),
           webfetch: Permission.optional(),
           doom_loop: Permission.optional(),

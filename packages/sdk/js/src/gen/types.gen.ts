@@ -1128,6 +1128,8 @@ export type Config = {
   agent?: {
     plan?: AgentConfig
     build?: AgentConfig
+    general?: AgentConfig
+    explore?: AgentConfig
     [key: string]: AgentConfig | undefined
   }
   /**

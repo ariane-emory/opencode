@@ -540,6 +540,8 @@ export namespace Config {
         .object({
           plan: Agent.optional(),
           build: Agent.optional(),
+          general: Agent.optional(),
+          explore: Agent.optional(),
         })
         .catchall(Agent)
         .optional()

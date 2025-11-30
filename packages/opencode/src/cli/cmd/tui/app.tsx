@@ -188,10 +188,10 @@ function App() {
       }
     }
 
-    renderer.keyInput.on("keyrepeat", handleKeyRepeat)
+    ;(renderer.keyInput as any).on("keyrepeat", handleKeyRepeat)
 
     return () => {
-      renderer.keyInput.off("keyrepeat", handleKeyRepeat)
+      ;(renderer.keyInput as any).off("keyrepeat", handleKeyRepeat)
     }
   })
 

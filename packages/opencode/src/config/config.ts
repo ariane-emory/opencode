@@ -637,8 +637,7 @@ export namespace Config {
           doom_loop: Permission.optional(),
           external_directory: Permission.optional(),
         })
-        .optional()
-        .describe("Default permissions for agents"),
+        .optional(),
       tools: z.record(z.string(), z.boolean()).optional(),
       enterprise: z
         .object({

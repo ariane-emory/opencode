@@ -1087,34 +1087,6 @@ export type Config = {
    */
   username?: string
   /**
-   * Default permissions for agents
-   */
-  permission?: {
-    read?:
-      | ("ask" | "allow" | "deny")
-      | {
-          [key: string]: "ask" | "allow" | "deny"
-        }
-    write?:
-      | ("ask" | "allow" | "deny")
-      | {
-          [key: string]: "ask" | "allow" | "deny"
-        }
-    edit?:
-      | ("ask" | "allow" | "deny")
-      | {
-          [key: string]: "ask" | "allow" | "deny"
-        }
-    bash?:
-      | ("ask" | "allow" | "deny")
-      | {
-          [key: string]: "ask" | "allow" | "deny"
-        }
-    webfetch?: "ask" | "allow" | "deny"
-    doom_loop?: "ask" | "allow" | "deny"
-    external_directory?: "ask" | "allow" | "deny"
-  }
-  /**
    * @deprecated Use `agent` field instead.
    */
   mode?: {
@@ -1247,6 +1219,31 @@ export type Config = {
    */
   instructions?: Array<string>
   layout?: LayoutConfig
+  permission?: {
+    read?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    write?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    edit?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    bash?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    webfetch?: "ask" | "allow" | "deny"
+    doom_loop?: "ask" | "allow" | "deny"
+    external_directory?: "ask" | "allow" | "deny"
+  }
   tools?: {
     [key: string]: boolean
   }

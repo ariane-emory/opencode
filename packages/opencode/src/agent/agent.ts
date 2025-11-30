@@ -284,7 +284,6 @@ export namespace Agent {
 }
 
 function mergeAgentPermissions(basePermission: any, overridePermission: any): Agent.Info["permission"] {
-  // Normalize bash permission
   if (typeof basePermission.bash === "string") {
     basePermission.bash = {
       "*": basePermission.bash,

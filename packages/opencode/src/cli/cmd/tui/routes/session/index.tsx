@@ -81,6 +81,7 @@ const context = createContext<{
   conceal: () => boolean
   showThinking: () => boolean
   showTimestamps: () => boolean
+  showActions: () => boolean
   diffWrapMode: () => "word" | "none"
   sync: ReturnType<typeof useSync>
 }>()
@@ -114,6 +115,7 @@ export function Session() {
   const [conceal, setConceal] = createSignal(true)
   const [showThinking, setShowThinking] = createSignal(kv.get("thinking_visibility", true))
   const [showTimestamps, setShowTimestamps] = createSignal(kv.get("timestamps", "hide") === "show")
+  const [showActions, setShowActions] = createSignal(kv.get("tool_usage_visibility", true))
   const [diffWrapMode, setDiffWrapMode] = createSignal<"word" | "none">("word")
 
   const wide = createMemo(() => dimensions().width > 120)
@@ -454,6 +456,17 @@ export function Session() {
       },
     },
     {
+      title: showActions() ? "Hide tool usage" : "Show tool usage",
+      value: "session.toggle.actions",
+      category: "Session",
+      onSelect: (dialog) => {
+        const newValue = !showActions()
+        setShowActions(newValue)
+        kv.set("tool_usage_visibility", newValue)
+        dialog.clear()
+      },
+    },
+    {
       title: "Page up",
       value: "session.page.up",
       keybind: "messages_page_up",
@@ -754,6 +767,7 @@ export function Session() {
         conceal,
         showThinking,
         showTimestamps,
+        showActions,
         diffWrapMode,
         sync,
       }}
@@ -1128,9 +1142,22 @@ function TextPart(props: { last: boolean; part: TextPart; message: AssistantMess
 
 function ToolPart(props: { last: boolean; part: ToolPart; message: AssistantMessage }) {
   const { theme } = useTheme()
+  const { showActions } = use()
   const sync = useSync()
   const [margin, setMargin] = createSignal(0)
   const component = createMemo(() => {
+    // Hide tool if showActions is false and part has hideDetails set to true
+    // But always show if there's an error or permission is required
+    const shouldHide =
+      !showActions() &&
+      props.part.hideDetails &&
+      props.part.state.status !== "error" &&
+      !sync.data.permission[props.message.sessionID]?.some((x) => x.callID === props.part.callID)
+
+    if (shouldHide) {
+      return null
+    }
+
     const render = ToolRegistry.render(props.part.tool) ?? GenericTool
 
     const metadata = props.part.state.status === "pending" ? {} : (props.part.state.metadata ?? {})

@@ -308,10 +308,6 @@ export namespace Session {
       }
       result.reverse()
 
-      // DEBUG: Log what we're returning
-      console.log(
-        `[Session.messages] Returning ${result.length} messages for session ${input.sessionID} with limit ${input.limit}`,
-      )
       return result
     },
   )

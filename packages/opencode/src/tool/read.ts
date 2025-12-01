@@ -31,6 +31,23 @@ export const ReadTool = Tool.define("read", {
     const title = path.relative(Instance.worktree, filepath)
     const agent = await Agent.get(ctx.agent)
 
+    // Check read permission with glob pattern support
+    const readPermission = agent.permission.read
+      ? Agent.resolveFilePermission(agent.permission.read, filepath)
+      : "allow" // Default to allow for backward compatibility
+
+    if (readPermission === "deny") {
+      throw new Permission.RejectedError(
+        ctx.sessionID,
+        "read",
+        ctx.callID,
+        {
+          filepath,
+        },
+        `Reading ${filepath} is not allowed by agent permissions`,
+      )
+    }
+
     if (!ctx.extra?.["bypassCwdCheck"] && !Filesystem.contains(Instance.directory, filepath)) {
       const parentDir = path.dirname(filepath)
       if (agent.permission.external_directory === "ask") {
@@ -58,6 +75,20 @@ export const ReadTool = Tool.define("read", {
           `File ${filepath} is not in the current working directory`,
         )
       }
+    }
+
+    // Ask permission if needed
+    if (readPermission === "ask") {
+      await Permission.ask({
+        type: "read",
+        sessionID: ctx.sessionID,
+        messageID: ctx.messageID,
+        callID: ctx.callID,
+        title: `Read file: ${filepath}`,
+        metadata: {
+          filePath: filepath,
+        },
+      })
     }
 
     const block = iife(() => {

@@ -2,7 +2,18 @@ import { render, useKeyboard, useRenderer, useTerminalDimensions } from "@opentu
 import { Clipboard } from "@tui/util/clipboard"
 import { TextAttributes } from "@opentui/core"
 import { RouteProvider, useRoute } from "@tui/context/route"
-import { Switch, Match, createEffect, untrack, ErrorBoundary, createSignal, onMount, batch, Show } from "solid-js"
+import {
+  Switch,
+  Match,
+  createEffect,
+  untrack,
+  ErrorBoundary,
+  createSignal,
+  onMount,
+  onCleanup,
+  batch,
+  Show,
+} from "solid-js"
 import { Installation } from "@/installation"
 import { Global } from "@/global"
 import { DialogProvider, useDialog } from "@tui/ui/dialog"
@@ -159,6 +170,31 @@ function App() {
   const { theme, mode, setMode } = useTheme()
   const sync = useSync()
   const exit = useExit()
+
+  // Fix for issue #4906: Enable key repeat for arrow keys and page up/down
+  // The @opentui/core library only listens to "keypress" events, not "keyrepeat" events
+  // This causes arrow keys and page up/down to not repeat when held down
+  // We add a global keyrepeat listener that forwards navigation keys to the focused element
+  // Note: home/end keys don't need key repeat since they're absolute positions
+  onMount(() => {
+    const handleKeyRepeat = (evt: any) => {
+      const navigationKeys = ["up", "down", "left", "right", "pageup", "pagedown"]
+      const keyName = evt.name?.toLowerCase()
+
+      if (navigationKeys.includes(keyName || "")) {
+        const focused = renderer.currentFocusedRenderable
+        if (focused && typeof (focused as any).handleKeyPress === "function") {
+          ;(focused as any).handleKeyPress(evt)
+        }
+      }
+    }
+
+    ;(renderer.keyInput as any).on("keyrepeat", handleKeyRepeat)
+
+    return () => {
+      ;(renderer.keyInput as any).off("keyrepeat", handleKeyRepeat)
+    }
+  })
 
   createEffect(() => {
     console.log(JSON.stringify(route.data))
@@ -450,15 +486,18 @@ function App() {
       onMouseUp={async () => {
         const text = renderer.getSelection()?.getSelectedText()
         if (text && text.length > 0) {
-          const base64 = Buffer.from(text).toString("base64")
-          const osc52 = `\x1b]52;c;${base64}\x07`
-          const finalOsc52 = process.env["TMUX"] ? `\x1bPtmux;\x1b${osc52}\x1b\\` : osc52
-          /* @ts-expect-error */
-          renderer.writeOut(finalOsc52)
-          await Clipboard.copy(text)
-            .then(() => toast.show({ message: "Copied to clipboard", variant: "info" }))
-            .catch(toast.error)
-          renderer.clearSelection()
+          const copyOnSelect = sync.data.config.tui?.copy_on_select ?? true
+          if (copyOnSelect) {
+            const base64 = Buffer.from(text).toString("base64")
+            const osc52 = `\x1b]52;c;${base64}\x07`
+            const finalOsc52 = process.env["TMUX"] ? `\x1bPtmux;\x1b${osc52}\x1b\\` : osc52
+            /* @ts-expect-error */
+            renderer.writeOut(finalOsc52)
+            await Clipboard.copy(text)
+              .then(() => toast.show({ message: "Copied to clipboard", variant: "info" }))
+              .catch(toast.error)
+            renderer.clearSelection()
+          }
         }
       }}
     >

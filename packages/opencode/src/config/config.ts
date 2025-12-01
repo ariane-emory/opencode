@@ -12,6 +12,7 @@ import { NamedError } from "@opencode-ai/util/error"
 import { Flag } from "../flag/flag"
 import { Auth } from "../auth"
 import { type ParseError as JsoncParseError, parse as parseJsonc, printParseErrorCode } from "jsonc-parser"
+import type { ThemeJson } from "../cli/cmd/tui/context/theme"
 import { Instance } from "../project/instance"
 import { LSPServer } from "../lsp/server"
 import { BunProc } from "@/bun"
@@ -377,7 +378,9 @@ export namespace Config {
         .describe("Hex color code for the agent (e.g., #FF5733)"),
       permission: z
         .object({
-          edit: Permission.optional(),
+          read: z.union([Permission, z.record(z.string(), Permission)]).optional(),
+          write: z.union([Permission, z.record(z.string(), Permission)]).optional(),
+          edit: z.union([Permission, z.record(z.string(), Permission)]).optional(),
           bash: z.union([Permission, z.record(z.string(), Permission)]).optional(),
           webfetch: Permission.optional(),
           doom_loop: Permission.optional(),
@@ -417,6 +420,7 @@ export namespace Config {
         .describe("Scroll messages down by half page"),
       messages_first: z.string().optional().default("ctrl+g,home").describe("Navigate to first message"),
       messages_last: z.string().optional().default("ctrl+alt+g,end").describe("Navigate to last message"),
+      messages_last_user: z.string().optional().describe("Navigate to last user message"),
       messages_copy: z.string().optional().default("<leader>y").describe("Copy message"),
       messages_undo: z.string().optional().default("<leader>u").describe("Undo message"),
       messages_redo: z.string().optional().default("<leader>r").describe("Redo message"),
@@ -456,11 +460,27 @@ export namespace Config {
       })
       .optional()
       .describe("Scroll acceleration settings"),
+    copy_on_select: z
+      .boolean()
+      .optional()
+      .default(true)
+      .describe("Enable copying text to clipboard when selected with mouse"),
     diff_style: z
       .enum(["auto", "stacked"])
       .optional()
       .describe("Control diff rendering style: 'auto' adapts to terminal width, 'stacked' always shows single column"),
+    session_list_limit: z
+      .union([z.number().min(1), z.literal("none")])
+      .optional()
+      .default(150)
+      .describe("Maximum number of sessions to display in session list, or 'none' to show all sessions"),
+    messages_limit: z
+      .union([z.number().min(1), z.literal("none")])
+      .optional()
+      .default(100)
+      .describe("Maximum number of message parts to load per session when syncing, or 'none' to load all messages"),
   })
+  export type TUI = z.infer<typeof TUI>
 
   export const Layout = z.enum(["auto", "stretch"]).meta({
     ref: "LayoutConfig",
@@ -627,7 +647,9 @@ export namespace Config {
       layout: Layout.optional().describe("@deprecated Always uses stretch layout."),
       permission: z
         .object({
-          edit: Permission.optional(),
+          read: z.union([Permission, z.record(z.string(), Permission)]).optional(),
+          write: z.union([Permission, z.record(z.string(), Permission)]).optional(),
+          edit: z.union([Permission, z.record(z.string(), Permission)]).optional(),
           bash: z.union([Permission, z.record(z.string(), Permission)]).optional(),
           webfetch: Permission.optional(),
           doom_loop: Permission.optional(),
@@ -715,45 +737,76 @@ export namespace Config {
     return load(text, filepath)
   }
 
-  async function load(text: string, configFilepath: string) {
-    text = text.replace(/\{env:([^}]+)\}/g, (_, varName) => {
-      return process.env[varName] || ""
-    })
+  /**
+   * Loads and parses a JSONC configuration file with optional config substitutions.
+   *
+   * Config substitutions are template-like features that allow dynamic content:
+   * - Environment variable substitution: `{env:VAR_NAME}` → process.env.VAR_NAME
+   * - File inclusion: `{file:path}` → content of external file
+   *
+   * @param text - Raw JSONC content to parse
+   * @param configFilepath - Path to config file (for error reporting and resolving relative paths)
+   * @param enableConfigSubstitutions - Whether to process config substitutions (default: true)
+   *   - Set to `true` for config files (allows env vars and file inclusion)
+   *   - Set to `false` for theme files (security: no env vars or file inclusion)
+   *
+   * @returns Parsed configuration object
+   *
+   * @example
+   * // For config files (enable substitutions)
+   * const config = await load(jsonContent, "/path/to/config.json", true)
+   *
+   * @example
+   * // For theme files (disable substitutions for security)
+   * const theme = await load(jsonContent, "/path/to/theme.json", false)
+   */
+  async function load(text: string, configFilepath: string, enableConfigSubstitutions: boolean = true) {
+    // Process environment variable substitutions if enabled
+    // Security: Only enabled for config files, not themes
+    if (enableConfigSubstitutions) {
+      text = text.replace(/\{env:([^}]+)\}/g, (_, varName) => {
+        return process.env[varName] || ""
+      })
+    }
 
-    const fileMatches = text.match(/\{file:[^}]+\}/g)
-    if (fileMatches) {
-      const configDir = path.dirname(configFilepath)
-      const lines = text.split("\n")
+    // Process file inclusion substitutions if enabled
+    // Security: Only enabled for config files, not themes
+    if (enableConfigSubstitutions) {
+      const fileMatches = text.match(/\{file:[^}]+\}/g)
+      if (fileMatches) {
+        const configDir = path.dirname(configFilepath)
+        const lines = text.split("\n")
 
-      for (const match of fileMatches) {
-        const lineIndex = lines.findIndex((line) => line.includes(match))
-        if (lineIndex !== -1 && lines[lineIndex].trim().startsWith("//")) {
-          continue // Skip if line is commented
+        for (const match of fileMatches) {
+          const lineIndex = lines.findIndex((line) => line.includes(match))
+          if (lineIndex !== -1 && lines[lineIndex].trim().startsWith("//")) {
+            continue // Skip if line is commented
+          }
+          let filePath = match.replace(/^\{file:/, "").replace(/\}$/, "")
+          if (filePath.startsWith("~/")) {
+            filePath = path.join(os.homedir(), filePath.slice(2))
+          }
+          const resolvedPath = path.isAbsolute(filePath) ? filePath : path.resolve(configDir, filePath)
+          const fileContent = (
+            await Bun.file(resolvedPath)
+              .text()
+              .catch((error) => {
+                const errMsg = `bad file reference: "${match}"`
+                if (error.code === "ENOENT") {
+                  throw new InvalidError(
+                    {
+                      path: configFilepath,
+                      message: errMsg + ` ${resolvedPath} does not exist`,
+                    },
+                    { cause: error },
+                  )
+                }
+                throw new InvalidError({ path: configFilepath, message: errMsg }, { cause: error })
+              })
+          ).trim()
+          // escape newlines/quotes, strip outer quotes
+          text = text.replace(match, JSON.stringify(fileContent).slice(1, -1))
         }
-        let filePath = match.replace(/^\{file:/, "").replace(/\}$/, "")
-        if (filePath.startsWith("~/")) {
-          filePath = path.join(os.homedir(), filePath.slice(2))
-        }
-        const resolvedPath = path.isAbsolute(filePath) ? filePath : path.resolve(configDir, filePath)
-        const fileContent = (
-          await Bun.file(resolvedPath)
-            .text()
-            .catch((error) => {
-              const errMsg = `bad file reference: "${match}"`
-              if (error.code === "ENOENT") {
-                throw new InvalidError(
-                  {
-                    path: configFilepath,
-                    message: errMsg + ` ${resolvedPath} does not exist`,
-                  },
-                  { cause: error },
-                )
-              }
-              throw new InvalidError({ path: configFilepath, message: errMsg }, { cause: error })
-            })
-        ).trim()
-        // escape newlines/quotes, strip outer quotes
-        text = text.replace(match, JSON.stringify(fileContent).slice(1, -1))
       }
     }
 
@@ -832,6 +885,48 @@ export namespace Config {
 
   export async function get() {
     return state().then((x) => x.config)
+  }
+
+  export async function loadThemeFile(filepath: string): Promise<ThemeJson> {
+    log.info("loading theme", { path: filepath })
+    let text = await Bun.file(filepath)
+      .text()
+      .catch((err) => {
+        if (err.code === "ENOENT") return
+        throw new JsonError({ path: filepath }, { cause: err })
+      })
+    if (!text) {
+      throw new Error("Empty theme file")
+    }
+
+    // Parse JSONC directly without special features for themes
+    const errors: JsoncParseError[] = []
+    const data = parseJsonc(text, errors, { allowTrailingComma: true })
+
+    if (errors.length) {
+      const lines = text.split("\n")
+      const errorDetails = errors
+        .map((e) => {
+          const beforeOffset = text.substring(0, e.offset).split("\n")
+          const line = beforeOffset.length
+          const column = beforeOffset[beforeOffset.length - 1].length + 1
+          const problemLine = lines[line - 1]
+
+          const error = `${printParseErrorCode(e.error)} at line ${line}, column ${column}`
+          if (!problemLine) return error
+
+          return `${error}\n   Line ${line}: ${problemLine}\n${"".padStart(column + 9)}^`
+        })
+        .join("\n")
+
+      throw new JsonError({
+        path: filepath,
+        message: `\n--- JSONC Input ---\n${text}\n--- Errors ---\n${errorDetails}\n--- End ---`,
+      })
+    }
+
+    // Return data as ThemeJson (basic validation)
+    return data as ThemeJson
   }
 
   export async function update(config: Info) {

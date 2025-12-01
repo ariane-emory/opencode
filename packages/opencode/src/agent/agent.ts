@@ -6,8 +6,35 @@ import PROMPT_GENERATE from "./generate.txt"
 import { SystemPrompt } from "../session/system"
 import { Instance } from "../project/instance"
 import { mergeDeep } from "remeda"
+import { Wildcard } from "../util/wildcard"
+import * as path from "path"
 
 export namespace Agent {
+  /**
+   * Resolves file permissions based on glob patterns
+   * @param permission - Either a simple permission string or a record of glob patterns to permissions
+   * @param filePath - The absolute file path to check
+   * @returns The resolved permission (ask, allow, or deny)
+   */
+  export function resolveFilePermission(
+    permission: Config.Permission | Record<string, Config.Permission>,
+    filePath: string,
+  ): Config.Permission {
+    // If it's a simple string permission, return it directly
+    if (typeof permission === "string") {
+      return permission
+    }
+
+    // Extract the basename for pattern matching
+    const basename = path.basename(filePath)
+
+    // Try to match against patterns
+    const result = Wildcard.all(basename, permission)
+
+    // If no match found, default to "allow" for backward compatibility
+    return result ?? "allow"
+  }
+
   export const Info = z
     .object({
       name: z.string(),
@@ -18,7 +45,9 @@ export namespace Agent {
       temperature: z.number().optional(),
       color: z.string().optional(),
       permission: z.object({
-        edit: Config.Permission,
+        read: z.union([Config.Permission, z.record(z.string(), Config.Permission)]),
+        write: z.union([Config.Permission, z.record(z.string(), Config.Permission)]),
+        edit: z.union([Config.Permission, z.record(z.string(), Config.Permission)]),
         bash: z.record(z.string(), Config.Permission),
         webfetch: Config.Permission.optional(),
         doom_loop: Config.Permission.optional(),
@@ -43,6 +72,8 @@ export namespace Agent {
     const cfg = await Config.get()
     const defaultTools = cfg.tools ?? {}
     const defaultPermission: Info["permission"] = {
+      read: "allow",
+      write: "allow",
       edit: "allow",
       bash: {
         "*": "allow",
@@ -263,7 +294,45 @@ function mergeAgentPermissions(basePermission: any, overridePermission: any): Ag
       "*": overridePermission.bash,
     }
   }
+
+  // Normalize read permission
+  if (typeof basePermission.read === "string") {
+    basePermission.read = {
+      "*": basePermission.read,
+    }
+  }
+  if (typeof overridePermission.read === "string") {
+    overridePermission.read = {
+      "*": overridePermission.read,
+    }
+  }
+
+  // Normalize write permission
+  if (typeof basePermission.write === "string") {
+    basePermission.write = {
+      "*": basePermission.write,
+    }
+  }
+  if (typeof overridePermission.write === "string") {
+    overridePermission.write = {
+      "*": overridePermission.write,
+    }
+  }
+
+  // Normalize edit permission
+  if (typeof basePermission.edit === "string") {
+    basePermission.edit = {
+      "*": basePermission.edit,
+    }
+  }
+  if (typeof overridePermission.edit === "string") {
+    overridePermission.edit = {
+      "*": overridePermission.edit,
+    }
+  }
+
   const merged = mergeDeep(basePermission ?? {}, overridePermission ?? {}) as any
+
   let mergedBash
   if (merged.bash) {
     if (typeof merged.bash === "string") {
@@ -280,8 +349,58 @@ function mergeAgentPermissions(basePermission: any, overridePermission: any): Ag
     }
   }
 
+  let mergedRead
+  if (merged.read) {
+    if (typeof merged.read === "string") {
+      mergedRead = {
+        "*": merged.read,
+      }
+    } else if (typeof merged.read === "object") {
+      mergedRead = mergeDeep(
+        {
+          "*": "allow",
+        },
+        merged.read,
+      )
+    }
+  }
+
+  let mergedWrite
+  if (merged.write) {
+    if (typeof merged.write === "string") {
+      mergedWrite = {
+        "*": merged.write,
+      }
+    } else if (typeof merged.write === "object") {
+      mergedWrite = mergeDeep(
+        {
+          "*": "allow",
+        },
+        merged.write,
+      )
+    }
+  }
+
+  let mergedEdit
+  if (merged.edit) {
+    if (typeof merged.edit === "string") {
+      mergedEdit = {
+        "*": merged.edit,
+      }
+    } else if (typeof merged.edit === "object") {
+      mergedEdit = mergeDeep(
+        {
+          "*": "allow",
+        },
+        merged.edit,
+      )
+    }
+  }
+
   const result: Agent.Info["permission"] = {
-    edit: merged.edit ?? "allow",
+    read: mergedRead ?? { "*": "allow" },
+    write: mergedWrite ?? { "*": "allow" },
+    edit: mergedEdit ?? { "*": "allow" },
     webfetch: merged.webfetch ?? "allow",
     bash: mergedBash ?? { "*": "allow" },
     doom_loop: merged.doom_loop,

@@ -184,7 +184,11 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
             event.properties.info.sessionID,
             produce((draft) => {
               draft.splice(result.index, 0, event.properties.info)
-              if (draft.length > 100) draft.shift()
+              const maxMessages = (store.config.tui as any)?.messages_limit
+              const maxMessagesCount = maxMessages === "none" ? Infinity : maxMessages || 100
+              if (draft.length > maxMessagesCount) {
+                draft.shift()
+              }
             }),
           )
           break
@@ -332,9 +336,11 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
         },
         async sync(sessionID: string) {
           if (fullSyncedSessions.has(sessionID)) return
+          const messagesLimit = (store.config.tui as any)?.messages_limit
+          const limit = messagesLimit === "none" ? undefined : messagesLimit || 100
           const [session, messages, todo, diff] = await Promise.all([
             sdk.client.session.get({ path: { id: sessionID }, throwOnError: true }),
-            sdk.client.session.messages({ path: { id: sessionID }, query: { limit: 100 } }),
+            sdk.client.session.messages({ path: { id: sessionID }, query: { limit } }),
             sdk.client.session.todo({ path: { id: sessionID } }),
             sdk.client.session.diff({ path: { id: sessionID } }),
           ])
@@ -348,6 +354,7 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
               for (const message of messages.data!) {
                 draft.part[message.info.id] = message.parts
               }
+
               draft.session_diff[sessionID] = diff.data ?? []
             }),
           )

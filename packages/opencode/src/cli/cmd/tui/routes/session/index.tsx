@@ -81,6 +81,7 @@ const context = createContext<{
   conceal: () => boolean
   showThinking: () => boolean
   showTimestamps: () => boolean
+  showActions: () => boolean
   diffWrapMode: () => "word" | "none"
   sync: ReturnType<typeof useSync>
 }>()
@@ -114,6 +115,7 @@ export function Session() {
   const [conceal, setConceal] = createSignal(true)
   const [showThinking, setShowThinking] = createSignal(kv.get("thinking_visibility", true))
   const [showTimestamps, setShowTimestamps] = createSignal(kv.get("timestamps", "hide") === "show")
+  const [showActions, setShowActions] = createSignal(kv.get("tool_usage_visibility", true))
   const [diffWrapMode, setDiffWrapMode] = createSignal<"word" | "none">("word")
 
   const wide = createMemo(() => dimensions().width > 120)
@@ -190,11 +192,30 @@ export function Session() {
         if (evt.ctrl || evt.meta) return
         if (evt.name === "return") return "once"
         if (evt.name === "a") return "always"
+        if (evt.name === "i") return "interject"
         if (evt.name === "d") return "reject"
         if (evt.name === "escape") return "reject"
         return
       })
-      if (response) {
+      if (response === "interject") {
+        // Show interjection dialog
+        DialogPrompt.show(dialog, "What should the model do instead?", {
+          placeholder: "Enter your suggestion for the model...",
+        }).then((interjection) => {
+          if (interjection !== null) {
+            sdk.client.postSessionIdPermissionsPermissionId({
+              path: {
+                permissionID: first.id,
+                id: route.sessionID,
+              },
+              body: {
+                response: "interject",
+                interjection: interjection,
+              },
+            })
+          }
+        })
+      } else if (response) {
         sdk.client.postSessionIdPermissionsPermissionId({
           path: {
             permissionID: first.id,
@@ -454,6 +475,17 @@ export function Session() {
       },
     },
     {
+      title: showActions() ? "Hide tool usage" : "Show tool usage",
+      value: "session.toggle.actions",
+      category: "Session",
+      onSelect: (dialog) => {
+        const newValue = !showActions()
+        setShowActions(newValue)
+        kv.set("tool_usage_visibility", newValue)
+        dialog.clear()
+      },
+    },
+    {
       title: "Page up",
       value: "session.page.up",
       keybind: "messages_page_up",
@@ -517,6 +549,37 @@ export function Session() {
       onSelect: (dialog) => {
         scroll.scrollTo(scroll.scrollHeight)
         dialog.clear()
+      },
+    },
+    {
+      title: "Jump to last user message",
+      value: "session.messages_last_user",
+      keybind: "messages_last_user",
+      category: "Session",
+      onSelect: () => {
+        const messages = sync.data.message[route.sessionID]
+        if (!messages || !messages.length) return
+
+        // Find the most recent user message with non-ignored, non-synthetic text parts
+        for (let i = messages.length - 1; i >= 0; i--) {
+          const message = messages[i]
+          if (!message || message.role !== "user") continue
+
+          const parts = sync.data.part[message.id]
+          if (!parts || !Array.isArray(parts)) continue
+
+          const hasValidTextPart = parts.some(
+            (part) => part && part.type === "text" && !part.synthetic && !part.ignored,
+          )
+
+          if (hasValidTextPart) {
+            const child = scroll.getChildren().find((child) => {
+              return child.id === message.id
+            })
+            if (child) scroll.scrollBy(child.y - scroll.y - 1)
+            break
+          }
+        }
       },
     },
     {
@@ -754,6 +817,7 @@ export function Session() {
         conceal,
         showThinking,
         showTimestamps,
+        showActions,
         diffWrapMode,
         sync,
       }}
@@ -1128,9 +1192,21 @@ function TextPart(props: { last: boolean; part: TextPart; message: AssistantMess
 
 function ToolPart(props: { last: boolean; part: ToolPart; message: AssistantMessage }) {
   const { theme } = useTheme()
+  const { showActions } = use()
   const sync = useSync()
   const [margin, setMargin] = createSignal(0)
   const component = createMemo(() => {
+    // Hide tool if showActions is false and tool completed successfully
+    // But always show if there's an error or permission is required
+    const shouldHide =
+      !showActions() &&
+      props.part.state.status === "completed" &&
+      !sync.data.permission[props.message.sessionID]?.some((x) => x.callID === props.part.callID)
+
+    if (shouldHide) {
+      return null
+    }
+
     const render = ToolRegistry.render(props.part.tool) ?? GenericTool
 
     const metadata = props.part.state.status === "pending" ? {} : (props.part.state.metadata ?? {})
@@ -1208,6 +1284,10 @@ function ToolPart(props: { last: boolean; part: ToolPart; message: AssistantMess
               <text fg={theme.text}>
                 <b>a</b>
                 <span style={{ fg: theme.textMuted }}> accept always</span>
+              </text>
+              <text fg={theme.text}>
+                <b>i</b>
+                <span style={{ fg: theme.textMuted }}> interject</span>
               </text>
               <text fg={theme.text}>
                 <b>d</b>

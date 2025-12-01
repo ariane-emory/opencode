@@ -4,6 +4,7 @@ import { useSync } from "@tui/context/sync"
 import { useTheme } from "@tui/context/theme"
 import { uniqueBy } from "remeda"
 import path from "path"
+import fs from "fs/promises"
 import { Global } from "@/global"
 import { iife } from "@/util/iife"
 import { createSimpleContext } from "./helper"
@@ -11,12 +12,14 @@ import { useToast } from "../ui/toast"
 import { Provider } from "@/provider/provider"
 import { useArgs } from "./args"
 import { RGBA } from "@opentui/core"
+import { Log } from "@/util/log"
 
 export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
   name: "Local",
   init: () => {
     const sync = useSync()
     const toast = useToast()
+    const log = Log.create({ service: "model" })
 
     function isModelValid(model: { providerID: string; modelID: string }) {
       const provider = sync.data.provider.find((x) => x.id === model.providerID)
@@ -127,14 +130,110 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
 
       const file = Bun.file(path.join(Global.Path.state, "model.json"))
 
-      function save() {
-        Bun.write(
-          file,
-          JSON.stringify({
-            recent: modelStore.recent,
-            favorite: modelStore.favorite,
-          }),
-        )
+      // File system health check function
+      async function checkFilesystemHealth() {
+        const testFile = path.join(path.dirname(path.join(Global.Path.state, "model.json")), ".health-check")
+        try {
+          await Bun.write(testFile, "test")
+          await fs.unlink(testFile)
+          return true
+        } catch (error: any) {
+          log.error("Filesystem health check failed", { error: error.message })
+          return false
+        }
+      }
+
+      // Enhanced save function with atomic writes, error handling, and backup
+      async function save() {
+        const targetPath = path.join(Global.Path.state, "model.json")
+        const tempPath = targetPath + ".tmp"
+        const backupPath = targetPath + ".backup"
+
+        try {
+          log.debug("model.save: attempting to write", {
+            path: targetPath,
+            content: { recent: modelStore.recent, favorite: modelStore.favorite },
+          })
+
+          // Check filesystem health first
+          const healthOk = await checkFilesystemHealth()
+          if (!healthOk) {
+            throw new Error("Filesystem health check failed")
+          }
+
+          // Write to temp file first (atomic write)
+          await Bun.write(
+            tempPath,
+            JSON.stringify(
+              {
+                recent: modelStore.recent,
+                favorite: modelStore.favorite,
+              },
+              null,
+              2,
+            ),
+          )
+
+          // Verify temp file content
+          const tempContent = await Bun.file(tempPath).text()
+          const parsed = JSON.parse(tempContent)
+
+          if (!Array.isArray(parsed.recent) || !Array.isArray(parsed.favorite)) {
+            throw new Error("Write verification failed - invalid JSON structure")
+          }
+
+          // Atomic rename
+          await fs.rename(tempPath, targetPath)
+
+          log.debug("model.save: atomic write successful", { targetPath })
+
+          // Create backup after successful save
+          try {
+            await Bun.write(
+              backupPath,
+              JSON.stringify(
+                {
+                  recent: modelStore.recent,
+                  favorite: modelStore.favorite,
+                },
+                null,
+                2,
+              ),
+            )
+            log.debug("model.save: backup created", { backupPath })
+          } catch (backupError: any) {
+            log.warn("model.save: backup failed", { error: backupError.message })
+          }
+
+          // Final verification
+          const verifyContent = await Bun.file(targetPath).text()
+          const verifyParsed = JSON.parse(verifyContent)
+
+          if (!verifyParsed.recent?.[0]?.modelID || !Array.isArray(verifyParsed.favorite)) {
+            throw new Error("Final verification failed")
+          }
+
+          log.debug("model.save: write successful and verified")
+        } catch (error: any) {
+          // Cleanup temp file
+          try {
+            await fs.unlink(tempPath)
+          } catch (cleanupError: any) {
+            log.warn("model.save: temp file cleanup failed", { error: cleanupError.message })
+          }
+
+          log.error("model.save: failed to write", {
+            error: error.message,
+            path: targetPath,
+            stack: error.stack,
+          })
+
+          toast.show({
+            message: `Failed to save model preference: ${error.message}`,
+            variant: "error",
+            duration: 5000,
+          })
+        }
       }
 
       file
@@ -224,6 +323,12 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
           const val = recent[next]
           if (!val) return
           setModelStore("model", agent.current().name, { ...val })
+
+          // ADD: Update recent models to persist the change
+          const uniq = uniqueBy([val, ...modelStore.recent], (x) => x.providerID + x.modelID)
+          if (uniq.length > 10) uniq.pop()
+          setModelStore("recent", uniq)
+          save()
         },
         cycleFavorite(direction: 1 | -1) {
           const favorites = modelStore.favorite.filter((item) => isModelValid(item))
@@ -254,7 +359,10 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
         },
         set(model: { providerID: string; modelID: string }, options?: { recent?: boolean }) {
           batch(() => {
+            log.debug("model.set called", { model, options })
+
             if (!isModelValid(model)) {
+              log.warn("model.set: invalid model", { model })
               toast.show({
                 message: `Model ${model.providerID}/${model.modelID} is not valid`,
                 variant: "warning",
@@ -262,12 +370,15 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
               })
               return
             }
+
             setModelStore("model", agent.current().name, model)
+
             if (options?.recent) {
+              log.debug("model.set: updating recent models", { model, currentRecent: modelStore.recent })
               const uniq = uniqueBy([model, ...modelStore.recent], (x) => x.providerID + x.modelID)
               if (uniq.length > 10) uniq.pop()
               setModelStore("recent", uniq)
-              save()
+              save() // Now async and error-handled
             }
           })
         },

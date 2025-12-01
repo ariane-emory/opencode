@@ -6,6 +6,7 @@ import path from "path"
 import { UI } from "@/cli/ui"
 import { iife } from "@/util/iife"
 import { Log } from "@/util/log"
+import { getOriginalWorkingDirectory, resolveOriginalPath } from "@/util/working-directory"
 
 declare global {
   const OPENCODE_WORKER_PATH: string
@@ -55,9 +56,9 @@ export const TuiThreadCommand = cmd({
         default: "127.0.0.1",
       }),
   handler: async (args) => {
-    // Resolve relative paths against PWD to preserve behavior when using --cwd flag
-    const baseCwd = process.env.PWD ?? process.cwd()
-    const cwd = args.project ? path.resolve(baseCwd, args.project) : process.cwd()
+    // Use the original working directory to preserve user intent when using bun dev
+    const baseCwd = getOriginalWorkingDirectory()
+    const cwd = args.project ? resolveOriginalPath(args.project) : baseCwd
     const localWorker = new URL("./worker.ts", import.meta.url)
     const distWorker = new URL("./cli/cmd/tui/worker.js", import.meta.url)
     const execDir = path.dirname(process.execPath)

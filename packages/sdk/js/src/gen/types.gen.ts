@@ -447,6 +447,7 @@ export type EventPermissionReplied = {
     sessionID: string
     permissionID: string
     response: string
+    interjection?: string
   }
 }
 
@@ -793,6 +794,10 @@ export type KeybindsConfig = {
    */
   messages_last?: string
   /**
+   * Navigate to last user message
+   */
+  messages_last_user?: string
+  /**
    * Copy message
    */
   messages_copy?: string
@@ -897,7 +902,21 @@ export type AgentConfig = {
    */
   color?: string
   permission?: {
-    edit?: "ask" | "allow" | "deny"
+    read?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    write?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    edit?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
     bash?:
       | ("ask" | "allow" | "deny")
       | {
@@ -917,7 +936,21 @@ export type AgentConfig = {
     | boolean
     | ("subagent" | "primary" | "all")
     | {
-        edit?: "ask" | "allow" | "deny"
+        read?:
+          | ("ask" | "allow" | "deny")
+          | {
+              [key: string]: "ask" | "allow" | "deny"
+            }
+        write?:
+          | ("ask" | "allow" | "deny")
+          | {
+              [key: string]: "ask" | "allow" | "deny"
+            }
+        edit?:
+          | ("ask" | "allow" | "deny")
+          | {
+              [key: string]: "ask" | "allow" | "deny"
+            }
         bash?:
           | ("ask" | "allow" | "deny")
           | {
@@ -1013,9 +1046,21 @@ export type Config = {
       enabled: boolean
     }
     /**
+     * Enable copying text to clipboard when selected with mouse
+     */
+    copy_on_select?: boolean
+    /**
      * Control diff rendering style: 'auto' adapts to terminal width, 'stacked' always shows single column
      */
     diff_style?: "auto" | "stacked"
+    /**
+     * Maximum number of sessions to display in session list, or 'none' to show all sessions
+     */
+    session_list_limit?: number | "none"
+    /**
+     * Maximum number of message parts to load per session when syncing, or 'none' to load all messages
+     */
+    messages_limit?: number | "none"
   }
   /**
    * Command configuration, see https://opencode.ai/docs/commands
@@ -1200,7 +1245,21 @@ export type Config = {
   instructions?: Array<string>
   layout?: LayoutConfig
   permission?: {
-    edit?: "ask" | "allow" | "deny"
+    read?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    write?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    edit?:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
     bash?:
       | ("ask" | "allow" | "deny")
       | {
@@ -1454,7 +1513,21 @@ export type Agent = {
   temperature?: number
   color?: string
   permission: {
-    edit: "ask" | "allow" | "deny"
+    read:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    write:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
+    edit:
+      | ("ask" | "allow" | "deny")
+      | {
+          [key: string]: "ask" | "allow" | "deny"
+        }
     bash: {
       [key: string]: "ask" | "allow" | "deny"
     }
@@ -2558,7 +2631,8 @@ export type SessionUnrevertResponse = SessionUnrevertResponses[keyof SessionUnre
 
 export type PostSessionIdPermissionsPermissionIdData = {
   body?: {
-    response: "once" | "always" | "reject"
+    response: "once" | "always" | "reject" | "interject"
+    interjection?: string
   }
   path: {
     id: string

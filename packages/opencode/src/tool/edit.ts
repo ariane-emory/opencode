@@ -42,6 +42,21 @@ export const EditTool = Tool.define("edit", {
     const agent = await Agent.get(ctx.agent)
 
     const filePath = path.isAbsolute(params.filePath) ? params.filePath : path.join(Instance.directory, params.filePath)
+
+    // Check edit permission with glob pattern support
+    const editPermission = Agent.resolveFilePermission(agent.permission.edit, filePath)
+    if (editPermission === "deny") {
+      throw new Permission.RejectedError(
+        ctx.sessionID,
+        "edit",
+        ctx.callID,
+        {
+          filePath,
+        },
+        `Editing ${filePath} is not allowed by agent permissions`,
+      )
+    }
+
     if (!Filesystem.contains(Instance.directory, filePath)) {
       const parentDir = path.dirname(filePath)
       if (agent.permission.external_directory === "ask") {
@@ -78,7 +93,7 @@ export const EditTool = Tool.define("edit", {
       if (params.oldString === "") {
         contentNew = params.newString
         diff = trimDiff(createTwoFilesPatch(filePath, filePath, contentOld, contentNew))
-        if (agent.permission.edit === "ask") {
+        if (editPermission === "ask") {
           await Permission.ask({
             type: "edit",
             sessionID: ctx.sessionID,
@@ -109,7 +124,7 @@ export const EditTool = Tool.define("edit", {
       diff = trimDiff(
         createTwoFilesPatch(filePath, filePath, normalizeLineEndings(contentOld), normalizeLineEndings(contentNew)),
       )
-      if (agent.permission.edit === "ask") {
+      if (editPermission === "ask") {
         await Permission.ask({
           type: "edit",
           sessionID: ctx.sessionID,

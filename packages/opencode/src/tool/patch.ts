@@ -152,7 +152,26 @@ export const PatchTool = Tool.define("patch", {
     }
 
     // Check permissions if needed
-    if (agent.permission.edit === "ask") {
+    let needsAsk = false
+    for (const change of fileChanges) {
+      const editPermission = Agent.resolveFilePermission(agent.permission.edit, change.filePath)
+      if (editPermission === "deny") {
+        throw new Permission.RejectedError(
+          ctx.sessionID,
+          "edit",
+          ctx.callID,
+          {
+            filePath: change.filePath,
+          },
+          `Editing ${change.filePath} is not allowed by agent permissions`,
+        )
+      }
+      if (editPermission === "ask") {
+        needsAsk = true
+      }
+    }
+
+    if (needsAsk) {
       await Permission.ask({
         type: "edit",
         sessionID: ctx.sessionID,

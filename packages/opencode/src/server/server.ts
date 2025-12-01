@@ -29,6 +29,7 @@ import { Global } from "../global"
 import { ProjectRoute } from "./project"
 import { ToolRegistry } from "../tool/registry"
 import { zodToJsonSchema } from "zod-to-json-schema"
+import { getOriginalWorkingDirectory } from "../util/working-directory"
 import { SessionPrompt } from "../session/prompt"
 import { SessionCompaction } from "../session/compaction"
 import { SessionRevert } from "../session/revert"
@@ -170,7 +171,8 @@ export namespace Server {
         },
       )
       .use(async (c, next) => {
-        const directory = c.req.query("directory") ?? c.req.header("x-opencode-directory") ?? process.cwd()
+        const directory =
+          c.req.query("directory") ?? c.req.header("x-opencode-directory") ?? getOriginalWorkingDirectory()
         return Instance.provide({
           directory,
           init: InstanceBootstrap,

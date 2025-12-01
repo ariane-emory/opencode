@@ -1013,7 +1013,7 @@ export type Config = {
      */
     session_list_limit?: number | "none"
     /**
-     * Maximum number of messages to load per session when syncing, or 'none' to load all messages
+     * Maximum number of message parts to load per session when syncing, or 'none' to load all messages
      */
     messages_limit?: number | "none"
   }

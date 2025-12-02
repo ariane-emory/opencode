@@ -17,6 +17,7 @@ import {
 } from "solid-js"
 import { Installation } from "@/installation"
 import { Global } from "@/global"
+import { Flag } from "@/flag/flag"
 import { DialogProvider, useDialog } from "@tui/ui/dialog"
 import { DialogProvider as DialogProviderList } from "@tui/component/dialog-provider"
 import { SDKProvider, useSDK } from "@tui/context/sdk"
@@ -497,6 +498,10 @@ function App() {
       height={dimensions().height}
       backgroundColor={theme.background}
       onMouseUp={async () => {
+        if (Flag.OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT) {
+          renderer.clearSelection()
+          return
+        }
         const text = renderer.getSelection()?.getSelectedText()
         if (text && text.length > 0) {
           const copyOnSelect = sync.data.config.tui?.copy_on_select ?? true

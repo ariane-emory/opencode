@@ -2,6 +2,7 @@ import type { Argv } from "yargs"
 import { Instance } from "../../project/instance"
 import { Provider } from "../../provider/provider"
 import { ModelsDev } from "../../provider/models"
+import { Config } from "../../config/config"
 import { cmd } from "./cmd"
 import { UI } from "../ui"
 import { EOL } from "os"
@@ -29,6 +30,15 @@ export const ModelsCommand = cmd({
     if (args.refresh) {
       await ModelsDev.refresh()
       UI.println(UI.Style.TEXT_SUCCESS_BOLD + "Models cache refreshed" + UI.Style.TEXT_NORMAL)
+    } else {
+      const config = await Config.get()
+      if (config.experimental?.skip_models_fetch) {
+        UI.println(
+          UI.Style.TEXT_DIM +
+            "Automatic models fetch is disabled via experimental.skip_models_fetch" +
+            UI.Style.TEXT_NORMAL,
+        )
+      }
     }
 
     await Instance.provide({

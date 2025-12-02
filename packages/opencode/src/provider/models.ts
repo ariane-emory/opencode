@@ -4,6 +4,7 @@ import path from "path"
 import z from "zod"
 import { data } from "./models-macro" with { type: "macro" }
 import { Installation } from "../installation"
+import { Config } from "../config/config"
 
 export namespace ModelsDev {
   const log = Log.create({ service: "models.dev" })
@@ -69,7 +70,10 @@ export namespace ModelsDev {
   export type Provider = z.infer<typeof Provider>
 
   export async function get() {
-    refresh()
+    const config = await Config.get()
+    if (!config.experimental?.skip_models_fetch) {
+      refresh()
+    }
     const file = Bun.file(filepath)
     const result = await file.json().catch(() => {})
     if (result) return result as Record<string, Provider>
@@ -96,4 +100,12 @@ export namespace ModelsDev {
   }
 }
 
-setInterval(() => ModelsDev.refresh(), 60 * 1000 * 60).unref()
+setInterval(
+  async () => {
+    const config = await Config.get()
+    if (!config.experimental?.skip_models_fetch) {
+      ModelsDev.refresh()
+    }
+  },
+  60 * 1000 * 60,
+).unref()

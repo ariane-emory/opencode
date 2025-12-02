@@ -13,6 +13,7 @@ import {
   onCleanup,
   batch,
   Show,
+  on,
 } from "solid-js"
 import { Installation } from "@/installation"
 import { Global } from "@/global"
@@ -233,6 +234,17 @@ function App() {
     }
   })
 
+  createEffect(
+    on(
+      () => sync.status === "complete" && sync.data.provider.length === 0,
+      (isEmpty, wasEmpty) => {
+        // only trigger when we transition into an empty-provider state
+        if (!isEmpty || wasEmpty) return
+        dialog.replace(() => <DialogProviderList />)
+      },
+    ),
+  )
+
   command.register(() => [
     {
       title: "Switch session",
@@ -403,8 +415,9 @@ function App() {
   ])
 
   createEffect(() => {
-    const providerID = local.model.current().providerID
-    if (providerID === "openrouter" && !kv.get("openrouter_warning", false)) {
+    const currentModel = local.model.current()
+    if (!currentModel) return
+    if (currentModel.providerID === "openrouter" && !kv.get("openrouter_warning", false)) {
       untrack(() => {
         DialogAlert.show(
           dialog,

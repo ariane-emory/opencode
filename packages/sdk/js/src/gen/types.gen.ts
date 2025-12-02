@@ -1245,6 +1245,10 @@ export type Config = {
      * Enable the batch tool
      */
     batch_tool?: boolean
+    /**
+     * Skip automatic fetching of models from models.dev on startup
+     */
+    skip_models_fetch?: boolean
   }
 }
 

@@ -30,20 +30,22 @@ export const ModelsCommand = cmd({
     if (args.refresh) {
       await ModelsDev.refresh()
       UI.println(UI.Style.TEXT_SUCCESS_BOLD + "Models cache refreshed" + UI.Style.TEXT_NORMAL)
-    } else {
-      const config = await Config.get()
-      if (config.experimental?.skip_models_fetch) {
-        UI.println(
-          UI.Style.TEXT_DIM +
-            "Automatic models fetch is disabled via experimental.skip_models_fetch" +
-            UI.Style.TEXT_NORMAL,
-        )
-      }
     }
 
     await Instance.provide({
       directory: process.cwd(),
       async fn() {
+        // Check for skip_models_fetch setting after instance context is established
+        if (!args.refresh) {
+          const config = await Config.get()
+          if (config.experimental?.skip_models_fetch) {
+            UI.println(
+              UI.Style.TEXT_DIM +
+                "Automatic models fetch is disabled via experimental.skip_models_fetch" +
+                UI.Style.TEXT_NORMAL,
+            )
+          }
+        }
         const providers = await Provider.list()
 
         function printModels(providerID: string, verbose?: boolean) {

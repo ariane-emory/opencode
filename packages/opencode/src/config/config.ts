@@ -667,6 +667,10 @@ export namespace Config {
           chatMaxRetries: z.number().optional().describe("Number of retries for chat completions on failure"),
           disable_paste_summary: z.boolean().optional(),
           batch_tool: z.boolean().optional().describe("Enable the batch tool"),
+          skip_models_fetch: z
+            .boolean()
+            .optional()
+            .describe("Skip automatic fetching of models from models.dev for corporate proxy environments"),
         })
         .optional(),
     })

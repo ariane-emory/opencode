@@ -501,3 +501,28 @@ test("deduplicates duplicate plugins from global and local configs", async () =>
     },
   })
 })
+
+test("handles experimental.skip_models_fetch field", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        JSON.stringify({
+          $schema: "https://opencode.ai/config.json",
+          experimental: {
+            skip_models_fetch: true,
+            batch_tool: false,
+          },
+        }),
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      expect(config.experimental?.skip_models_fetch).toBe(true)
+      expect(config.experimental?.batch_tool).toBe(false)
+    },
+  })
+})

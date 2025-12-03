@@ -1253,6 +1253,10 @@ export type Config = {
      * Skip automatic fetching of models from models.dev on startup
      */
     skip_models_fetch?: boolean
+    /**
+     * Tools that should only be available to primary agents.
+     */
+    primary_tools?: Array<string>
   }
 }
 

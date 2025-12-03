@@ -672,6 +672,10 @@ export namespace Config {
             .boolean()
             .optional()
             .describe("Skip automatic fetching of models from models.dev on startup"),
+          primary_tools: z
+            .array(z.string())
+            .optional()
+            .describe("Tools that should only be available to primary agents."),
         })
         .optional(),
     })

@@ -107,7 +107,7 @@ export namespace ToolRegistry {
     return all().then((x) => x.map((t) => t.id))
   }
 
-  export async function tools(providerID: string, _modelID: string) {
+  export async function tools(providerID: string) {
     const tools = await all()
     const result = await Promise.all(
       tools
@@ -123,11 +123,7 @@ export namespace ToolRegistry {
     return result
   }
 
-  export async function enabled(
-    _providerID: string,
-    _modelID: string,
-    agent: Agent.Info,
-  ): Promise<Record<string, boolean>> {
+  export async function enabled(agent: Agent.Info): Promise<Record<string, boolean>> {
     const result: Record<string, boolean> = {}
 
     // Check if edit is globally denied

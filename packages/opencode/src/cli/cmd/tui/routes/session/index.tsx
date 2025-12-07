@@ -409,6 +409,29 @@ export function Session() {
       },
     },
     {
+      title: "Continue interrupted conversation",
+      value: "session.continue",
+      keybind: "session_continue",
+      category: "Session",
+      onSelect: async (dialog) => {
+        const status = sync.data.session_status[route.sessionID]
+        if (status?.type !== "idle") await sdk.client.session.abort({ path: { id: route.sessionID } }).catch(() => {})
+        
+        const result = await sdk.client.session.continue({
+          path: {
+            id: route.sessionID,
+          },
+        })
+        
+        if (result.data) {
+          toBottom()
+        } else {
+          // Show message that there's nothing to continue
+          dialog.clear()
+        }
+      },
+    },
+    {
       title: sidebarVisible() ? "Hide sidebar" : "Show sidebar",
       value: "session.sidebar.toggle",
       keybind: "sidebar_toggle",

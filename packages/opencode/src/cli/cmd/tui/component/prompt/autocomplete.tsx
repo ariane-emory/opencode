@@ -242,6 +242,11 @@ export function Autocomplete(props: {
           description: "toggle thinking visibility",
           onSelect: () => command.trigger("session.toggle.thinking"),
         },
+        {
+          display: "/continue",
+          description: "continue interrupted conversation",
+          onSelect: () => command.trigger("session.continue"),
+        },
       )
       if (sync.data.config.share !== "disabled") {
         results.push({
@@ -270,12 +275,12 @@ export function Autocomplete(props: {
         description: "list agents",
         onSelect: () => command.trigger("agent.list"),
       },
-      {
-        display: "/session",
-        aliases: ["/resume", "/continue"],
-        description: "list sessions",
-        onSelect: () => command.trigger("session.list"),
-      },
+        {
+          display: "/session",
+          aliases: ["/resume"],
+          description: "list sessions",
+          onSelect: () => command.trigger("session.list"),
+        },
       {
         display: "/status",
         aliases: ["/mcp"],

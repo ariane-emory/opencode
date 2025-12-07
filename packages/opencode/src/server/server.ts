@@ -1287,6 +1287,75 @@ export namespace Server {
         },
       )
       .post(
+        "/session/:id/continue",
+        describeRoute({
+          description: "Continue interrupted conversation",
+          operationId: "session.continue",
+          responses: {
+            200: {
+              description: "Conversation continued",
+              content: {
+                "application/json": {
+                  schema: resolver(z.boolean()),
+                },
+              },
+            },
+            ...errors(400, 404),
+          },
+        }),
+        validator(
+          "param",
+          z.object({
+            id: z.string(),
+          }),
+        ),
+        async (c) => {
+          const id = c.req.valid("param").id
+          
+          // Check if session has an unfinished assistant message
+          const msgs = await Session.messages({ sessionID: id })
+          let lastAssistant: MessageV2.Assistant | undefined
+          
+          for (let i = msgs.length - 1; i >= 0; i--) {
+            const msg = msgs[i]
+            if (msg.info.role === "assistant") {
+              lastAssistant = msg.info as MessageV2.Assistant
+              break
+            }
+          }
+          
+          // If no unfinished assistant message, return false
+          if (!lastAssistant || (lastAssistant.finish && !["tool-calls", "unknown"].includes(lastAssistant.finish))) {
+            return c.json(false)
+          }
+          
+          // Find the last user message to revert to
+          let lastUser: MessageV2.User | undefined
+          for (let i = msgs.length - 1; i >= 0; i--) {
+            const msg = msgs[i]
+            if (msg.info.role === "user") {
+              lastUser = msg.info as MessageV2.User
+              break
+            }
+          }
+          
+          if (!lastUser) {
+            return c.json(false)
+          }
+          
+          // Revert the unfinished assistant message
+          await SessionRevert.revert({
+            sessionID: id,
+            messageID: lastUser.id,
+          })
+          
+          // Start the conversation loop to continue
+          await SessionPrompt.loop(id)
+          
+          return c.json(true)
+        },
+      )
+      .post(
         "/session/:id/permissions/:permissionID",
         describeRoute({
           description: "Respond to a permission request",

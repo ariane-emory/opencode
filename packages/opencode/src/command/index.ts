@@ -118,4 +118,9 @@ export namespace Command {
 
     return state().then((x) => Object.values(x))
   }
+
+  export async function listFresh() {
+    const fresh = await loadFreshCommands()
+    return Object.values(fresh)
+  }
 }

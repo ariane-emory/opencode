@@ -6,6 +6,7 @@ import { createStore } from "solid-js/store"
 import { useSDK } from "@tui/context/sdk"
 import { useSync } from "@tui/context/sync"
 import { useTheme, selectedForeground } from "@tui/context/theme"
+import { Command } from "@/command"
 import { SplitBorder } from "@tui/component/border"
 import { useCommandDialog } from "@tui/component/dialog-command"
 import { useTerminalDimensions } from "@opentui/solid"
@@ -76,6 +77,20 @@ export function Autocomplete(props: {
       x: anchor.x,
       y: anchor.y,
       width: anchor.width,
+    }
+  })
+
+  // Effect to trigger fresh command scan when '/' is typed
+  createEffect(() => {
+    const inputText = props.value
+    // Only trigger when '/' is at the beginning to avoid excessive calls
+    if (inputText.startsWith('/') && inputText.length <= 10) {
+      Command.listFresh().then((freshCommands: any) => {
+        // Update the global sync store with fresh commands
+        sync.data.command = freshCommands
+      }).catch((error: any) => {
+        console.error("Failed to refresh commands:", error)
+      })
     }
   })
 

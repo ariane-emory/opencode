@@ -207,12 +207,13 @@ export namespace Config {
          ...md.data,
          template: md.content.trim(),
        }
-       const parsed = Command.safeParse(config)
-       if (parsed.success) {
-         result[config.name] = parsed.data
-         continue
-       }
-       throw new InvalidError({ path: item }, { cause: parsed.error })
+const parsed = Command.safeParse(config)
+        if (parsed.success) {
+          result[config.name] = parsed.data
+          continue
+        }
+        Log.Default.warn("Skipping malformed command", { path: item, error: parsed.error })
+        continue
      }
      return result
    }

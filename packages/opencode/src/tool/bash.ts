@@ -21,8 +21,7 @@ const MAX_OUTPUT_LENGTH = (() => {
   const parsed = Number(Flag.OPENCODE_EXPERIMENTAL_BASH_MAX_OUTPUT_LENGTH)
   return Number.isInteger(parsed) && parsed > 0 ? parsed : DEFAULT_MAX_OUTPUT_LENGTH
 })()
-const DEFAULT_TIMEOUT = 1 * 60 * 1000
-const MAX_TIMEOUT = 10 * 60 * 1000
+const DEFAULT_TIMEOUT = 2 * 60 * 1000
 const SIGKILL_TIMEOUT_MS = 200
 
 export const log = Log.create({ service: "bash-tool" })
@@ -61,7 +60,8 @@ export const BashTool = Tool.define("bash", async () => {
   const shell = iife(() => {
     const s = process.env.SHELL
     if (s) {
-      if (!new Set(["/bin/fish", "/bin/nu", "/usr/bin/fish", "/usr/bin/nu"]).has(s)) {
+      const basename = path.basename(s)
+      if (!new Set(["fish", "nu"]).has(basename)) {
         return s
       }
     }
@@ -120,6 +120,12 @@ ${DESCRIPTION.replace(/\$\{shellName\} command/g, `${shellName} command`).replac
     parameters: z.object({
       command: z.string().describe("The command to execute"),
       timeout: z.number().describe("Optional timeout in milliseconds").optional(),
+      workdir: z
+        .string()
+        .describe(
+          `The working directory to run the command in. Defaults to ${Instance.directory}. Use this instead of 'cd' commands.`,
+        )
+        .optional(),
       description: z
         .string()
         .describe(
@@ -127,15 +133,47 @@ ${DESCRIPTION.replace(/\$\{shellName\} command/g, `${shellName} command`).replac
         ),
     }),
     async execute(params, ctx) {
+      const cwd = params.workdir || Instance.directory
       if (params.timeout !== undefined && params.timeout < 0) {
         throw new Error(`Invalid timeout value: ${params.timeout}. Timeout must be a positive number.`)
       }
-      const timeout = Math.min(params.timeout ?? DEFAULT_TIMEOUT, MAX_TIMEOUT)
+      const timeout = params.timeout ?? DEFAULT_TIMEOUT
       const tree = await parser().then((p) => p.parse(params.command))
       if (!tree) {
         throw new Error("Failed to parse command")
       }
       const agent = await Agent.get(ctx.agent)
+
+      const checkExternalDirectory = async (dir: string) => {
+        if (Filesystem.contains(Instance.directory, dir)) return
+        const title = `This command references paths outside of ${Instance.directory}`
+        if (agent.permission.external_directory === "ask") {
+          await Permission.ask({
+            type: "external_directory",
+            pattern: [dir, path.join(dir, "*")],
+            sessionID: ctx.sessionID,
+            messageID: ctx.messageID,
+            callID: ctx.callID,
+            title,
+            metadata: {
+              command: params.command,
+            },
+          })
+        } else if (agent.permission.external_directory === "deny") {
+          throw new Permission.RejectedError(
+            ctx.sessionID,
+            "external_directory",
+            ctx.callID,
+            {
+              command: params.command,
+            },
+            `${title} so this command is not allowed to be executed.`,
+          )
+        }
+      }
+
+      await checkExternalDirectory(cwd)
+
       const permissions = agent.permission.bash
 
       const askPatterns = new Set<string>()
@@ -174,32 +212,7 @@ ${DESCRIPTION.replace(/\$\{shellName\} command/g, `${shellName} command`).replac
                   ? resolved.replace(/^\/([a-z])\//, (_, drive) => `${drive.toUpperCase()}:\\`).replace(/\//g, "\\")
                   : resolved
 
-              if (!Filesystem.contains(Instance.directory, normalized)) {
-                const parentDir = path.dirname(normalized)
-                if (agent.permission.external_directory === "ask") {
-                  await Permission.ask({
-                    type: "external_directory",
-                    pattern: [parentDir, path.join(parentDir, "*")],
-                    sessionID: ctx.sessionID,
-                    messageID: ctx.messageID,
-                    callID: ctx.callID,
-                    title: `This command references paths outside of ${Instance.directory}`,
-                    metadata: {
-                      command: params.command,
-                    },
-                  })
-                } else if (agent.permission.external_directory === "deny") {
-                  throw new Permission.RejectedError(
-                    ctx.sessionID,
-                    "external_directory",
-                    ctx.callID,
-                    {
-                      command: params.command,
-                    },
-                    `This command references paths outside of ${Instance.directory} so it is not allowed to be executed.`,
-                  )
-                }
-              }
+              await checkExternalDirectory(normalized)
             }
           }
         }
@@ -245,7 +258,7 @@ ${DESCRIPTION.replace(/\$\{shellName\} command/g, `${shellName} command`).replac
 
       const proc = spawn(params.command, {
         shell,
-        cwd: Instance.directory,
+        cwd,
         env: {
           ...process.env,
         },
@@ -264,13 +277,15 @@ ${DESCRIPTION.replace(/\$\{shellName\} command/g, `${shellName} command`).replac
       })
 
       const append = (chunk: Buffer) => {
-        output += chunk.toString()
-        ctx.metadata({
-          metadata: {
-            output,
-            description: params.description,
-          },
-        })
+        if (output.length <= MAX_OUTPUT_LENGTH) {
+          output += chunk.toString()
+          ctx.metadata({
+            metadata: {
+              output,
+              description: params.description,
+            },
+          })
+        }
       }
 
       proc.stdout?.on("data", append)
@@ -325,7 +340,7 @@ ${DESCRIPTION.replace(/\$\{shellName\} command/g, `${shellName} command`).replac
       const timeoutTimer = setTimeout(() => {
         timedOut = true
         void killTree()
-      }, timeout)
+      }, timeout + 100)
 
       await new Promise<void>((resolve, reject) => {
         const cleanup = () => {
@@ -346,17 +361,24 @@ ${DESCRIPTION.replace(/\$\{shellName\} command/g, `${shellName} command`).replac
         })
       })
 
+      let resultMetadata: String[] = ["<bash_metadata>"]
+
       if (output.length > MAX_OUTPUT_LENGTH) {
         output = output.slice(0, MAX_OUTPUT_LENGTH)
-        output += "\n\n(Output was truncated due to length limit)"
+        resultMetadata.push(`bash tool truncated output as it exceeded ${MAX_OUTPUT_LENGTH} char limit`)
       }
 
       if (timedOut) {
-        output += `\n\n(Command timed out after ${timeout} ms)`
+        resultMetadata.push(`bash tool terminated commmand after exceeding timeout ${timeout} ms`)
       }
 
       if (aborted) {
-        output += "\n\n(Command was aborted)"
+        resultMetadata.push("User aborted the command")
+      }
+
+      if (resultMetadata.length > 1) {
+        resultMetadata.push("</bash_metadata>")
+        output += "\n\n" + resultMetadata.join("\n")
       }
 
       return {

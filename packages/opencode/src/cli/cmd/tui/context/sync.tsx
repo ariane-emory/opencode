@@ -15,7 +15,7 @@ import type {
   ProviderListResponse,
   ProviderAuthMethod,
   VcsInfo,
-} from "@opencode-ai/sdk"
+} from "@opencode-ai/sdk/v2"
 import { createStore, produce, reconcile } from "solid-js/store"
 import { useSDK } from "@tui/context/sdk"
 import { Binary } from "@opencode-ai/util/binary"
@@ -259,19 +259,19 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
     async function bootstrap() {
       // blocking
       await Promise.all([
-        sdk.client.config.providers({ throwOnError: true }).then((x) => {
+        sdk.client.config.providers({}, { throwOnError: true }).then((x) => {
           batch(() => {
             setStore("provider", x.data!.providers)
             setStore("provider_default", x.data!.default)
           })
         }),
-        sdk.client.provider.list({ throwOnError: true }).then((x) => {
+        sdk.client.provider.list({}, { throwOnError: true }).then((x) => {
           batch(() => {
             setStore("provider_next", x.data!)
           })
         }),
-        sdk.client.app.agents({ throwOnError: true }).then((x) => setStore("agent", x.data ?? [])),
-        sdk.client.config.get({ throwOnError: true }).then((x) => setStore("config", x.data!)),
+        sdk.client.app.agents({}, { throwOnError: true }).then((x) => setStore("agent", x.data ?? [])),
+        sdk.client.config.get({}, { throwOnError: true }).then((x) => setStore("config", x.data!)),
       ])
         .then(() => {
           if (store.status !== "complete") setStore("status", "partial")
@@ -339,10 +339,17 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
           const messagesLimit = (store.config.tui as any)?.messages_limit
           const limit = messagesLimit === "none" ? undefined : messagesLimit || 100
           const [session, messages, todo, diff] = await Promise.all([
+<<<<<<< HEAD
             sdk.client.session.get({ path: { id: sessionID }, throwOnError: true }),
             sdk.client.session.messages({ path: { id: sessionID }, query: { limit } }),
             sdk.client.session.todo({ path: { id: sessionID } }),
             sdk.client.session.diff({ path: { id: sessionID } }),
+=======
+            sdk.client.session.get({ sessionID }, { throwOnError: true }),
+            sdk.client.session.messages({ sessionID, limit: 100 }),
+            sdk.client.session.todo({ sessionID }),
+            sdk.client.session.diff({ sessionID }),
+>>>>>>> upstream/dev
           ])
           setStore(
             produce((draft) => {

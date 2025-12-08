@@ -12,7 +12,6 @@ const ctx = {
   metadata: () => {},
 }
 
-const bash = await BashTool.init()
 const projectRoot = path.join(__dirname, "../..")
 
 describe("tool.bash", () => {
@@ -20,6 +19,7 @@ describe("tool.bash", () => {
     await Instance.provide({
       directory: projectRoot,
       fn: async () => {
+        const bash = await BashTool.init()
         const result = await bash.execute(
           {
             command: "echo 'test'",

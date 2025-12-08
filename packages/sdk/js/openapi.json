@@ -41,14 +41,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "List all projects",
@@ -86,14 +78,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Get current project",
@@ -128,14 +112,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "List PTY sessions",
@@ -483,14 +459,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Get configuration",
@@ -576,14 +544,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "List tool IDs",
@@ -688,14 +648,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Dispose instance",
@@ -730,14 +682,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Get paths",
@@ -772,14 +716,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Get VCS info",
@@ -814,14 +750,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "List sessions",
@@ -919,14 +847,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Get session status",
@@ -2757,14 +2677,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "List commands",
@@ -2802,14 +2714,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "List config providers",
@@ -2865,14 +2769,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "List providers",
@@ -3134,14 +3030,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Get provider auth methods",
@@ -3631,14 +3519,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Get file status",
@@ -3762,14 +3642,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "List agents",
@@ -3807,14 +3679,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Get MCP status",
@@ -4203,14 +4067,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Get LSP status",
@@ -4248,14 +4104,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Get formatter status",
@@ -4354,14 +4202,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Open help dialog",
@@ -4396,14 +4236,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Open sessions dialog",
@@ -4438,14 +4270,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Open themes dialog",
@@ -4480,14 +4304,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Open models dialog",
@@ -4522,14 +4338,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Submit TUI prompt",
@@ -4564,14 +4372,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Clear TUI prompt",
@@ -4799,14 +4599,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Get next TUI request",
@@ -4953,14 +4745,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "schema": {
-              "type": "string"
-            },
-            "in": "path",
-            "name": "name",
-            "required": true
           }
         ],
         "summary": "Subscribe to events",

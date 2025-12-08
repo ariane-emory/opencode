@@ -394,17 +394,13 @@ export function Session() {
       keybind: "session_continue",
       category: "Session",
       onSelect: async (dialog) => {
-        const status = sync.data.session_status[route.sessionID]
-        if (status?.type !== "idle") await sdk.client.session.abort({ sessionID: route.sessionID }).catch(() => {})
-        
-        const result = await sdk.client.session.prompt({
+        const result = await sdk.client.session.continue({
           sessionID: route.sessionID,
         })
         
         if (result.data) {
           toBottom()
         } else {
-          // Show message that there's nothing to continue
           dialog.clear()
         }
       },

@@ -1358,45 +1358,19 @@ export namespace Server {
         async (c) => {
           const sessionID = c.req.valid("param").sessionID
           
-          // Check if session has an unfinished assistant message
+          // Check if there's a user message to continue from
           const msgs = await Session.messages({ sessionID })
-          let lastAssistant: MessageV2.Assistant | undefined
-          
-          for (let i = msgs.length - 1; i >= 0; i--) {
-            const msg = msgs[i]
-            if (msg.info.role === "assistant") {
-              lastAssistant = msg.info as MessageV2.Assistant
-              break
-            }
-          }
-          
-          // If no unfinished assistant message, return false
-          if (!lastAssistant || (lastAssistant.finish && !["tool-calls", "unknown"].includes(lastAssistant.finish))) {
+          const hasUserMessage = msgs.some((m) => m.info.role === "user")
+          if (!hasUserMessage) {
             return c.json(false)
           }
           
-          // Find the last user message to revert to
-          let lastUser: MessageV2.User | undefined
-          for (let i = msgs.length - 1; i >= 0; i--) {
-            const msg = msgs[i]
-            if (msg.info.role === "user") {
-              lastUser = msg.info as MessageV2.User
-              break
-            }
-          }
+          // Cancel any existing session state to ensure clean start
+          SessionPrompt.cancel(sessionID)
           
-          if (!lastUser) {
-            return c.json(false)
-          }
-          
-          // Revert unfinished assistant message
-          await SessionRevert.revert({
-            sessionID,
-            messageID: lastUser.id,
-          })
-          
-          // Start conversation loop to continue
-          await SessionPrompt.loop(sessionID)
+          // Start conversation loop - it will continue from where it left off
+          // The loop handles incomplete assistant messages automatically
+          SessionPrompt.loop(sessionID)
           
           return c.json(true)
         },

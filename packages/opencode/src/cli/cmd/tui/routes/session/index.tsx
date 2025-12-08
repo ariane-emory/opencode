@@ -198,46 +198,15 @@ export function Session() {
         if (evt.ctrl || evt.meta) return
         if (evt.name === "return") return "once"
         if (evt.name === "a") return "always"
-        if (evt.name === "i") return "interject"
         if (evt.name === "d") return "reject"
         if (evt.name === "escape") return "reject"
         return
       })
-<<<<<<< HEAD
-      if (response === "interject") {
-        // Show interjection dialog
-        DialogPrompt.show(dialog, "What should the model do instead?", {
-          placeholder: "Enter your suggestion for the model...",
-        }).then((interjection) => {
-          if (interjection !== null) {
-            sdk.client.postSessionIdPermissionsPermissionId({
-              path: {
-                permissionID: first.id,
-                id: route.sessionID,
-              },
-              body: {
-                response: "interject" as any,
-                interjection: interjection,
-              } as any,
-            })
-          }
-        })
-      } else if (response) {
-        sdk.client.postSessionIdPermissionsPermissionId({
-          path: {
-            permissionID: first.id,
-            id: route.sessionID,
-          },
-          body: {
-            response: response,
-          },
-=======
       if (response) {
         sdk.client.permission.respond({
           permissionID: first.id,
           sessionID: route.sessionID,
           response: response,
->>>>>>> upstream/dev
         })
       }
     }
@@ -1329,10 +1298,6 @@ function ToolPart(props: { last: boolean; part: ToolPart; message: AssistantMess
               <text fg={theme.text}>
                 <b>a</b>
                 <span style={{ fg: theme.textMuted }}> accept always</span>
-              </text>
-              <text fg={theme.text}>
-                <b>i</b>
-                <span style={{ fg: theme.textMuted }}> interject</span>
               </text>
               <text fg={theme.text}>
                 <b>d</b>

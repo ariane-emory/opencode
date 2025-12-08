@@ -1,9 +1,5 @@
 import { Prompt, type PromptRef } from "@tui/component/prompt"
-<<<<<<< HEAD
-import { createMemo, Match, onMount, Show, Switch, createEffect, type ParentProps } from "solid-js"
-=======
 import { createMemo, Match, onMount, Show, Switch } from "solid-js"
->>>>>>> upstream/dev
 import { useTheme } from "@tui/context/theme"
 import { Logo } from "../component/logo"
 import { Locale } from "@/util/locale"
@@ -49,7 +45,6 @@ export function Home() {
 
   let prompt: PromptRef
   const args = useArgs()
-
   onMount(() => {
     if (once) return
     if (route.initialPrompt) {
@@ -57,15 +52,6 @@ export function Home() {
       once = true
     } else if (args.prompt) {
       prompt.set({ input: args.prompt, parts: [] })
-
-      // Auto-submit after a slight delay to ensure everything is initialized and avoid flashing.
-      // On an M1 Macbook Air, reducing delay much lower than this brings the flashing back.
-      setTimeout(() => {
-        if (prompt.focused) {
-          prompt.submit()
-        }
-      }, 350)
-
       once = true
     }
   })

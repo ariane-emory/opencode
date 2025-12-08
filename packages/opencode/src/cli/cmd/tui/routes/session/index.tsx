@@ -395,12 +395,10 @@ export function Session() {
       category: "Session",
       onSelect: async (dialog) => {
         const status = sync.data.session_status[route.sessionID]
-        if (status?.type !== "idle") await sdk.client.session.abort({ path: { id: route.sessionID } }).catch(() => {})
+        if (status?.type !== "idle") await sdk.client.session.abort({ sessionID: route.sessionID }).catch(() => {})
         
-        const result = await sdk.client.session.continue({
-          path: {
-            id: route.sessionID,
-          },
+        const result = await sdk.client.session.prompt({
+          sessionID: route.sessionID,
         })
         
         if (result.data) {

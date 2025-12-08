@@ -306,12 +306,12 @@ export function Autocomplete(props: {
         description: "list agents",
         onSelect: () => command.trigger("agent.list"),
       },
-        {
-          display: "/session",
-          aliases: ["/resume"],
-          description: "list sessions",
-          onSelect: () => command.trigger("session.list"),
-        },
+      {
+        display: "/session",
+        aliases: ["/resume"],
+        description: "list sessions",
+        onSelect: () => command.trigger("session.list"),
+      },
       {
         display: "/status",
         aliases: ["/mcp"],

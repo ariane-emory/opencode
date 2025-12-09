@@ -29,6 +29,7 @@ export function DialogSessionList() {
 
     return sync.data.session
       .filter((x) => x.parentID === undefined)
+      .toSorted((a, b) => b.time.updated - a.time.updated)
       .map((x) => {
         const date = new Date(x.time.updated)
         let category = date.toDateString()

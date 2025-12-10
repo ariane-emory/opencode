@@ -814,6 +814,9 @@ export class Session extends HeyApiClient {
       sessionID: string
       directory?: string
       title?: string
+      time?: {
+        archived?: number
+      }
     },
     options?: Options<never, ThrowOnError>,
   ) {
@@ -825,6 +828,7 @@ export class Session extends HeyApiClient {
             { in: "path", key: "sessionID" },
             { in: "query", key: "directory" },
             { in: "body", key: "title" },
+            { in: "body", key: "time" },
           ],
         },
       ],

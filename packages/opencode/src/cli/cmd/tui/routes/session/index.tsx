@@ -113,9 +113,9 @@ export function Session() {
     return messages().findLast((x) => x.role === "assistant")
   })
 
-  const dimensions = useTerminalDimensions()
-  const [sidebar, setSidebar] = createSignal<"show" | "hide" | "auto">(kv.get("sidebar", "auto"))
-  const [conceal, setConceal] = createSignal(true)
+   const dimensions = useTerminalDimensions()
+   const [sidebar, setSidebar] = kv.signal<"show" | "hide" | "auto">("sidebar", "auto")
+   const [conceal, setConceal] = createSignal(true)
   const [showThinking, setShowThinking] = createSignal(kv.get("thinking_visibility", true))
   const [showTimestamps, setShowTimestamps] = createSignal(kv.get("timestamps", "hide") === "show")
   const [usernameVisible, setUsernameVisible] = createSignal(kv.get("username_visible", true))
@@ -393,16 +393,14 @@ export function Session() {
       value: "session.sidebar.toggle",
       keybind: "sidebar_toggle",
       category: "Session",
-      onSelect: (dialog) => {
-        setSidebar((prev) => {
-          if (prev === "auto") return sidebarVisible() ? "hide" : "show"
-          if (prev === "show") return "hide"
-          return "show"
-        })
-        if (sidebar() === "show") kv.set("sidebar", "auto")
-        if (sidebar() === "hide") kv.set("sidebar", "hide")
-        dialog.clear()
-      },
+       onSelect: (dialog) => {
+         setSidebar((prev) => {
+           if (prev === "auto") return sidebarVisible() ? "hide" : "show"
+           if (prev === "show") return "hide"
+           return "show"
+         })
+         dialog.clear()
+       },
     },
     {
       title: usernameVisible() ? "Hide username" : "Show username",

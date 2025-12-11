@@ -114,7 +114,7 @@ export function Session() {
   })
 
   const dimensions = useTerminalDimensions()
-  const [sidebar, setSidebar] = createSignal<"show" | "hide" | "auto">(kv.get("sidebar", "auto"))
+  const [sidebar, setSidebar] = kv.signal<"show" | "hide" | "auto">("sidebar", "auto")
   const [conceal, setConceal] = createSignal(true)
   const [showThinking, setShowThinking] = createSignal(kv.get("thinking_visibility", true))
   const [showTimestamps, setShowTimestamps] = createSignal(kv.get("timestamps", "hide") === "show")
@@ -394,13 +394,12 @@ export function Session() {
       keybind: "sidebar_toggle",
       category: "Session",
       onSelect: (dialog) => {
-        setSidebar((prev) => {
-          if (prev === "auto") return sidebarVisible() ? "hide" : "show"
-          if (prev === "show") return "hide"
-          return "show"
-        })
-        if (sidebar() === "show") kv.set("sidebar", "auto")
-        if (sidebar() === "hide") kv.set("sidebar", "hide")
+        const prev = sidebar()
+        let newValue: "show" | "hide" | "auto"
+        if (prev === "auto") newValue = sidebarVisible() ? "hide" : "show"
+        else if (prev === "show") newValue = "hide"
+        else newValue = "show"
+        setSidebar(newValue)
         dialog.clear()
       },
     },

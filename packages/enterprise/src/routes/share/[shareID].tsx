@@ -23,6 +23,7 @@ import { preloadMultiFileDiff, PreloadMultiFileDiffResult } from "@pierre/precis
 import { Diff as SSRDiff } from "@opencode-ai/ui/diff-ssr"
 import { clientOnly } from "@solidjs/start"
 import { type IconName } from "@opencode-ai/ui/icons/provider"
+import { Meta } from "@solidjs/meta"
 
 const ClientOnlyDiff = clientOnly(() => import("@opencode-ai/ui/diff").then((m) => ({ default: m.Diff })))
 
@@ -153,6 +154,7 @@ export default function () {
         )
       }}
     >
+      <Meta name="robots" content="noindex, nofollow" />
       <Show when={data()}>
         {(data) => {
           const match = createMemo(() => Binary.search(data().session, data().sessionID, (s) => s.id))
@@ -212,7 +214,7 @@ export default function () {
                           <div class="text-12-mono text-text-base">v{info().version}</div>
                         </div>
                         <div class="flex gap-2 items-center">
-                          <ProviderIcon name={provider() as IconName} class="size-3.5 shrink-0 text-icon-strong-base" />
+                          <ProviderIcon id={provider() as IconName} class="size-3.5 shrink-0 text-icon-strong-base" />
                           <div class="text-12-regular text-text-base">{model()?.name ?? modelID()}</div>
                         </div>
                         <div class="text-12-regular text-text-weaker">

@@ -300,8 +300,6 @@ function mergeAgentPermissions(basePermission: any, overridePermission: any): Ag
       "*": overridePermission.bash,
     }
   }
-
-  // Normalize edit permission
   if (typeof basePermission.edit === "string") {
     basePermission.edit = {
       "*": basePermission.edit,

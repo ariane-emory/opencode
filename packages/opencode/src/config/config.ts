@@ -405,8 +405,6 @@ export namespace Config {
         .describe("Maximum number of agentic iterations before forcing text-only response"),
       permission: z
         .object({
-          read: z.union([Permission, z.record(z.string(), Permission)]).optional(),
-          write: z.union([Permission, z.record(z.string(), Permission)]).optional(),
           edit: z.union([Permission, z.record(z.string(), Permission)]).optional(),
           bash: z.union([Permission, z.record(z.string(), Permission)]).optional(),
           webfetch: Permission.optional(),
@@ -737,8 +735,6 @@ export namespace Config {
       layout: Layout.optional().describe("@deprecated Always uses stretch layout."),
       permission: z
         .object({
-          read: z.union([Permission, z.record(z.string(), Permission)]).optional(),
-          write: z.union([Permission, z.record(z.string(), Permission)]).optional(),
           edit: z.union([Permission, z.record(z.string(), Permission)]).optional(),
           bash: z.union([Permission, z.record(z.string(), Permission)]).optional(),
           webfetch: Permission.optional(),

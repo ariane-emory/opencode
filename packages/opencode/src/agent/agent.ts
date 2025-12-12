@@ -45,8 +45,6 @@ export namespace Agent {
       temperature: z.number().optional(),
       color: z.string().optional(),
       permission: z.object({
-        read: z.union([Config.Permission, z.record(z.string(), Config.Permission)]),
-        write: z.union([Config.Permission, z.record(z.string(), Config.Permission)]),
         edit: z.union([Config.Permission, z.record(z.string(), Config.Permission)]),
         bash: z.record(z.string(), Config.Permission),
         webfetch: Config.Permission.optional(),
@@ -73,8 +71,6 @@ export namespace Agent {
     const cfg = await Config.get()
     const defaultTools = cfg.tools ?? {}
     const defaultPermission: Info["permission"] = {
-      read: "allow",
-      write: "allow",
       edit: "allow",
       bash: {
         "*": "allow",
@@ -318,30 +314,6 @@ function mergeAgentPermissions(basePermission: any, overridePermission: any): Ag
     }
   }
 
-  // Normalize read permission
-  if (typeof basePermission.read === "string") {
-    basePermission.read = {
-      "*": basePermission.read,
-    }
-  }
-  if (typeof overridePermission.read === "string") {
-    overridePermission.read = {
-      "*": overridePermission.read,
-    }
-  }
-
-  // Normalize write permission
-  if (typeof basePermission.write === "string") {
-    basePermission.write = {
-      "*": basePermission.write,
-    }
-  }
-  if (typeof overridePermission.write === "string") {
-    overridePermission.write = {
-      "*": overridePermission.write,
-    }
-  }
-
   // Normalize edit permission
   if (typeof basePermission.edit === "string") {
     basePermission.edit = {
@@ -372,38 +344,6 @@ function mergeAgentPermissions(basePermission: any, overridePermission: any): Ag
     }
   }
 
-  let mergedRead
-  if (merged.read) {
-    if (typeof merged.read === "string") {
-      mergedRead = {
-        "*": merged.read,
-      }
-    } else if (typeof merged.read === "object") {
-      mergedRead = mergeDeep(
-        {
-          "*": "allow",
-        },
-        merged.read,
-      )
-    }
-  }
-
-  let mergedWrite
-  if (merged.write) {
-    if (typeof merged.write === "string") {
-      mergedWrite = {
-        "*": merged.write,
-      }
-    } else if (typeof merged.write === "object") {
-      mergedWrite = mergeDeep(
-        {
-          "*": "allow",
-        },
-        merged.write,
-      )
-    }
-  }
-
   let mergedEdit
   if (merged.edit) {
     if (typeof merged.edit === "string") {
@@ -421,8 +361,6 @@ function mergeAgentPermissions(basePermission: any, overridePermission: any): Ag
   }
 
   const result: Agent.Info["permission"] = {
-    read: mergedRead ?? { "*": "allow" },
-    write: mergedWrite ?? { "*": "allow" },
     edit: mergedEdit ?? { "*": "allow" },
     webfetch: merged.webfetch ?? "allow",
     bash: mergedBash ?? { "*": "allow" },

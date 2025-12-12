@@ -976,16 +976,6 @@ export type AgentConfig = {
    */
   maxSteps?: number
   permission?: {
-    read?:
-      | ("ask" | "allow" | "deny")
-      | {
-          [key: string]: "ask" | "allow" | "deny"
-        }
-    write?:
-      | ("ask" | "allow" | "deny")
-      | {
-          [key: string]: "ask" | "allow" | "deny"
-        }
     edit?:
       | ("ask" | "allow" | "deny")
       | {
@@ -1011,16 +1001,6 @@ export type AgentConfig = {
     | ("subagent" | "primary" | "all")
     | number
     | {
-        read?:
-          | ("ask" | "allow" | "deny")
-          | {
-              [key: string]: "ask" | "allow" | "deny"
-            }
-        write?:
-          | ("ask" | "allow" | "deny")
-          | {
-              [key: string]: "ask" | "allow" | "deny"
-            }
         edit?:
           | ("ask" | "allow" | "deny")
           | {
@@ -1329,16 +1309,6 @@ export type Config = {
   instructions?: Array<string>
   layout?: LayoutConfig
   permission?: {
-    read?:
-      | ("ask" | "allow" | "deny")
-      | {
-          [key: string]: "ask" | "allow" | "deny"
-        }
-    write?:
-      | ("ask" | "allow" | "deny")
-      | {
-          [key: string]: "ask" | "allow" | "deny"
-        }
     edit?:
       | ("ask" | "allow" | "deny")
       | {

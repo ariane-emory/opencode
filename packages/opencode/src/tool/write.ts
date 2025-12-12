@@ -29,15 +29,7 @@ export const WriteTool = Tool.define("write", {
       : Agent.resolveFilePermission(agent.permission.edit, filepath)
 
     if (writePermission === "deny") {
-      throw new Permission.RejectedError(
-        ctx.sessionID,
-        "write",
-        ctx.callID,
-        {
-          filepath,
-        },
-        `Writing to ${filepath} is not allowed by agent permissions`,
-      )
+      throw new Error(`Writing to ${filepath} is not allowed by agent permissions`)
     }
 
     if (!Filesystem.contains(Instance.directory, filepath)) {
@@ -56,16 +48,7 @@ export const WriteTool = Tool.define("write", {
           },
         })
       } else if (agent.permission.external_directory === "deny") {
-        throw new Permission.RejectedError(
-          ctx.sessionID,
-          "external_directory",
-          ctx.callID,
-          {
-            filepath: filepath,
-            parentDir,
-          },
-          `File ${filepath} is not in the current working directory`,
-        )
+        throw new Error(`File ${filepath} is not in the current working directory`)
       }
     }
 

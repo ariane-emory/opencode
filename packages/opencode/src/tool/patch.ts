@@ -69,16 +69,7 @@ export const PatchTool = Tool.define("patch", {
             },
           })
         } else if (agent.permission.external_directory === "deny") {
-          throw new Permission.RejectedError(
-            ctx.sessionID,
-            "external_directory",
-            ctx.callID,
-            {
-              filepath: filePath,
-              parentDir,
-            },
-            `File ${filePath} is not in the current working directory`,
-          )
+          throw new Error(`File ${filePath} is not in the current working directory`)
         }
       }
 
@@ -156,15 +147,7 @@ export const PatchTool = Tool.define("patch", {
     for (const change of fileChanges) {
       const editPermission = Agent.resolveFilePermission(agent.permission.edit, change.filePath)
       if (editPermission === "deny") {
-        throw new Permission.RejectedError(
-          ctx.sessionID,
-          "edit",
-          ctx.callID,
-          {
-            filePath: change.filePath,
-          },
-          `Editing ${change.filePath} is not allowed by agent permissions`,
-        )
+        throw new Error(`Editing ${change.filePath} is not allowed by agent permissions`)
       }
       if (editPermission === "ask") {
         needsAsk = true

@@ -37,15 +37,7 @@ export const ReadTool = Tool.define("read", {
       : "allow" // Default to allow for backward compatibility
 
     if (readPermission === "deny") {
-      throw new Permission.RejectedError(
-        ctx.sessionID,
-        "read",
-        ctx.callID,
-        {
-          filepath,
-        },
-        `Reading ${filepath} is not allowed by agent permissions`,
-      )
+      throw new Error(`Reading ${filepath} is not allowed by agent permissions`)
     }
 
     if (!ctx.extra?.["bypassCwdCheck"] && !Filesystem.contains(Instance.directory, filepath)) {
@@ -64,16 +56,7 @@ export const ReadTool = Tool.define("read", {
           },
         })
       } else if (agent.permission.external_directory === "deny") {
-        throw new Permission.RejectedError(
-          ctx.sessionID,
-          "external_directory",
-          ctx.callID,
-          {
-            filepath: filepath,
-            parentDir,
-          },
-          `File ${filepath} is not in the current working directory`,
-        )
+        throw new Error(`File ${filepath} is not in the current working directory`)
       }
     }
 

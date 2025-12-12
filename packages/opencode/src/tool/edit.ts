@@ -46,15 +46,7 @@ export const EditTool = Tool.define("edit", {
     // Check edit permission with glob pattern support
     const editPermission = Agent.resolveFilePermission(agent.permission.edit, filePath)
     if (editPermission === "deny") {
-      throw new Permission.RejectedError(
-        ctx.sessionID,
-        "edit",
-        ctx.callID,
-        {
-          filePath,
-        },
-        `Editing ${filePath} is not allowed by agent permissions`,
-      )
+      throw new Error(`Editing ${filePath} is not allowed by agent permissions`)
     }
 
     if (!Filesystem.contains(Instance.directory, filePath)) {
@@ -73,16 +65,7 @@ export const EditTool = Tool.define("edit", {
           },
         })
       } else if (agent.permission.external_directory === "deny") {
-        throw new Permission.RejectedError(
-          ctx.sessionID,
-          "external_directory",
-          ctx.callID,
-          {
-            filepath: filePath,
-            parentDir,
-          },
-          `File ${filePath} is not in the current working directory`,
-        )
+        throw new Error(`File ${filePath} is not in the current working directory`)
       }
     }
 

@@ -21,13 +21,10 @@ export const WriteTool = Tool.define("write", {
     const agent = await Agent.get(ctx.agent)
 
     const filepath = path.isAbsolute(params.filePath) ? params.filePath : path.join(Instance.directory, params.filePath)
-
-    // Check edit permission with glob pattern support
     const editPermission = Agent.resolveFilePermission(agent.permission.edit, filepath)
 
-    if (editPermission === "deny") {
+    if (editPermission === "deny")
       throw new Error(`Writing to ${filepath} is not allowed by agent permissions`)
-    }
 
     if (!Filesystem.contains(Instance.directory, filepath)) {
       const parentDir = path.dirname(filepath)

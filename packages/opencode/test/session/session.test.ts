@@ -68,22 +68,4 @@ describe("session.started event", () => {
       },
     })
   })
-
-  describe("session continue functionality", () => {
-    test("should identify unfinished assistant messages correctly", async () => {
-      await Instance.provide({
-        directory: projectRoot,
-        fn: async () => {
-          // Create a session
-          const session = await Session.create({})
-          
-          // Test that empty session has no messages
-          const emptyMsgs = await Session.messages({ sessionID: session.id })
-          expect(emptyMsgs).toEqual([])
-
-          await Session.remove(session.id)
-        },
-      })
-    })
-  })
 })

@@ -159,7 +159,13 @@ export const BashTool = Tool.define("bash", async () => {
                     },
                   })
                 } else if (agent.permission.external_directory === "deny") {
-                  throw new Error(
+                  throw new Permission.RejectedError(
+                    ctx.sessionID,
+                    "external_directory",
+                    ctx.callID,
+                    {
+                      command: params.command,
+                    },
                     `This command references paths outside of ${Instance.directory} so it is not allowed to be executed.`,
                   )
                 }

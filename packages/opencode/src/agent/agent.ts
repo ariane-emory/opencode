@@ -10,28 +10,15 @@ import { Wildcard } from "../util/wildcard"
 import * as path from "path"
 
 export namespace Agent {
-  /**
-   * Resolves file permissions based on glob patterns
-   * @param permission - Either a simple permission string or a record of glob patterns to permissions
-   * @param filePath - The absolute file path to check
-   * @returns The resolved permission (ask, allow, or deny)
-   */
   export function resolveFilePermission(
     permission: Config.Permission | Record<string, Config.Permission>,
     filePath: string,
   ): Config.Permission {
-    // If it's a simple string permission, return it directly
-    if (typeof permission === "string") {
+    if (typeof permission === "string")
       return permission
-    }
 
-    // Extract the basename for pattern matching
     const basename = path.basename(filePath)
-
-    // Try to match against patterns
     const result = Wildcard.all(basename, permission)
-
-    // If no match found, default to "allow" for backward compatibility
     return result ?? "allow"
   }
 

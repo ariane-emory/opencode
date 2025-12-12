@@ -107,9 +107,7 @@ export function tui(input: { url: string; args: Args; onExit?: () => Promise<voi
     render(
       () => {
         return (
-          <ErrorBoundary
-            fallback={(error, reset) => <ErrorComponent error={error} reset={reset} onExit={onExit} mode={mode} />}
-          >
+          <ErrorBoundary fallback={(error, reset) => <ErrorComponent error={error} reset={reset} onExit={onExit} mode={mode} />} >
             <ArgsProvider {...input.args}>
               <ExitProvider onExit={onExit}>
                 <KVProvider>

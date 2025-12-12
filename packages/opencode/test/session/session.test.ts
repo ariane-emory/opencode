@@ -68,6 +68,4 @@ describe("session.started event", () => {
       },
     })
   })
-
-
 })

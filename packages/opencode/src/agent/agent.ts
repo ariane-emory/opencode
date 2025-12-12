@@ -31,8 +31,6 @@ export namespace Agent {
       temperature: z.number().optional(),
       color: z.string().optional(),
       permission: z.object({
-        read: z.union([Config.Permission, z.record(z.string(), Config.Permission)]),
-        write: z.union([Config.Permission, z.record(z.string(), Config.Permission)]),
         edit: z.union([Config.Permission, z.record(z.string(), Config.Permission)]),
         bash: z.record(z.string(), Config.Permission),
         webfetch: Config.Permission.optional(),
@@ -48,6 +46,7 @@ export namespace Agent {
       prompt: z.string().optional(),
       tools: z.record(z.string(), z.boolean()),
       options: z.record(z.string(), z.any()),
+      maxSteps: z.number().int().positive().optional(),
     })
     .meta({
       ref: "Agent",
@@ -58,8 +57,6 @@ export namespace Agent {
     const cfg = await Config.get()
     const defaultTools = cfg.tools ?? {}
     const defaultPermission: Info["permission"] = {
-      read: "allow",
-      write: "allow",
       edit: "allow",
       bash: {
         "*": "allow",
@@ -199,7 +196,20 @@ export namespace Agent {
           tools: {},
           builtIn: false,
         }
-      const { name, model, prompt, tools, description, temperature, top_p, mode, permission, color, ...extra } = value
+      const {
+        name,
+        model,
+        prompt,
+        tools,
+        description,
+        temperature,
+        top_p,
+        mode,
+        permission,
+        color,
+        maxSteps,
+        ...extra
+      } = value
       item.options = {
         ...item.options,
         ...extra,
@@ -222,6 +232,7 @@ export namespace Agent {
       if (color) item.color = color
       // just here for consistency & to prevent it from being added as an option
       if (name) item.name = name
+      if (maxSteps != undefined) item.maxSteps = maxSteps
 
       if (permission ?? cfg.permission) {
         item.permission = mergeAgentPermissions(cfg.permission ?? {}, permission ?? {})
@@ -239,14 +250,22 @@ export namespace Agent {
   }
 
   export async function generate(input: { description: string }) {
+    const cfg = await Config.get()
     const defaultModel = await Provider.defaultModel()
     const model = await Provider.getModel(defaultModel.providerID, defaultModel.modelID)
+    const language = await Provider.getLanguage(model)
     const system = SystemPrompt.header(defaultModel.providerID)
     system.push(PROMPT_GENERATE)
     const existing = await list()
     const result = await generateObject({
+      experimental_telemetry: {
+        isEnabled: cfg.experimental?.openTelemetry,
+        metadata: {
+          userId: cfg.username ?? "unknown",
+        },
+      },
       temperature: 0.3,
-      prompt: [
+      messages: [
         ...system.map(
           (item): ModelMessage => ({
             role: "system",
@@ -258,7 +277,7 @@ export namespace Agent {
           content: `Create an agent configuration based on this request: \"${input.description}\".\n\nIMPORTANT: The following identifiers already exist and must NOT be used: ${existing.map((i) => i.name).join(", ")}\n  Return ONLY the JSON object, no other text, do not wrap in backticks`,
         },
       ],
-      model: model.language,
+      model: language,
       schema: z.object({
         identifier: z.string(),
         whenToUse: z.string(),
@@ -280,32 +299,6 @@ function mergeAgentPermissions(basePermission: any, overridePermission: any): Ag
       "*": overridePermission.bash,
     }
   }
-
-  // Normalize read permission
-  if (typeof basePermission.read === "string") {
-    basePermission.read = {
-      "*": basePermission.read,
-    }
-  }
-  if (typeof overridePermission.read === "string") {
-    overridePermission.read = {
-      "*": overridePermission.read,
-    }
-  }
-
-  // Normalize write permission
-  if (typeof basePermission.write === "string") {
-    basePermission.write = {
-      "*": basePermission.write,
-    }
-  }
-  if (typeof overridePermission.write === "string") {
-    overridePermission.write = {
-      "*": overridePermission.write,
-    }
-  }
-
-  // Normalize edit permission
   if (typeof basePermission.edit === "string") {
     basePermission.edit = {
       "*": basePermission.edit,
@@ -318,7 +311,6 @@ function mergeAgentPermissions(basePermission: any, overridePermission: any): Ag
   }
 
   const merged = mergeDeep(basePermission ?? {}, overridePermission ?? {}) as any
-
   let mergedBash
   if (merged.bash) {
     if (typeof merged.bash === "string") {
@@ -331,38 +323,6 @@ function mergeAgentPermissions(basePermission: any, overridePermission: any): Ag
           "*": "allow",
         },
         merged.bash,
-      )
-    }
-  }
-
-  let mergedRead
-  if (merged.read) {
-    if (typeof merged.read === "string") {
-      mergedRead = {
-        "*": merged.read,
-      }
-    } else if (typeof merged.read === "object") {
-      mergedRead = mergeDeep(
-        {
-          "*": "allow",
-        },
-        merged.read,
-      )
-    }
-  }
-
-  let mergedWrite
-  if (merged.write) {
-    if (typeof merged.write === "string") {
-      mergedWrite = {
-        "*": merged.write,
-      }
-    } else if (typeof merged.write === "object") {
-      mergedWrite = mergeDeep(
-        {
-          "*": "allow",
-        },
-        merged.write,
       )
     }
   }
@@ -384,8 +344,6 @@ function mergeAgentPermissions(basePermission: any, overridePermission: any): Ag
   }
 
   const result: Agent.Info["permission"] = {
-    read: mergedRead ?? { "*": "allow" },
-    write: mergedWrite ?? { "*": "allow" },
     edit: mergedEdit ?? { "*": "allow" },
     webfetch: merged.webfetch ?? "allow",
     bash: mergedBash ?? { "*": "allow" },

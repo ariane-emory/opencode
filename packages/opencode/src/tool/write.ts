@@ -21,16 +21,10 @@ export const WriteTool = Tool.define("write", {
     const agent = await Agent.get(ctx.agent)
 
     const filepath = path.isAbsolute(params.filePath) ? params.filePath : path.join(Instance.directory, params.filePath)
+    const editPermission = Agent.resolveFilePermission(agent.permission.edit, filepath)
 
-    // Check write permission with glob pattern support
-    // If write permission is defined, use it; otherwise fall back to edit permission
-    const writePermission = agent.permission.write
-      ? Agent.resolveFilePermission(agent.permission.write, filepath)
-      : Agent.resolveFilePermission(agent.permission.edit, filepath)
-
-    if (writePermission === "deny") {
+    if (editPermission === "deny")
       throw new Error(`Writing to ${filepath} is not allowed by agent permissions`)
-    }
 
     if (!Filesystem.contains(Instance.directory, filepath)) {
       const parentDir = path.dirname(filepath)
@@ -48,7 +42,16 @@ export const WriteTool = Tool.define("write", {
           },
         })
       } else if (agent.permission.external_directory === "deny") {
-        throw new Error(`File ${filepath} is not in the current working directory`)
+        throw new Permission.RejectedError(
+          ctx.sessionID,
+          "external_directory",
+          ctx.callID,
+          {
+            filepath: filepath,
+            parentDir,
+          },
+          `File ${filepath} is not in the current working directory`,
+        )
       }
     }
 
@@ -56,7 +59,7 @@ export const WriteTool = Tool.define("write", {
     const exists = await file.exists()
     if (exists) await FileTime.assert(ctx.sessionID, filepath)
 
-    if (writePermission === "ask")
+    if (editPermission === "ask")
       await Permission.ask({
         type: "write",
         sessionID: ctx.sessionID,

@@ -69,7 +69,16 @@ export const PatchTool = Tool.define("patch", {
             },
           })
         } else if (agent.permission.external_directory === "deny") {
-          throw new Error(`File ${filePath} is not in the current working directory`)
+          throw new Permission.RejectedError(
+            ctx.sessionID,
+            "external_directory",
+            ctx.callID,
+            {
+              filepath: filePath,
+              parentDir,
+            },
+            `File ${filePath} is not in the current working directory`,
+          )
         }
       }
 

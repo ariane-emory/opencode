@@ -327,7 +327,6 @@ function mergeAgentPermissions(basePermission: any, overridePermission: any): Ag
   }
 
   const merged = mergeDeep(basePermission ?? {}, overridePermission ?? {}) as any
-
   let mergedBash
   if (merged.bash) {
     if (typeof merged.bash === "string") {

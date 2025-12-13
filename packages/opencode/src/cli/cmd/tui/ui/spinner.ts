@@ -521,7 +521,17 @@ function calculateSimpleBreathingAlpha(
   const brightness = brightnessAtCenter - (normalizedDistance * (brightnessAtCenter - brightnessAtEdge))
   const easedBrightness = easeInOutQuad(brightness)
   
-  return minAlpha + (maxAlpha - minAlpha) * easedBrightness
+  // Scale overall brightness based on wave expansion progress
+  // This creates a fade-in effect where brightness builds gradually
+  let overallScale = 1.0
+  if (frameInPulse < riseFrames) {
+    // During rise: scale brightness by how far the wave has expanded
+    overallScale = frameInPulse / riseFrames
+  }
+  
+  const finalBrightness = easedBrightness * overallScale
+  
+  return minAlpha + (maxAlpha - minAlpha) * finalBrightness
 }
 
 /**

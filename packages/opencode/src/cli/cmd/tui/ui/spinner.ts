@@ -488,14 +488,23 @@ function calculateSimpleBreathingAlpha(
     waveRadius = maxDistance - (fallFrame / fallFrames) * maxDistance
   }
   
-  // Calculate how close this position is to the wave radius
-  // Closer = brighter, further = dimmer
-  const distanceFromWave = Math.abs(distance - waveRadius)
-  const fadeWidth = 1.5 // How gradually brightness falls off from wave center
+  // A position is lit if it's inside the wave radius
+  // Positions are brighter the closer they are to the wave edge
+  // But all positions inside the radius should be at least somewhat visible
   
-  // Calculate brightness based on distance from wave
-  const brightness = Math.max(0, 1 - (distanceFromWave / fadeWidth))
-  const easedBrightness = easeInOutQuad(brightness)
+  if (distance > waveRadius) {
+    // Outside the wave - dark
+    return minAlpha
+  }
+  
+  // Inside the wave - calculate brightness based on distance from wave edge
+  // Center stays lit, positions near wave edge are brightest
+  const distanceFromWaveEdge = waveRadius - distance
+  const fadeWidth = 1.5
+  
+  // Brightness peaks at the wave edge and falls off toward center
+  const brightness = Math.max(0.3, 1 - (distanceFromWaveEdge / fadeWidth))
+  const easedBrightness = easeInOutQuad(Math.min(1, brightness))
   
   return minAlpha + (maxAlpha - minAlpha) * easedBrightness
 }

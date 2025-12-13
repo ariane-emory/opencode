@@ -685,6 +685,7 @@ export function Prompt(props: PromptProps) {
       }),
       color: createPulseColors({
         color,
+        minAlpha: 0.15,
       }),
     }
   })

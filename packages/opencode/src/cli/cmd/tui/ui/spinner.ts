@@ -573,10 +573,12 @@ export function createPulseFrames(options: PulseOptions = {}): string[] {
         return "·"                          // Very dim/inactive
       }
       
-      // Blocks style
-      if (alpha > 0.3) return "■"          // Solid block for brighter
-      if (alpha > 0.05) return "⬝"         // Hollow block for dimmer
-      return "⬝"                            // Hollow block for very dim
+      // Blocks style - use progressive block shading
+      if (alpha > 0.7) return "█"          // Full block - brightest
+      if (alpha > 0.4) return "▓"          // Dark shade
+      if (alpha > 0.15) return "▒"         // Medium shade  
+      if (alpha > 0.05) return "░"         // Light shade
+      return "·"                            // Dot for very dim/inactive
     }).join("")
   })
 

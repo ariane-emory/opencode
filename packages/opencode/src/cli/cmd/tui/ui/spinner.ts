@@ -497,14 +497,17 @@ function calculateSimpleBreathingAlpha(
     return minAlpha
   }
   
-  // Inside the wave - calculate brightness based on distance from wave edge
-  // Center stays lit, positions near wave edge are brightest
-  const distanceFromWaveEdge = waveRadius - distance
-  const fadeWidth = 1.5
+  // Inside the wave - brightness should be highest at center and fade toward edge
+  // This creates the effect where center is always brightest
+  const brightnessAtCenter = 1.0
+  const brightnessAtEdge = 0.4
   
-  // Brightness peaks at the wave edge and falls off toward center
-  const brightness = Math.max(0.3, 1 - (distanceFromWaveEdge / fadeWidth))
-  const easedBrightness = easeInOutQuad(Math.min(1, brightness))
+  // Calculate brightness based on how close we are to center (distance 0)
+  // distance=0 (center) should give brightnessAtCenter
+  // distance=waveRadius (edge) should give brightnessAtEdge
+  const normalizedDistance = distance / waveRadius
+  const brightness = brightnessAtCenter - (normalizedDistance * (brightnessAtCenter - brightnessAtEdge))
+  const easedBrightness = easeInOutQuad(brightness)
   
   return minAlpha + (maxAlpha - minAlpha) * easedBrightness
 }

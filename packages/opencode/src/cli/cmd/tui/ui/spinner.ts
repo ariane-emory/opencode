@@ -569,18 +569,18 @@ export function createPulseFrames(options: PulseOptions = {}): string[] {
       if (style === "diamonds") {
         if (alpha > 0.7) return "◆"        // Brightest
         if (alpha > 0.4) return "⬥"        // Medium-bright
-        if (alpha > 0.1) return "⬩"        // Dim
+        if (alpha > 0.2) return "⬩"        // Dim
         if (alpha > minAlpha) return "·"   // Edge of pulse
-        return "⬝"                          // Outside pulse/inactive
+        return " "                          // Outside pulse/inactive
       }
       
       // Blocks style - use progressive block shading
       if (alpha > 0.9) return "█"           // Full block - brightest
-      if (alpha > 0.6) return "▓"           // Dark shade
-      if (alpha > 0.35) return "▒"          // Medium shade  
-      if (alpha > 0.1) return "░"           // Light shade
+      if (alpha > 0.7) return "▓"           // Dark shade
+      if (alpha > 0.5) return "▒"          // Medium shade  
+      if (alpha > 0.3) return "░"           // Light shade
       if (alpha > minAlpha) return "·"      // Edge of pulse (dot)
-      return "⬝"                             // Outside pulse/inactive (empty square)
+      return " "                             // Outside pulse (empty space)
     }).join("")
   })
 

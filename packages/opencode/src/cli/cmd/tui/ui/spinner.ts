@@ -373,6 +373,7 @@ export interface PulseOptions {
   color?: ColorInput        // Base color to pulse
   riseFrames?: number       // Frames for brightness to rise (default: 5)
   fallFrames?: number       // Frames for brightness to fall (default: 5)
+  gapFrames?: number        // Frames of darkness between pulses (default: 3)
   restFrames?: number       // Frames to rest at minimum (default: 10)
   pulseCount?: number       // Number of pulses before rest (default: 2)
   minAlpha?: number         // Darkest alpha (default: 0)
@@ -463,17 +464,24 @@ function calculateSimpleBreathingAlpha(
   riseFrames: number,
   fallFrames: number,
   totalChars: number,
+  gapFrames: number = 3,
 ): number {
-  const pulsesEnd = singlePulse * pulseCount
+  const pulseWithGap = singlePulse + gapFrames
+  const allPulsesEnd = (pulseWithGap * pulseCount) - gapFrames // No gap after last pulse
   
-  // During rest period, everything is dark
-  if (frame >= pulsesEnd) return minAlpha
+  // During final rest period, everything is dark
+  if (frame >= allPulsesEnd) return minAlpha
   
-  // Determine which pulse we're in
-  const pulseIndex = Math.floor(frame / singlePulse)
+  // Determine which pulse we're in (accounting for gaps)
+  const pulseIndex = Math.floor(frame / pulseWithGap)
   if (pulseIndex >= pulseCount) return minAlpha
   
-  const frameInPulse = frame % singlePulse
+  const frameInCycle = frame % pulseWithGap
+  
+  // If we're in the gap between pulses, stay dark
+  if (frameInCycle >= singlePulse) return minAlpha
+  
+  const frameInPulse = frameInCycle
   
   // Calculate the "wave radius" - how far from center the wave has spread
   const maxDistance = (totalChars - 1) / 2
@@ -523,11 +531,12 @@ export function createPulseFrames(options: PulseOptions = {}): string[] {
   const style = options.style ?? "blocks"
   const riseFrames = options.riseFrames ?? 5
   const fallFrames = options.fallFrames ?? 5
+  const gapFrames = options.gapFrames ?? 3
   const restFrames = options.restFrames ?? 10
   const pulseCount = options.pulseCount ?? 2
 
   const singlePulse = riseFrames + fallFrames
-  const totalFrames = (singlePulse * pulseCount) + restFrames
+  const totalFrames = (singlePulse * pulseCount) + (gapFrames * (pulseCount - 1)) + restFrames
 
   const char = style === "diamonds" ? "◆" : "■"
   const frameStr = char.repeat(width)
@@ -545,6 +554,7 @@ export function createPulseColors(options: PulseOptions = {}): ColorGenerator {
   const width = options.width ?? 8
   const riseFrames = options.riseFrames ?? 5
   const fallFrames = options.fallFrames ?? 5
+  const gapFrames = options.gapFrames ?? 3
   const restFrames = options.restFrames ?? 10
   const pulseCount = options.pulseCount ?? 2
   const minAlpha = options.minAlpha ?? 0
@@ -552,7 +562,7 @@ export function createPulseColors(options: PulseOptions = {}): ColorGenerator {
   const spreadDelay = options.spreadDelay ?? 2
 
   const singlePulse = riseFrames + fallFrames
-  const totalFrames = (singlePulse * pulseCount) + restFrames
+  const totalFrames = (singlePulse * pulseCount) + (gapFrames * (pulseCount - 1)) + restFrames
 
   const baseColor = options.color
     ? (options.color instanceof RGBA ? options.color : RGBA.fromHex(options.color as string))
@@ -577,7 +587,8 @@ export function createPulseColors(options: PulseOptions = {}): ColorGenerator {
       maxAlpha, 
       riseFrames, 
       fallFrames,
-      totalChars
+      totalChars,
+      gapFrames
     )
     
     return RGBA.fromValues(baseColor.r, baseColor.g, baseColor.b, alpha)

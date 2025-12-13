@@ -488,7 +488,7 @@ function calculateSimpleBreathingAlpha(
   const frameInPulse = frameInCycle
   
   // Calculate the "wave radius" - how far from center the wave has spread
-  const maxDistance = (totalChars - 1) / 2
+  const maxDistance = ((totalChars - 1) / 2) + 1
   let waveRadius: number
   
   if (frameInPulse < riseFrames) {

@@ -22,7 +22,7 @@ import type { FilePart } from "@opencode-ai/sdk/v2"
 import { TuiEvent } from "../../event"
 import { iife } from "@/util/iife"
 import { Locale } from "@/util/locale"
-import { createColors, createFrames } from "../../ui/spinner.ts"
+import { createColors, createFrames, createPulseFrames, createPulseColors } from "../../ui/spinner.ts"
 import { useDialog } from "@tui/ui/dialog"
 import { DialogProvider as DialogProviderConnect } from "../dialog-provider"
 import { DialogAlert } from "../../ui/dialog-alert"
@@ -663,6 +663,36 @@ export function Prompt(props: PromptProps) {
     }
   })
 
+  // Check if current session has pending permissions
+  const hasPermission = createMemo(() => {
+    const sessionID = props.sessionID
+    if (!sessionID) return false
+    const count = sync.data.permission[sessionID]?.length ?? 0
+    console.log("[SPINNER] Session:", sessionID, "Permissions:", count, "Data:", sync.data.permission)
+    return count > 0
+  })
+
+  // Create pulse spinner definition for permission-awaiting state
+  const pulseSpinnerDef = createMemo(() => {
+    const color = local.agent.color(local.agent.current().name)
+    return {
+      frames: createPulseFrames({
+        color,
+        style: "blocks",
+      }),
+      color: createPulseColors({
+        color,
+      }),
+    }
+  })
+
+  // Select active spinner based on permission state
+  const activeSpinner = createMemo(() => {
+    const hasPerm = hasPermission()
+    console.log("[SPINNER] Using mode:", hasPerm ? "PULSE" : "KNIGHT_RIDER")
+    return hasPerm ? pulseSpinnerDef() : spinnerDef()
+  })
+
   return (
     <>
       <Autocomplete
@@ -900,7 +930,7 @@ export function Prompt(props: PromptProps) {
             >
               <box flexShrink={0} flexDirection="row" gap={1}>
                 {/* @ts-ignore // SpinnerOptions doesn't support marginLeft */}
-                <spinner marginLeft={1} color={spinnerDef().color} frames={spinnerDef().frames} interval={40} />
+                <spinner marginLeft={1} color={activeSpinner().color} frames={activeSpinner().frames} interval={40} />
                 <box flexDirection="row" gap={1} flexShrink={0}>
                   {(() => {
                     const retry = createMemo(() => {

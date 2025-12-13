@@ -366,3 +366,144 @@ export function createColors(options: KnightRiderOptions = {}): ColorGenerator {
 
   return createKnightRiderTrail(trailOptions)
 }
+
+export interface PulseOptions {
+  width?: number            // Number of characters (default: 8)
+  style?: KnightRiderStyle  // "blocks" or "diamonds" (default: "blocks")
+  color?: ColorInput        // Base color to pulse
+  riseFrames?: number       // Frames for brightness to rise (default: 7)
+  fallFrames?: number       // Frames for brightness to fall (default: 7)
+  restFrames?: number       // Frames to rest at minimum (default: 16)
+  pulseCount?: number       // Number of pulses before rest (default: 2)
+  minAlpha?: number         // Darkest alpha (default: 0)
+  maxAlpha?: number         // Brightest alpha (default: 1.0)
+  spreadDelay?: number      // Frame delay per distance from center (default: 2)
+}
+
+/**
+ * Quadratic ease-in-out function for smooth animations
+ * @param t Progress value from 0 to 1
+ * @returns Eased value from 0 to 1
+ */
+function easeInOutQuad(t: number): number {
+  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
+}
+
+/**
+ * Calculates alpha value for a center-outward pulsing animation
+ * @param frame Current frame number (adjusted for character delay)
+ * @param singlePulse Total frames in one pulse (rise + fall)
+ * @param pulseCount Number of pulses before rest period
+ * @param restFrames Number of frames to rest at minimum brightness
+ * @param minAlpha Minimum alpha value
+ * @param maxAlpha Maximum alpha value
+ * @param riseFrames Number of frames for brightness to rise
+ * @param fallFrames Number of frames for brightness to fall
+ * @returns Alpha value for the current frame
+ */
+function calculateCenterPulseAlpha(
+  frame: number,
+  singlePulse: number,
+  pulseCount: number,
+  restFrames: number,
+  minAlpha: number,
+  maxAlpha: number,
+  riseFrames: number,
+  fallFrames: number,
+): number {
+  // If frame is negative (delayed character hasn't started yet), stay at min
+  if (frame < 0) return minAlpha
+  
+  const pulsesEnd = singlePulse * pulseCount
+  
+  // During rest period
+  if (frame >= pulsesEnd) return minAlpha
+  
+  // Determine which pulse we're in and position within that pulse
+  const pulseIndex = Math.floor(frame / singlePulse)
+  const frameInPulse = frame % singlePulse
+  
+  if (pulseIndex >= pulseCount) return minAlpha
+  
+  // Rising phase
+  if (frameInPulse < riseFrames) {
+    const progress = frameInPulse / riseFrames
+    return minAlpha + (maxAlpha - minAlpha) * easeInOutQuad(progress)
+  }
+  
+  // Falling phase
+  const fallProgress = (frameInPulse - riseFrames) / fallFrames
+  return maxAlpha - (maxAlpha - minAlpha) * easeInOutQuad(fallProgress)
+}
+
+/**
+ * Creates frame strings for a pulsing animation where brightness spreads from center outward
+ * Used for permission-awaiting state
+ * @param options Configuration options for the pulse effect
+ * @returns Array of frame strings (all identical since color generator handles animation)
+ */
+export function createPulseFrames(options: PulseOptions = {}): string[] {
+  const width = options.width ?? 8
+  const style = options.style ?? "blocks"
+  const riseFrames = options.riseFrames ?? 7
+  const fallFrames = options.fallFrames ?? 7
+  const restFrames = options.restFrames ?? 16
+  const pulseCount = options.pulseCount ?? 2
+
+  const singlePulse = riseFrames + fallFrames
+  const totalFrames = (singlePulse * pulseCount) + restFrames
+
+  const char = style === "diamonds" ? "◆" : "■"
+  const frameStr = char.repeat(width)
+
+  return Array(totalFrames).fill(frameStr)
+}
+
+/**
+ * Creates a color generator for pulsing animation with center-outward spread effect
+ * Pattern: pulse up/down (twice), then rest, with brightness spreading from center to edges
+ * @param options Configuration options for the pulse effect
+ * @returns ColorGenerator function that calculates colors based on frame and character position
+ */
+export function createPulseColors(options: PulseOptions = {}): ColorGenerator {
+  const width = options.width ?? 8
+  const riseFrames = options.riseFrames ?? 7
+  const fallFrames = options.fallFrames ?? 7
+  const restFrames = options.restFrames ?? 16
+  const pulseCount = options.pulseCount ?? 2
+  const minAlpha = options.minAlpha ?? 0
+  const maxAlpha = options.maxAlpha ?? 1.0
+  const spreadDelay = options.spreadDelay ?? 2
+
+  const singlePulse = riseFrames + fallFrames
+  const totalFrames = (singlePulse * pulseCount) + restFrames
+
+  const baseColor = options.color
+    ? (options.color instanceof RGBA ? options.color : RGBA.fromHex(options.color as string))
+    : RGBA.fromHex("#ffffff")
+
+  return (frameIndex: number, charIndex: number, _totalFrames: number, totalChars: number) => {
+    const frame = frameIndex % totalFrames
+    
+    // Calculate distance from center (0 for center chars, increases toward edges)
+    const center = (totalChars - 1) / 2
+    const distanceFromCenter = Math.abs(charIndex - center)
+    
+    // Each position's animation is delayed based on distance from center
+    const delay = Math.floor(distanceFromCenter) * spreadDelay
+    const adjustedFrame = frame - delay
+    
+    const alpha = calculateCenterPulseAlpha(
+      adjustedFrame, 
+      singlePulse, 
+      pulseCount, 
+      restFrames, 
+      minAlpha, 
+      maxAlpha, 
+      riseFrames, 
+      fallFrames
+    )
+    
+    return RGBA.fromValues(baseColor.r, baseColor.g, baseColor.b, alpha)
+  }
+}

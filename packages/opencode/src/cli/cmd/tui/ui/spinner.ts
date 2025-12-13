@@ -319,9 +319,11 @@ export function createFrames(options: KnightRiderOptions = {}): string[] {
       }
 
       // Default to blocks
-      // It's active if we have a valid color index that is within our colors array
-      const isActive = index >= 0 && index < trailOptions.colors.length
-      return isActive ? "■" : "⬝"
+      const blocks = ["■", "▪", "∙", "·"]
+      if (index >= 0 && index < trailOptions.colors.length) {
+        return blocks[Math.min(index, blocks.length - 1)]
+      }
+      return "·"
     }).join("")
   })
 
@@ -534,14 +536,49 @@ export function createPulseFrames(options: PulseOptions = {}): string[] {
   const gapFrames = options.gapFrames ?? 3
   const restFrames = options.restFrames ?? 10
   const pulseCount = options.pulseCount ?? 2
+  const minAlpha = options.minAlpha ?? 0
+  const maxAlpha = options.maxAlpha ?? 1.0
 
   const singlePulse = riseFrames + fallFrames
   const totalFrames = (singlePulse * pulseCount) + (gapFrames * (pulseCount - 1)) + restFrames
 
-  const char = style === "diamonds" ? "◆" : "■"
-  const frameStr = char.repeat(width)
+  // Generate dynamic frames with different characters based on brightness
+  const frames = Array.from({ length: totalFrames }, (_, frameIndex) => {
+    return Array.from({ length: width }, (_, charIndex) => {
+      const center = (width - 1) / 2
+      const distance = Math.abs(charIndex - center)
+      
+      // Calculate alpha for this position at this frame
+      const alpha = calculateSimpleBreathingAlpha(
+        frameIndex,
+        distance,
+        singlePulse,
+        pulseCount,
+        restFrames,
+        minAlpha,
+        maxAlpha,
+        riseFrames,
+        fallFrames,
+        width,
+        gapFrames
+      )
+      
+      // Choose character based on alpha/brightness level
+      if (style === "diamonds") {
+        if (alpha > 0.7) return "◆"        // Brightest
+        if (alpha > 0.4) return "⬥"        // Medium-bright
+        if (alpha > 0.1) return "⬩"        // Dim
+        return "·"                          // Very dim/inactive
+      }
+      
+      // Blocks style
+      if (alpha > 0.3) return "■"          // Solid block for brighter
+      if (alpha > 0.05) return "⬝"         // Hollow block for dimmer
+      return "⬝"                            // Hollow block for very dim
+    }).join("")
+  })
 
-  return Array(totalFrames).fill(frameStr)
+  return frames
 }
 
 /**

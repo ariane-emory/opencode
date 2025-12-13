@@ -476,21 +476,32 @@ function calculateBreathingPulseAlpha(
   
   if (pulseIndex >= pulseCount) return minAlpha
   
-  // For breathing effect: outer positions should finish earlier
-  // The fall phase needs to be shortened for outer positions
-  const adjustedFallFrames = fallFrames - (distance * spreadDelay)
+  // For breathing effect:
+  // - Outer positions start falling EARLIER (while center is still rising/at peak)
+  // - This creates the contraction effect
+  // - Center has longest "hold at peak" time
   
-  // If we're past this position's effective pulse duration, fade out
-  if (frameInPulse >= riseFrames + adjustedFallFrames) return minAlpha
+  // Calculate when this position should start falling
+  // Outer positions start falling earlier
+  const fallStartDelay = distance * spreadDelay
+  const effectiveFallStart = riseFrames - fallStartDelay
   
-  // Rising phase
+  // Rising phase - same for all positions (but delayed start via frame adjustment)
   if (frameInPulse < riseFrames) {
+    // Check if we should already be falling (for outer positions)
+    if (frameInPulse >= effectiveFallStart && effectiveFallStart > 0) {
+      // Start falling early
+      const fallProgress = (frameInPulse - effectiveFallStart) / (riseFrames - effectiveFallStart + fallFrames)
+      return maxAlpha - (maxAlpha - minAlpha) * easeInOutQuad(fallProgress)
+    }
+    // Still rising
     const progress = frameInPulse / riseFrames
     return minAlpha + (maxAlpha - minAlpha) * easeInOutQuad(progress)
   }
   
-  // Falling phase (contract back to center)
-  const fallProgress = (frameInPulse - riseFrames) / adjustedFallFrames
+  // Falling phase
+  const timeSinceRise = frameInPulse - riseFrames
+  const fallProgress = timeSinceRise / fallFrames
   if (fallProgress > 1) return minAlpha
   return maxAlpha - (maxAlpha - minAlpha) * easeInOutQuad(fallProgress)
 }

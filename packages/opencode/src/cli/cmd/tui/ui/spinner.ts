@@ -570,16 +570,17 @@ export function createPulseFrames(options: PulseOptions = {}): string[] {
         if (alpha > 0.7) return "◆"        // Brightest
         if (alpha > 0.4) return "⬥"        // Medium-bright
         if (alpha > 0.1) return "⬩"        // Dim
-        return "·"                          // Very dim/inactive
+        if (alpha > minAlpha) return "·"   // Edge of pulse
+        return "⬝"                          // Outside pulse/inactive
       }
       
       // Blocks style - use progressive block shading
-      // Alpha values range: 0, 0.32, 0.43, 0.63, 0.79, 0.87, 0.91, 0.96, 0.98, 0.99
       if (alpha > 0.9) return "█"           // Full block - brightest
       if (alpha > 0.6) return "▓"           // Dark shade
       if (alpha > 0.35) return "▒"          // Medium shade  
       if (alpha > 0.1) return "░"           // Light shade
-      return "·"                             // Dot for inactive/rest
+      if (alpha > minAlpha) return "·"      // Edge of pulse (dot)
+      return "⬝"                             // Outside pulse/inactive (empty square)
     }).join("")
   })
 

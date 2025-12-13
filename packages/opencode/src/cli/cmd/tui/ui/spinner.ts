@@ -371,9 +371,9 @@ export interface PulseOptions {
   width?: number            // Number of characters (default: 8)
   style?: KnightRiderStyle  // "blocks" or "diamonds" (default: "blocks")
   color?: ColorInput        // Base color to pulse
-  riseFrames?: number       // Frames for brightness to rise (default: 7)
-  fallFrames?: number       // Frames for brightness to fall (default: 7)
-  restFrames?: number       // Frames to rest at minimum (default: 16)
+  riseFrames?: number       // Frames for brightness to rise (default: 5)
+  fallFrames?: number       // Frames for brightness to fall (default: 5)
+  restFrames?: number       // Frames to rest at minimum (default: 10)
   pulseCount?: number       // Number of pulses before rest (default: 2)
   minAlpha?: number         // Darkest alpha (default: 0)
   maxAlpha?: number         // Brightest alpha (default: 1.0)
@@ -437,6 +437,65 @@ function calculateCenterPulseAlpha(
 }
 
 /**
+ * Calculates alpha value for a breathing pulse animation that expands from and contracts to center
+ * @param frame Current frame number (adjusted for character delay)
+ * @param distance Distance of this character from center
+ * @param singlePulse Total frames in one pulse (rise + fall)
+ * @param pulseCount Number of pulses before rest period
+ * @param restFrames Number of frames to rest at minimum brightness
+ * @param minAlpha Minimum alpha value
+ * @param maxAlpha Maximum alpha value
+ * @param riseFrames Number of frames for brightness to rise
+ * @param fallFrames Number of frames for brightness to fall
+ * @param spreadDelay Frame delay per distance unit
+ * @returns Alpha value for the current frame
+ */
+function calculateBreathingPulseAlpha(
+  frame: number,
+  distance: number,
+  singlePulse: number,
+  pulseCount: number,
+  restFrames: number,
+  minAlpha: number,
+  maxAlpha: number,
+  riseFrames: number,
+  fallFrames: number,
+  spreadDelay: number,
+): number {
+  // If frame is negative (delayed character hasn't started yet), stay at min
+  if (frame < 0) return minAlpha
+  
+  const pulsesEnd = singlePulse * pulseCount
+  
+  // During rest period
+  if (frame >= pulsesEnd) return minAlpha
+  
+  // Determine which pulse we're in and position within that pulse
+  const pulseIndex = Math.floor(frame / singlePulse)
+  const frameInPulse = frame % singlePulse
+  
+  if (pulseIndex >= pulseCount) return minAlpha
+  
+  // For breathing effect: outer positions should finish earlier
+  // The fall phase needs to be shortened for outer positions
+  const adjustedFallFrames = fallFrames - (distance * spreadDelay)
+  
+  // If we're past this position's effective pulse duration, fade out
+  if (frameInPulse >= riseFrames + adjustedFallFrames) return minAlpha
+  
+  // Rising phase
+  if (frameInPulse < riseFrames) {
+    const progress = frameInPulse / riseFrames
+    return minAlpha + (maxAlpha - minAlpha) * easeInOutQuad(progress)
+  }
+  
+  // Falling phase (contract back to center)
+  const fallProgress = (frameInPulse - riseFrames) / adjustedFallFrames
+  if (fallProgress > 1) return minAlpha
+  return maxAlpha - (maxAlpha - minAlpha) * easeInOutQuad(fallProgress)
+}
+
+/**
  * Creates frame strings for a pulsing animation where brightness spreads from center outward
  * Used for permission-awaiting state
  * @param options Configuration options for the pulse effect
@@ -445,9 +504,9 @@ function calculateCenterPulseAlpha(
 export function createPulseFrames(options: PulseOptions = {}): string[] {
   const width = options.width ?? 8
   const style = options.style ?? "blocks"
-  const riseFrames = options.riseFrames ?? 7
-  const fallFrames = options.fallFrames ?? 7
-  const restFrames = options.restFrames ?? 16
+  const riseFrames = options.riseFrames ?? 5
+  const fallFrames = options.fallFrames ?? 5
+  const restFrames = options.restFrames ?? 10
   const pulseCount = options.pulseCount ?? 2
 
   const singlePulse = riseFrames + fallFrames
@@ -467,9 +526,9 @@ export function createPulseFrames(options: PulseOptions = {}): string[] {
  */
 export function createPulseColors(options: PulseOptions = {}): ColorGenerator {
   const width = options.width ?? 8
-  const riseFrames = options.riseFrames ?? 7
-  const fallFrames = options.fallFrames ?? 7
-  const restFrames = options.restFrames ?? 16
+  const riseFrames = options.riseFrames ?? 5
+  const fallFrames = options.fallFrames ?? 5
+  const restFrames = options.restFrames ?? 10
   const pulseCount = options.pulseCount ?? 2
   const minAlpha = options.minAlpha ?? 0
   const maxAlpha = options.maxAlpha ?? 1.0
@@ -489,19 +548,23 @@ export function createPulseColors(options: PulseOptions = {}): ColorGenerator {
     const center = (totalChars - 1) / 2
     const distanceFromCenter = Math.abs(charIndex - center)
     
-    // Each position's animation is delayed based on distance from center
+    // Each position's animation is delayed for start AND end based on distance from center
+    // This creates expand-from-center then contract-to-center effect
     const delay = Math.floor(distanceFromCenter) * spreadDelay
     const adjustedFrame = frame - delay
     
-    const alpha = calculateCenterPulseAlpha(
-      adjustedFrame, 
+    // For the breathing effect, we need to calculate which phase we're in
+    const alpha = calculateBreathingPulseAlpha(
+      adjustedFrame,
+      distanceFromCenter,
       singlePulse, 
       pulseCount, 
       restFrames, 
       minAlpha, 
       maxAlpha, 
       riseFrames, 
-      fallFrames
+      fallFrames,
+      spreadDelay
     )
     
     return RGBA.fromValues(baseColor.r, baseColor.g, baseColor.b, alpha)

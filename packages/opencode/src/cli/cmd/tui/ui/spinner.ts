@@ -319,14 +319,15 @@ export function createFrames(options: KnightRiderOptions = {}): string[] {
       }
 
       // Default to blocks - index 0 is brightest, higher indices are dimmer
-      const blocks = ["■", "▪", "∙", "·"]
+      // Use visually distinct block shading characters
+      const blocks = ["█", "▓", "▒", "░"]
       if (index >= 0 && index < trailOptions.colors.length) {
         // Map color index to block character (0=brightest=largest block)
         // Scale the index to fit within our 4 block characters
         const scaledIndex = Math.floor((index / trailOptions.colors.length) * blocks.length)
         return blocks[Math.min(scaledIndex, blocks.length - 1)]
       }
-      return "·"
+      return "░"
     }).join("")
   })
 

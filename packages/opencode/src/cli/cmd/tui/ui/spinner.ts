@@ -512,7 +512,7 @@ function calculateSimpleBreathingAlpha(
   // Inside the wave - brightness should be highest at center and fade toward edge
   // This creates the effect where center is always brightest
   const brightnessAtCenter = 1.0
-  const brightnessAtEdge = 0.4
+  const brightnessAtEdge = 0.05
   
   // Calculate brightness based on how close we are to center (distance 0)
   // distance=0 (center) should give brightnessAtCenter

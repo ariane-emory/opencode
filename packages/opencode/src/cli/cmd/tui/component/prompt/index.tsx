@@ -649,6 +649,8 @@ export function Prompt(props: PromptProps) {
       frames: createFrames({
         color,
         style: "blocks",
+        width: 8,
+        trailSteps: 4,
         inactiveFactor: 0.6,
         // enableFading: false,
         minAlpha: 0.3,
@@ -656,6 +658,7 @@ export function Prompt(props: PromptProps) {
       color: createColors({
         color,
         style: "blocks",
+        trailSteps: 4,
         inactiveFactor: 0.6,
         // enableFading: false,
         minAlpha: 0.3,

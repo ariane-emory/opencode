@@ -437,20 +437,22 @@ function calculateCenterPulseAlpha(
 }
 
 /**
- * Calculates alpha value for a breathing pulse animation that expands from and contracts to center
- * @param frame Current frame number (adjusted for character delay)
- * @param distance Distance of this character from center
- * @param singlePulse Total frames in one pulse (rise + fall)
- * @param pulseCount Number of pulses before rest period
- * @param restFrames Number of frames to rest at minimum brightness
+ * Calculates alpha for a breathing animation where a wave expands from center then contracts back
+ * Think of it as a circular wave: the "radius" grows and shrinks, and each position's brightness
+ * depends on how close the wave radius is to that position's distance from center
+ * @param frame Current frame in the animation cycle
+ * @param distance This character's distance from center
+ * @param singlePulse Total frames in one pulse
+ * @param pulseCount Number of pulses before rest
+ * @param restFrames Frames to rest at minimum
  * @param minAlpha Minimum alpha value
- * @param maxAlpha Maximum alpha value
- * @param riseFrames Number of frames for brightness to rise
- * @param fallFrames Number of frames for brightness to fall
- * @param spreadDelay Frame delay per distance unit
- * @returns Alpha value for the current frame
+ * @param maxAlpha Maximum alpha value  
+ * @param riseFrames Frames for wave to expand outward
+ * @param fallFrames Frames for wave to contract inward
+ * @param totalChars Total number of characters
+ * @returns Alpha value for this character at this frame
  */
-function calculateBreathingPulseAlpha(
+function calculateSimpleBreathingAlpha(
   frame: number,
   distance: number,
   singlePulse: number,
@@ -460,50 +462,42 @@ function calculateBreathingPulseAlpha(
   maxAlpha: number,
   riseFrames: number,
   fallFrames: number,
-  spreadDelay: number,
+  totalChars: number,
 ): number {
-  // If frame is negative (delayed character hasn't started yet), stay at min
-  if (frame < 0) return minAlpha
-  
   const pulsesEnd = singlePulse * pulseCount
   
-  // During rest period
+  // During rest period, everything is dark
   if (frame >= pulsesEnd) return minAlpha
   
-  // Determine which pulse we're in and position within that pulse
+  // Determine which pulse we're in
   const pulseIndex = Math.floor(frame / singlePulse)
-  const frameInPulse = frame % singlePulse
-  
   if (pulseIndex >= pulseCount) return minAlpha
   
-  // For breathing effect:
-  // - Outer positions start falling EARLIER (while center is still rising/at peak)
-  // - This creates the contraction effect
-  // - Center has longest "hold at peak" time
+  const frameInPulse = frame % singlePulse
   
-  // Calculate when this position should start falling
-  // Outer positions start falling earlier
-  const fallStartDelay = distance * spreadDelay
-  const effectiveFallStart = riseFrames - fallStartDelay
+  // Calculate the "wave radius" - how far from center the wave has spread
+  const maxDistance = (totalChars - 1) / 2
+  let waveRadius: number
   
-  // Rising phase - same for all positions (but delayed start via frame adjustment)
   if (frameInPulse < riseFrames) {
-    // Check if we should already be falling (for outer positions)
-    if (frameInPulse >= effectiveFallStart && effectiveFallStart > 0) {
-      // Start falling early
-      const fallProgress = (frameInPulse - effectiveFallStart) / (riseFrames - effectiveFallStart + fallFrames)
-      return maxAlpha - (maxAlpha - minAlpha) * easeInOutQuad(fallProgress)
-    }
-    // Still rising
-    const progress = frameInPulse / riseFrames
-    return minAlpha + (maxAlpha - minAlpha) * easeInOutQuad(progress)
+    // Expanding phase: wave grows from 0 to maxDistance
+    waveRadius = (frameInPulse / riseFrames) * maxDistance
+  } else {
+    // Contracting phase: wave shrinks from maxDistance back to 0
+    const fallFrame = frameInPulse - riseFrames
+    waveRadius = maxDistance - (fallFrame / fallFrames) * maxDistance
   }
   
-  // Falling phase
-  const timeSinceRise = frameInPulse - riseFrames
-  const fallProgress = timeSinceRise / fallFrames
-  if (fallProgress > 1) return minAlpha
-  return maxAlpha - (maxAlpha - minAlpha) * easeInOutQuad(fallProgress)
+  // Calculate how close this position is to the wave radius
+  // Closer = brighter, further = dimmer
+  const distanceFromWave = Math.abs(distance - waveRadius)
+  const fadeWidth = 1.5 // How gradually brightness falls off from wave center
+  
+  // Calculate brightness based on distance from wave
+  const brightness = Math.max(0, 1 - (distanceFromWave / fadeWidth))
+  const easedBrightness = easeInOutQuad(brightness)
+  
+  return minAlpha + (maxAlpha - minAlpha) * easedBrightness
 }
 
 /**
@@ -559,14 +553,10 @@ export function createPulseColors(options: PulseOptions = {}): ColorGenerator {
     const center = (totalChars - 1) / 2
     const distanceFromCenter = Math.abs(charIndex - center)
     
-    // Each position's animation is delayed for start AND end based on distance from center
-    // This creates expand-from-center then contract-to-center effect
-    const delay = Math.floor(distanceFromCenter) * spreadDelay
-    const adjustedFrame = frame - delay
-    
-    // For the breathing effect, we need to calculate which phase we're in
-    const alpha = calculateBreathingPulseAlpha(
-      adjustedFrame,
+    // For breathing effect: calculate the "wave radius" at this frame
+    // The wave expands and then contracts
+    const alpha = calculateSimpleBreathingAlpha(
+      frame,
       distanceFromCenter,
       singlePulse, 
       pulseCount, 
@@ -575,7 +565,7 @@ export function createPulseColors(options: PulseOptions = {}): ColorGenerator {
       maxAlpha, 
       riseFrames, 
       fallFrames,
-      spreadDelay
+      totalChars
     )
     
     return RGBA.fromValues(baseColor.r, baseColor.g, baseColor.b, alpha)

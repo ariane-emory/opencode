@@ -321,7 +321,9 @@ export function createFrames(options: KnightRiderOptions = {}): string[] {
       // Default to blocks
       const blocks = ["■", "▪", "∙", "·"]
       if (index >= 0 && index < trailOptions.colors.length) {
-        return blocks[Math.min(index, blocks.length - 1)]
+        // Reverse the index so 0 (brightest) gets largest block
+        const blockIndex = trailOptions.colors.length - 1 - index
+        return blocks[Math.min(blockIndex, blocks.length - 1)]
       }
       return "·"
     }).join("")

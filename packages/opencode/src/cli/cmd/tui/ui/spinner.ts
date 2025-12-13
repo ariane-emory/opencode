@@ -574,11 +574,12 @@ export function createPulseFrames(options: PulseOptions = {}): string[] {
       }
       
       // Blocks style - use progressive block shading
-      if (alpha > 0.7) return "█"          // Full block - brightest
-      if (alpha > 0.4) return "▓"          // Dark shade
-      if (alpha > 0.15) return "▒"         // Medium shade  
-      if (alpha > 0.05) return "░"         // Light shade
-      return "·"                            // Dot for very dim/inactive
+      // Alpha values range: 0, 0.32, 0.43, 0.63, 0.79, 0.87, 0.91, 0.96, 0.98, 0.99
+      if (alpha > 0.9) return "█"           // Full block - brightest
+      if (alpha > 0.6) return "▓"           // Dark shade
+      if (alpha > 0.35) return "▒"          // Medium shade  
+      if (alpha > 0.1) return "░"           // Light shade
+      return "·"                             // Dot for inactive/rest
     }).join("")
   })
 

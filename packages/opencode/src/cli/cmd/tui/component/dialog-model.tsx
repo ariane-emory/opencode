@@ -34,12 +34,13 @@ export function DialogModel(props: { providerID?: string }) {
     const favorites = showExtra() ? local.model.favorite() : []
     const recents = local.model.recent()
 
+    const limit = (sync.data.config.tui as any)?.recent_models_count ?? 5
     const recentList = showExtra()
       ? recents
           .filter(
             (item) => !favorites.some((fav) => fav.providerID === item.providerID && fav.modelID === item.modelID),
           )
-          .slice(0, 5)
+          .slice(0, limit)
       : []
 
     const favoriteOptions = !query

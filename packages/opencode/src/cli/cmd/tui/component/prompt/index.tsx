@@ -671,7 +671,6 @@ export function Prompt(props: PromptProps) {
     const sessionID = props.sessionID
     if (!sessionID) return false
     const count = sync.data.permission[sessionID]?.length ?? 0
-    console.log("[SPINNER] Session:", sessionID, "Permissions:", count, "Data:", sync.data.permission)
     return count > 0
   })
 
@@ -692,9 +691,7 @@ export function Prompt(props: PromptProps) {
 
   // Select active spinner based on permission state
   const activeSpinner = createMemo(() => {
-    const hasPerm = hasPermission()
-    console.log("[SPINNER] Using mode:", hasPerm ? "PULSE" : "KNIGHT_RIDER")
-    return hasPerm ? pulseSpinnerDef() : spinnerDef()
+    return hasPermission() ? pulseSpinnerDef() : spinnerDef()
   })
 
   return (

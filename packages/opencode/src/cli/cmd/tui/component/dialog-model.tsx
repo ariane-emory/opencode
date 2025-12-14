@@ -37,9 +37,12 @@ export function DialogModel(props: { providerID?: string }) {
     const limit = (sync.data.config.tui as any)?.recent_models_count ?? 5
     const recentList = showExtra()
       ? recents
-          .filter(
-            (item) => !favorites.some((fav) => fav.providerID === item.providerID && fav.modelID === item.modelID),
-          )
+          .filter((item) => {
+            if (favorites.some((fav) => fav.providerID === item.providerID && fav.modelID === item.modelID))
+              return false
+            const provider = sync.data.provider.find((x) => x.id === item.providerID)
+            return provider && provider.models[item.modelID]
+          })
           .slice(0, limit)
       : []
 
@@ -77,35 +80,31 @@ export function DialogModel(props: { providerID?: string }) {
       : []
 
     const recentOptions = !query
-      ? recentList.flatMap((item) => {
-          const provider = sync.data.provider.find((x) => x.id === item.providerID)
-          if (!provider) return []
-          const model = provider.models[item.modelID]
-          if (!model) return []
-          return [
-            {
-              key: item,
-              value: {
-                providerID: provider.id,
-                modelID: model.id,
-              },
-              title: model.name ?? item.modelID,
-              description: provider.name,
-              category: "Recent",
-              disabled: provider.id === "opencode" && model.id.includes("-nano"),
-              footer: model.cost?.input === 0 && provider.id === "opencode" ? "Free" : undefined,
-              onSelect: () => {
-                dialog.clear()
-                local.model.set(
-                  {
-                    providerID: provider.id,
-                    modelID: model.id,
-                  },
-                  { recent: true },
-                )
-              },
+      ? recentList.map((item) => {
+          const provider = sync.data.provider.find((x) => x.id === item.providerID)!
+          const model = provider.models[item.modelID]!
+          return {
+            key: item,
+            value: {
+              providerID: provider.id,
+              modelID: model.id,
             },
-          ]
+            title: model.name ?? item.modelID,
+            description: provider.name,
+            category: "Recent",
+            disabled: provider.id === "opencode" && model.id.includes("-nano"),
+            footer: model.cost?.input === 0 && provider.id === "opencode" ? "Free" : undefined,
+            onSelect: () => {
+              dialog.clear()
+              local.model.set(
+                {
+                  providerID: provider.id,
+                  modelID: model.id,
+                },
+                { recent: true },
+              )
+            },
+          }
         })
       : []
 

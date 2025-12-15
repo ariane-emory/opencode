@@ -109,9 +109,6 @@ import type {
   SessionUnrevertData,
   SessionUnrevertResponses,
   SessionUnrevertErrors,
-  SessionContinueData,
-  SessionContinueResponses,
-  SessionContinueErrors,
   PostSessionIdPermissionsPermissionIdData,
   PostSessionIdPermissionsPermissionIdResponses,
   PostSessionIdPermissionsPermissionIdErrors,
@@ -698,16 +695,6 @@ class Session extends _HeyApiClient {
   public unrevert<ThrowOnError extends boolean = false>(options: Options<SessionUnrevertData, ThrowOnError>) {
     return (options.client ?? this._client).post<SessionUnrevertResponses, SessionUnrevertErrors, ThrowOnError>({
       url: "/session/{id}/unrevert",
-      ...options,
-    })
-  }
-
-  /**
-   * Continue interrupted conversation
-   */
-  public continue<ThrowOnError extends boolean = false>(options: Options<SessionContinueData, ThrowOnError>) {
-    return (options.client ?? this._client).post<SessionContinueResponses, SessionContinueErrors, ThrowOnError>({
-      url: "/session/{id}/continue",
       ...options,
     })
   }

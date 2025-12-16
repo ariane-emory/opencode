@@ -40,10 +40,13 @@ export function DialogForkFromTimeline(props: {
               messageID: message.id,
             })
             
-            console.log("Fork result:", JSON.stringify(result, null, 2))
-            
             if (!result.data || !result.data.id) {
-              console.error("Invalid fork result:", result)
+              toast.show({
+                title: "Fork Failed",
+                message: `Invalid API response: ${JSON.stringify(result)}`,
+                variant: "error",
+                duration: 5000,
+              })
               dialog.clear()
               return
             }
@@ -52,14 +55,14 @@ export function DialogForkFromTimeline(props: {
               sessionID: result.data.id,
               type: "session",
             })
-            toast.show({
-              message: "Session forked.",
-              variant: "info",
-              duration: 3000,
-            })
             dialog.clear()
           } catch (error) {
-            console.error("Fork failed:", error)
+            toast.show({
+              title: "Fork Failed",
+              message: error instanceof Error ? error.message : String(error),
+              variant: "error",
+              duration: 5000,
+            })
             dialog.clear()
           }
         },

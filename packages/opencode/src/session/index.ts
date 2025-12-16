@@ -145,9 +145,11 @@ export namespace Session {
     }),
     async (input) => {
       const parentSession = await get(input.sessionID)
+      const config = await Config.get()
+      const agentValue = parentSession.agent ?? (typeof config.agent === "string" ? config.agent : "default")
       const session = await createNext({
         directory: Instance.directory,
-        agent: parentSession.agent,
+        agent: agentValue,
       })
       const msgs = await messages({ sessionID: input.sessionID })
       for (const msg of msgs) {

@@ -33,15 +33,30 @@ export function DialogForkFromTimeline(props: {
         footer: Locale.time(message.time.created),
         onSelect: async (dialog) => {
           // Directly fork the session at this message
-          const result = await sdk.client.session.fork({
-            sessionID: props.sessionID,
-            messageID: message.id,
-          })
-          route.navigate({
-            sessionID: result.data!.id,
-            type: "session",
-          })
-          dialog.clear()
+          try {
+            const result = await sdk.client.session.fork({
+              sessionID: props.sessionID,
+              messageID: message.id,
+            })
+            
+            // Debug logging to understand the response structure
+            console.log("Fork result:", JSON.stringify(result, null, 2))
+            
+            if (!result.data || !result.data.id) {
+              console.error("Invalid fork result:", result)
+              dialog.clear()
+              return
+            }
+            
+            route.navigate({
+              sessionID: result.data.id,
+              type: "session",
+            })
+            dialog.clear()
+          } catch (error) {
+            console.error("Fork failed:", error)
+            dialog.clear()
+          }
         },
       })
     }

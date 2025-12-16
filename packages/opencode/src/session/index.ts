@@ -156,6 +156,7 @@ export namespace Session {
         if (input.messageID && msg.info.id >= input.messageID) break
         const cloned = await updateMessage({
           ...msg.info,
+          agent: msg.info.agent ?? agentValue,
           sessionID: session.id,
           id: Identifier.ascending("message"),
         })

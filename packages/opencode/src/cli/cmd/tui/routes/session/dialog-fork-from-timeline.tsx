@@ -6,6 +6,7 @@ import { Locale } from "@/util/locale"
 import { useSDK } from "@tui/context/sdk"
 import { useRoute } from "@tui/context/route"
 import { useDialog } from "../../ui/dialog"
+import { useToast } from "../../ui/toast"
 
 export function DialogForkFromTimeline(props: {
   sessionID: string
@@ -15,6 +16,7 @@ export function DialogForkFromTimeline(props: {
   const dialog = useDialog()
   const sdk = useSDK()
   const route = useRoute()
+  const toast = useToast()
 
   onMount(() => {
     dialog.setSize("large")
@@ -51,6 +53,11 @@ export function DialogForkFromTimeline(props: {
             route.navigate({
               sessionID: result.data.id,
               type: "session",
+            })
+            toast.show({
+              message: "Session forked.",
+              variant: "info",
+              duration: 3000,
             })
             dialog.clear()
           } catch (error) {

@@ -34,14 +34,12 @@ export function DialogForkFromTimeline(props: {
         value: message.id,
         footer: Locale.time(message.time.created),
         onSelect: async (dialog) => {
-          // Directly fork the session at this message
           try {
             const result = await sdk.client.session.fork({
               sessionID: props.sessionID,
               messageID: message.id,
             })
             
-            // Debug logging to understand the response structure
             console.log("Fork result:", JSON.stringify(result, null, 2))
             
             if (!result.data || !result.data.id) {

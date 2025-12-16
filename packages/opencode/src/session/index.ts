@@ -40,6 +40,7 @@ export namespace Session {
       id: Identifier.schema("session"),
       projectID: z.string(),
       directory: z.string(),
+      agent: z.string(),
       parentID: Identifier.schema("session").optional(),
       summary: z
         .object({
@@ -143,8 +144,10 @@ export namespace Session {
       messageID: Identifier.schema("message").optional(),
     }),
     async (input) => {
+      const parentSession = await get(input.sessionID)
       const session = await createNext({
         directory: Instance.directory,
+        agent: parentSession.agent,
       })
       const msgs = await messages({ sessionID: input.sessionID })
       for (const msg of msgs) {
@@ -174,12 +177,14 @@ export namespace Session {
     })
   })
 
-  export async function createNext(input: { id?: string; title?: string; parentID?: string; directory: string }) {
+  export async function createNext(input: { id?: string; title?: string; parentID?: string; directory: string; agent?: string }) {
+    const config = await Config.get()
     const result: Info = {
       id: Identifier.descending("session", input.id),
       version: Installation.VERSION,
       projectID: Instance.project.id,
       directory: input.directory,
+      agent: input.agent ?? (typeof config.agent === "string" ? config.agent : "default"),
       parentID: input.parentID,
       title: input.title ?? createDefaultTitle(!!input.parentID),
       time: {

@@ -40,7 +40,7 @@ export namespace Session {
       id: Identifier.schema("session"),
       projectID: z.string(),
       directory: z.string(),
-      agent: z.string(),
+      agent: z.string().optional(),
       parentID: Identifier.schema("session").optional(),
       summary: z
         .object({

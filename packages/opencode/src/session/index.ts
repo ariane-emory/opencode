@@ -40,7 +40,6 @@ export namespace Session {
       id: Identifier.schema("session"),
       projectID: z.string(),
       directory: z.string(),
-      agent: z.string().optional(),
       parentID: Identifier.schema("session").optional(),
       summary: z
         .object({
@@ -146,10 +145,11 @@ export namespace Session {
     async (input) => {
       const parentSession = await get(input.sessionID)
       const config = await Config.get()
-      const agentValue = parentSession.agent ?? (typeof config.agent === "string" ? config.agent : "default")
+      // Handle legacy sessions that may have agent field even though it's not in the schema
+      const parentAgent = (parentSession as any).agent as string | undefined
+      const agentValue = parentAgent ?? (typeof config.agent === "string" ? config.agent : "default")
       const session = await createNext({
         directory: Instance.directory,
-        agent: agentValue,
       })
       const msgs = await messages({ sessionID: input.sessionID })
       for (const msg of msgs) {
@@ -180,14 +180,12 @@ export namespace Session {
     })
   })
 
-  export async function createNext(input: { id?: string; title?: string; parentID?: string; directory: string; agent?: string }) {
-    const config = await Config.get()
+  export async function createNext(input: { id?: string; title?: string; parentID?: string; directory: string }) {
     const result: Info = {
       id: Identifier.descending("session", input.id),
       version: Installation.VERSION,
       projectID: Instance.project.id,
       directory: input.directory,
-      agent: input.agent ?? (typeof config.agent === "string" ? config.agent : "default"),
       parentID: input.parentID,
       title: input.title ?? createDefaultTitle(!!input.parentID),
       time: {

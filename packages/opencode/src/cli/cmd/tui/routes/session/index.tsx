@@ -1203,6 +1203,7 @@ function ReasoningPart(props: { last: boolean; part: ReasoningPart; message: Ass
 function TextPart(props: { last: boolean; part: TextPart; message: AssistantMessage }) {
   const ctx = use()
   const { theme, syntax } = useTheme()
+  const [hover, setHover] = createSignal(false)
   return (
     <Show when={props.part.text.trim()}>
       <box
@@ -1210,6 +1211,9 @@ function TextPart(props: { last: boolean; part: TextPart; message: AssistantMess
         paddingLeft={3}
         marginTop={1}
         flexShrink={0}
+        backgroundColor={hover() ? theme.backgroundElement : theme.background}
+        onMouseOver={() => setHover(true)}
+        onMouseOut={() => setHover(false)}
         onMouseUp={() => ctx.copyToClipboard(props.part.text.trim())}
       >
         <code
@@ -1234,6 +1238,7 @@ function ToolPart(props: { last: boolean; part: ToolPart; message: AssistantMess
   const { showDetails } = ctx
   const sync = useSync()
   const [margin, setMargin] = createSignal(0)
+  const [hover, setHover] = createSignal(false)
 
   function getToolOutput(): string | undefined {
     if (props.part.state.status === "completed") {
@@ -1272,18 +1277,21 @@ function ToolPart(props: { last: boolean; part: ToolPart; message: AssistantMess
             paddingLeft: 2,
             marginTop: 1,
             gap: 1,
-            backgroundColor: theme.backgroundPanel,
+            backgroundColor: hover() ? theme.backgroundElement : theme.backgroundPanel,
             customBorderChars: SplitBorder.customBorderChars,
             borderColor: permissionIndex === 0 ? theme.warning : theme.background,
           }
         : {
             paddingLeft: 3,
+            backgroundColor: hover() ? theme.backgroundElement : theme.background,
           }
 
     return (
       <box
         marginTop={margin()}
         {...style}
+        onMouseOver={() => setHover(true)}
+        onMouseOut={() => setHover(false)}
         onMouseUp={() => {
           const output = getToolOutput()
           if (output) ctx.copyToClipboard(output)

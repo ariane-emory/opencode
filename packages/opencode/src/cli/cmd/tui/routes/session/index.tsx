@@ -87,6 +87,7 @@ const context = createContext<{
   showDetails: () => boolean
   diffWrapMode: () => "word" | "none"
   sync: ReturnType<typeof useSync>
+  copyToClipboard: (text: string) => Promise<boolean>
 }>()
 
 function use() {
@@ -817,6 +818,16 @@ export function Session() {
   // snap to bottom when session changes
   createEffect(on(() => route.sessionID, toBottom))
 
+  async function copyToClipboard(text: string): Promise<boolean> {
+    if (renderer.getSelection()?.getSelectedText()) return false
+    await Clipboard.copy(text)
+    toast.show({
+      message: "Copied to clipboard",
+      variant: "success",
+    })
+    return true
+  }
+
   return (
     <context.Provider
       value={{
@@ -830,6 +841,7 @@ export function Session() {
         showDetails,
         diffWrapMode,
         sync,
+        copyToClipboard,
       }}
     >
       <box flexDirection="row">
@@ -1193,7 +1205,13 @@ function TextPart(props: { last: boolean; part: TextPart; message: AssistantMess
   const { theme, syntax } = useTheme()
   return (
     <Show when={props.part.text.trim()}>
-      <box id={"text-" + props.part.id} paddingLeft={3} marginTop={1} flexShrink={0}>
+      <box
+        id={"text-" + props.part.id}
+        paddingLeft={3}
+        marginTop={1}
+        flexShrink={0}
+        onMouseUp={() => ctx.copyToClipboard(props.part.text.trim())}
+      >
         <code
           filetype="markdown"
           drawUnstyledText={false}
@@ -1212,9 +1230,18 @@ function TextPart(props: { last: boolean; part: TextPart; message: AssistantMess
 
 function ToolPart(props: { last: boolean; part: ToolPart; message: AssistantMessage }) {
   const { theme } = useTheme()
-  const { showDetails } = use()
+  const ctx = use()
+  const { showDetails } = ctx
   const sync = useSync()
   const [margin, setMargin] = createSignal(0)
+
+  function getToolOutput(): string | undefined {
+    if (props.part.state.status === "completed") {
+      return props.part.state.output
+    }
+    return undefined
+  }
+
   const component = createMemo(() => {
     // Hide tool if showDetails is false and tool completed successfully
     // But always show if there's an error or permission is required
@@ -1257,6 +1284,10 @@ function ToolPart(props: { last: boolean; part: ToolPart; message: AssistantMess
       <box
         marginTop={margin()}
         {...style}
+        onMouseUp={() => {
+          const output = getToolOutput()
+          if (output) ctx.copyToClipboard(output)
+        }}
         renderBefore={function () {
           const el = this as BoxRenderable
           const parent = el.parent

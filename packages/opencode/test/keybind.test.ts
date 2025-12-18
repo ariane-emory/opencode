@@ -419,3 +419,20 @@ describe("Keybind.parse", () => {
     ])
   })
 })
+
+describe("Config.ValidKeybindNames", () => {
+  test("should contain known keybind names", async () => {
+    const { Config } = await import("../src/config/config")
+    expect(Config.ValidKeybindNames.has("leader")).toBe(true)
+    expect(Config.ValidKeybindNames.has("app_exit")).toBe(true)
+    expect(Config.ValidKeybindNames.has("input_submit")).toBe(true)
+    expect(Config.ValidKeybindNames.has("session_new")).toBe(true)
+  })
+
+  test("should not contain unknown keybind names", async () => {
+    const { Config } = await import("../src/config/config")
+    expect(Config.ValidKeybindNames.has("fake_key_command")).toBe(false)
+    expect(Config.ValidKeybindNames.has("nonexistent")).toBe(false)
+    expect(Config.ValidKeybindNames.has("random_command")).toBe(false)
+  })
+})

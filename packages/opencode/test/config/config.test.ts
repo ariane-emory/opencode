@@ -501,3 +501,32 @@ test("deduplicates duplicate plugins from global and local configs", async () =>
     },
   })
 })
+
+test("allows unknown keybind names in config", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        JSON.stringify({
+          $schema: "https://opencode.ai/config.json",
+          keybinds: {
+            app_exit: "ctrl+q",
+            fake_key_command: "ctrl+f",
+            another_unknown: "ctrl+g",
+          },
+        }),
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      // Valid keybinds should work
+      expect(config.keybinds?.app_exit).toBe("ctrl+q")
+      // Unknown keybinds should be preserved (not cause an error)
+      expect((config.keybinds as Record<string, string>)?.fake_key_command).toBe("ctrl+f")
+      expect((config.keybinds as Record<string, string>)?.another_unknown).toBe("ctrl+g")
+    },
+  })
+})

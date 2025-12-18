@@ -560,10 +560,12 @@ export namespace Config {
       session_child_cycle_reverse: z.string().optional().default("<leader>left").describe("Previous child session"),
       terminal_suspend: z.string().optional().default("ctrl+z").describe("Suspend terminal"),
     })
-    .strict()
+    .passthrough()
     .meta({
       ref: "KeybindsConfig",
     })
+
+  export const ValidKeybindNames = new Set(Object.keys(Keybinds.shape))
 
   export const TUI = z.object({
     scroll_speed: z.number().min(0.001).optional().describe("TUI scroll speed"),

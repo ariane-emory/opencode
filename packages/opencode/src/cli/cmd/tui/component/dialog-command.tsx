@@ -1,5 +1,6 @@
 import { useDialog } from "@tui/ui/dialog"
 import { DialogSelect, type DialogSelectOption, type DialogSelectRef } from "@tui/ui/dialog-select"
+import { useToast } from "@tui/ui/toast"
 import {
   createContext,
   createMemo,
@@ -26,6 +27,7 @@ function init() {
   const [suspendCount, setSuspendCount] = createSignal(0)
   const dialog = useDialog()
   const keybind = useKeybind()
+  const toast = useToast()
   const options = createMemo(() => {
     const all = registrations().flatMap((x) => x())
     const suggested = all.filter((x) => x.suggested)
@@ -51,6 +53,16 @@ function init() {
         option.onSelect?.(dialog)
         return
       }
+    }
+    // Check if this matches an invalid (unknown) keybind
+    const invalidName = keybind.matchInvalid(evt)
+    if (invalidName) {
+      evt.preventDefault()
+      toast.show({
+        variant: "warning",
+        message: `No command '${invalidName}'`,
+      })
+      return
     }
   })
 

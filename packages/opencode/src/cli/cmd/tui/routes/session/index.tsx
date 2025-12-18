@@ -126,8 +126,8 @@ export function Session() {
 
   const wide = createMemo(() => dimensions().width > 120)
   const sidebarVisible = createMemo(() => {
-    if (session()?.parentID) return false
     if (sidebar() === "show") return true
+    if (sidebar() === "hide") return false
     if (sidebar() === "auto" && wide()) return true
     return false
   })

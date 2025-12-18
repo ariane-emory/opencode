@@ -10,10 +10,12 @@ export const { use: useKV, provider: KVProvider } = createSimpleContext({
     const [ready, setReady] = createSignal(false)
     const [kvStore, setKvStore] = createStore<Record<string, any>>()
     const file = Bun.file(path.join(Global.Path.state, "kv.json"))
+    let rawData: Record<string, any> = {}
 
     file
       .json()
       .then((x) => {
+        rawData = x
         setKvStore(x)
       })
       .catch(() => {})
@@ -41,7 +43,8 @@ export const { use: useKV, provider: KVProvider } = createSimpleContext({
       },
       set(key: string, value: any) {
         setKvStore(key, value)
-        Bun.write(file, JSON.stringify(kvStore, null, 2))
+        rawData[key] = value
+        Bun.write(file, JSON.stringify(rawData, null, 2))
       },
     }
     return result

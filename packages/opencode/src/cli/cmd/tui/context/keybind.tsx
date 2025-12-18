@@ -23,8 +23,9 @@ export const { use: useKeybind, provider: KeybindProvider } = createSimpleContex
     const invalidKeybinds = createMemo(() => {
       return pipe(
         sync.data.config.keybinds ?? {},
-        pickBy((_, key) => !Config.ValidKeybindNames.has(key)),
-        mapValues((value) => Keybind.parse(value)),
+        // Exclude valid keybinds AND custom command keybinds (starting with /)
+        pickBy((_, key) => !Config.ValidKeybindNames.has(key) && !key.startsWith("/")),
+        mapValues((value) => Keybind.parse(value ?? "")),
       )
     })
     const [store, setStore] = createStore({

@@ -186,6 +186,20 @@ export function Session() {
     }
   })
 
+  // Auto-navigate back to parent when subsession completes
+  createEffect(() => {
+    const currentSession = session()
+    if (!currentSession?.parentID) return
+    
+    const lastMsg = messages().findLast((x) => x.role === "assistant")
+    if (lastMsg?.time.completed) {
+      navigate({
+        type: "session",
+        sessionID: currentSession.parentID,
+      })
+    }
+  })
+
   let scroll: ScrollBoxRenderable
   let prompt: PromptRef
   const keybind = useKeybind()

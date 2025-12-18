@@ -26,15 +26,16 @@ export function DialogForkFromTimeline(props: {
     const result = [] as DialogSelectOption<string>[]
     for (const message of messages) {
       if (message.role !== "user") continue
-      const part = (sync.data.part[message.id] ?? []).find((x) => x.type === "text" && !x.synthetic) as TextPart
+      const part = (sync.data.part[message.id] ?? []).find(
+        (x) => x.type === "text" && !x.synthetic && !x.ignored,
+      ) as TextPart
       if (!part) continue
       result.push({
         title: part.text.replace(/\n/g, " "),
         value: message.id,
         footer: Locale.time(message.time.created),
         onSelect: async (dialog) => {
-          // Directly fork the session at this message
-          const result = await sdk.client.session.fork({
+          const forked = await sdk.client.session.fork({
             sessionID: props.sessionID,
             messageID: message.id,
           })
@@ -50,7 +51,7 @@ export function DialogForkFromTimeline(props: {
             { input: "", parts: [] as PromptInfo["parts"] },
           )
           route.navigate({
-            sessionID: result.data!.id,
+            sessionID: forked.data!.id,
             type: "session",
             initialPrompt,
           })

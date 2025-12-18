@@ -54,7 +54,6 @@ import { DialogConfirm } from "@tui/ui/dialog-confirm"
 import { DialogPrompt } from "@tui/ui/dialog-prompt"
 import { DialogTimeline } from "./dialog-timeline"
 import { DialogForkFromTimeline } from "./dialog-fork-from-timeline"
-
 import { DialogSessionRename } from "../../component/dialog-session-rename"
 import { Sidebar } from "./sidebar"
 import { LANGUAGE_EXTENSIONS } from "@/lsp/language"
@@ -302,7 +301,7 @@ export function Session() {
       value: "session.fork",
       keybind: "session_fork",
       category: "Session",
-onSelect: (dialog) => {
+      onSelect: (dialog) => {
         dialog.replace(() => (
           <DialogForkFromTimeline
             onMove={(messageID) => {

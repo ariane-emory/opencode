@@ -245,6 +245,39 @@ test("handles command configuration", async () => {
   })
 })
 
+test("handles command configuration with new_session", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        JSON.stringify({
+          $schema: "https://opencode.ai/config.json",
+          command: {
+            test_new_session_command: {
+              template: "test template for new session",
+              description: "test new session command",
+              agent: "test_agent",
+              new_session: true,
+            },
+          },
+        }),
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      expect(config.command?.["test_new_session_command"]).toEqual({
+        template: "test template for new session",
+        description: "test new session command",
+        agent: "test_agent",
+        new_session: true,
+      })
+    },
+  })
+})
+
 test("migrates autoshare to share field", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {

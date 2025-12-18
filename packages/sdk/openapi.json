@@ -8516,6 +8516,9 @@
           },
           "subtask": {
             "type": "boolean"
+          },
+          "new_session": {
+            "type": "boolean"
           }
         },
         "required": ["name", "template"]

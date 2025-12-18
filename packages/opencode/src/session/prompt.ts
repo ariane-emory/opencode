@@ -1320,6 +1320,13 @@ export namespace SessionPrompt {
     }
     template = template.trim()
 
+    // Create new session if requested
+    let sessionID = input.sessionID
+    if (command.new_session) {
+      const newSession = await Session.create({})
+      sessionID = newSession.id
+    }
+
     const model = await (async () => {
       if (command.model) {
         return Provider.parseModel(command.model)
@@ -1331,7 +1338,7 @@ export namespace SessionPrompt {
         }
       }
       if (input.model) return Provider.parseModel(input.model)
-      return await lastModel(input.sessionID)
+      return await lastModel(sessionID)
     })()
     const agent = await Agent.get(agentName)
 
@@ -1350,7 +1357,7 @@ export namespace SessionPrompt {
         : await resolvePromptParts(template)
 
     const result = (await prompt({
-      sessionID: input.sessionID,
+      sessionID,
       messageID: input.messageID,
       model,
       agent: agentName,
@@ -1359,7 +1366,7 @@ export namespace SessionPrompt {
 
     Bus.publish(Command.Event.Executed, {
       name: input.command,
-      sessionID: input.sessionID,
+      sessionID,
       arguments: input.arguments,
       messageID: result.info.id,
     })

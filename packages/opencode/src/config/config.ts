@@ -386,6 +386,7 @@ export namespace Config {
     agent: z.string().optional(),
     model: z.string().optional(),
     subtask: z.boolean().optional(),
+    new_session: z.boolean().optional(),
   })
   export type Command = z.infer<typeof Command>
 

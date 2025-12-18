@@ -517,15 +517,34 @@ export function Prompt(props: PromptProps) {
         return sync.data.command.some((x) => x.name === command)
       })
     ) {
-      let [command, ...args] = inputText.split(" ")
-      sdk.client.session.command({
-        sessionID,
-        command: command.slice(1),
-        arguments: args.join(" "),
-        agent: local.agent.current().name,
-        model: `${selectedModel.providerID}/${selectedModel.modelID}`,
-        messageID,
-      })
+      const [commandPart, ...args] = inputText.split(" ")
+      const commandName = commandPart.slice(1)
+      const commandInfo = sync.data.command.find((x) => x.name === commandName)
+
+      if (commandInfo?.new_session) {
+        const response = await sdk.client.session.command({
+          sessionID,
+          command: commandName,
+          arguments: args.join(" "),
+          agent: local.agent.current().name,
+          model: `${selectedModel.providerID}/${selectedModel.modelID}`,
+          messageID,
+        })
+        if (response.data) {
+          const newSessionID = response.data.info.sessionID
+          route.navigate({ type: "session", sessionID: newSessionID })
+          toast.show({ message: "Started new session", variant: "info" })
+        }
+      } else {
+        sdk.client.session.command({
+          sessionID,
+          command: commandName,
+          arguments: args.join(" "),
+          agent: local.agent.current().name,
+          model: `${selectedModel.providerID}/${selectedModel.modelID}`,
+          messageID,
+        })
+      }
     } else {
       sdk.client.session.prompt({
         sessionID,

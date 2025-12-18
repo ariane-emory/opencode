@@ -1368,6 +1368,7 @@ export type Config = {
       model?: string
       subtask?: boolean
       new_session?: boolean
+      subsession?: boolean
     }
   }
   watcher?: {
@@ -1613,6 +1614,7 @@ export type Command = {
   template: string
   subtask?: boolean
   new_session?: boolean
+  subsession?: boolean
 }
 
 export type Model = {

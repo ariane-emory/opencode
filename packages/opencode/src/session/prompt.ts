@@ -1320,10 +1320,13 @@ export namespace SessionPrompt {
     }
     template = template.trim()
 
-    // Create new session if requested
+    // Create new session or subsession if requested
     let sessionID = input.sessionID
     if (command.new_session) {
       const newSession = await Session.create({})
+      sessionID = newSession.id
+    } else if (command.subsession) {
+      const newSession = await Session.create({ parentID: input.sessionID })
       sessionID = newSession.id
     }
 

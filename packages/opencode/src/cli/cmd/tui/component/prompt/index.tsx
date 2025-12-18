@@ -521,7 +521,7 @@ export function Prompt(props: PromptProps) {
       const commandName = commandPart.slice(1)
       const commandInfo = sync.data.command.find((x) => x.name === commandName)
 
-      if (commandInfo?.new_session) {
+      if (commandInfo?.new_session || commandInfo?.subsession) {
         const response = await sdk.client.session.command({
           sessionID,
           command: commandName,
@@ -533,7 +533,10 @@ export function Prompt(props: PromptProps) {
         if (response.data) {
           const newSessionID = response.data.info.sessionID
           route.navigate({ type: "session", sessionID: newSessionID })
-          toast.show({ message: "Started new session", variant: "info" })
+          toast.show({
+            message: commandInfo?.subsession ? "Started subsession" : "Started new session",
+            variant: "info",
+          })
         }
       } else {
         sdk.client.session.command({

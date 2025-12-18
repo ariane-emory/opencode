@@ -278,6 +278,39 @@ test("handles command configuration with new_session", async () => {
   })
 })
 
+test("handles command configuration with subsession", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        JSON.stringify({
+          $schema: "https://opencode.ai/config.json",
+          command: {
+            test_subsession_command: {
+              template: "test template for subsession",
+              description: "test subsession command",
+              agent: "test_agent",
+              subsession: true,
+            },
+          },
+        }),
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      expect(config.command?.["test_subsession_command"]).toEqual({
+        template: "test template for subsession",
+        description: "test subsession command",
+        agent: "test_agent",
+        subsession: true,
+      })
+    },
+  })
+})
+
 test("migrates autoshare to share field", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {

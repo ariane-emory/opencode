@@ -8519,6 +8519,9 @@
           },
           "new_session": {
             "type": "boolean"
+          },
+          "subsession": {
+            "type": "boolean"
           }
         },
         "required": ["name", "template"]

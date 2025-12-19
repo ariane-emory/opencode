@@ -192,6 +192,7 @@ export function Autocomplete(props: {
       .map(
         (agent): AutocompleteOption => ({
           display: "@" + agent.name,
+          description: agent.description ? Locale.truncate(agent.description, 50) : undefined,
           onSelect: () => {
             insertPart(agent.name, {
               type: "agent",

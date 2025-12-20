@@ -1,10 +1,10 @@
 import { createStore, produce } from "solid-js/store"
 import { batch, createMemo, onMount } from "solid-js"
 import { createSimpleContext } from "@opencode-ai/ui/context"
-import { makePersisted } from "@solid-primitives/storage"
 import { useGlobalSync } from "./global-sync"
 import { useGlobalSDK } from "./global-sdk"
 import { Project } from "@opencode-ai/sdk/v2"
+import { persisted } from "@/utils/persist"
 
 const AVATAR_COLOR_KEYS = ["pink", "mint", "orange", "purple", "cyan", "lime"] as const
 export type AvatarColorKey = (typeof AVATAR_COLOR_KEYS)[number]
@@ -27,12 +27,15 @@ type SessionTabs = {
   all: string[]
 }
 
+export type LocalProject = Partial<Project> & { worktree: string; expanded: boolean }
+
 export const { use: useLayout, provider: LayoutProvider } = createSimpleContext({
   name: "Layout",
   init: () => {
     const globalSdk = useGlobalSDK()
     const globalSync = useGlobalSync()
-    const [store, setStore] = makePersisted(
+    const [store, setStore, _, ready] = persisted(
+      "layout.v3",
       createStore({
         projects: [] as { worktree: string; expanded: boolean }[],
         sidebar: {
@@ -48,9 +51,6 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
         },
         sessionTabs: {} as Record<string, SessionTabs>,
       }),
-      {
-        name: "layout.v3",
-      },
     )
 
     const usedColors = new Set<AvatarColorKey>()
@@ -63,21 +63,22 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
 
     function enrich(project: { worktree: string; expanded: boolean }) {
       const metadata = globalSync.data.project.find((x) => x.worktree === project.worktree)
-      if (!metadata) return []
       return [
         {
           ...project,
-          ...metadata,
+          ...(metadata ?? {}),
         },
       ]
     }
 
-    function colorize(project: Project & { expanded: boolean }) {
+    function colorize(project: LocalProject) {
       if (project.icon?.color) return project
       const color = pickAvailableColor()
       usedColors.add(color)
       project.icon = { ...project.icon, color }
-      globalSdk.client.project.update({ projectID: project.id, icon: { color } })
+      if (project.id) {
+        globalSdk.client.project.update({ projectID: project.id, icon: { color } })
+      }
       return project
     }
 
@@ -93,10 +94,13 @@ export const { use: useLayout, provider: LayoutProvider } = createSimpleContext(
     })
 
     return {
+      ready,
       projects: {
         list,
         open(directory: string) {
-          if (store.projects.find((x) => x.worktree === directory)) return
+          if (store.projects.find((x) => x.worktree === directory)) {
+            return
+          }
           globalSync.project.loadSessions(directory)
           setStore("projects", (x) => [{ worktree: directory, expanded: true }, ...x])
         },

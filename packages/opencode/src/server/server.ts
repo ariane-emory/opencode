@@ -193,7 +193,7 @@ export namespace Server {
         },
       )
       .use(async (c, next) => {
-        const directory = c.req.query("directory") ?? c.req.header("x-opencode-directory") ?? process.cwd()
+        const directory = c.req.query("directory") || c.req.header("x-opencode-directory") || process.cwd()
         return Instance.provide({
           directory,
           init: InstanceBootstrap,
@@ -779,9 +779,6 @@ export namespace Server {
         async (c) => {
           const sessionID = c.req.valid("param").sessionID
           await Session.remove(sessionID)
-          await Bus.publish(TuiEvent.CommandExecute, {
-            command: "session.list",
-          })
           return c.json(true)
         },
       )
@@ -1063,11 +1060,11 @@ export namespace Server {
           const sessionID = c.req.valid("param").sessionID
           const body = c.req.valid("json")
           const msgs = await Session.messages({ sessionID })
-          let currentAgent = "build"
+          let currentAgent = await Agent.defaultAgent()
           for (let i = msgs.length - 1; i >= 0; i--) {
             const info = msgs[i].info
             if (info.role === "user") {
-              currentAgent = info.agent || "build"
+              currentAgent = info.agent || (await Agent.defaultAgent())
               break
             }
           }
@@ -1189,6 +1186,79 @@ export namespace Server {
             messageID: params.messageID,
           })
           return c.json(message)
+        },
+      )
+      .delete(
+        "/session/:sessionID/message/:messageID/part/:partID",
+        describeRoute({
+          description: "Delete a part from a message",
+          operationId: "part.delete",
+          responses: {
+            200: {
+              description: "Successfully deleted part",
+              content: {
+                "application/json": {
+                  schema: resolver(z.boolean()),
+                },
+              },
+            },
+            ...errors(400, 404),
+          },
+        }),
+        validator(
+          "param",
+          z.object({
+            sessionID: z.string().meta({ description: "Session ID" }),
+            messageID: z.string().meta({ description: "Message ID" }),
+            partID: z.string().meta({ description: "Part ID" }),
+          }),
+        ),
+        async (c) => {
+          const params = c.req.valid("param")
+          await Session.removePart({
+            sessionID: params.sessionID,
+            messageID: params.messageID,
+            partID: params.partID,
+          })
+          return c.json(true)
+        },
+      )
+      .patch(
+        "/session/:sessionID/message/:messageID/part/:partID",
+        describeRoute({
+          description: "Update a part in a message",
+          operationId: "part.update",
+          responses: {
+            200: {
+              description: "Successfully updated part",
+              content: {
+                "application/json": {
+                  schema: resolver(MessageV2.Part),
+                },
+              },
+            },
+            ...errors(400, 404),
+          },
+        }),
+        validator(
+          "param",
+          z.object({
+            sessionID: z.string().meta({ description: "Session ID" }),
+            messageID: z.string().meta({ description: "Message ID" }),
+            partID: z.string().meta({ description: "Part ID" }),
+          }),
+        ),
+        validator("json", MessageV2.Part),
+        async (c) => {
+          const params = c.req.valid("param")
+          const body = c.req.valid("json")
+          if (body.id !== params.partID || body.messageID !== params.messageID || body.sessionID !== params.sessionID) {
+            throw new Error(
+              `Part mismatch: body.id='${body.id}' vs partID='${params.partID}', body.messageID='${body.messageID}' vs messageID='${params.messageID}', body.sessionID='${body.sessionID}' vs sessionID='${params.sessionID}'`,
+            )
+          }
+          const part = await Session.updatePart(body)
+          return c.json(part)
         },
       )
       .post(

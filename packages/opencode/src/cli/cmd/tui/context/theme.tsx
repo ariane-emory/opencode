@@ -34,6 +34,40 @@ import tokyonight from "./theme/tokyonight.json" with { type: "json" }
 import vercel from "./theme/vercel.json" with { type: "json" }
 import vesper from "./theme/vesper.json" with { type: "json" }
 import zenburn from "./theme/zenburn.json" with { type: "json" }
+import efArbutus from "./theme/ef-arbutus.json" with { type: "json" }
+import efAutumn from "./theme/ef-autumn.json" with { type: "json" }
+import efBio from "./theme/ef-bio.json" with { type: "json" }
+import efCherie from "./theme/ef-cherie.json" with { type: "json" }
+import efCyprus from "./theme/ef-cyprus.json" with { type: "json" }
+import efDark from "./theme/ef-dark.json" with { type: "json" }
+import efDay from "./theme/ef-day.json" with { type: "json" }
+import efDeuteranopiaLight from "./theme/ef-deuteranopia-light.json" with { type: "json" }
+import efDeuteranopiaDark from "./theme/ef-deuteranopia-dark.json" with { type: "json" }
+import efDream from "./theme/ef-dream.json" with { type: "json" }
+import efDuoDark from "./theme/ef-duo-dark.json" with { type: "json" }
+import efDuoLight from "./theme/ef-duo-light.json" with { type: "json" }
+import efEagle from "./theme/ef-eagle.json" with { type: "json" }
+import efEleaDark from "./theme/ef-elea-dark.json" with { type: "json" }
+import efEleaLight from "./theme/ef-elea-light.json" with { type: "json" }
+import efFrost from "./theme/ef-frost.json" with { type: "json" }
+import efKassio from "./theme/ef-kassio.json" with { type: "json" }
+import efLight from "./theme/ef-light.json" with { type: "json" }
+import efMarisDark from "./theme/ef-maris-dark.json" with { type: "json" }
+import efMarisLight from "./theme/ef-maris-light.json" with { type: "json" }
+import efMelissaDark from "./theme/ef-melissa-dark.json" with { type: "json" }
+import efMelissaLight from "./theme/ef-melissa-light.json" with { type: "json" }
+import efNight from "./theme/ef-night.json" with { type: "json" }
+import efOwl from "./theme/ef-owl.json" with { type: "json" }
+import efReverie from "./theme/ef-reverie.json" with { type: "json" }
+import efRosa from "./theme/ef-rosa.json" with { type: "json" }
+import efSpring from "./theme/ef-spring.json" with { type: "json" }
+import efSummer from "./theme/ef-summer.json" with { type: "json" }
+import efSymbiosis from "./theme/ef-symbiosis.json" with { type: "json" }
+import efTrioDark from "./theme/ef-trio-dark.json" with { type: "json" }
+import efTrioLight from "./theme/ef-trio-light.json" with { type: "json" }
+import efTritanopiaLight from "./theme/ef-tritanopia-light.json" with { type: "json" }
+import efTritanopiaDark from "./theme/ef-tritanopia-dark.json" with { type: "json" }
+import efWinter from "./theme/ef-winter.json" with { type: "json" }
 import { useKV } from "./kv"
 import { useRenderer } from "@opentui/solid"
 import { createStore, produce } from "solid-js/store"
@@ -166,6 +200,40 @@ export const DEFAULT_THEMES: Record<string, ThemeJson> = {
   vesper,
   vercel,
   zenburn,
+  ["ef-arbutus"]: efArbutus,
+  ["ef-autumn"]: efAutumn,
+  ["ef-bio"]: efBio,
+  ["ef-cherie"]: efCherie,
+  ["ef-cyprus"]: efCyprus,
+  ["ef-dark"]: efDark,
+  ["ef-day"]: efDay,
+  ["ef-deuteranopia-dark"]: efDeuteranopiaDark,
+  ["ef-deuteranopia-light"]: efDeuteranopiaLight,
+  ["ef-dream"]: efDream,
+  ["ef-duo-dark"]: efDuoDark,
+  ["ef-duo-light"]: efDuoLight,
+  ["ef-eagle"]: efEagle,
+  ["ef-elea-dark"]: efEleaDark,
+  ["ef-elea-light"]: efEleaLight,
+  ["ef-frost"]: efFrost,
+  ["ef-kassio"]: efKassio,
+  ["ef-light"]: efLight,
+  ["ef-maris-dark"]: efMarisDark,
+  ["ef-maris-light"]: efMarisLight,
+  ["ef-melissa-dark"]: efMelissaDark,
+  ["ef-melissa-light"]: efMelissaLight,
+  ["ef-night"]: efNight,
+  ["ef-owl"]: efOwl,
+  ["ef-reverie"]: efReverie,
+  ["ef-rosa"]: efRosa,
+  ["ef-spring"]: efSpring,
+  ["ef-summer"]: efSummer,
+  ["ef-symbiosis"]: efSymbiosis,
+  ["ef-trio-dark"]: efTrioDark,
+  ["ef-trio-light"]: efTrioLight,
+  ["ef-tritanopia-dark"]: efTritanopiaDark,
+  ["ef-tritanopia-light"]: efTritanopiaLight,
+  ["ef-winter"]: efWinter,
 }
 
 function resolveTheme(theme: ThemeJson, mode: "dark" | "light") {

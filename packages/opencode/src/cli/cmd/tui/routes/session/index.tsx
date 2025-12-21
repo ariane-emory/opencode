@@ -1177,16 +1177,42 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
       return
     }
 
-    // Find the parent user message to get start time
-    const user = messages().find((x) => x.role === "user" && x.id === props.message.parentID)
-    if (!user || !user.time) {
-      setElapsedTime(0)
-      return
+    // Find the start time of the last active part (current action)
+    let startTime: number | undefined
+    
+    // Check parts in reverse order to find the most recent one with timing
+    for (let i = props.parts.length - 1; i >= 0; i--) {
+      const part = props.parts[i]
+      
+      if (part.type === "tool") {
+        const state = (part as any).state
+        // Running tool has time.start
+        if (state.status === "running" && state.time?.start) {
+          startTime = state.time.start
+          break
+        }
+      } else if (part.type === "text" || part.type === "reasoning") {
+        // Text/reasoning parts have time.start if in progress (no end time)
+        const partTime = (part as any).time
+        if (partTime?.start && !partTime?.end) {
+          startTime = partTime.start
+          break
+        }
+      }
     }
 
-    const startTime = user.time.created
+    // Fallback to user message time if no part timing found
+    if (!startTime) {
+      const user = messages().find((x) => x.role === "user" && x.id === props.message.parentID)
+      if (!user?.time) {
+        setElapsedTime(0)
+        return
+      }
+      startTime = user.time.created
+    }
+
     const interval = setInterval(() => {
-      setElapsedTime(Date.now() - startTime)
+      setElapsedTime(Date.now() - startTime!)
     }, 1000)
 
     onCleanup(() => {
@@ -1236,7 +1262,7 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
                 <span style={{ fg: theme.textMuted }}> · {Locale.duration(duration())}</span>
               </Show>
               <Show when={!final() && elapsedTime()}>
-                <span style={{ fg: theme.textMuted }}> · {Locale.duration(elapsedTime())}</span>
+                <span style={{ fg: theme.textMuted }}> · running {Locale.duration(elapsedTime())}</span>
               </Show>
             </text>
           </box>

@@ -1,12 +1,12 @@
 import { createStore } from "solid-js/store"
-import { createSimpleContext } from "@opencode-ai/ui/context"
+import { createSimpleContext } from "@ariane-emory/ui/context"
 import { useGlobalSDK } from "./global-sdk"
 import { useGlobalSync } from "./global-sync"
-import { Binary } from "@opencode-ai/util/binary"
-import { EventSessionError } from "@opencode-ai/sdk/v2"
+import { Binary } from "@ariane-emory/util/binary"
+import { EventSessionError } from "@ariane-emory/sdk/v2"
 import { makeAudioPlayer } from "@solid-primitives/audio"
-import idleSound from "@opencode-ai/ui/audio/staplebops-01.aac"
-import errorSound from "@opencode-ai/ui/audio/nope-03.aac"
+import idleSound from "@ariane-emory/ui/audio/staplebops-01.aac"
+import errorSound from "@ariane-emory/ui/audio/nope-03.aac"
 import { persisted } from "@/utils/persist"
 
 type NotificationBase = {

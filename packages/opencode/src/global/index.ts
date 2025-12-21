@@ -3,12 +3,32 @@ import { xdgData, xdgCache, xdgConfig, xdgState } from "xdg-basedir"
 import path from "path"
 import os from "os"
 
-const app = "opencode"
+const app = "base-one"
+const legacyApp = "opencode"
 
-const data = path.join(xdgData!, app)
-const cache = path.join(xdgCache!, app)
-const config = path.join(xdgConfig!, app)
-const state = path.join(xdgState!, app)
+// Helper to check if a directory exists
+async function dirExists(dir: string): Promise<boolean> {
+  try {
+    const stat = await fs.stat(dir)
+    return stat.isDirectory()
+  } catch {
+    return false
+  }
+}
+
+// For each path type, use the new name if it exists, otherwise fall back to legacy if it exists
+async function resolveWithFallback(baseDir: string): Promise<string> {
+  const newPath = path.join(baseDir, app)
+  const legacyPath = path.join(baseDir, legacyApp)
+  if (await dirExists(newPath)) return newPath
+  if (await dirExists(legacyPath)) return legacyPath
+  return newPath // Default to new path if neither exists
+}
+
+const data = await resolveWithFallback(xdgData!)
+const cache = await resolveWithFallback(xdgCache!)
+const config = await resolveWithFallback(xdgConfig!)
+const state = await resolveWithFallback(xdgState!)
 
 export namespace Global {
   export const Path = {

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@opencode-ai/sdk",
+  "name": "@ariane-emory/sdk",
   "version": "1.0.180",
   "type": "module",
   "scripts": {

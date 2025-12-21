@@ -1,5 +1,5 @@
 {
-  "name": "@opencode-ai/enterprise",
+  "name": "@ariane-emory/enterprise",
   "version": "1.0.180",
   "private": true,
   "type": "module",
@@ -11,8 +11,8 @@
     "start": "vite start"
   },
   "dependencies": {
-    "@opencode-ai/util": "workspace:*",
-    "@opencode-ai/ui": "workspace:*",
+    "@ariane-emory/util": "workspace:*",
+    "@ariane-emory/ui": "workspace:*",
     "aws4fetch": "^1.0.20",
     "@pierre/diffs": "catalog:",
     "@solidjs/router": "catalog:",

@@ -1,5 +1,5 @@
 {
-  "name": "@opencode-ai/web",
+  "name": "@ariane-emory/web",
   "type": "module",
   "version": "1.0.180",
   "scripts": {
@@ -34,7 +34,7 @@
     "toolbeam-docs-theme": "0.4.8"
   },
   "devDependencies": {
-    "opencode": "workspace:*",
+    "@ariane-emory/base-one": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:"
   }

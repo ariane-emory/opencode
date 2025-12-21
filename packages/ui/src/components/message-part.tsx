@@ -463,13 +463,13 @@ ToolRegistry.register({
           subtitle: props.input.description,
         }}
       >
-        <Show when={props.output}>
-          {(output) => (
-            <div data-component="tool-output" data-scrollable>
-              <Markdown text={output()} />
-            </div>
-          )}
-        </Show>
+        {/* <Show when={false && props.output}> */}
+        {/*   {(output) => ( */}
+        {/*     <div data-component="tool-output" data-scrollable> */}
+        {/*       <Markdown text={output()} /> */}
+        {/*     </div> */}
+        {/*   )} */}
+        {/* </Show> */}
       </BasicTool>
     )
   },
@@ -603,7 +603,9 @@ ToolRegistry.register({
         icon="checklist"
         trigger={{
           title: "To-dos",
-          subtitle: `${props.input.todos?.filter((t: any) => t.status === "completed").length}/${props.input.todos?.length}`,
+          subtitle: props.input.todos
+            ? `${props.input.todos.filter((t: any) => t.status === "completed").length}/${props.input.todos.length}`
+            : "",
         }}
       >
         <Show when={props.input.todos?.length}>

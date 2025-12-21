@@ -10,6 +10,7 @@ export namespace UI {
     [`██╔══██╗██╔══██║╚════██║██╔══╝      `, `██║   ██║██║╚██╗██║██╔══╝  `],
     [`██████╔╝██║  ██║███████║███████╗    `, `╚██████╔╝██║ ╚████║███████╗`],
     [`╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝     `, `╚═════╝ ╚═╝  ╚═══╝╚══════╝`],
+    [`                                     `, `[ A Reseune Labs product ]`],
   ]
 
   export const CancelledError = NamedError.create("UICancelledError", z.void())

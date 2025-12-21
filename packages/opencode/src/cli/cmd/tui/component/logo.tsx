@@ -9,6 +9,7 @@ const LOGO_LEFT = [
   `██╔══██╗██╔══██║╚════██║██╔══╝      `,
   `██████╔╝██║  ██║███████║███████╗    `,
   `╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝     `,
+  `                                     `,
 ]
 
 const LOGO_RIGHT = [
@@ -18,6 +19,7 @@ const LOGO_RIGHT = [
   `██║   ██║██║╚██╗██║██╔══╝  `,
   `╚██████╔╝██║ ╚████║███████╗`,
   `╚═════╝ ╚═╝  ╚═══╝╚══════╝`,
+  `[ A Reseune Labs product ]`,
 ]
 
 export function Logo() {
@@ -30,7 +32,7 @@ export function Logo() {
             <text fg={theme.textMuted} selectable={false}>
               {line}
             </text>
-            <text fg={theme.text} attributes={TextAttributes.BOLD} selectable={false}>
+            <text fg={index() === 6 ? theme.textMuted : theme.text} attributes={index() === 6 ? undefined : TextAttributes.BOLD} selectable={false}>
               {LOGO_RIGHT[index()]}
             </text>
           </box>

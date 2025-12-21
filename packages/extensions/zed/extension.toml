@@ -1,7 +1,7 @@
 id = "base-one"
 name = "BaseOne"
 description = "The open source coding agent."
-version = "1.0.180"
+version = "1.0.184"
 schema_version = 1
 authors = ["Anomaly"]
 repository = "https://github.com/ariane-emory/base-one"

@@ -1170,8 +1170,9 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
   const [elapsedTime, setElapsedTime] = createSignal(0)
   
   createEffect(() => {
-    // Only run timer for in-progress messages (not final/completed)
-    if (final()) {
+    // Only run timer for the last in-progress message (not final/completed)
+    // This prevents multiple timers from running for older messages
+    if (!props.last || final()) {
       setElapsedTime(0)
       return
     }
@@ -1225,7 +1226,7 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
         </box>
       </Show>
       <Switch>
-        <Match when={props.last || final() || !final()}>
+        <Match when={props.last || final()}>
           <box paddingLeft={3}>
             <text marginTop={1}>
               <span style={{ fg: local.agent.color(props.message.mode) }}>▣ </span>{" "}

@@ -9,6 +9,7 @@ import {
   Show,
   Switch,
   useContext,
+  onCleanup,
   type Component,
 } from "solid-js"
 import { Dynamic } from "solid-js/web"
@@ -1165,6 +1166,33 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
     return props.message.time.completed - user.time.created
   })
 
+  // Elapsed time for in-progress messages
+  const [elapsedTime, setElapsedTime] = createSignal(0)
+  
+  createEffect(() => {
+    // Only run timer for in-progress messages (not final/completed)
+    if (final()) {
+      setElapsedTime(0)
+      return
+    }
+
+    // Find the parent user message to get start time
+    const user = messages().find((x) => x.role === "user" && x.id === props.message.parentID)
+    if (!user || !user.time) {
+      setElapsedTime(0)
+      return
+    }
+
+    const startTime = user.time.created
+    const interval = setInterval(() => {
+      setElapsedTime(Date.now() - startTime)
+    }, 1000)
+
+    onCleanup(() => {
+      clearInterval(interval)
+    })
+  })
+
   return (
     <>
       <For each={props.parts}>
@@ -1197,7 +1225,7 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
         </box>
       </Show>
       <Switch>
-        <Match when={props.last || final()}>
+        <Match when={props.last || final() || !final()}>
           <box paddingLeft={3}>
             <text marginTop={1}>
               <span style={{ fg: local.agent.color(props.message.mode) }}>▣ </span>{" "}
@@ -1205,6 +1233,9 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
               <span style={{ fg: theme.textMuted }}> · {props.message.modelID}</span>
               <Show when={duration()}>
                 <span style={{ fg: theme.textMuted }}> · {Locale.duration(duration())}</span>
+              </Show>
+              <Show when={!final() && elapsedTime()}>
+                <span style={{ fg: theme.textMuted }}> · {Locale.duration(elapsedTime())}</span>
               </Show>
             </text>
           </box>

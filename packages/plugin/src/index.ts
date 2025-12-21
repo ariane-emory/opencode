@@ -10,7 +10,7 @@ import type {
   Part,
   Auth,
   Config,
-} from "@ariane-emory/sdk"
+} from "@opencode-ai/sdk"
 
 import type { BunShell } from "./shell"
 import { type ToolDefinition } from "./tool"

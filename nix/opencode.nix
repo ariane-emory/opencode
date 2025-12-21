@@ -44,10 +44,10 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
       chmod -R u+w ./node_modules
       mkdir -p ./node_modules/@ariane-emory
-      rm -f ./node_modules/@ariane-emory/{script,sdk,plugin}
-      ln -s $(pwd)/../../packages/script ./node_modules/@ariane-emory/script
-      ln -s $(pwd)/../../packages/sdk/js ./node_modules/@ariane-emory/sdk
-      ln -s $(pwd)/../../packages/plugin ./node_modules/@ariane-emory/plugin
+      rm -f ./node_modules/@opencode-ai/{script,sdk,plugin}
+      ln -s $(pwd)/../../packages/script ./node_modules/@opencode-ai/script
+      ln -s $(pwd)/../../packages/sdk/js ./node_modules/@opencode-ai/sdk
+      ln -s $(pwd)/../../packages/plugin ./node_modules/@opencode-ai/plugin
 
       cp ${./bundle.ts} ./bundle.ts
       chmod +x ./bundle.ts

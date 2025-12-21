@@ -1,9 +1,9 @@
-import { TextField } from "@ariane-emory/ui/text-field"
-import { Logo } from "@ariane-emory/ui/logo"
-import { Button } from "@ariane-emory/ui/button"
+import { TextField } from "@opencode-ai/ui/text-field"
+import { Logo } from "@opencode-ai/ui/logo"
+import { Button } from "@opencode-ai/ui/button"
 import { Component } from "solid-js"
 import { usePlatform } from "@/context/platform"
-import { Icon } from "@ariane-emory/ui/icon"
+import { Icon } from "@opencode-ai/ui/icon"
 
 export type InitError = {
   name: string

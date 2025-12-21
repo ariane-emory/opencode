@@ -1,4 +1,4 @@
-import type { Part, TextPart, FilePart } from "@ariane-emory/sdk/v2"
+import type { Part, TextPart, FilePart } from "@opencode-ai/sdk/v2"
 import type { Prompt, FileAttachmentPart } from "@/context/prompt"
 
 /**

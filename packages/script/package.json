@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package",
-  "name": "@ariane-emory/script",
+  "name": "@opencode-ai/script",
   "devDependencies": {
     "@types/bun": "catalog:"
   },

@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { Script } from "@ariane-emory/script"
+import { Script } from "@opencode-ai/script"
 import { $ } from "bun"
 
 if (!Script.preview) {

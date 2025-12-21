@@ -1,5 +1,5 @@
 {
-  "name": "@ariane-emory/desktop",
+  "name": "@opencode-ai/desktop",
   "version": "1.0.180",
   "description": "",
   "type": "module",
@@ -30,9 +30,9 @@
   },
   "dependencies": {
     "@kobalte/core": "catalog:",
-    "@ariane-emory/sdk": "workspace:*",
-    "@ariane-emory/ui": "workspace:*",
-    "@ariane-emory/util": "workspace:*",
+    "@opencode-ai/sdk": "workspace:*",
+    "@opencode-ai/ui": "workspace:*",
+    "@opencode-ai/util": "workspace:*",
     "@shikijs/transformers": "3.9.2",
     "@solid-primitives/active-element": "2.1.3",
     "@solid-primitives/audio": "1.4.2",

@@ -15,15 +15,15 @@ import {
   type ProviderAuthResponse,
   type Command,
   createOpencodeClient,
-} from "@ariane-emory/sdk/v2/client"
+} from "@opencode-ai/sdk/v2/client"
 import { createStore, produce, reconcile } from "solid-js/store"
-import { Binary } from "@ariane-emory/util/binary"
-import { retry } from "@ariane-emory/util/retry"
+import { Binary } from "@opencode-ai/util/binary"
+import { retry } from "@opencode-ai/util/retry"
 import { useGlobalSDK } from "./global-sdk"
 import { ErrorPage, type InitError } from "../pages/error"
 import { createContext, useContext, onMount, type ParentProps, Switch, Match } from "solid-js"
-import { showToast } from "@ariane-emory/ui/toast"
-import { getFilename } from "@ariane-emory/util/path"
+import { showToast } from "@opencode-ai/ui/toast"
+import { getFilename } from "@opencode-ai/util/path"
 
 type State = {
   ready: boolean

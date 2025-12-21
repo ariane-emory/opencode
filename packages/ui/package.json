@@ -1,5 +1,5 @@
 {
-  "name": "@ariane-emory/ui",
+  "name": "@opencode-ai/ui",
   "version": "1.0.180",
   "type": "module",
   "exports": {
@@ -34,8 +34,8 @@
   },
   "dependencies": {
     "@kobalte/core": "catalog:",
-    "@ariane-emory/sdk": "workspace:*",
-    "@ariane-emory/util": "workspace:*",
+    "@opencode-ai/sdk": "workspace:*",
+    "@opencode-ai/util": "workspace:*",
     "@pierre/diffs": "catalog:",
     "@shikijs/transformers": "3.9.2",
     "@solid-primitives/bounds": "0.1.3",

@@ -1,11 +1,11 @@
 import { Component, Show } from "solid-js"
-import { useDialog } from "@ariane-emory/ui/context/dialog"
+import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { popularProviders, useProviders } from "@/hooks/use-providers"
-import { Dialog } from "@ariane-emory/ui/dialog"
-import { List } from "@ariane-emory/ui/list"
-import { Tag } from "@ariane-emory/ui/tag"
-import { ProviderIcon } from "@ariane-emory/ui/provider-icon"
-import { IconName } from "@ariane-emory/ui/icons/provider"
+import { Dialog } from "@opencode-ai/ui/dialog"
+import { List } from "@opencode-ai/ui/list"
+import { Tag } from "@opencode-ai/ui/tag"
+import { ProviderIcon } from "@opencode-ai/ui/provider-icon"
+import { IconName } from "@opencode-ai/ui/icons/provider"
 import { DialogConnectProvider } from "./dialog-connect-provider"
 
 export const DialogSelectProvider: Component = () => {

@@ -1,5 +1,5 @@
 {
-  "name": "@ariane-emory/console-app",
+  "name": "@opencode-ai/console-app",
   "version": "1.0.180",
   "type": "module",
   "scripts": {
@@ -15,10 +15,10 @@
     "@jsx-email/render": "1.1.1",
     "@kobalte/core": "catalog:",
     "@openauthjs/openauth": "catalog:",
-    "@ariane-emory/console-core": "workspace:*",
-    "@ariane-emory/console-mail": "workspace:*",
-    "@ariane-emory/console-resource": "workspace:*",
-    "@ariane-emory/ui": "workspace:*",
+    "@opencode-ai/console-core": "workspace:*",
+    "@opencode-ai/console-mail": "workspace:*",
+    "@opencode-ai/console-resource": "workspace:*",
+    "@opencode-ai/ui": "workspace:*",
     "@solidjs/meta": "catalog:",
     "@solidjs/router": "catalog:",
     "@solidjs/start": "catalog:",

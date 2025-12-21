@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@ariane-emory/plugin",
+  "name": "@opencode-ai/plugin",
   "version": "1.0.180",
   "type": "module",
   "scripts": {
@@ -15,7 +15,7 @@
     "dist"
   ],
   "dependencies": {
-    "@ariane-emory/sdk": "workspace:*",
+    "@opencode-ai/sdk": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {

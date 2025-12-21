@@ -1,5 +1,5 @@
 {
-  "name": "@ariane-emory/function",
+  "name": "@opencode-ai/function",
   "version": "1.0.180",
   "$schema": "https://json.schemastore.org/package.json",
   "private": true,

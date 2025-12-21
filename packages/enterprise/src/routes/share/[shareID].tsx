@@ -1,37 +1,37 @@
-import { FileDiff, Message, Model, Part, Session, SessionStatus, UserMessage } from "@ariane-emory/sdk/v2"
-import { SessionTurn } from "@ariane-emory/ui/session-turn"
-import { SessionReview } from "@ariane-emory/ui/session-review"
-import { DataProvider } from "@ariane-emory/ui/context"
-import { DiffComponentProvider } from "@ariane-emory/ui/context/diff"
-import { CodeComponentProvider } from "@ariane-emory/ui/context/code"
-import { WorkerPoolProvider } from "@ariane-emory/ui/context/worker-pool"
+import { FileDiff, Message, Model, Part, Session, SessionStatus, UserMessage } from "@opencode-ai/sdk/v2"
+import { SessionTurn } from "@opencode-ai/ui/session-turn"
+import { SessionReview } from "@opencode-ai/ui/session-review"
+import { DataProvider } from "@opencode-ai/ui/context"
+import { DiffComponentProvider } from "@opencode-ai/ui/context/diff"
+import { CodeComponentProvider } from "@opencode-ai/ui/context/code"
+import { WorkerPoolProvider } from "@opencode-ai/ui/context/worker-pool"
 import { createAsync, query, useParams } from "@solidjs/router"
 import { createEffect, createMemo, ErrorBoundary, For, Match, Show, Switch } from "solid-js"
 import { Share } from "~/core/share"
-import { Logo, Mark } from "@ariane-emory/ui/logo"
-import { IconButton } from "@ariane-emory/ui/icon-button"
-import { ProviderIcon } from "@ariane-emory/ui/provider-icon"
-import { createDefaultOptions } from "@ariane-emory/ui/pierre"
-import { iife } from "@ariane-emory/util/iife"
-import { Binary } from "@ariane-emory/util/binary"
-import { NamedError } from "@ariane-emory/util/error"
+import { Logo, Mark } from "@opencode-ai/ui/logo"
+import { IconButton } from "@opencode-ai/ui/icon-button"
+import { ProviderIcon } from "@opencode-ai/ui/provider-icon"
+import { createDefaultOptions } from "@opencode-ai/ui/pierre"
+import { iife } from "@opencode-ai/util/iife"
+import { Binary } from "@opencode-ai/util/binary"
+import { NamedError } from "@opencode-ai/util/error"
 import { DateTime } from "luxon"
-import { SessionMessageRail } from "@ariane-emory/ui/session-message-rail"
+import { SessionMessageRail } from "@opencode-ai/ui/session-message-rail"
 import { createStore } from "solid-js/store"
 import z from "zod"
 import NotFound from "../[...404]"
-import { Tabs } from "@ariane-emory/ui/tabs"
+import { Tabs } from "@opencode-ai/ui/tabs"
 import { preloadMultiFileDiff, PreloadMultiFileDiffResult } from "@pierre/diffs/ssr"
-import { Diff as SSRDiff } from "@ariane-emory/ui/diff-ssr"
+import { Diff as SSRDiff } from "@opencode-ai/ui/diff-ssr"
 import { clientOnly } from "@solidjs/start"
-import { type IconName } from "@ariane-emory/ui/icons/provider"
+import { type IconName } from "@opencode-ai/ui/icons/provider"
 import { Meta } from "@solidjs/meta"
 import { Base64 } from "js-base64"
 
-const ClientOnlyDiff = clientOnly(() => import("@ariane-emory/ui/diff").then((m) => ({ default: m.Diff })))
-const ClientOnlyCode = clientOnly(() => import("@ariane-emory/ui/code").then((m) => ({ default: m.Code })))
+const ClientOnlyDiff = clientOnly(() => import("@opencode-ai/ui/diff").then((m) => ({ default: m.Diff })))
+const ClientOnlyCode = clientOnly(() => import("@opencode-ai/ui/code").then((m) => ({ default: m.Code })))
 const ClientOnlyWorkerPoolProvider = clientOnly(() =>
-  import("@ariane-emory/ui/pierre/worker").then((m) => ({
+  import("@opencode-ai/ui/pierre/worker").then((m) => ({
     default: (props: { children: any }) => (
       <WorkerPoolProvider pool={m.workerPool}>{props.children}</WorkerPoolProvider>
     ),

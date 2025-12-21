@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "@ariane-emory/base-one",
+  "name": "base-one",
   "description": "AI-powered development tool",
   "private": true,
   "type": "module",
@@ -64,8 +64,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.933.0",
-    "@ariane-emory/script": "workspace:*",
-    "@ariane-emory/sdk": "workspace:*",
+    "@opencode-ai/script": "workspace:*",
+    "@opencode-ai/sdk": "workspace:*",
     "typescript": "catalog:"
   },
   "repository": {

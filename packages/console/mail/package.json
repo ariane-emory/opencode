@@ -1,5 +1,5 @@
 {
-  "name": "@ariane-emory/console-mail",
+  "name": "@opencode-ai/console-mail",
   "version": "1.0.180",
   "dependencies": {
     "@jsx-email/all": "2.2.3",

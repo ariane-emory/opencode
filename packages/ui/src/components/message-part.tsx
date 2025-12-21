@@ -8,7 +8,7 @@ import {
   TextPart,
   ToolPart,
   UserMessage,
-} from "@ariane-emory/sdk/v2"
+} from "@opencode-ai/sdk/v2"
 import { useData } from "../context"
 import { useDiffComponent } from "../context/diff"
 import { useCodeComponent } from "../context/code"
@@ -19,8 +19,8 @@ import { Icon } from "./icon"
 import { Checkbox } from "./checkbox"
 import { DiffChanges } from "./diff-changes"
 import { Markdown } from "./markdown"
-import { getDirectory as _getDirectory, getFilename } from "@ariane-emory/util/path"
-import { checksum } from "@ariane-emory/util/encode"
+import { getDirectory as _getDirectory, getFilename } from "@opencode-ai/util/path"
+import { checksum } from "@opencode-ai/util/encode"
 
 interface Diagnostic {
   range: {

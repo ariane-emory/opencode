@@ -26,8 +26,8 @@
       "icons/dev/icon.ico"
     ],
     "active": true,
-    "targets": ["deb", "rpm", "dmg", "nsis", "app"],
-    "externalBin": ["sidecars/base-one-cli"],
+    "targets": ["deb", "rpm", "dmg", "nsis", "app", "appimage"],
+    "externalBin": ["sidecars/base-one-cli"]
     "macOS": {
       "entitlements": "./entitlements.plist"
     },

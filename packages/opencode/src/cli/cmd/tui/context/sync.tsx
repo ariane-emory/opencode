@@ -215,6 +215,32 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
           }
           const result = Binary.search(parts, event.properties.part.id, (p) => p.id)
           if (result.found) {
+            // For TextParts during streaming, use produce to merge deltas safely
+            // This prevents race conditions where text-end overwrites accumulated text
+            const currentPart = parts[result.index]
+            if (currentPart.type === "text" && event.properties.part.type === "text") {
+              const incomingTextPart = event.properties.part as Extract<Part, { type: "text" }>
+              const currentTextPart = currentPart as Extract<Part, { type: "text" }>
+              
+              // If this is a streaming update (has text field), use produce for safe merge
+              if (incomingTextPart.text !== undefined) {
+                setStore(
+                  "part",
+                  event.properties.part.messageID,
+                  produce((draft) => {
+                    const part = draft[result.index] as Extract<Part, { type: "text" }>
+                    // Update text content but preserve other metadata
+                    part.text = incomingTextPart.text
+                    // Update timing only if end time is provided (text-end event)
+                    if (incomingTextPart.time?.end) {
+                      part.time = incomingTextPart.time
+                    }
+                  })
+                )
+                break
+              }
+            }
+            // Fall back to reconcile for non-text parts or non-streaming updates
             setStore("part", event.properties.part.messageID, result.index, reconcile(event.properties.part))
             break
           }

@@ -1,7 +1,7 @@
 id = "base-one"
 name = "BaseOne"
 description = "The open source coding agent."
-version = "1.0.186"
+version = "1.0.190"
 schema_version = 1
 authors = ["Anomaly"]
 repository = "https://github.com/ariane-emory/base-one"
@@ -11,26 +11,26 @@ name = "BaseOne"
 icon = "./icons/base-one.svg"
 
 [agent_servers.base-one.targets.darwin-aarch64]
-archive = "https://github.com/ariane-emory/base-one/releases/download/v1.0.186/base-one-darwin-arm64.zip"
+archive = "https://github.com/ariane-emory/base-one/releases/download/v1.0.190/base-one-darwin-arm64.zip"
 cmd = "./base-one"
 args = ["acp"]
 
 [agent_servers.base-one.targets.darwin-x86_64]
-archive = "https://github.com/ariane-emory/base-one/releases/download/v1.0.186/base-one-darwin-x64.zip"
+archive = "https://github.com/ariane-emory/base-one/releases/download/v1.0.190/base-one-darwin-x64.zip"
 cmd = "./base-one"
 args = ["acp"]
 
 [agent_servers.base-one.targets.linux-aarch64]
-archive = "https://github.com/ariane-emory/base-one/releases/download/v1.0.186/base-one-linux-arm64.tar.gz"
+archive = "https://github.com/ariane-emory/base-one/releases/download/v1.0.190/base-one-linux-arm64.tar.gz"
 cmd = "./base-one"
 args = ["acp"]
 
 [agent_servers.base-one.targets.linux-x86_64]
-archive = "https://github.com/ariane-emory/base-one/releases/download/v1.0.186/base-one-linux-x64.tar.gz"
+archive = "https://github.com/ariane-emory/base-one/releases/download/v1.0.190/base-one-linux-x64.tar.gz"
 cmd = "./base-one"
 args = ["acp"]
 
 [agent_servers.base-one.targets.windows-x86_64]
-archive = "https://github.com/ariane-emory/base-one/releases/download/v1.0.186/base-one-windows-x64.zip"
+archive = "https://github.com/ariane-emory/base-one/releases/download/v1.0.190/base-one-windows-x64.zip"
 cmd = "./base-one.exe"
 args = ["acp"]

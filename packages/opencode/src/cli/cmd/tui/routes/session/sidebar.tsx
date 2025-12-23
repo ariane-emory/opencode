@@ -8,6 +8,7 @@ import type { AssistantMessage } from "@opencode-ai/sdk/v2"
 import { Installation } from "@/installation"
 import { useDirectory } from "../../context/directory"
 import { useKV } from "../../context/kv"
+import { TodoItem } from "../../component/todo-item"
 
 export function Sidebar(props: { sessionID: string }) {
   const sync = useSync()
@@ -230,13 +231,7 @@ export function Sidebar(props: { sessionID: string }) {
                   </text>
                 </box>
                 <Show when={todo().length <= 2 || expanded.todo}>
-                  <For each={todo()}>
-                    {(todo) => (
-                      <text style={{ fg: todo.status === "in_progress" ? theme.success : theme.textMuted }}>
-                        [{todo.status === "completed" ? "✓" : " "}] {todo.content}
-                      </text>
-                    )}
-                  </For>
+                  <For each={todo()}>{(todo) => <TodoItem status={todo.status} content={todo.content} />}</For>
                 </Show>
               </box>
             </Show>

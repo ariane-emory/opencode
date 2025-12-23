@@ -1577,7 +1577,10 @@ export namespace Server {
           const providers = await Provider.list().then((x) => mapValues(x, (item) => item))
           return c.json({
             providers: Object.values(providers),
-            default: mapValues(providers, (item) => Provider.sort(Object.values(item.models))[0].id),
+            default: mapValues(providers, (item) => {
+              const sortedModels = Provider.sort(Object.values(item.models))
+              return sortedModels.length > 0 ? sortedModels[0].id : undefined
+            }),
           })
         },
       )
@@ -1624,7 +1627,10 @@ export namespace Server {
           )
           return c.json({
             all: Object.values(providers),
-            default: mapValues(providers, (item) => Provider.sort(Object.values(item.models))[0].id),
+            default: mapValues(providers, (item) => {
+              const sortedModels = Provider.sort(Object.values(item.models))
+              return sortedModels.length > 0 ? sortedModels[0].id : undefined
+            }),
             connected: Object.keys(connected),
           })
         },
@@ -2600,10 +2606,10 @@ export namespace Server {
         },
       )
       .all("/*", async (c) => {
-        return proxy(`https://desktop.opencode.ai${c.req.path}`, {
+        return proxy(`https://app.opencode.ai${c.req.path}`, {
           ...c.req,
           headers: {
-            host: "desktop.opencode.ai",
+            host: "app.opencode.ai",
           },
         })
       }),

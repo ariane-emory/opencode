@@ -50,13 +50,20 @@ export namespace Provider {
     "@openrouter/ai-sdk-provider": createOpenRouter,
     "@ai-sdk/xai": createXai,
     "@ai-sdk/mistral": createMistral,
-    "@ai-sdk/groq": createGroq as any,
-    "@ai-sdk/deepinfra": createDeepInfra as any,
-    "@ai-sdk/cerebras": createCerebras as any,
-    "@ai-sdk/cohere": createCohere as any,
-    "@ai-sdk/gateway": createGateway as any,
-    "@ai-sdk/togetherai": createTogetherAI as any,
-    "@ai-sdk/perplexity": createPerplexity as any,
+    // @ts-ignore - LanguageModelV3 compatibility
+    "@ai-sdk/groq": createGroq,
+    // @ts-ignore - LanguageModelV3 compatibility
+    "@ai-sdk/deepinfra": createDeepInfra,
+    // @ts-ignore - LanguageModelV3 compatibility
+    "@ai-sdk/cerebras": createCerebras,
+    // @ts-ignore - LanguageModelV3 compatibility
+    "@ai-sdk/cohere": createCohere,
+    // @ts-ignore - LanguageModelV3 compatibility
+    "@ai-sdk/gateway": createGateway,
+    // @ts-ignore - LanguageModelV3 compatibility
+    "@ai-sdk/togetherai": createTogetherAI,
+    // @ts-ignore - LanguageModelV3 compatibility
+    "@ai-sdk/perplexity": createPerplexity,
     // @ts-ignore (TODO: kill this code so we dont have to maintain it)
     "@ai-sdk/github-copilot": createGitHubCopilotOpenAICompatible,
   }

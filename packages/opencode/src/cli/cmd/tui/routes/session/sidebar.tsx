@@ -8,6 +8,7 @@ import type { AssistantMessage } from "@opencode-ai/sdk/v2"
 import { Installation } from "@/installation"
 import { useDirectory } from "../../context/directory"
 import { useKV } from "../../context/kv"
+import { TodoItem } from "../../component/todo-item"
 
 export function Sidebar(props: { sessionID: string }) {
   const sync = useSync()
@@ -47,6 +48,16 @@ export function Sidebar(props: { sessionID: string }) {
   // Sort MCP servers alphabetically for consistent display order
   const mcpEntries = createMemo(() => Object.entries(sync.data.mcp).sort(([a], [b]) => a.localeCompare(b)))
 
+  // Count connected and error MCP servers for collapsed header display
+  const connectedMcpCount = createMemo(() => mcpEntries().filter(([_, item]) => item.status === "connected").length)
+  const errorMcpCount = createMemo(
+    () =>
+      mcpEntries().filter(
+        ([_, item]) =>
+          item.status === "failed" || item.status === "needs_auth" || item.status === "needs_client_registration",
+      ).length,
+  )
+
   const cost = createMemo(() => {
     const total = messages().reduce((sum, x) => sum + (x.role === "assistant" ? x.cost : 0), 0)
     return new Intl.NumberFormat("en-US", {
@@ -77,6 +88,7 @@ export function Sidebar(props: { sessionID: string }) {
       <box
         backgroundColor={theme.backgroundPanel}
         width={42}
+        height="100%"
         paddingTop={1}
         paddingBottom={1}
         paddingLeft={2}
@@ -112,6 +124,13 @@ export function Sidebar(props: { sessionID: string }) {
                   </Show>
                   <text fg={theme.text}>
                     <b>MCP</b>
+                    <Show when={!expanded.mcp}>
+                      <span style={{ fg: theme.textMuted }}>
+                        {" "}
+                        ({connectedMcpCount()} active
+                        {errorMcpCount() > 0 ? `, ${errorMcpCount()} error${errorMcpCount() > 1 ? "s" : ""}` : ""})
+                      </span>
+                    </Show>
                   </text>
                 </box>
                 <Show when={mcpEntries().length <= 2 || expanded.mcp}>
@@ -212,13 +231,7 @@ export function Sidebar(props: { sessionID: string }) {
                   </text>
                 </box>
                 <Show when={todo().length <= 2 || expanded.todo}>
-                  <For each={todo()}>
-                    {(todo) => (
-                      <text style={{ fg: todo.status === "in_progress" ? theme.success : theme.textMuted }}>
-                        [{todo.status === "completed" ? "✓" : " "}] {todo.content}
-                      </text>
-                    )}
-                  </For>
+                  <For each={todo()}>{(todo) => <TodoItem status={todo.status} content={todo.content} />}</For>
                 </Show>
               </box>
             </Show>

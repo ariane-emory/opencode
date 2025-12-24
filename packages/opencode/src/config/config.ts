@@ -568,10 +568,12 @@ export namespace Config {
       terminal_title_toggle: z.string().optional().default("none").describe("Toggle terminal title"),
       tips_toggle: z.string().optional().default("<leader>h").describe("Toggle tips on home screen"),
     })
-    .strict()
+    .passthrough()
     .meta({
       ref: "KeybindsConfig",
     })
+
+  export const ValidKeybindNames = new Set(Object.keys(Keybinds.shape))
 
   export const TUI = z.object({
     scroll_speed: z.number().min(0.001).optional().describe("TUI scroll speed"),

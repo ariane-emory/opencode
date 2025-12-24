@@ -1,7 +1,8 @@
 import { createMemo } from "solid-js"
 import { useSync } from "@tui/context/sync"
 import { Keybind } from "@/util/keybind"
-import { pipe, mapValues } from "remeda"
+import { pipe, mapValues, pickBy } from "remeda"
+import { Config } from "@/config/config"
 import type { KeybindsConfig } from "@opencode-ai/sdk/v2"
 import type { ParsedKey, Renderable } from "@opentui/core"
 import { createStore } from "solid-js/store"
@@ -15,7 +16,16 @@ export const { use: useKeybind, provider: KeybindProvider } = createSimpleContex
     const keybinds = createMemo(() => {
       return pipe(
         sync.data.config.keybinds ?? {},
+        pickBy((_, key) => Config.ValidKeybindNames.has(key)),
         mapValues((value) => Keybind.parse(value)),
+      )
+    })
+    const invalidKeybinds = createMemo(() => {
+      return pipe(
+        sync.data.config.keybinds ?? {},
+        // Exclude valid keybinds AND custom command keybinds (starting with /)
+        pickBy((_, key) => !Config.ValidKeybindNames.has(key) && !key.startsWith("/")),
+        mapValues((value) => Keybind.parse(value ?? "")),
       )
     })
     const [store, setStore] = createStore({
@@ -94,6 +104,17 @@ export const { use: useKeybind, provider: KeybindProvider } = createSimpleContex
         if (!first) return ""
         const result = Keybind.toString(first)
         return result.replace("<leader>", Keybind.toString(keybinds().leader![0]!))
+      },
+      matchInvalid(evt: ParsedKey): string | undefined {
+        const parsed = result.parse(evt)
+        for (const [name, bindings] of Object.entries(invalidKeybinds())) {
+          for (const binding of bindings) {
+            if (Keybind.match(binding, parsed)) {
+              return name
+            }
+          }
+        }
+        return undefined
       },
     }
     return result

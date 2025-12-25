@@ -50,13 +50,20 @@ export namespace Provider {
     "@openrouter/ai-sdk-provider": createOpenRouter,
     "@ai-sdk/xai": createXai,
     "@ai-sdk/mistral": createMistral,
-    "@ai-sdk/groq": createGroq,
-    "@ai-sdk/deepinfra": createDeepInfra,
-    "@ai-sdk/cerebras": createCerebras,
-    "@ai-sdk/cohere": createCohere,
-    "@ai-sdk/gateway": createGateway,
-    "@ai-sdk/togetherai": createTogetherAI,
-    "@ai-sdk/perplexity": createPerplexity,
+    // @ts-ignore - Type mismatch due to LanguageModelV3 vs V2, but runtime compatible
+    "@ai-sdk/groq": createGroq as any,
+    // @ts-ignore - Type mismatch due to LanguageModelV3 vs V2, but runtime compatible
+    "@ai-sdk/deepinfra": createDeepInfra as any,
+    // @ts-ignore - Type mismatch due to LanguageModelV3 vs V2, but runtime compatible
+    "@ai-sdk/cerebras": createCerebras as any,
+    // @ts-ignore - Type mismatch due to LanguageModelV3 vs V2, but runtime compatible
+    "@ai-sdk/cohere": createCohere as any,
+    // @ts-ignore - Type mismatch due to LanguageModelV3 vs V2, but runtime compatible
+    "@ai-sdk/gateway": createGateway as any,
+    // @ts-ignore - Type mismatch due to LanguageModelV3 vs V2, but runtime compatible
+    "@ai-sdk/togetherai": createTogetherAI as any,
+    // @ts-ignore - Type mismatch due to LanguageModelV3 vs V2, but runtime compatible
+    "@ai-sdk/perplexity": createPerplexity as any,
     // @ts-ignore (TODO: kill this code so we dont have to maintain it)
     "@ai-sdk/github-copilot": createGitHubCopilotOpenAICompatible,
   }

@@ -75,8 +75,20 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     const result = pipe(
       props.options,
       filter((x) => x.disabled !== true),
-      (x) =>
-        !needle || props.skipFilter ? x : fuzzysort.go(needle, x, { keys: ["title", "category"] }).map((x) => x.obj),
+      (x) => {
+        if (!needle || props.skipFilter) return x
+        const fuzzyResults = fuzzysort.go(needle, x, { keys: ["title", "category"] }).map((x) => x.obj)
+        // Sort with prefix matches first (alphabetically), then other matches (alphabetically)
+        return fuzzyResults.sort((a, b) => {
+          const aTitle = a.title.toLowerCase()
+          const bTitle = b.title.toLowerCase()
+          const aIsPrefix = aTitle.startsWith(needle)
+          const bIsPrefix = bTitle.startsWith(needle)
+          if (aIsPrefix && !bIsPrefix) return -1
+          if (!aIsPrefix && bIsPrefix) return 1
+          return a.title.localeCompare(b.title)
+        })
+      },
     )
     return result
   })
@@ -85,7 +97,6 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     const result = pipe(
       filtered(),
       groupBy((x) => x.category ?? ""),
-      // mapValues((x) => x.sort((a, b) => a.title.localeCompare(b.title))),
       entries(),
     )
     return result

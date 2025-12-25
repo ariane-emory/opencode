@@ -180,11 +180,35 @@ export function DialogModel(props: { providerID?: string }) {
       : []
 
     // Apply fuzzy filtering to each section separately, maintaining section order
+    // Sort with prefix matches first (alphabetically), then other matches (alphabetically)
+    // Preserve "Free first" ordering within each group
     if (q) {
-      const filteredFavorites = fuzzysort.go(q, favoriteOptions, { keys: ["title"] }).map((x) => x.obj)
-      const filteredRecents = fuzzysort.go(q, recentOptions, { keys: ["title"] }).map((x) => x.obj)
-      const filteredProviders = fuzzysort.go(q, providerOptions, { keys: ["title", "category"] }).map((x) => x.obj)
-      const filteredPopular = fuzzysort.go(q, popularProviders, { keys: ["title"] }).map((x) => x.obj)
+      const needle = q.toLowerCase()
+      const sortWithPrefixFirst = <T extends { title: string; footer?: string }>(items: T[]): T[] =>
+        items.sort((a, b) => {
+          const aTitle = a.title.toLowerCase()
+          const bTitle = b.title.toLowerCase()
+          const aIsPrefix = aTitle.startsWith(needle)
+          const bIsPrefix = bTitle.startsWith(needle)
+          if (aIsPrefix && !bIsPrefix) return -1
+          if (!aIsPrefix && bIsPrefix) return 1
+          // Preserve "Free first" within same prefix group
+          if (a.footer === "Free" && b.footer !== "Free") return -1
+          if (a.footer !== "Free" && b.footer === "Free") return 1
+          return a.title.localeCompare(b.title)
+        })
+      const filteredFavorites = sortWithPrefixFirst(
+        fuzzysort.go(q, favoriteOptions, { keys: ["title"] }).map((x) => x.obj),
+      )
+      const filteredRecents = sortWithPrefixFirst(
+        fuzzysort.go(q, recentOptions, { keys: ["title"] }).map((x) => x.obj),
+      )
+      const filteredProviders = sortWithPrefixFirst(
+        fuzzysort.go(q, providerOptions, { keys: ["title", "category"] }).map((x) => x.obj),
+      )
+      const filteredPopular = sortWithPrefixFirst(
+        fuzzysort.go(q, popularProviders, { keys: ["title"] }).map((x) => x.obj),
+      )
       return [...filteredFavorites, ...filteredRecents, ...filteredProviders, ...filteredPopular]
     }
 

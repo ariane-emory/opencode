@@ -1,5 +1,4 @@
 import type { BoxRenderable, TextareaRenderable, KeyEvent, ScrollBoxRenderable } from "@opentui/core"
-import fuzzysort from "fuzzysort"
 import { firstBy } from "remeda"
 import { createMemo, createResource, createEffect, onMount, onCleanup, For, Show, createSignal } from "solid-js"
 import { createStore } from "solid-js/store"
@@ -24,6 +23,41 @@ export type AutocompleteOption = {
   disabled?: boolean
   description?: string
   onSelect?: () => void
+}
+
+function tieredMatch(
+  items: AutocompleteOption[],
+  needle: string,
+  prefix: string,
+  limit: number = 100,
+): AutocompleteOption[] {
+  const lowerNeedle = needle.toLowerCase()
+  const fullNeedle = (prefix + needle).toLowerCase()
+
+  const tier1: AutocompleteOption[] = []
+  const tier2: AutocompleteOption[] = []
+  const tier3: AutocompleteOption[] = []
+
+  for (const item of items) {
+    const display = item.display.trimEnd().toLowerCase()
+
+    if (display.startsWith(fullNeedle)) {
+      tier1.push(item)
+    } else if (display.includes(lowerNeedle)) {
+      tier2.push(item)
+    } else {
+      const descMatch = item.description?.toLowerCase().includes(lowerNeedle)
+      const aliasMatch = item.aliases?.some((a) => a.toLowerCase().includes(lowerNeedle))
+      if (descMatch || aliasMatch) {
+        tier3.push(item)
+      }
+    }
+  }
+
+  const sortByDisplay = (a: AutocompleteOption, b: AutocompleteOption) =>
+    a.display.trimEnd().localeCompare(b.display.trimEnd())
+
+  return [...tier1.sort(sortByDisplay), ...tier2.sort(sortByDisplay), ...tier3.sort(sortByDisplay)].slice(0, limit)
 }
 
 export function Autocomplete(props: {
@@ -383,19 +417,7 @@ export function Autocomplete(props: {
       return prev
     }
 
-    const result = fuzzysort.go(currentFilter, mixed, {
-      keys: [(obj) => obj.display.trimEnd(), "description", (obj) => obj.aliases?.join(" ") ?? ""],
-      limit: 10,
-      scoreFn: (objResults) => {
-        const displayResult = objResults[0]
-        if (displayResult && displayResult.target.startsWith(store.visible + currentFilter)) {
-          return objResults.score * 2
-        }
-        return objResults.score
-      },
-    })
-
-    return result.map((arr) => arr.obj)
+    return tieredMatch(mixed, currentFilter, store.visible || "/", 100)
   })
 
   createEffect(() => {

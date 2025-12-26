@@ -31,7 +31,7 @@ you can switch between these using the `Tab` key.
   - Asks permission before running bash commands
   - Ideal for exploring unfamiliar codebases or planning changes
 
-Also, included is a **general** subagent for complex searches and multi-step tasks.
+Also, included is a **general** subagent for complex searches and multistep tasks.
 This is used internally and can be invoked using `@general` in messages.
 
 ### Configuration
@@ -44,6 +44,26 @@ Environment variables use the `BASE_ONE_` prefix, with fallback to `OPENCODE_` f
 ### Contributing
 
 If you're interested in contributing to BaseOne, please read our [contributing docs](./CONTRIBUTING.md) before submitting a pull request.
+
+### Building on BaseOne
+
+If you are working on a project that's related to BaseOne and is using "base-one" as a part of its name; for example, "base-one-dashboard" or "base-one-mobile", please add a note to your README to clarify that it is not built by the BaseOne team and is not affiliated with us in any way.
+
+### FAQ
+
+#### How is this different from Claude Code?
+
+It's very similar to Claude Code in terms of capability. Here are the key differences:
+
+- 100% open source
+- Not coupled to any provider. Although we recommend the models we provide through [BaseOne Zen](https://opencode.ai/zen); BaseOne can be used with Claude, OpenAI, Google or even local models. As models evolve the gaps between them will close and pricing will drop so being provider-agnostic is important.
+- Out of the box LSP support
+- A focus on TUI. BaseOne is built by neovim users and the creators of [terminal.shop](https://terminal.shop); we are going to push the limits of what's possible in the terminal.
+- A client/server architecture. This for example can allow BaseOne to run on your computer, while you can drive it remotely from a mobile app. Meaning that the TUI frontend is just one of the possible clients.
+
+#### What's the other repo?
+
+The other confusingly named repo has no relation to this one. You can [read the story behind it here](https://x.com/thdxr/status/1933561254481666466).
 
 ---
 

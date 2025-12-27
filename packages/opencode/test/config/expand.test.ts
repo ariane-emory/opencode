@@ -135,5 +135,17 @@ title: Only frontmatter
       const result = await MarkdownExpand.expand(content, { args: ["hello", "world"] })
       expect(result).toBe("You said: hello world")
     })
+
+    test("should replace $1 and $ARGUMENTS with empty string when no args provided", async () => {
+      const content = "First: $1, All: $ARGUMENTS, End"
+      const result = await MarkdownExpand.expand(content, { args: [] })
+      expect(result).toBe("First: , All: , End")
+    })
+
+    test("should replace unsupplied positional args with empty string", async () => {
+      const content = "First: $1, Second: $2, Third: $3"
+      const result = await MarkdownExpand.expand(content, { args: ["only-one"] })
+      expect(result).toBe("First: only-one, Second: , Third:")
+    })
   })
 })

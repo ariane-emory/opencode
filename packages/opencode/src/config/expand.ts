@@ -68,16 +68,17 @@ export namespace MarkdownExpand {
     }
 
     // Substitute $1, $2, ... and $ARGUMENTS in the content
-    if (args.length > 0) {
-      // Replace $ARGUMENTS with all arguments joined
-      result = result.replace(/\$ARGUMENTS\b/g, args.join(" "))
+    // Replace $ARGUMENTS with all arguments joined (or empty string if none)
+    result = result.replace(/\$ARGUMENTS\b/g, args.join(" "))
 
-      // Replace $1, $2, ... with positional arguments
-      for (let i = 0; i < args.length; i++) {
-        const pattern = new RegExp(`\\$${i + 1}\\b`, "g")
-        result = result.replace(pattern, args[i])
-      }
+    // Replace $1, $2, ... with positional arguments
+    for (let i = 0; i < args.length; i++) {
+      const pattern = new RegExp(`\\$${i + 1}\\b`, "g")
+      result = result.replace(pattern, args[i])
     }
+
+    // Replace any remaining $N patterns with empty string
+    result = result.replace(/\$\d+\b/g, "")
 
     return result.trim()
   }

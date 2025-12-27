@@ -534,7 +534,6 @@ test("deduplicates duplicate plugins from global and local configs", async () =>
   })
 })
 
-<<<<<<< HEAD
 test("handles TUI configuration with session_list_limit and messages_limit", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {

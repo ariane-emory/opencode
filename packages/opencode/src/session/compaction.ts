@@ -6,6 +6,7 @@ import { Instance } from "../project/instance"
 import { Provider } from "../provider/provider"
 import { MessageV2 } from "./message-v2"
 import { Config } from "../config/config"
+import { Flag } from "../flag/flag"
 import z from "zod"
 import { SessionPrompt } from "./prompt"
 import { Token } from "../util/token"
@@ -14,7 +15,6 @@ import { SessionProcessor } from "./processor"
 import { fn } from "@/util/fn"
 import { Agent } from "@/agent/agent"
 import { Plugin } from "@/plugin"
-import { Config } from "@/config/config"
 
 export namespace SessionCompaction {
   const log = Log.create({ service: "session.compaction" })

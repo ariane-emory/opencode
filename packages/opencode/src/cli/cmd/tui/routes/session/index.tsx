@@ -1281,14 +1281,10 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
       }
     }
 
-    // Fallback to user message time if no part timing found
+    // No running part found - don't show elapsed time
     if (!startTime) {
-      const user = messages().find((x) => x.role === "user" && x.id === props.message.parentID)
-      if (!user?.time) {
-        setElapsedTime(0)
-        return
-      }
-      startTime = user.time.created
+      setElapsedTime(0)
+      return
     }
 
     const interval = setInterval(() => {

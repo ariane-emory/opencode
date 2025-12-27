@@ -1579,10 +1579,7 @@ export namespace Server {
           const providers = await Provider.list().then((x) => mapValues(x, (item) => item))
           return c.json({
             providers: Object.values(providers),
-            default: mapValues(providers, (item) => {
-              const sortedModels = Provider.sort(Object.values(item.models))
-              return sortedModels.length > 0 ? sortedModels[0].id : undefined
-            }),
+            default: mapValues(providers, (item) => Provider.sort(Object.values(item.models))[0].id),
           })
         },
       )
@@ -1629,10 +1626,7 @@ export namespace Server {
           )
           return c.json({
             all: Object.values(providers),
-            default: mapValues(providers, (item) => {
-              const sortedModels = Provider.sort(Object.values(item.models))
-              return sortedModels.length > 0 ? sortedModels[0].id : undefined
-            }),
+            default: mapValues(providers, (item) => Provider.sort(Object.values(item.models))[0].id),
             connected: Object.keys(connected),
           })
         },

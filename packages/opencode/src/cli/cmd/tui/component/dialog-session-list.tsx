@@ -8,6 +8,7 @@ import { Keybind } from "@/util/keybind"
 import { useTheme } from "../context/theme"
 import { useSDK } from "../context/sdk"
 import { DialogSessionRename } from "./dialog-session-rename"
+import "opentui-spinner/solid"
 
 export function DialogSessionList() {
   const dialog = useDialog()

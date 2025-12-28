@@ -607,6 +607,3 @@ test("compaction config can disable auto compaction", async () => {
     },
   })
 })
-    },
-  })
-})

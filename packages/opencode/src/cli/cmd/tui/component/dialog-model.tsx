@@ -37,11 +37,9 @@ export function DialogModel(props: { providerID?: string }) {
     const recents = local.model.recent()
 
     const recentList = showExtra()
-      ? recents
-          .filter(
-            (item) => !favorites.some((fav) => fav.providerID === item.providerID && fav.modelID === item.modelID),
-          )
-          .slice(0, 5)
+      ? recents.filter(
+          (item) => !favorites.some((fav) => fav.providerID === item.providerID && fav.modelID === item.modelID),
+        )
       : []
 
     const favoriteOptions = favorites.flatMap((item) => {
@@ -201,7 +199,7 @@ export function DialogModel(props: { providerID?: string }) {
         fuzzysort.go(q, favoriteOptions, { keys: ["title"] }).map((x) => x.obj),
       )
       const filteredRecents = sortWithPrefixFirst(
-        fuzzysort.go(q, recentOptions, { keys: ["title"] }).map((x) => x.obj),
+        fuzzysort.go(q, recentOptions, { keys: ["title"] }).map((x) => x.obj).slice(0, 5),
       )
       const filteredProviders = sortWithPrefixFirst(
         fuzzysort.go(q, providerOptions, { keys: ["title", "category"] }).map((x) => x.obj),

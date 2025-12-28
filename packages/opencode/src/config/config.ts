@@ -101,7 +101,7 @@ export namespace Config {
         for (const file of ["base-one.jsonc", "base-one.json", "opencode.jsonc", "opencode.json"]) {
           log.debug(`loading config from ${path.join(dir, file)}`)
           result = mergeConfigWithPlugins(result, await loadFile(path.join(dir, file)))
-          // to satisy the type checker
+          // to satisfy the type checker
           result.agent ??= {}
           result.mode ??= {}
           result.plugin ??= []

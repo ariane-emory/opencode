@@ -247,7 +247,7 @@
       "name": "opencode",
       "version": "1.0.206",
       "bin": {
-        "opencode": "./bin/opencode",
+        "base-one": "./bin/base-one",
       },
       "dependencies": {
         "@actions/core": "1.11.1",

@@ -1143,6 +1143,10 @@ export type KeybindsConfig = {
    */
   session_parent?: string
   /**
+   * Continue interrupted conversation
+   */
+  session_continue?: string
+  /**
    * Suspend terminal
    */
   terminal_suspend?: string

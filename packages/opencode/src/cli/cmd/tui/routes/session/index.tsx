@@ -131,8 +131,8 @@ export function Session() {
 
   const wide = createMemo(() => dimensions().width > 120)
   const sidebarVisible = createMemo(() => {
-    if (session()?.parentID) return false
     if (sidebar() === "show") return true
+    if (sidebar() === "hide") return false
     if (sidebar() === "auto" && wide()) return true
     return false
   })
@@ -194,6 +194,20 @@ export function Session() {
       navigate({
         type: "session",
         sessionID: targetID,
+      })
+    }
+  })
+
+  // Auto-navigate back to parent when subsession completes
+  createEffect(() => {
+    const currentSession = session()
+    if (!currentSession?.parentID) return
+    
+    const lastMsg = messages().findLast((x) => x.role === "assistant")
+    if (lastMsg?.time.completed) {
+      navigate({
+        type: "session",
+        sessionID: currentSession.parentID,
       })
     }
   })

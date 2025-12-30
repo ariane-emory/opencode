@@ -1,8 +1,8 @@
 import { createMemo, onMount } from "solid-js"
 import { useSync } from "@tui/context/sync"
 import { DialogSelect, type DialogSelectOption } from "@tui/ui/dialog-select"
+import type { TextPart } from "@opencode-ai/sdk/v2"
 import { Locale } from "@/util/locale"
-import { getVisibleTextPart } from "@tui/util/message-filter"
 import { DialogMessage } from "./dialog-message"
 import { useDialog } from "../../ui/dialog"
 import type { PromptInfo } from "../../component/prompt/history"
@@ -24,7 +24,9 @@ export function DialogTimeline(props: {
     const result = [] as DialogSelectOption<string>[]
     for (const message of messages) {
       if (message.role !== "user") continue
-      const part = getVisibleTextPart(sync.data.part[message.id] ?? [])
+      const part = (sync.data.part[message.id] ?? []).find(
+        (x) => x.type === "text" && !x.synthetic && !x.ignored,
+      ) as TextPart
       if (!part) continue
       result.push({
         title: part.text.replace(/\n/g, " "),

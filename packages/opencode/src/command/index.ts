@@ -28,8 +28,6 @@ export namespace Command {
       model: z.string().optional(),
       template: z.string(),
       subtask: z.boolean().optional(),
-      new_session: z.boolean().optional(),
-      subsession: z.boolean().optional(),
     })
     .meta({
       ref: "Command",
@@ -66,8 +64,6 @@ export namespace Command {
         description: command.description,
         template: command.template,
         subtask: command.subtask,
-        new_session: command.new_session,
-        subsession: command.subsession,
       }
     }
 

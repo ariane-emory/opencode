@@ -90,6 +90,7 @@ export namespace SessionPrompt {
     noReply: z.boolean().optional(),
     tools: z.record(z.string(), z.boolean()).optional(),
     system: z.string().optional(),
+    variant: z.string().optional(),
     parts: z.array(
       z.discriminatedUnion("type", [
         MessageV2.TextPart.omit({
@@ -727,6 +728,7 @@ export namespace SessionPrompt {
       agent: agent.name,
       model: input.model ?? agent.model ?? (await lastModel(input.sessionID)),
       system: input.system,
+      variant: input.variant,
     }
 
     const parts = await Promise.all(
@@ -1267,6 +1269,7 @@ export namespace SessionPrompt {
     model: z.string().optional(),
     arguments: z.string(),
     command: z.string(),
+    variant: z.string().optional(),
   })
   export type CommandInput = z.infer<typeof CommandInput>
   const bashRegex = /!`([^`]+)`/g
@@ -1320,16 +1323,6 @@ export namespace SessionPrompt {
     }
     template = template.trim()
 
-    // Create new session or subsession if requested
-    let sessionID = input.sessionID
-    if (command.new_session) {
-      const newSession = await Session.create({})
-      sessionID = newSession.id
-    } else if (command.subsession) {
-      const newSession = await Session.create({ parentID: input.sessionID })
-      sessionID = newSession.id
-    }
-
     const model = await (async () => {
       if (command.model) {
         return Provider.parseModel(command.model)
@@ -1341,7 +1334,7 @@ export namespace SessionPrompt {
         }
       }
       if (input.model) return Provider.parseModel(input.model)
-      return await lastModel(sessionID)
+      return await lastModel(input.sessionID)
     })()
 
     try {
@@ -1374,16 +1367,17 @@ export namespace SessionPrompt {
         : await resolvePromptParts(template)
 
     const result = (await prompt({
-      sessionID,
+      sessionID: input.sessionID,
       messageID: input.messageID,
       model,
       agent: agentName,
       parts,
+      variant: input.variant,
     })) as MessageV2.WithParts
 
     Bus.publish(Command.Event.Executed, {
       name: input.command,
-      sessionID,
+      sessionID: input.sessionID,
       arguments: input.arguments,
       messageID: result.info.id,
     })

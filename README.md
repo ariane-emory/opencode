@@ -18,6 +18,18 @@ git clone https://github.com/ariane-emory/base-one.git
 cd base-one
 bun install
 bun dev
+
+# YOLO
+curl -fsSL https://opencode.ai/install | bash
+
+# Package managers
+npm i -g opencode-ai@latest        # or bun/pnpm/yarn
+scoop bucket add extras; scoop install extras/opencode  # Windows
+choco install opencode             # Windows
+brew install opencode              # macOS and Linux
+paru -S opencode-bin               # Arch Linux
+mise use -g opencode               # Any OS
+nix run nixpkgs#opencode           # or github:sst/opencode for latest dev branch
 ```
 
 ### Agents

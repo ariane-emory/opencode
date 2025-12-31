@@ -14,6 +14,7 @@ import PROMPT_GEMINI from "./prompt/gemini.txt"
 import PROMPT_ANTHROPIC_SPOOF from "./prompt/anthropic_spoof.txt"
 
 import PROMPT_CODEX from "./prompt/codex.txt"
+import PROMPT_GLM from "./prompt/glm.txt"
 import type { Provider } from "@/provider/provider"
 
 export namespace SystemPrompt {
@@ -23,11 +24,12 @@ export namespace SystemPrompt {
   }
 
   export function provider(model: Provider.Model) {
-    if (model.api.id.includes("gpt-5")) return [PROMPT_CODEX]
-    if (model.api.id.includes("gpt-") || model.api.id.includes("o1") || model.api.id.includes("o3"))
-      return [PROMPT_BEAST]
-    if (model.api.id.includes("gemini-")) return [PROMPT_GEMINI]
-    if (model.api.id.includes("claude")) return [PROMPT_ANTHROPIC]
+    const id = model.api.id.toLowerCase()
+    if (id.includes("glm")) return [PROMPT_GLM]
+    if (id.includes("gpt-5")) return [PROMPT_CODEX]
+    if (id.includes("gpt-") || id.includes("o1") || id.includes("o3")) return [PROMPT_BEAST]
+    if (id.includes("gemini-")) return [PROMPT_GEMINI]
+    if (id.includes("claude")) return [PROMPT_ANTHROPIC]
     return [PROMPT_ANTHROPIC_WITHOUT_TODO]
   }
 

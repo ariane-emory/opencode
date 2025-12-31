@@ -397,11 +397,27 @@ export namespace Session {
       metadata: z.custom<ProviderMetadata>().optional(),
     }),
     (input) => {
-      const cachedInputTokens = input.usage.cachedInputTokens ?? 0
+      // Get raw anthropic usage from metadata (has correct values for streaming)
+      const anthropicRawUsage = input.metadata?.["anthropic"]?.["usage"] as
+        | {
+            input_tokens?: number
+            output_tokens?: number
+            cache_read_input_tokens?: number
+            cache_creation_input_tokens?: number
+          }
+        | undefined
+
+      // Use raw anthropic input_tokens if SDK reports 0 (streaming bug with custom endpoints)
+      const rawInputTokens =
+        input.usage.inputTokens === 0 && anthropicRawUsage?.input_tokens
+          ? anthropicRawUsage.input_tokens
+          : (input.usage.inputTokens ?? 0)
+
+      const cachedInputTokens = input.usage.cachedInputTokens ?? anthropicRawUsage?.cache_read_input_tokens ?? 0
+
       const excludesCachedTokens = !!(input.metadata?.["anthropic"] || input.metadata?.["bedrock"])
-      const adjustedInputTokens = excludesCachedTokens
-        ? (input.usage.inputTokens ?? 0)
-        : (input.usage.inputTokens ?? 0) - cachedInputTokens
+      const adjustedInputTokens = excludesCachedTokens ? rawInputTokens : rawInputTokens - cachedInputTokens
+
       const safe = (value: number) => {
         if (!Number.isFinite(value)) return 0
         return value
@@ -409,11 +425,12 @@ export namespace Session {
 
       const tokens = {
         input: safe(adjustedInputTokens),
-        output: safe(input.usage.outputTokens ?? 0),
-        reasoning: safe(input.usage?.reasoningTokens ?? 0),
+        output: safe((input.usage.outputTokens ?? anthropicRawUsage?.output_tokens ?? 0) as number),
+        reasoning: safe((input.usage?.reasoningTokens ?? 0) as number),
         cache: {
           write: safe(
             (input.metadata?.["anthropic"]?.["cacheCreationInputTokens"] ??
+              anthropicRawUsage?.cache_creation_input_tokens ??
               // @ts-expect-error
               input.metadata?.["bedrock"]?.["usage"]?.["cacheWriteInputTokens"] ??
               0) as number,

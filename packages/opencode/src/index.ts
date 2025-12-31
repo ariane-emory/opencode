@@ -27,9 +27,7 @@ import { EOL } from "os"
 import { WebCommand } from "./cli/cmd/web"
 import { PrCommand } from "./cli/cmd/pr"
 import { SessionCommand } from "./cli/cmd/session"
-import { QuestionCommand } from "./cli/cmd/question"
-import { PromptCommand } from "./cli/cmd/prompt"
-import { PromptManageCommand } from "./cli/cmd/prompt-manage"
+
 
 process.on("unhandledRejection", (e) => {
   Log.Default.error("rejection", {
@@ -102,9 +100,7 @@ const cli = yargs(hideBin(process.argv))
   .command(GithubCommand)
   .command(PrCommand)
   .command(SessionCommand)
-  .command(QuestionCommand)
-  .command(PromptCommand)
-  .command(PromptManageCommand)
+
   .fail((msg) => {
     if (
       msg.startsWith("Unknown argument") ||

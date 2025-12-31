@@ -138,6 +138,14 @@ export namespace Provider {
         options: {},
       }
     },
+    "zai-coding-plan": async () => {
+      return {
+        autoload: false,
+        options: {
+          baseURL: "https://api.z.ai/api/anthropic/v1",
+        },
+      }
+    },
     azure: async () => {
       return {
         autoload: false,

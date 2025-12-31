@@ -81,7 +81,39 @@ export namespace ModelsDev {
     const result = await file.json().catch(() => {})
     if (result) return result as Record<string, Provider>
     const json = await data()
-    return JSON.parse(json) as Record<string, Provider>
+    const parsed = JSON.parse(json) as Record<string, Provider>
+
+    if (!parsed["zai-coding-plan"]) {
+      parsed["zai-coding-plan"] = {
+        id: "zai-coding-plan",
+        name: "ZAI (GLM)",
+        env: [],
+        npm: "@ai-sdk/anthropic",
+        models: {
+          "glm-4.7": {
+            id: "glm-4.7",
+            name: "GLM 4.7",
+            release_date: "2025-11-24",
+            attachment: true,
+            reasoning: true,
+            temperature: true,
+            tool_call: true,
+            interleaved: true,
+            cost: {
+              input: 0,
+              output: 0,
+            },
+            limit: {
+              context: 200000,
+              output: 128000,
+            },
+            options: {},
+          },
+        },
+      }
+    }
+
+    return parsed
   }
 
   export async function refresh() {

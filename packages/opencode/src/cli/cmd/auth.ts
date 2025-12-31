@@ -271,6 +271,7 @@ export const AuthLoginCommand = cmd({
         const priority: Record<string, number> = {
           opencode: 0,
           anthropic: 1,
+          "zai-coding-plan": 1.5,
           "github-copilot": 2,
           openai: 3,
           google: 4,
@@ -294,6 +295,7 @@ export const AuthLoginCommand = cmd({
                 hint: {
                   opencode: "recommended",
                   anthropic: "Claude Max or API key",
+                  "zai-coding-plan": "GLM Models (Default)",
                 }[x.id],
               })),
             ),
@@ -343,6 +345,11 @@ export const AuthLoginCommand = cmd({
 
         if (provider === "opencode") {
           prompts.log.info("Create an api key at https://opencode.ai/auth")
+        }
+
+        if (provider === "zai-coding-plan") {
+          prompts.log.info("Enter your GLM/ZAI API key (starts with '7a...')")
+          prompts.log.info("This will configure ZAI as the default provider for GLM models.")
         }
 
         if (provider === "vercel") {

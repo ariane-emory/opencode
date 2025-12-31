@@ -152,7 +152,7 @@ export namespace Config {
     const warnings: Warning[] = []
     if (result.keybinds) {
       const unknownKeybinds = Object.keys(result.keybinds).filter(
-        (key) => key !== "leader" && !ValidKeybindNames.has(key),
+        (key) => key !== "leader" && !key.startsWith("/") && !ValidKeybindNames.has(key),
       )
       if (unknownKeybinds.length > 0) {
         warnings.push({

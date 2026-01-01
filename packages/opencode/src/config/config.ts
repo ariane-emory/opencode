@@ -151,14 +151,15 @@ export namespace Config {
     // Collect warnings for unknown keybind names
     const warnings: Warning[] = []
     if (result.keybinds) {
-      const unknownKeybinds = Object.keys(result.keybinds).filter(
-        (key) => key !== "leader" && !key.startsWith("/") && !ValidKeybindNames.has(key),
-      )
-      if (unknownKeybinds.length > 0) {
+      const unknownKeybindEntries = Object.entries(result.keybinds)
+        .filter(([key]) => key !== "leader" && !key.startsWith("/") && !ValidKeybindNames.has(key))
+        .map(([name, binding]) => ({ name, binding: binding as string }))
+      if (unknownKeybindEntries.length > 0) {
+        const names = unknownKeybindEntries.map((kb) => kb.name)
         warnings.push({
           type: "unknown_keybind",
-          message: `Unknown keybind ${unknownKeybinds.length === 1 ? "command" : "commands"}: ${unknownKeybinds.join(", ")}`,
-          keybinds: unknownKeybinds,
+          message: `Unknown keybind ${names.length === 1 ? "command" : "commands"}: ${names.join(", ")}`,
+          keybinds: unknownKeybindEntries,
         })
       }
     }
@@ -591,7 +592,14 @@ export namespace Config {
     .object({
       type: z.enum(["unknown_keybind"]),
       message: z.string(),
-      keybinds: z.array(z.string()).optional(),
+      keybinds: z
+        .array(
+          z.object({
+            name: z.string(),
+            binding: z.string(),
+          }),
+        )
+        .optional(),
     })
     .meta({ ref: "ConfigWarning" })
   export type Warning = z.infer<typeof Warning>

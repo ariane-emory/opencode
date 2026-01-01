@@ -42,7 +42,10 @@ export type EventProjectUpdated = {
 export type ConfigWarning = {
   type: "unknown_keybind"
   message: string
-  keybinds?: Array<string>
+  keybinds?: Array<{
+    name: string
+    binding: string
+  }>
 }
 
 export type EventConfigWarning = {

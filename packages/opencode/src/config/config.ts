@@ -92,7 +92,6 @@ export namespace Config {
       log.debug("loading config from BASE_ONE_CONFIG_DIR", { path: Flag.BASE_ONE_CONFIG_DIR })
     }
 
-    const promises: Promise<void>[] = []
     for (const dir of unique(directories)) {
       if (dir.endsWith(".base-one") || dir.endsWith(".opencode") || dir === Flag.BASE_ONE_CONFIG_DIR) {
         // Try new config file names first, fall back to legacy
@@ -106,13 +105,12 @@ export namespace Config {
         }
       }
 
-      promises.push(installDependencies(dir))
+      installDependencies(dir)
       result.command = mergeDeep(result.command ?? {}, await loadCommand(dir))
       result.agent = mergeDeep(result.agent, await loadAgent(dir))
       result.agent = mergeDeep(result.agent, await loadMode(dir))
       result.plugin.push(...(await loadPlugin(dir)))
     }
-    await Promise.allSettled(promises)
 
     // Migrate deprecated mode field to agent field
     for (const [name, mode] of Object.entries(result.mode)) {

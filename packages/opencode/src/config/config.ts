@@ -94,8 +94,6 @@ export namespace Config {
 
     const promises: Promise<void>[] = []
     for (const dir of unique(directories)) {
-      await assertValid(dir)
-
       if (dir.endsWith(".base-one") || dir.endsWith(".opencode") || dir === Flag.BASE_ONE_CONFIG_DIR) {
         // Try new config file names first, fall back to legacy
         for (const file of ["base-one.jsonc", "base-one.json", "opencode.jsonc", "opencode.json"]) {

@@ -16,6 +16,22 @@ export const { use: useSDK, provider: SDKProvider } = createSimpleContext({
       [key in Event["type"]]: Extract<Event, { type: key }>
     }>()
 
+    // Cache for early-arriving config.warning events to replay when handlers subscribe
+    const earlyWarnings: Extract<Event, { type: "config.warning" }>[] = []
+
+    // Wrap emitter.on to replay cached warnings for config.warning handlers
+    const originalOn = emitter.on.bind(emitter)
+    const wrappedOn: typeof emitter.on = (event, listener) => {
+      const unsub = originalOn(event, listener)
+      if (event === "config.warning" && earlyWarnings.length > 0) {
+        // Replay cached warnings to this handler
+        for (const warning of earlyWarnings) {
+          ;(listener as (evt: typeof warning) => void)(warning)
+        }
+      }
+      return unsub
+    }
+
     onMount(async () => {
       while (true) {
         if (abort.signal.aborted) break
@@ -38,6 +54,10 @@ export const { use: useSDK, provider: SDKProvider } = createSimpleContext({
           // Batch all event emissions so all store updates result in a single render
           batch(() => {
             for (const event of events) {
+              // Cache config.warning events for late-registering handlers
+              if (event.type === "config.warning") {
+                earlyWarnings.push(event)
+              }
               emitter.emit(event.type, event)
             }
           })
@@ -69,6 +89,6 @@ export const { use: useSDK, provider: SDKProvider } = createSimpleContext({
       abort.abort()
     })
 
-    return { client: sdk, event: emitter, url: props.url }
+    return { client: sdk, event: { ...emitter, on: wrappedOn }, url: props.url }
   },
 })

@@ -4,7 +4,11 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js"
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { UnauthorizedError } from "@modelcontextprotocol/sdk/client/auth.js"
-import type { Tool as MCPToolDef } from "@modelcontextprotocol/sdk/types.js"
+import {
+  CallToolResultSchema,
+  type Tool as MCPToolDef,
+  ToolListChangedNotificationSchema,
+} from "@modelcontextprotocol/sdk/types.js"
 import { Config } from "../config/config"
 import { Log } from "../util/log"
 import { NamedError } from "@opencode-ai/util/error"
@@ -15,12 +19,20 @@ import { withTimeout } from "@/util/timeout"
 import { McpOAuthProvider } from "./oauth-provider"
 import { McpOAuthCallback } from "./oauth-callback"
 import { McpAuth } from "./auth"
+import { BusEvent } from "../bus/bus-event"
 import { Bus } from "@/bus"
 import { TuiEvent } from "@/cli/cmd/tui/event"
 import open from "open"
 
 export namespace MCP {
   const log = Log.create({ service: "mcp" })
+
+  export const ToolsChanged = BusEvent.define(
+    "mcp.tools.changed",
+    z.object({
+      server: z.string(),
+    }),
+  )
 
   export const Failed = NamedError.create(
     "MCPFailed",
@@ -76,8 +88,16 @@ export namespace MCP {
     })
   export type Status = z.infer<typeof Status>
 
+  // Register notification handlers for MCP client
+  function registerNotificationHandlers(client: MCPClient, serverName: string) {
+    client.setNotificationHandler(ToolListChangedNotificationSchema, async () => {
+      log.info("tools list changed notification received", { server: serverName })
+      Bus.publish(ToolsChanged, { server: serverName })
+    })
+  }
+
   // Convert MCP tool definition to AI SDK Tool type
-  function convertMcpTool(mcpTool: MCPToolDef, client: MCPClient): Tool {
+  async function convertMcpTool(mcpTool: MCPToolDef, client: MCPClient): Promise<Tool> {
     const inputSchema = mcpTool.inputSchema
 
     // Spread first, then override type to ensure it's always "object"
@@ -87,15 +107,23 @@ export namespace MCP {
       properties: (inputSchema.properties ?? {}) as JSONSchema7["properties"],
       additionalProperties: false,
     }
+    const config = await Config.get()
 
     return dynamicTool({
       description: mcpTool.description ?? "",
       inputSchema: jsonSchema(schema),
       execute: async (args: unknown) => {
-        return client.callTool({
-          name: mcpTool.name,
-          arguments: args as Record<string, unknown>,
-        })
+        return client.callTool(
+          {
+            name: mcpTool.name,
+            arguments: args as Record<string, unknown>,
+          },
+          CallToolResultSchema,
+          {
+            resetTimeoutOnProgress: true,
+            timeout: config.experimental?.mcp_timeout,
+          },
+        )
       },
     })
   }
@@ -103,6 +131,9 @@ export namespace MCP {
   // Store transports for OAuth servers to allow finishing auth
   type TransportWithAuth = StreamableHTTPClientTransport | SSEClientTransport
   const pendingOAuthTransports = new Map<string, TransportWithAuth>()
+
+  // Prompt cache types
+  type PromptInfo = Awaited<ReturnType<MCPClient["listPrompts"]>>["prompts"][number]
 
   const state = Instance.state(
     async () => {
@@ -147,6 +178,29 @@ export namespace MCP {
       pendingOAuthTransports.clear()
     },
   )
+
+  // Helper function to fetch prompts for a specific client
+  async function fetchPromptsForClient(clientName: string, client: Client) {
+    const prompts = await client.listPrompts().catch((e) => {
+      log.error("failed to get prompts", { clientName, error: e.message })
+      return undefined
+    })
+
+    if (!prompts) {
+      return
+    }
+
+    const commands: Record<string, PromptInfo & { client: string }> = {}
+
+    for (const prompt of prompts.prompts) {
+      const sanitizedClientName = clientName.replace(/[^a-zA-Z0-9_-]/g, "_")
+      const sanitizedPromptName = prompt.name.replace(/[^a-zA-Z0-9_-]/g, "_")
+      const key = sanitizedClientName + ":" + sanitizedPromptName
+
+      commands[key] = { ...prompt, client: clientName }
+    }
+    return commands
+  }
 
   export async function add(name: string, mcp: Config.Mcp) {
     const s = await state()
@@ -236,6 +290,7 @@ export namespace MCP {
             version: Installation.VERSION,
           })
           await client.connect(transport)
+          registerNotificationHandlers(client, key)
           mcpClient = client
           log.info("connected", { key, transport: name })
           status = { status: "connected" }
@@ -291,10 +346,12 @@ export namespace MCP {
 
     if (mcp.type === "local") {
       const [cmd, ...args] = mcp.command
+      const cwd = Instance.directory
       const transport = new StdioClientTransport({
         stderr: "ignore",
         command: cmd,
         args,
+        cwd,
         env: {
           ...process.env,
           ...(cmd === "opencode" ? { BUN_BE_BUN: "1" } : {}),
@@ -308,6 +365,7 @@ export namespace MCP {
           version: Installation.VERSION,
         })
         await client.connect(transport)
+        registerNotificationHandlers(client, key)
         mcpClient = client
         status = {
           status: "connected",
@@ -316,6 +374,7 @@ export namespace MCP {
         log.error("local mcp startup failed", {
           key,
           command: mcp.command,
+          cwd,
           error: error instanceof Error ? error.message : String(error),
         })
         status = {
@@ -453,9 +512,58 @@ export namespace MCP {
       for (const mcpTool of toolsResult.tools) {
         const sanitizedClientName = clientName.replace(/[^a-zA-Z0-9_-]/g, "_")
         const sanitizedToolName = mcpTool.name.replace(/[^a-zA-Z0-9_-]/g, "_")
-        result[sanitizedClientName + "_" + sanitizedToolName] = convertMcpTool(mcpTool, client)
+        result[sanitizedClientName + "_" + sanitizedToolName] = await convertMcpTool(mcpTool, client)
       }
     }
+    return result
+  }
+
+  export async function prompts() {
+    const s = await state()
+    const clientsSnapshot = await clients()
+
+    const prompts = Object.fromEntries<PromptInfo & { client: string }>(
+      (
+        await Promise.all(
+          Object.entries(clientsSnapshot).map(async ([clientName, client]) => {
+            if (s.status[clientName]?.status !== "connected") {
+              return []
+            }
+
+            return Object.entries((await fetchPromptsForClient(clientName, client)) ?? {})
+          }),
+        )
+      ).flat(),
+    )
+
+    return prompts
+  }
+
+  export async function getPrompt(clientName: string, name: string, args?: Record<string, string>) {
+    const clientsSnapshot = await clients()
+    const client = clientsSnapshot[clientName]
+
+    if (!client) {
+      log.warn("client not found for prompt", {
+        clientName,
+      })
+      return undefined
+    }
+
+    const result = await client
+      .getPrompt({
+        name: name,
+        arguments: args,
+      })
+      .catch((e) => {
+        log.error("failed to get prompt from MCP server", {
+          clientName,
+          promptName: name,
+          error: e.message,
+        })
+        return undefined
+      })
+
     return result
   }
 

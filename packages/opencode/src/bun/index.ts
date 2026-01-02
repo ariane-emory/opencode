@@ -112,6 +112,14 @@ export namespace BunProc {
       )
     })
 
+    // Run bun install to ensure all transitive dependencies are properly resolved
+    // This fixes issues where bun add doesn't fully resolve dependency trees
+    await BunProc.run(["install"], {
+      cwd: Global.Path.cache,
+    }).catch((e) => {
+      log.warn("bun install failed after add", { error: e })
+    })
+
     // Resolve actual version from installed package when using "latest"
     // This ensures subsequent starts use the cached version until explicitly updated
     let resolvedVersion = version

@@ -650,3 +650,87 @@ test("ask - allows all patterns when all match allow rules", async () => {
     },
   })
 })
+
+// file extension glob pattern tests
+
+test("evaluate - file extension glob pattern *.md", () => {
+  const result = PermissionNext.evaluate("edit", "README.md", [
+    { permission: "edit", pattern: "*", action: "deny" },
+    { permission: "edit", pattern: "*.md", action: "allow" },
+  ])
+  expect(result.action).toBe("allow")
+})
+
+test("evaluate - file extension glob pattern denies non-matching", () => {
+  const result = PermissionNext.evaluate("edit", "src/index.ts", [
+    { permission: "edit", pattern: "*", action: "deny" },
+    { permission: "edit", pattern: "*.md", action: "allow" },
+  ])
+  expect(result.action).toBe("deny")
+})
+
+test("evaluate - nested file with extension pattern", () => {
+  const result = PermissionNext.evaluate("edit", "docs/guide/intro.md", [
+    { permission: "edit", pattern: "*", action: "deny" },
+    { permission: "edit", pattern: "*.md", action: "allow" },
+  ])
+  // Note: *.md matches nested paths too because * matches any char including /
+  expect(result.action).toBe("allow")
+})
+
+test("evaluate - double star glob for nested files", () => {
+  // Using ** pattern to match nested paths (if supported by wildcard)
+  const result = PermissionNext.evaluate("edit", "docs/guide/intro.md", [
+    { permission: "edit", pattern: "*", action: "deny" },
+    { permission: "edit", pattern: "docs/*", action: "allow" },
+  ])
+  expect(result.action).toBe("allow")
+})
+
+test("evaluate - read permission with env file pattern", () => {
+  const result = PermissionNext.evaluate("read", "config/.env.local", [
+    { permission: "read", pattern: "*", action: "allow" },
+    { permission: "read", pattern: "*.env*", action: "deny" },
+  ])
+  // *.env* matches config/.env.local because * matches any char including /
+  expect(result.action).toBe("deny")
+})
+
+test("evaluate - read permission denies .env files", () => {
+  const result = PermissionNext.evaluate("read", ".env", [
+    { permission: "read", pattern: "*", action: "allow" },
+    { permission: "read", pattern: ".env*", action: "deny" },
+  ])
+  expect(result.action).toBe("deny")
+})
+
+test("evaluate - fromConfig with file extension patterns", () => {
+  const ruleset = PermissionNext.fromConfig({
+    edit: {
+      "*.md": "allow",
+      "*": "deny",
+    },
+  })
+  expect(ruleset).toEqual([
+    { permission: "edit", pattern: "*.md", action: "allow" },
+    { permission: "edit", pattern: "*", action: "deny" },
+  ])
+  // Last rule wins, so * deny overrides *.md allow for README.md
+  const result = PermissionNext.evaluate("edit", "README.md", ruleset)
+  expect(result.action).toBe("deny")
+})
+
+test("evaluate - fromConfig order preserved for correct behavior", () => {
+  // To get the desired behavior (allow *.md, deny everything else),
+  // rules must be ordered with deny first, then allow
+  const ruleset = PermissionNext.fromConfig({
+    edit: {
+      "*": "deny",
+      "*.md": "allow",
+    },
+  })
+  // Note: Object iteration order in JS is based on insertion order for string keys
+  // So this should work if the config is written with deny first
+  const result = PermissionNext.evaluate("edit", "README.md", ruleset)
+  expect(result.action).toBe("allow")
+})

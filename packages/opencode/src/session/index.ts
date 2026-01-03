@@ -425,8 +425,8 @@ export namespace Session {
 
       const tokens = {
         input: safe(adjustedInputTokens),
-        output: safe((input.usage.outputTokens ?? anthropicRawUsage?.output_tokens ?? 0) as number),
-        reasoning: safe((input.usage?.reasoningTokens ?? 0) as number),
+        output: safe(input.usage.outputTokens ?? anthropicRawUsage?.output_tokens ?? 0),
+        reasoning: safe(input.usage?.reasoningTokens ?? 0),
         cache: {
           write: safe(
             (input.metadata?.["anthropic"]?.["cacheCreationInputTokens"] ??

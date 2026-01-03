@@ -78,12 +78,69 @@ export namespace ModelsDev {
   export async function get() {
     refresh()
     const file = Bun.file(filepath)
-    const result = await file.json().catch(() => {})
-    if (result) return result as Record<string, Provider>
-    const json = await data()
-    const parsed = JSON.parse(json) as Record<string, Provider>
 
-    if (!parsed["zai-coding-plan"]) {
+    let parsed: Record<string, Provider>
+    const cachedResult = await file.json().catch(() => {})
+
+    if (cachedResult) {
+      parsed = cachedResult as Record<string, Provider>
+    } else {
+      const json = await data()
+      parsed = JSON.parse(json) as Record<string, Provider>
+    }
+
+    // Always ensure zai-coding-plan uses the Anthropic SDK and has correct thinking options
+    // The ZAI API is Anthropic-compatible, so we override the npm package and inject thinking config
+    const glmDefaultOptions = {
+      thinking: {
+        type: "enabled",
+        budgetTokens: 8000,
+      },
+    }
+
+    const glmVariants = {
+      none: {
+        thinking: {
+          type: "disabled",
+        },
+      },
+      low: {
+        thinking: {
+          type: "enabled",
+          budgetTokens: 4000,
+        },
+      },
+      medium: {
+        thinking: {
+          type: "enabled",
+          budgetTokens: 12000,
+        },
+      },
+      high: {
+        thinking: {
+          type: "enabled",
+          budgetTokens: 24000,
+        },
+      },
+      max: {
+        thinking: {
+          type: "enabled",
+          budgetTokens: 64000,
+        },
+      },
+    }
+
+    if (parsed["zai-coding-plan"]) {
+      parsed["zai-coding-plan"].npm = "@ai-sdk/anthropic"
+      // Inject thinking options and variants for glm-4.7 if it exists in cache
+      if (parsed["zai-coding-plan"].models["glm-4.7"]) {
+        parsed["zai-coding-plan"].models["glm-4.7"].options = {
+          ...parsed["zai-coding-plan"].models["glm-4.7"].options,
+          ...glmDefaultOptions,
+        }
+        parsed["zai-coding-plan"].models["glm-4.7"].variants = glmVariants
+      }
+    } else {
       parsed["zai-coding-plan"] = {
         id: "zai-coding-plan",
         name: "ZAI (GLM)",
@@ -107,7 +164,8 @@ export namespace ModelsDev {
               context: 200000,
               output: 128000,
             },
-            options: {},
+            options: glmDefaultOptions,
+            variants: glmVariants,
           },
         },
       }

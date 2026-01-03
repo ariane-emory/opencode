@@ -561,7 +561,7 @@ export namespace Provider {
       variants: {},
     }
 
-    m.variants = mapValues(ProviderTransform.variants(m), (v) => v)
+    m.variants = mergeDeep(ProviderTransform.variants(m), model.variants ?? {})
 
     return m
   }

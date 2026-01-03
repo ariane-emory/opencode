@@ -55,6 +55,54 @@ export type PromptRef = {
 
 const PLACEHOLDERS = ["Fix a TODO in the codebase", "What is the tech stack of this project?", "Fix broken tests"]
 
+function getWordBoundariesForTransformation(text: string, cursorOffset: number): { start: number; end: number } | null {
+  if (text.length === 0) return null
+
+  // Check if cursor is on a word character (inside a word)
+  const effectiveOffset = Math.min(cursorOffset, text.length)
+  if (effectiveOffset < text.length && !/\s/.test(text[effectiveOffset])) {
+    // Inside a word - transform from cursor to end of word (Emacs-style behavior)
+    let end = effectiveOffset
+    while (end < text.length && !/\s/.test(text[end])) end++
+
+    return { start: effectiveOffset, end }
+  }
+
+  // Cursor is on whitespace or at end - find the next word
+  let end = effectiveOffset
+  while (end < text.length && /\s/.test(text[end])) end++
+
+  let nextEnd = end
+  while (nextEnd < text.length && !/\s/.test(text[nextEnd])) nextEnd++
+
+  if (nextEnd > end) {
+    return { start: end, end: nextEnd }
+  }
+
+  // No next word - find the previous word
+  let start = effectiveOffset
+  while (start > 0 && /\s/.test(text[start - 1])) start--
+
+  let wordStart = start
+  while (wordStart > 0 && !/\s/.test(text[wordStart - 1])) wordStart--
+
+  return { start: wordStart, end: start }
+}
+
+function lowercaseWord(text: string, start: number, end: number): string {
+  return text.slice(0, start) + text.slice(start, end).toLowerCase() + text.slice(end)
+}
+
+function uppercaseWord(text: string, start: number, end: number): string {
+  return text.slice(0, start) + text.slice(start, end).toUpperCase() + text.slice(end)
+}
+
+function capitalizeWord(text: string, start: number, end: number): string {
+  const segment = text.slice(start, end)
+  const capitalized = segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase()
+  return text.slice(0, start) + capitalized + text.slice(end)
+}
+
 export function Prompt(props: PromptProps) {
   let input: TextareaRenderable
   let anchor: BoxRenderable
@@ -123,6 +171,7 @@ export function Prompt(props: PromptProps) {
     extmarkToPartIndex: Map<number, number>
     interrupt: number
     placeholder: number
+    killBuffer: string
   }>({
     placeholder: Math.floor(Math.random() * PLACEHOLDERS.length),
     prompt: {
@@ -132,6 +181,7 @@ export function Prompt(props: PromptProps) {
     mode: "normal",
     extmarkToPartIndex: new Map(),
     interrupt: 0,
+    killBuffer: "",
   })
 
   // Initialize agent/model/variant from last user message when session changes
@@ -885,6 +935,137 @@ export function Prompt(props: PromptProps) {
                   if (keybind.match("history_previous", e) && input.visualCursor.visualRow === 0) input.cursorOffset = 0
                   if (keybind.match("history_next", e) && input.visualCursor.visualRow === input.height - 1)
                     input.cursorOffset = input.plainText.length
+                }
+                if (
+                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_delete_to_line_end", e)
+                ) {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+                  const textToEnd = text.slice(cursorOffset)
+                  setStore("killBuffer", textToEnd)
+                }
+                if (
+                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_transpose_characters", e)
+                ) {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+
+                  let char1Pos: number, char2Pos: number, newCursorOffset: number
+
+                  if (text.length < 2) {
+                    return
+                  } else if (cursorOffset === 0) {
+                    char1Pos = 0
+                    char2Pos = 1
+                    newCursorOffset = 1
+                  } else if (cursorOffset === text.length) {
+                    char1Pos = text.length - 2
+                    char2Pos = text.length - 1
+                    newCursorOffset = cursorOffset
+                  } else {
+                    char1Pos = cursorOffset - 1
+                    char2Pos = cursorOffset
+                    newCursorOffset = cursorOffset + 1
+                  }
+
+                  const char1 = text[char1Pos]
+                  const char2 = text[char2Pos]
+                  const newText =
+                    text.slice(0, char1Pos) +
+                    char2 +
+                    text.slice(char1Pos + 1, char2Pos) +
+                    char1 +
+                    text.slice(char2Pos + 1)
+                  input.setText(newText)
+                  input.cursorOffset = newCursorOffset
+                  setStore("prompt", "input", newText)
+                  e.preventDefault()
+                  return
+                }
+                if (
+                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_delete_word_forward", e)
+                ) {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+                  const boundaries = getWordBoundariesForTransformation(text, cursorOffset)
+                  if (boundaries) {
+                    setStore("killBuffer", text.slice(boundaries.start, boundaries.end))
+                  }
+                }
+                if (
+                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_delete_word_backward", e)
+                ) {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+                  let start = cursorOffset
+                  while (start > 0 && !/\s/.test(text[start - 1])) start--
+                  setStore("killBuffer", text.slice(start, cursorOffset))
+                }
+                if (
+                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_lowercase_word", e) ||
+                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_uppercase_word", e) ||
+                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_capitalize_word", e)
+                ) {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+                  const selection = input.getSelection()
+                  const hasSelection = selection !== null
+
+                  let start: number, end: number
+
+                  if (hasSelection && selection) {
+                    start = selection.start
+                    end = selection.end
+                  } else {
+                    const boundaries = getWordBoundariesForTransformation(text, cursorOffset)
+                    if (!boundaries) {
+                      e.preventDefault()
+                      return
+                    }
+                    start = boundaries.start
+                    end = boundaries.end
+                  }
+
+                  let newText: string
+                  if ((keybind as { match: (key: string, evt: unknown) => boolean }).match("input_lowercase_word", e)) {
+                    newText = lowercaseWord(text, start, end)
+                  } else if (
+                    (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_uppercase_word", e)
+                  ) {
+                    newText = uppercaseWord(text, start, end)
+                  } else {
+                    newText = capitalizeWord(text, start, end)
+                  }
+
+                  input.setText(newText)
+                  input.cursorOffset = end
+                  setStore("prompt", "input", newText)
+                  e.preventDefault()
+                  return
+                }
+                if ((keybind as { match: (key: string, evt: unknown) => boolean }).match("input_yank", e)) {
+                  if (store.killBuffer) {
+                    input.insertText(store.killBuffer)
+                    setStore("prompt", "input", input.plainText)
+                    e.preventDefault()
+                    return
+                  }
+                }
+                if (
+                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_transpose_characters", e)
+                ) {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+                  if (cursorOffset >= 2) {
+                    const before = text.slice(cursorOffset - 2, cursorOffset - 1)
+                    const current = text.slice(cursorOffset - 1, cursorOffset)
+                    const newText = text.slice(0, cursorOffset - 2) + current + before + text.slice(cursorOffset)
+                    input.setText(newText)
+                    input.cursorOffset = cursorOffset
+                    setStore("prompt", "input", newText)
+                    e.preventDefault()
+                  }
+                  return
                 }
               }}
               onSubmit={submit}

@@ -40,7 +40,7 @@ export namespace Config {
 
     // Override with custom config if provided
     if (Flag.BASE_ONE_CONFIG) {
-      result = mergeConfigWithPlugins(result, await loadFile(Flag.BASE_ONE_CONFIG))
+      result = mergeConfigConcatArrays(result, await loadFile(Flag.BASE_ONE_CONFIG))
       log.debug("loaded custom config", { path: Flag.BASE_ONE_CONFIG })
     }
 
@@ -53,7 +53,7 @@ export namespace Config {
     }
 
     if (Flag.BASE_ONE_CONFIG_CONTENT) {
-      result = mergeConfigWithPlugins(result, JSON.parse(Flag.BASE_ONE_CONFIG_CONTENT))
+      result = mergeConfigConcatArrays(result, JSON.parse(Flag.BASE_ONE_CONFIG_CONTENT))
       log.debug("loaded custom config from BASE_ONE_CONFIG_CONTENT")
     }
 

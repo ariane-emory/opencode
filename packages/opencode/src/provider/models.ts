@@ -130,46 +130,32 @@ export namespace ModelsDev {
       },
     }
 
-    if (parsed["zai-coding-plan"]) {
-      parsed["zai-coding-plan"].npm = "@ai-sdk/anthropic"
-      // Inject thinking options and variants for glm-4.7 if it exists in cache
-      if (parsed["zai-coding-plan"].models["glm-4.7"]) {
-        parsed["zai-coding-plan"].models["glm-4.7"].options = {
-          ...parsed["zai-coding-plan"].models["glm-4.7"].options,
-          ...glmDefaultOptions,
-        }
-        parsed["zai-coding-plan"].models["glm-4.7"].variants = glmVariants
-      }
-    } else {
-      parsed["zai-coding-plan"] = {
-        id: "zai-coding-plan",
-        name: "ZAI (GLM)",
-        env: [],
-        npm: "@ai-sdk/anthropic",
-        models: {
-          "glm-4.7": {
-            id: "glm-4.7",
-            name: "GLM 4.7",
-            release_date: "2025-11-24",
-            attachment: true,
-            reasoning: true,
-            temperature: true,
-            tool_call: true,
-            interleaved: true,
-            cost: {
-              input: 0,
-              output: 0,
-            },
-            limit: {
-              context: 200000,
-              output: 128000,
-            },
-            options: glmDefaultOptions,
-            variants: glmVariants,
-          },
-        },
-      }
-    }
+    // Ensure provider exists, create if missing
+    const provider = (parsed["zai-coding-plan"] ??= {
+      id: "zai-coding-plan",
+      name: "ZAI (GLM)",
+      env: [],
+      npm: "@ai-sdk/anthropic",
+      models: {},
+    })
+    provider.npm = "@ai-sdk/anthropic"
+
+    // Ensure model exists, create if missing
+    const model = (provider.models["glm-4.7"] ??= {
+      id: "glm-4.7",
+      name: "GLM 4.7",
+      release_date: "2025-11-24",
+      attachment: true,
+      reasoning: true,
+      temperature: true,
+      tool_call: true,
+      interleaved: true,
+      cost: { input: 0, output: 0 },
+      limit: { context: 200000, output: 128000 },
+      options: {},
+    })
+    model.options = { ...model.options, ...glmDefaultOptions }
+    model.variants = glmVariants
 
     return parsed
   }

@@ -1763,7 +1763,6 @@ export type Command = {
   new_session?: boolean
   hints: Array<string>
 }
-}
 
 export type Model = {
   id: string

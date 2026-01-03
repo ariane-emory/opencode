@@ -22,13 +22,14 @@ import { ConfigMarkdown } from "./markdown"
 export namespace Config {
   const log = Log.create({ service: "config" })
 
-  // Custom merge function that concatenates plugin arrays instead of replacing them
-  function mergeConfigWithPlugins(target: Info, source: Info): Info {
+  // Custom merge function that concatenates array fields instead of replacing them
+  function mergeConfigConcatArrays(target: Info, source: Info): Info {
     const merged = mergeDeep(target, source)
-    // If both configs have plugin arrays, concatenate them instead of replacing
     if (target.plugin && source.plugin) {
-      const pluginSet = new Set([...target.plugin, ...source.plugin])
-      merged.plugin = Array.from(pluginSet)
+      merged.plugin = Array.from(new Set([...target.plugin, ...source.plugin]))
+    }
+    if (target.instructions && source.instructions) {
+      merged.instructions = Array.from(new Set([...target.instructions, ...source.instructions]))
     }
     return merged
   }
@@ -47,7 +48,7 @@ export namespace Config {
     for (const file of ["base-one.jsonc", "base-one.json", "opencode.jsonc", "opencode.json"]) {
       const found = await Filesystem.findUp(file, Instance.directory, Instance.worktree)
       for (const resolved of found.toReversed()) {
-        result = mergeConfigWithPlugins(result, await loadFile(resolved))
+        result = mergeConfigConcatArrays(result, await loadFile(resolved))
       }
     }
 
@@ -60,7 +61,7 @@ export namespace Config {
       if (value.type === "wellknown") {
         process.env[value.key] = value.token
         const wellknown = (await fetch(`${key}/.well-known/opencode`).then((x) => x.json())) as any
-        result = mergeConfigWithPlugins(result, await load(JSON.stringify(wellknown.config ?? {}), process.cwd()))
+        result = mergeConfigConcatArrays(result, await load(JSON.stringify(wellknown.config ?? {}), process.cwd()))
       }
     }
 
@@ -97,7 +98,7 @@ export namespace Config {
         // Try new config file names first, fall back to legacy
         for (const file of ["base-one.jsonc", "base-one.json", "opencode.jsonc", "opencode.json"]) {
           log.debug(`loading config from ${path.join(dir, file)}`)
-          result = mergeConfigWithPlugins(result, await loadFile(path.join(dir, file)))
+          result = mergeConfigConcatArrays(result, await loadFile(path.join(dir, file)))
           // to satisfy the type checker
           result.agent ??= {}
           result.mode ??= {}
@@ -821,7 +822,20 @@ export namespace Config {
         .record(z.string(), Provider)
         .optional()
         .describe("Custom provider configurations and model overrides"),
-      mcp: z.record(z.string(), Mcp).optional().describe("MCP (Model Context Protocol) server configurations"),
+      mcp: z
+        .record(
+          z.string(),
+          z.union([
+            Mcp,
+            z
+              .object({
+                enabled: z.boolean(),
+              })
+              .strict(),
+          ]),
+        )
+        .optional()
+        .describe("MCP (Model Context Protocol) server configurations"),
       formatter: z
         .union([
           z.literal(false),

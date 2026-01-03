@@ -29,8 +29,9 @@ choco install opencode             # Windows
 brew install opencode              # macOS and Linux
 paru -S opencode-bin               # Arch Linux
 mise use -g opencode               # Any OS
-nix run nixpkgs#opencode           # or github:sst/opencode for latest dev branch
+nix run nixpkgs#opencode           # or github:anomalyco/opencode for latest dev branch
 ```
+
 
 ### Agents
 

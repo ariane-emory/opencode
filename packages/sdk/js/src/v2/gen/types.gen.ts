@@ -524,6 +524,48 @@ export type EventSessionCompacted = {
   }
 }
 
+export type EventAskuserQuestion = {
+  type: "askuser.question"
+  properties: {
+    id: string
+    sessionID: string
+    messageID: string
+    question: string
+    options: Array<{
+      /**
+       * Unique identifier for this option
+       */
+      value: string
+      /**
+       * Short display label
+       */
+      label: string
+      /**
+       * Detailed explanation of this option
+       */
+      description?: string
+    }>
+    context?: string
+  }
+}
+
+export type EventAskuserAnswer = {
+  type: "askuser.answer"
+  properties: {
+    id: string
+    sessionID: string
+    selected: string
+  }
+}
+
+export type EventAskuserCancelled = {
+  type: "askuser.cancelled"
+  properties: {
+    id: string
+    sessionID: string
+  }
+}
+
 export type EventFileEdited = {
   type: "file.edited"
   properties: {
@@ -789,6 +831,9 @@ export type Event =
   | EventSessionStatus
   | EventSessionIdle
   | EventSessionCompacted
+  | EventAskuserQuestion
+  | EventAskuserAnswer
+  | EventAskuserCancelled
   | EventFileEdited
   | EventTodoUpdated
   | EventTuiPromptAppend
@@ -3531,6 +3576,39 @@ export type PermissionListResponses = {
 }
 
 export type PermissionListResponse = PermissionListResponses[keyof PermissionListResponses]
+
+export type AskReplyData = {
+  body?: {
+    sessionID: string
+    selected?: string
+    cancelled?: boolean
+  }
+  path: {
+    id: string
+  }
+  query?: {
+    directory?: string
+  }
+  url: "/ask/{id}/reply"
+}
+
+export type AskReplyErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+}
+
+export type AskReplyError = AskReplyErrors[keyof AskReplyErrors]
+
+export type AskReplyResponses = {
+  /**
+   * Response processed successfully
+   */
+  200: boolean
+}
+
+export type AskReplyResponse = AskReplyResponses[keyof AskReplyResponses]
 
 export type CommandListData = {
   body?: never

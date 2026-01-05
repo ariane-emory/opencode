@@ -122,7 +122,9 @@ export function Session() {
   })
 
   const askRequests = createMemo(() => {
-    if (session().parentID) return sync.data.ask[route.sessionID] ?? []
+    const currentSession = session()
+    if (!currentSession) return []
+    if (currentSession.parentID) return sync.data.ask[route.sessionID] ?? []
     return children().flatMap((x) => sync.data.ask[x.id] ?? [])
   })
 

@@ -7,6 +7,8 @@ import type {
   AppAgentsResponses,
   AppLogErrors,
   AppLogResponses,
+  AskReplyErrors,
+  AskReplyResponses,
   Auth as Auth2,
   AuthSetErrors,
   AuthSetResponses,
@@ -1771,6 +1773,49 @@ export class Permission extends HeyApiClient {
   }
 }
 
+export class Ask extends HeyApiClient {
+  /**
+   * Respond to ask request
+   *
+   * Respond to an ask_user question from the AI assistant.
+   */
+  public reply<ThrowOnError extends boolean = false>(
+    parameters: {
+      id: string
+      directory?: string
+      sessionID?: string
+      selected?: string
+      cancelled?: boolean
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "id" },
+            { in: "query", key: "directory" },
+            { in: "body", key: "sessionID" },
+            { in: "body", key: "selected" },
+            { in: "body", key: "cancelled" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<AskReplyResponses, AskReplyErrors, ThrowOnError>({
+      url: "/ask/{id}/reply",
+      ...options,
+      ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
+    })
+  }
+}
+
 export class Command extends HeyApiClient {
   /**
    * List commands
@@ -2901,6 +2946,8 @@ export class OpencodeClient extends HeyApiClient {
   part = new Part({ client: this.client })
 
   permission = new Permission({ client: this.client })
+
+  ask = new Ask({ client: this.client })
 
   command = new Command({ client: this.client })
 

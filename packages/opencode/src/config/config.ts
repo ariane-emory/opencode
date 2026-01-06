@@ -5,7 +5,7 @@ import os from "os"
 import z from "zod"
 import { Filesystem } from "../util/filesystem"
 import { ModelsDev } from "../provider/models"
-import { mergeDeep, pipe, unique } from "remeda"
+import { mergeDeep, unique } from "remeda"
 import { Global } from "../global"
 import fs from "fs/promises"
 import { lazy } from "../util/lazy"
@@ -40,21 +40,22 @@ export namespace Config {
     let result = await global()
 
     // Override with custom config if provided
-    if (Flag.OPENCODE_CONFIG) {
-      result = mergeConfigConcatArrays(result, await loadFile(Flag.OPENCODE_CONFIG))
-      log.debug("loaded custom config", { path: Flag.OPENCODE_CONFIG })
+    if (Flag.BASE_ONE_CONFIG) {
+      result = mergeConfigConcatArrays(result, await loadFile(Flag.BASE_ONE_CONFIG))
+      log.debug("loaded custom config", { path: Flag.BASE_ONE_CONFIG })
     }
 
-    for (const file of ["opencode.jsonc", "opencode.json"]) {
+    // Try new config file names first, fall back to legacy names
+    for (const file of ["base-one.jsonc", "base-one.json", "opencode.jsonc", "opencode.json"]) {
       const found = await Filesystem.findUp(file, Instance.directory, Instance.worktree)
       for (const resolved of found.toReversed()) {
         result = mergeConfigConcatArrays(result, await loadFile(resolved))
       }
     }
 
-    if (Flag.OPENCODE_CONFIG_CONTENT) {
-      result = mergeConfigConcatArrays(result, JSON.parse(Flag.OPENCODE_CONFIG_CONTENT))
-      log.debug("loaded custom config from OPENCODE_CONFIG_CONTENT")
+    if (Flag.BASE_ONE_CONFIG_CONTENT) {
+      result = mergeConfigConcatArrays(result, JSON.parse(Flag.BASE_ONE_CONFIG_CONTENT))
+      log.debug("loaded custom config from BASE_ONE_CONFIG_CONTENT")
     }
 
     for (const [key, value] of Object.entries(auth)) {
@@ -71,30 +72,32 @@ export namespace Config {
 
     const directories = [
       Global.Path.config,
+      // Search for .base-one first, then fall back to .opencode
       ...(await Array.fromAsync(
         Filesystem.up({
-          targets: [".opencode"],
+          targets: [".base-one", ".opencode"],
           start: Instance.directory,
           stop: Instance.worktree,
         }),
       )),
       ...(await Array.fromAsync(
         Filesystem.up({
-          targets: [".opencode"],
+          targets: [".base-one", ".opencode"],
           start: Global.Path.home,
           stop: Global.Path.home,
         }),
       )),
     ]
 
-    if (Flag.OPENCODE_CONFIG_DIR) {
-      directories.push(Flag.OPENCODE_CONFIG_DIR)
-      log.debug("loading config from OPENCODE_CONFIG_DIR", { path: Flag.OPENCODE_CONFIG_DIR })
+    if (Flag.BASE_ONE_CONFIG_DIR) {
+      directories.push(Flag.BASE_ONE_CONFIG_DIR)
+      log.debug("loading config from BASE_ONE_CONFIG_DIR", { path: Flag.BASE_ONE_CONFIG_DIR })
     }
 
     for (const dir of unique(directories)) {
-      if (dir.endsWith(".opencode") || dir === Flag.OPENCODE_CONFIG_DIR) {
-        for (const file of ["opencode.jsonc", "opencode.json"]) {
+      if (dir.endsWith(".base-one") || dir.endsWith(".opencode") || dir === Flag.BASE_ONE_CONFIG_DIR) {
+        // Try new config file names first, fall back to legacy
+        for (const file of ["base-one.jsonc", "base-one.json", "opencode.jsonc", "opencode.json"]) {
           log.debug(`loading config from ${path.join(dir, file)}`)
           result = mergeConfigConcatArrays(result, await loadFile(path.join(dir, file)))
           // to satisfy the type checker
@@ -124,8 +127,8 @@ export namespace Config {
       })
     }
 
-    if (Flag.OPENCODE_PERMISSION) {
-      result.permission = mergeDeep(result.permission ?? {}, JSON.parse(Flag.OPENCODE_PERMISSION))
+    if (Flag.BASE_ONE_PERMISSION) {
+      result.permission = mergeDeep(result.permission ?? {}, JSON.parse(Flag.BASE_ONE_PERMISSION))
     }
 
     // Backwards compatibility: legacy top-level `tools` config
@@ -201,7 +204,7 @@ export namespace Config {
       if (!md.data) continue
 
       const name = (() => {
-        const patterns = ["/.opencode/command/", "/command/"]
+        const patterns = ["/.base-one/command/", "/.opencode/command/", "/command/"]
         const pattern = patterns.find((p) => item.includes(p))
 
         if (pattern) {
@@ -241,11 +244,13 @@ export namespace Config {
 
       // Extract relative path from agent folder for nested agents
       let agentName = path.basename(item, ".md")
-      const agentFolderPath = item.includes("/.opencode/agent/")
-        ? item.split("/.opencode/agent/")[1]
-        : item.includes("/agent/")
-          ? item.split("/agent/")[1]
-          : agentName + ".md"
+      const agentFolderPath = item.includes("/.base-one/agent/")
+        ? item.split("/.base-one/agent/")[1]
+        : item.includes("/.opencode/agent/")
+          ? item.split("/.opencode/agent/")[1]
+          : item.includes("/agent/")
+            ? item.split("/agent/")[1]
+            : agentName + ".md"
 
       // If agent is in a subfolder, include folder path in name
       if (agentFolderPath.includes("/")) {
@@ -977,12 +982,13 @@ export namespace Config {
   export type Info = z.output<typeof Info>
 
   export const global = lazy(async () => {
-    let result: Info = pipe(
-      {},
-      mergeDeep(await loadFile(path.join(Global.Path.config, "config.json"))),
-      mergeDeep(await loadFile(path.join(Global.Path.config, "opencode.json"))),
-      mergeDeep(await loadFile(path.join(Global.Path.config, "opencode.jsonc"))),
-    )
+    // Load config files with new names first, falling back to legacy names
+    let result: Info = {}
+    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "config.json")))
+    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "base-one.json")))
+    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "base-one.jsonc")))
+    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "opencode.json")))
+    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "opencode.jsonc")))
 
     await import(path.join(Global.Path.config, "config"), {
       with: {

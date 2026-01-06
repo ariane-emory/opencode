@@ -3,15 +3,15 @@ export function deactivate() {}
 
 import * as vscode from "vscode"
 
-const TERMINAL_NAME = "opencode"
+const TERMINAL_NAME = "base-one"
 
 export function activate(context: vscode.ExtensionContext) {
-  let openNewTerminalDisposable = vscode.commands.registerCommand("opencode.openNewTerminal", async () => {
+  let openNewTerminalDisposable = vscode.commands.registerCommand("base-one.openNewTerminal", async () => {
     await openTerminal()
   })
 
-  let openTerminalDisposable = vscode.commands.registerCommand("opencode.openTerminal", async () => {
-    // An opencode terminal already exists => focus it
+  let openTerminalDisposable = vscode.commands.registerCommand("base-one.openTerminal", async () => {
+    // A base-one terminal already exists => focus it
     const existingTerminal = vscode.window.terminals.find((t) => t.name === TERMINAL_NAME)
     if (existingTerminal) {
       existingTerminal.show()
@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
     await openTerminal()
   })
 
-  let addFilepathDisposable = vscode.commands.registerCommand("opencode.addFilepathToTerminal", async () => {
+  let addFilepathDisposable = vscode.commands.registerCommand("base-one.addFilepathToTerminal", async () => {
     const fileRef = getActiveFile()
     if (!fileRef) {
       return
@@ -34,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     if (terminal.name === TERMINAL_NAME) {
       // @ts-ignore
-      const port = terminal.creationOptions.env?.["_EXTENSION_OPENCODE_PORT"]
+      const port = terminal.creationOptions.env?.["_EXTENSION_BASE_ONE_PORT"] || terminal.creationOptions.env?.["_EXTENSION_OPENCODE_PORT"]
       port ? await appendPrompt(parseInt(port), fileRef) : terminal.sendText(fileRef, false)
       terminal.show()
     }
@@ -56,13 +56,16 @@ export function activate(context: vscode.ExtensionContext) {
         preserveFocus: false,
       },
       env: {
+        _EXTENSION_BASE_ONE_PORT: port.toString(),
+        BASE_ONE_CALLER: "vscode",
+        // Legacy compatibility
         _EXTENSION_OPENCODE_PORT: port.toString(),
         OPENCODE_CALLER: "vscode",
       },
     })
 
     terminal.show()
-    terminal.sendText(`opencode --port ${port}`)
+    terminal.sendText(`base-one --port ${port}`)
 
     const fileRef = getActiveFile()
     if (!fileRef) {

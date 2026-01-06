@@ -28,6 +28,11 @@ import { WebCommand } from "./cli/cmd/web"
 import { PrCommand } from "./cli/cmd/pr"
 import { SessionCommand } from "./cli/cmd/session"
 
+// Restore original working directory if running via wrapper script
+if (process.env.OPENCODE_ORIGINAL_CWD) {
+  process.chdir(process.env.OPENCODE_ORIGINAL_CWD)
+}
+
 process.on("unhandledRejection", (e) => {
   Log.Default.error("rejection", {
     e: e instanceof Error ? e.message : e,

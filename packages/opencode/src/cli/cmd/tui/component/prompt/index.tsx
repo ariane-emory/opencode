@@ -550,7 +550,7 @@ export function Prompt(props: PromptProps) {
         return sync.data.command.some((x) => x.name === command)
       })
     ) {
-<<      const [commandPart, ...args] = inputText.split(" ")
+      const [commandPart, ...args] = inputText.split(" ")
       const commandName = commandPart.slice(1)
       const commandInfo = sync.data.command.find((x) => x.name === commandName)
 

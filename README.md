@@ -74,10 +74,6 @@ It's very similar to Claude Code in terms of capability. Here are the key differ
 - A focus on TUI. BaseOne is built by neovim users and the creators of [terminal.shop](https://terminal.shop); we are going to push the limits of what's possible in the terminal.
 - A client/server architecture. This for example can allow BaseOne to run on your computer, while you can drive it remotely from a mobile app. Meaning that the TUI frontend is just one of the possible clients.
 
-#### What's the other repo?
-
-The other confusingly named repo has no relation to this one. You can [read the story behind it here](https://x.com/thdxr/status/1933561254481666466).
-
 ---
 
 **Based on OpenCode** - This is a fork of [OpenCode](https://github.com/sst/opencode) by SST.

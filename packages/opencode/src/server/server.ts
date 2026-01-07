@@ -2859,6 +2859,7 @@ export namespace Server {
   )
 
   export async function openapi() {
+    // @ts-expect-error - Type instantiation is excessively deep due to complex Hono app schema
     const result = await generateSpecs(App(), {
       documentation: {
         info: {

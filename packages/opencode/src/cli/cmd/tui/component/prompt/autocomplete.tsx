@@ -1,5 +1,4 @@
 import type { BoxRenderable, TextareaRenderable, KeyEvent, ScrollBoxRenderable } from "@opentui/core"
-import fuzzysort from "fuzzysort"
 import { firstBy } from "remeda"
 import { createMemo, createResource, createEffect, onMount, onCleanup, For, Show, createSignal } from "solid-js"
 import { createStore } from "solid-js/store"
@@ -519,21 +518,7 @@ export function Autocomplete(props: {
       return prev
     }
 
-    const result = fuzzysort.go(removeLineRange(currentFilter), mixed, {
-      keys: [(obj) => removeLineRange(obj.display.trimEnd()), "description", (obj) => obj.aliases?.join(" ") ?? ""],
-      limit: 10,
-      scoreFn: (objResults) => {
-        const displayResult = objResults[0]
-        let score = objResults.score
-        if (displayResult && displayResult.target.startsWith(store.visible + currentFilter)) {
-          score *= 2
-        }
-        const frecencyScore = objResults.obj.path ? frecency.getFrecency(objResults.obj.path) : 0
-        return score * (1 + frecencyScore)
-      },
-    })
-
-    return result.map((arr) => arr.obj)
+    return tieredMatch(mixed, currentFilter, store.visible || "/", 100)
   })
 
   createEffect(() => {

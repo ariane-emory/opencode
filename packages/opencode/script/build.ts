@@ -135,7 +135,7 @@ for (const item of targets) {
       autoloadPackageJson: true,
       target: name.replace(pkg.name, "bun") as any,
       outfile: `dist/${name}/bin/base-one`,
-      execArgv: [`--user-agent=base-one/${Script.version}`, "--"],
+      execArgv: [`--user-agent=base-one/${Script.version}`, "--use-system-ca", "--"],
       windows: {},
     },
     entrypoints: ["./src/index.ts", parserWorker, workerPath],

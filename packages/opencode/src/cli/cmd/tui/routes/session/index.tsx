@@ -1201,25 +1201,27 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
       return
     }
 
+    // Access parts directly from the store for proper reactivity tracking
+    // Using props.parts doesn't trigger updates when individual parts change
+    const parts = sync.data.part[props.message.id] ?? []
+
     // Find the start time of the last active part (current action)
     let startTime: number | undefined
-    
+
     // Check parts in reverse order to find the most recent one with timing
-    for (let i = props.parts.length - 1; i >= 0; i--) {
-      const part = props.parts[i]
-      
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const part = parts[i]
+
       if (part.type === "tool") {
-        const state = (part as any).state
         // Running tool has time.start
-        if (state.status === "running" && state.time?.start) {
-          startTime = state.time.start
+        if (part.state.status === "running" && part.state.time?.start) {
+          startTime = part.state.time.start
           break
         }
       } else if (part.type === "text" || part.type === "reasoning") {
         // Text/reasoning parts have time.start if in progress (no end time)
-        const partTime = (part as any).time
-        if (partTime?.start && !partTime?.end) {
-          startTime = partTime.start
+        if (part.time?.start && !part.time?.end) {
+          startTime = part.time.start
           break
         }
       }

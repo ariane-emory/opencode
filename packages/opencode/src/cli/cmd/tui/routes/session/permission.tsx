@@ -2,6 +2,7 @@ import { createStore } from "solid-js/store"
 import { createMemo, For, Match, Show, Switch } from "solid-js"
 import { useKeyboard, useTerminalDimensions, type JSX } from "@opentui/solid"
 import type { TextareaRenderable } from "@opentui/core"
+import "opentui-spinner/solid"
 import { useKeybind } from "../../context/keybind"
 import { useTheme } from "../../context/theme"
 import type { PermissionRequest } from "@opencode-ai/sdk/v2"
@@ -9,6 +10,9 @@ import { useSDK } from "../../context/sdk"
 import { SplitBorder } from "../../component/border"
 import { useSync } from "../../context/sync"
 import { useTextareaKeybindings } from "../../component/textarea-keybindings"
+import { useLocal } from "../../context/local"
+import { useKV } from "../../context/kv"
+import { createPulseFrames, createPulseColors } from "../../ui/spinner"
 import path from "path"
 import { LANGUAGE_EXTENSIONS } from "@/lsp/language"
 import { Locale } from "@/util/locale"
@@ -331,9 +335,25 @@ function Prompt<const T extends Record<string, string>>(props: {
 }) {
   const { theme } = useTheme()
   const keybind = useKeybind()
+  const local = useLocal()
+  const kv = useKV()
   const keys = Object.keys(props.options) as (keyof T)[]
   const [store, setStore] = createStore({
     selected: keys[0],
+  })
+
+  const pulseSpinnerDef = createMemo(() => {
+    const color = local.agent.color(local.agent.current().name)
+    return {
+      frames: createPulseFrames({
+        color,
+        style: "blocks",
+      }),
+      color: createPulseColors({
+        color,
+        minAlpha: 0.15,
+      }),
+    }
   })
 
   useKeyboard((evt) => {
@@ -388,6 +408,10 @@ function Prompt<const T extends Record<string, string>>(props: {
         justifyContent="space-between"
       >
         <box flexDirection="row" gap={1}>
+          <Show when={kv.get("animations_enabled", true)} fallback={<text fg={theme.textMuted}>[⋯]</text>}>
+            {/* @ts-ignore */}
+            <spinner color={pulseSpinnerDef().color} frames={pulseSpinnerDef().frames} interval={40} />
+          </Show>
           <For each={keys}>
             {(option) => (
               <box

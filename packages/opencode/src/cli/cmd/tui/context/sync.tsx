@@ -8,6 +8,7 @@ import type {
   Todo,
   Command,
   PermissionRequest,
+  QuestionRequest,
   LspStatus,
   McpStatus,
   McpResource,
@@ -17,7 +18,6 @@ import type {
   ProviderAuthMethod,
   VcsInfo,
 } from "@opencode-ai/sdk/v2"
-import type { AskRequest } from "@/tool/ask"
 import { createStore, produce, reconcile } from "solid-js/store"
 import { useSDK } from "@tui/context/sdk"
 import { Binary } from "@opencode-ai/util/binary"
@@ -43,8 +43,8 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       permission: {
         [sessionID: string]: PermissionRequest[]
       }
-      ask: {
-        [sessionID: string]: AskRequest[]
+      question: {
+        [sessionID: string]: QuestionRequest[]
       }
       config: Config
       session: Session[]
@@ -84,7 +84,7 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       status: "loading",
       agent: [],
       permission: {},
-      ask: {},
+      question: {},
       command: [],
       provider: [],
       provider_default: {},
@@ -147,39 +147,39 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
           break
         }
 
-        case "askuser.question": {
-          const request = event.properties as AskRequest
-          const requests = store.ask[request.sessionID]
-          if (!requests) {
-            setStore("ask", request.sessionID, [request])
-            break
-          }
-          const match = Binary.search(requests, request.id, (r) => r.id)
-          if (match.found) {
-            setStore("ask", request.sessionID, match.index, reconcile(request))
-            break
-          }
+        case "question.replied":
+        case "question.rejected": {
+          const requests = store.question[event.properties.sessionID]
+          if (!requests) break
+          const match = Binary.search(requests, event.properties.requestID, (r) => r.id)
+          if (!match.found) break
           setStore(
-            "ask",
-            request.sessionID,
+            "question",
+            event.properties.sessionID,
             produce((draft) => {
-              draft.splice(match.index, 0, request)
+              draft.splice(match.index, 1)
             }),
           )
           break
         }
 
-        case "askuser.answer":
-        case "askuser.cancelled": {
-          const requests = store.ask[event.properties.sessionID]
-          if (!requests) break
-          const match = Binary.search(requests, event.properties.id, (r) => r.id)
-          if (!match.found) break
+        case "question.asked": {
+          const request = event.properties
+          const requests = store.question[request.sessionID]
+          if (!requests) {
+            setStore("question", request.sessionID, [request])
+            break
+          }
+          const match = Binary.search(requests, request.id, (r) => r.id)
+          if (match.found) {
+            setStore("question", request.sessionID, match.index, reconcile(request))
+            break
+          }
           setStore(
-            "ask",
-            event.properties.sessionID,
+            "question",
+            request.sessionID,
             produce((draft) => {
-              draft.splice(match.index, 1)
+              draft.splice(match.index, 0, request)
             }),
           )
           break

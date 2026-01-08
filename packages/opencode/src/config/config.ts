@@ -37,7 +37,32 @@ export namespace Config {
 
   export const state = Instance.state(async () => {
     const auth = await Auth.all()
-    let result = await global()
+
+    // Load remote/well-known config first as the base layer (lowest precedence)
+    // This allows organizations to provide default configs that users can override
+    let result: Info = {}
+    for (const [key, value] of Object.entries(auth)) {
+      if (value.type === "wellknown") {
+        process.env[value.key] = value.token
+        log.debug("fetching remote config", { url: `${key}/.well-known/opencode` })
+        const response = await fetch(`${key}/.well-known/opencode`)
+        if (!response.ok) {
+          throw new Error(`failed to fetch remote config from ${key}: ${response.status}`)
+        }
+        const wellknown = (await response.json()) as any
+        const remoteConfig = wellknown.config ?? {}
+        // Add $schema to prevent load() from trying to write back to a non-existent file
+        if (!remoteConfig.$schema) remoteConfig.$schema = "https://opencode.ai/config.json"
+        result = mergeConfigConcatArrays(
+          result,
+          await load(JSON.stringify(remoteConfig), `${key}/.well-known/opencode`),
+        )
+        log.debug("loaded remote config from well-known", { url: key })
+      }
+    }
+
+    // Global user config overrides remote config
+    result = mergeConfigConcatArrays(result, await global())
 
     // Override with custom config if provided
     if (Flag.BASE_ONE_CONFIG) {
@@ -45,25 +70,19 @@ export namespace Config {
       log.debug("loaded custom config", { path: Flag.BASE_ONE_CONFIG })
     }
 
+    // Project config has highest precedence (overrides global and remote)
     // Try new config file names first, fall back to legacy names
-    for (const file of ["base-one.jsonc", "base-one.json", "opencode.jsonc", "opencode.json"]) {
+    for (const file of ["opencode.jsonc", "opencode.json", "base-one.jsonc", "base-one.json"]) {
       const found = await Filesystem.findUp(file, Instance.directory, Instance.worktree)
       for (const resolved of found.toReversed()) {
         result = mergeConfigConcatArrays(result, await loadFile(resolved))
       }
     }
 
+    // Inline config content has highest precedence
     if (Flag.BASE_ONE_CONFIG_CONTENT) {
       result = mergeConfigConcatArrays(result, JSON.parse(Flag.BASE_ONE_CONFIG_CONTENT))
       log.debug("loaded custom config from BASE_ONE_CONFIG_CONTENT")
-    }
-
-    for (const [key, value] of Object.entries(auth)) {
-      if (value.type === "wellknown") {
-        process.env[value.key] = value.token
-        const wellknown = (await fetch(`${key}/.well-known/opencode`).then((x) => x.json())) as any
-        result = mergeConfigConcatArrays(result, await load(JSON.stringify(wellknown.config ?? {}), process.cwd()))
-      }
     }
 
     result.agent = result.agent || {}
@@ -72,17 +91,17 @@ export namespace Config {
 
     const directories = [
       Global.Path.config,
-      // Search for .base-one first, then fall back to .opencode
+      // Search for .opencode first, then fall back to .base-one
       ...(await Array.fromAsync(
         Filesystem.up({
-          targets: [".base-one", ".opencode"],
+          targets: [".opencode", ".base-one"],
           start: Instance.directory,
           stop: Instance.worktree,
         }),
       )),
       ...(await Array.fromAsync(
         Filesystem.up({
-          targets: [".base-one", ".opencode"],
+          targets: [".opencode", ".base-one"],
           start: Global.Path.home,
           stop: Global.Path.home,
         }),
@@ -95,9 +114,9 @@ export namespace Config {
     }
 
     for (const dir of unique(directories)) {
-      if (dir.endsWith(".base-one") || dir.endsWith(".opencode") || dir === Flag.BASE_ONE_CONFIG_DIR) {
+      if (dir.endsWith(".opencode") || dir.endsWith(".base-one") || dir === Flag.BASE_ONE_CONFIG_DIR) {
         // Try new config file names first, fall back to legacy
-        for (const file of ["base-one.jsonc", "base-one.json", "opencode.jsonc", "opencode.json"]) {
+        for (const file of ["opencode.jsonc", "opencode.json", "base-one.jsonc", "base-one.json"]) {
           log.debug(`loading config from ${path.join(dir, file)}`)
           result = mergeConfigConcatArrays(result, await loadFile(path.join(dir, file)))
           // to satisfy the type checker
@@ -204,7 +223,7 @@ export namespace Config {
       if (!md.data) continue
 
       const name = (() => {
-        const patterns = ["/.base-one/command/", "/.opencode/command/", "/command/"]
+        const patterns = ["/.opencode/command/", "/.base-one/command/", "/command/"]
         const pattern = patterns.find((p) => item.includes(p))
 
         if (pattern) {
@@ -244,10 +263,10 @@ export namespace Config {
 
       // Extract relative path from agent folder for nested agents
       let agentName = path.basename(item, ".md")
-      const agentFolderPath = item.includes("/.base-one/agent/")
-        ? item.split("/.base-one/agent/")[1]
-        : item.includes("/.opencode/agent/")
-          ? item.split("/.opencode/agent/")[1]
+      const agentFolderPath = item.includes("/.opencode/agent/")
+        ? item.split("/.opencode/agent/")[1]
+        : item.includes("/.base-one/agent/")
+          ? item.split("/.base-one/agent/")[1]
           : item.includes("/agent/")
             ? item.split("/agent/")[1]
             : agentName + ".md"
@@ -991,10 +1010,10 @@ export namespace Config {
     // Load config files with new names first, falling back to legacy names
     let result: Info = {}
     result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "config.json")))
-    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "base-one.json")))
-    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "base-one.jsonc")))
     result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "opencode.json")))
     result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "opencode.jsonc")))
+    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "base-one.json")))
+    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "base-one.jsonc")))
 
     await import(path.join(Global.Path.config, "config"), {
       with: {

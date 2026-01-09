@@ -1,4 +1,4 @@
-import { BoxRenderable, TextareaRenderable, MouseEvent, PasteEvent, t, dim, fg, type KeyBinding } from "@opentui/core"
+import { BoxRenderable, TextareaRenderable, MouseEvent, PasteEvent, t, dim, fg } from "@opentui/core"
 import { createEffect, createMemo, type JSX, onMount, createSignal, onCleanup, Show, Switch, Match } from "solid-js"
 import "opentui-spinner/solid"
 import { useLocal } from "@tui/context/local"
@@ -10,7 +10,6 @@ import { useSync } from "@tui/context/sync"
 import { Identifier } from "@/id/id"
 import { createStore, produce } from "solid-js/store"
 import { useKeybind } from "@tui/context/keybind"
-import { Keybind } from "@/util/keybind"
 import { usePromptHistory, type PromptInfo } from "./history"
 import { usePromptStash } from "./stash"
 import { DialogStash } from "../dialog-stash"
@@ -24,12 +23,13 @@ import type { FilePart } from "@opencode-ai/sdk/v2"
 import { TuiEvent } from "../../event"
 import { iife } from "@/util/iife"
 import { Locale } from "@/util/locale"
-import { createColors, createFrames, createPulseFrames, createPulseColors } from "../../ui/spinner.ts"
+import { createColors, createFrames } from "../../ui/spinner.ts"
 import { useDialog } from "@tui/ui/dialog"
 import { DialogProvider as DialogProviderConnect } from "../dialog-provider"
 import { DialogAlert } from "../../ui/dialog-alert"
 import { useToast } from "../../ui/toast"
 import { useKV } from "../../context/kv"
+import { useTextareaKeybindings } from "../textarea-keybindings"
 
 export type PromptProps = {
   sessionID?: string
@@ -163,61 +163,6 @@ const PLACEHOLDERS = [
   "If we use, to achieve our purposes, a mechanical agency with whose operation we cannot effectively interfere once we have started it… we had better be quite sure that the purpose put into the machine is the purpose which we really desire.",
 ]
 
-const TEXTAREA_ACTIONS = [
-  "submit",
-  "newline",
-  "move-left",
-  "move-right",
-  "move-up",
-  "move-down",
-  "select-left",
-  "select-right",
-  "select-up",
-  "select-down",
-  "line-home",
-  "line-end",
-  "select-line-home",
-  "select-line-end",
-  "visual-line-home",
-  "visual-line-end",
-  "select-visual-line-home",
-  "select-visual-line-end",
-  "buffer-home",
-  "buffer-end",
-  "select-buffer-home",
-  "select-buffer-end",
-  "delete-line",
-  "delete-to-line-end",
-  "delete-to-line-start",
-  "backspace",
-  "delete",
-  "undo",
-  "redo",
-  "word-forward",
-  "word-backward",
-  "select-word-forward",
-  "select-word-backward",
-  "delete-word-forward",
-  "delete-word-backward",
-] as const
-
-function mapTextareaKeybindings(
-  keybinds: Record<string, Keybind.Info[]>,
-  action: (typeof TEXTAREA_ACTIONS)[number],
-): KeyBinding[] {
-  const configKey = `input_${action.replace(/-/g, "_")}`
-  const bindings = keybinds[configKey]
-  if (!bindings) return []
-  return bindings.map((binding) => ({
-    name: binding.name,
-    ctrl: binding.ctrl || undefined,
-    meta: binding.meta || undefined,
-    shift: binding.shift || undefined,
-    super: binding.super || undefined,
-    action,
-  }))
-}
-
 export function Prompt(props: PromptProps) {
   let input: TextareaRenderable
   let anchor: BoxRenderable
@@ -249,32 +194,16 @@ export function Prompt(props: PromptProps) {
     }
   }
 
-  const textareaKeybindings = createMemo(() => {
-    const keybinds = keybind.all
-
-    return [
-      { name: "return", action: "submit" },
-      { name: "return", meta: true, action: "newline" },
-      ...TEXTAREA_ACTIONS.flatMap((action) => mapTextareaKeybindings(keybinds, action)),
-    ] satisfies KeyBinding[]
-  })
+  const textareaKeybindings = useTextareaKeybindings()
 
   const fileStyleId = syntax().getStyleId("extmark.file")!
   const agentStyleId = syntax().getStyleId("extmark.agent")!
   const pasteStyleId = syntax().getStyleId("extmark.paste")!
   let promptPartTypeId: number
 
-  // Track mounted state to prevent accessing layout nodes after unmount
-  // This fixes "Out of bounds call_indirect" errors in yoga-layout WASM
-  let mounted = true
-  onCleanup(() => {
-    mounted = false
-  })
-
   sdk.event.on(TuiEvent.PromptAppend.type, (evt) => {
     input.insertText(evt.properties.text)
     setTimeout(() => {
-      if (!mounted || !input) return
       input.getLayoutNode().markDirty()
       input.gotoBufferEnd()
       renderer.requestRender()
@@ -292,7 +221,6 @@ export function Prompt(props: PromptProps) {
     // Track both the placeholder text and sessionID changes
     if (input) {
       setTimeout(() => {
-        if (!mounted || !input) return
         input.getLayoutNode().markDirty()
         renderer.requestRender()
       }, 0)
@@ -901,8 +829,6 @@ export function Prompt(props: PromptProps) {
       frames: createFrames({
         color,
         style: "blocks",
-        width: 8,
-        trailSteps: 4,
         inactiveFactor: 0.6,
         // enableFading: false,
         minAlpha: 0.3,
@@ -910,40 +836,11 @@ export function Prompt(props: PromptProps) {
       color: createColors({
         color,
         style: "blocks",
-        trailSteps: 4,
         inactiveFactor: 0.6,
         // enableFading: false,
         minAlpha: 0.3,
       }),
     }
-  })
-
-  // Check if current session has pending permissions
-  const hasPermission = createMemo(() => {
-    const sessionID = props.sessionID
-    if (!sessionID) return false
-    const count = sync.data.permission[sessionID]?.length ?? 0
-    return count > 0
-  })
-
-  // Create pulse spinner definition for permission-awaiting state
-  const pulseSpinnerDef = createMemo(() => {
-    const color = local.agent.color(local.agent.current().name)
-    return {
-      frames: createPulseFrames({
-        color,
-        style: "blocks",
-      }),
-      color: createPulseColors({
-        color,
-        minAlpha: 0.15,
-      }),
-    }
-  })
-
-  // Select active spinner based on permission state
-  const activeSpinner = createMemo(() => {
-    return hasPermission() ? pulseSpinnerDef() : spinnerDef()
   })
 
   return (
@@ -1140,7 +1037,6 @@ export function Prompt(props: PromptProps) {
 
                 // Force layout update and render for the pasted content
                 setTimeout(() => {
-                  if (!mounted || !input) return
                   input.getLayoutNode().markDirty()
                   input.gotoBufferEnd()
                   renderer.requestRender()
@@ -1149,7 +1045,6 @@ export function Prompt(props: PromptProps) {
               ref={(r: TextareaRenderable) => {
                 input = r
                 setTimeout(() => {
-                  if (!mounted || !input) return
                   input.cursorColor = theme.text
                 }, 0)
               }}
@@ -1216,8 +1111,7 @@ export function Prompt(props: PromptProps) {
               <box flexShrink={0} flexDirection="row" gap={1}>
                 <box marginLeft={1}>
                   <Show when={kv.get("animations_enabled", true)} fallback={<text fg={theme.textMuted}>[⋯]</text>}>
-                    {/* @ts-ignore // SpinnerOptions doesn't support marginLeft */}
-                    <spinner color={activeSpinner().color} frames={activeSpinner().frames} interval={40} />
+                    <spinner color={spinnerDef().color} frames={spinnerDef().frames} interval={40} />
                   </Show>
                 </box>
                 <box flexDirection="row" gap={1} flexShrink={0}>

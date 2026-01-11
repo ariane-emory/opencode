@@ -38,6 +38,7 @@ import { IconButton } from "@opencode-ai/ui/icon-button"
 import { Select } from "@opencode-ai/ui/select"
 import { getDirectory, getFilename } from "@opencode-ai/util/path"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
+import { ImagePreview } from "@opencode-ai/ui/image-preview"
 import { ModelSelectorPopover } from "@/components/dialog-select-model"
 import { DialogSelectModelUnpaid } from "@/components/dialog-select-model-unpaid"
 import { useProviders } from "@/hooks/use-providers"
@@ -386,6 +387,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   const {
     flat: atFlat,
     active: atActive,
+    setActive: setAtActive,
     onInput: atOnInput,
     onKeyDown: atOnKeyDown,
   } = useFilteredList<AtOption>({
@@ -452,6 +454,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   const {
     flat: slashFlat,
     active: slashActive,
+    setActive: setSlashActive,
     onInput: slashOnInput,
     onKeyDown: slashOnKeyDown,
     refetch: slashRefetch,
@@ -1300,6 +1303,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
           class="absolute inset-x-0 -top-3 -translate-y-full origin-bottom-left max-h-80 min-h-10
                  overflow-auto no-scrollbar flex flex-col p-2 rounded-md
                  border border-border-base bg-surface-raised-stronger-non-alpha shadow-md"
+          onMouseDown={(e) => e.preventDefault()}
         >
           <Switch>
             <Match when={store.popover === "at"}>
@@ -1315,6 +1319,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                         "bg-surface-raised-base-hover": atActive() === atKey(item),
                       }}
                       onClick={() => handleAtSelect(item)}
+                      onMouseEnter={() => setAtActive(atKey(item))}
                     >
                       <Show
                         when={item.type === "agent"}
@@ -1361,6 +1366,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                         "bg-surface-raised-base-hover": slashActive() === cmd.id,
                       }}
                       onClick={() => handleSlashSelect(cmd)}
+                      onMouseEnter={() => setSlashActive(cmd.id)}
                     >
                       <div class="flex items-center gap-2 min-w-0">
                         <span class="text-14-regular text-text-strong whitespace-nowrap">/{cmd.trigger}</span>
@@ -1480,7 +1486,10 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                     <img
                       src={attachment.dataUrl}
                       alt={attachment.filename}
-                      class="size-16 rounded-md object-cover border border-border-base"
+                      class="size-16 rounded-md object-cover border border-border-base hover:border-border-strong-base transition-colors"
+                      onClick={() =>
+                        dialog.show(() => <ImagePreview src={attachment.dataUrl} alt={attachment.filename} />)
+                      }
                     />
                   </Show>
                   <button

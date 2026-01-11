@@ -743,17 +743,22 @@ export namespace Server {
             operationId: "session.shell",
             responses: {
               200: {
-                description: "Command executed",
+                description: "Created message",
                 content: {
                   "application/json": {
-                    schema: resolver(MessageV2),
+                    schema: resolver(MessageV2.Assistant),
                   },
                 },
               },
               ...errors(400, 404),
             },
           }),
-          validator("param", z.object({ sessionID: z.string() })),
+          validator(
+            "param",
+            z.object({
+              sessionID: z.string().meta({ description: "Session ID" }),
+            }),
+          ),
           validator("json", SessionPrompt.ShellInput.omit({ sessionID: true })),
           async (c) => {
             const sessionID = c.req.valid("param").sessionID
@@ -1092,6 +1097,7 @@ export namespace Server {
                 content: {
                   "application/json": {
                     schema: resolver(Session.Info),
+                  },
                 },
               },
             },

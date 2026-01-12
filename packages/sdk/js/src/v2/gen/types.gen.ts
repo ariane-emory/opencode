@@ -971,10 +971,6 @@ export type KeybindsConfig = {
    */
   session_unshare?: string
   /**
-   * Pin/unpin session in list
-   */
-  session_pin?: string
-  /**
    * Interrupt current session
    */
   session_interrupt?: string

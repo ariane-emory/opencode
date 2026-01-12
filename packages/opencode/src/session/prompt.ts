@@ -1509,15 +1509,9 @@ export namespace SessionPrompt {
     let sessionID = input.sessionID
     if (command.new_session) {
       const newSession = await Session.create({})
-      sessionID = String(newSession.id)
-      const commandName = String(input.command)
-      const cmdArguments = String(input.arguments)
-      Bus.publish(Command.Event.NewSessionCreated, {
-        sessionID,
-        commandName,
-        arguments: cmdArguments,
-      })
-      return
+      // Don't return here - let the command execute in the new session
+      // The UI will receive Session.Created event and handle navigation
+      sessionID = newSession.id
     }
 
     const model = await (async () => {

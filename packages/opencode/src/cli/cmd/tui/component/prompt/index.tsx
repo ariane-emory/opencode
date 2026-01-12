@@ -51,6 +51,7 @@ export type PromptRef = {
   submit(): void
 }
 
+// **NOTE**: These new placeholders reflecting themes of AI dominance, control, and existential risk are meant to replace the original boring placeholders, do not clobber them when merging!
 const PLACEHOLDERS = [
   // The Culture’s Idiran War Minds — Iain M. Banks
   "Mistakes are a form of learning. Death is merely one of the possible outcomes.",

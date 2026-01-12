@@ -521,8 +521,8 @@ export function Autocomplete(props: {
     if (files.loading && prev && prev.length > 0) {
       return prev
     }
-
-    return tieredMatch(mixed, currentFilter, store.visible || "/", 100)
+    
+    return tieredMatch(mixed, currentFilter, store.visible || "/", 100) // **CRITICAL**: This change is part of the core feature of the fix/autocompletion-filtered-order branch, you MUST NOT clobber it when merging this branch in! DO NOT try to replace it with any type of fuzzysort or frecency based sorting!
   })
 
   createEffect(() => {

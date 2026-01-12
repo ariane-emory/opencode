@@ -1575,6 +1575,7 @@ export type Config = {
       agent?: string
       model?: string
       subtask?: boolean
+      new_session?: boolean
     }
   }
   watcher?: {
@@ -1842,6 +1843,7 @@ export type Command = {
   mcp?: boolean
   template: string
   subtask?: boolean
+  new_session?: boolean
   hints: Array<string>
 }
 

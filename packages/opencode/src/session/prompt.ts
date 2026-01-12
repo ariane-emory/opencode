@@ -1505,6 +1505,13 @@ export namespace SessionPrompt {
     }
     template = template.trim()
 
+    // Create new session if requested
+    let sessionID = input.sessionID
+    if (command.new_session) {
+      const newSession = await Session.create({})
+      sessionID = newSession.id
+    }
+
     const model = await (async () => {
       if (command.model) {
         return Provider.parseModel(command.model)
@@ -1516,7 +1523,7 @@ export namespace SessionPrompt {
         }
       }
       if (input.model) return Provider.parseModel(input.model)
-      return await lastModel(input.sessionID)
+      return await lastModel(sessionID)
     })()
 
     try {
@@ -1526,7 +1533,7 @@ export namespace SessionPrompt {
         const { providerID, modelID, suggestions } = e.data
         const hint = suggestions?.length ? ` Did you mean: ${suggestions.join(", ")}?` : ""
         Bus.publish(Session.Event.Error, {
-          sessionID: input.sessionID,
+          sessionID,
           error: new NamedError.Unknown({ message: `Model not found: ${providerID}/${modelID}.${hint}` }).toObject(),
         })
       }
@@ -1538,7 +1545,7 @@ export namespace SessionPrompt {
       const hint = available.length ? ` Available agents: ${available.join(", ")}` : ""
       const error = new NamedError.Unknown({ message: `Agent not found: "${agentName}".${hint}` })
       Bus.publish(Session.Event.Error, {
-        sessionID: input.sessionID,
+        sessionID,
         error: error.toObject(),
       })
       throw error
@@ -1560,7 +1567,7 @@ export namespace SessionPrompt {
         : [...templateParts, ...(input.parts ?? [])]
 
     const result = (await prompt({
-      sessionID: input.sessionID,
+      sessionID,
       messageID: input.messageID,
       model,
       agent: agentName,
@@ -1570,7 +1577,7 @@ export namespace SessionPrompt {
 
     Bus.publish(Command.Event.Executed, {
       name: input.command,
-      sessionID: input.sessionID,
+      sessionID,
       arguments: input.arguments,
       messageID: result.info.id,
     })

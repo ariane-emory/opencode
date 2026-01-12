@@ -1519,7 +1519,23 @@ export namespace SessionPrompt {
         commandName,
         arguments: cmdArguments,
       })
-      return
+      
+      // Return a dummy message to satisfy the API response schema
+      // and prevent "Unexpected end of JSON input" error on client
+      return {
+        info: {
+          id: Identifier.ascending("message"),
+          sessionID: newSessionID,
+          role: "assistant",
+          author: "system",
+          time: {
+            created: Date.now(),
+            updated: Date.now(),
+          },
+          status: "completed",
+        },
+        parts: [],
+      } as unknown as MessageV2.WithParts
     }
 
     const model = await (async () => {

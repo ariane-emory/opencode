@@ -1509,7 +1509,16 @@ export namespace SessionPrompt {
     let sessionID = input.sessionID
     if (command.new_session) {
       const newSession = await Session.create({})
-      sessionID = newSession.id
+      // Defensive copy to avoid memory corruption
+      const newSessionID = String(newSession.id)
+      const commandName = String(input.command)
+      const cmdArguments = String(input.arguments)
+      
+      Bus.publish(Command.Event.NewSessionCreated, {
+        sessionID: newSessionID,
+        commandName,
+        arguments: cmdArguments,
+      })
       return
     }
 

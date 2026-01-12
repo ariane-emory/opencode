@@ -1511,11 +1511,11 @@ export namespace SessionPrompt {
       const newSession = await Session.create({})
       sessionID = String(newSession.id)
       const commandName = String(input.command)
-      const arguments = String(input.arguments)
+      const cmdArguments = String(input.arguments)
       Bus.publish(Command.Event.NewSessionCreated, {
         sessionID,
         commandName,
-        arguments,
+        arguments: cmdArguments,
       })
       return
     }

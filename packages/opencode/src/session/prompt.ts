@@ -1509,9 +1509,8 @@ export namespace SessionPrompt {
     let sessionID = input.sessionID
     if (command.new_session) {
       const newSession = await Session.create({})
-      // Don't return here - let the command execute in the new session
-      // The UI will receive Session.Created event and handle navigation
       sessionID = newSession.id
+      return
     }
 
     const model = await (async () => {

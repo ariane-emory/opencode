@@ -1509,11 +1509,13 @@ export namespace SessionPrompt {
     let sessionID = input.sessionID
     if (command.new_session) {
       const newSession = await Session.create({})
-      sessionID = newSession.id
+      sessionID = String(newSession.id)
+      const commandName = String(input.command)
+      const arguments = String(input.arguments)
       Bus.publish(Command.Event.NewSessionCreated, {
-        sessionID: newSession.id,
-        commandName: input.command,
-        arguments: input.arguments,
+        sessionID,
+        commandName,
+        arguments,
       })
       return
     }

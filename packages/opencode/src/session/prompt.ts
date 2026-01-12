@@ -1510,6 +1510,12 @@ export namespace SessionPrompt {
     if (command.new_session) {
       const newSession = await Session.create({})
       sessionID = newSession.id
+      Bus.publish(Command.Event.NewSessionCreated, {
+        sessionID: newSession.id,
+        commandName: input.command,
+        arguments: input.arguments,
+      })
+      return
     }
 
     const model = await (async () => {

@@ -26,6 +26,7 @@
       "icons/dev/icon.ico"
     ],
     "active": true,
+<<<<<<< HEAD
     "targets": ["deb", "rpm", "dmg", "nsis", "app", "appimage"],
     "externalBin": ["sidecars/base-one-cli"]
     "macOS": {

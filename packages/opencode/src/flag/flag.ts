@@ -1,5 +1,5 @@
 export namespace Flag {
-  // Helper to get env var with new name first, fallback to legacy
+// Helper to get env var with new name first, fallback to legacy
   function envWithFallback(newName: string, legacyName: string): string | undefined {
     return process.env[newName] ?? process.env[legacyName]
   }

@@ -212,6 +212,19 @@ export namespace Config {
     await BunProc.run(["install"], { cwd: dir }).catch(() => {})
   }
 
+  function rel(item: string, patterns: string[]) {
+    for (const pattern of patterns) {
+      const index = item.indexOf(pattern)
+      if (index === -1) continue
+      return item.slice(index + pattern.length)
+    }
+  }
+
+  function trim(file: string) {
+    const ext = path.extname(file)
+    return ext.length ? file.slice(0, -ext.length) : file
+  }
+
   const COMMAND_GLOB = new Bun.Glob("{command,commands}/**/*.md")
   async function loadCommand(dir: string) {
     const result: Record<string, Command> = {}
@@ -224,6 +237,7 @@ export namespace Config {
       const md = await ConfigMarkdown.parse(item)
       if (!md.data) continue
 
+<<<<<<< HEAD
       const name = (() => {
         const patterns = ["/.opencode/command/", "/.base-one/command/", "/command/"]
         const pattern = patterns.find((p) => item.includes(p))
@@ -263,6 +277,7 @@ export namespace Config {
       const md = await ConfigMarkdown.parse(item)
       if (!md.data) continue
 
+<<<<<<< HEAD
       // Extract relative path from agent folder for nested agents
       let agentName = path.basename(item, ".md")
       const agentFolderPath = item.includes("/.opencode/agent/")
@@ -1170,7 +1185,7 @@ export namespace Config {
     if (parsed.success) {
       if (!parsed.data.$schema) {
         parsed.data.$schema = "https://opencode.ai/config.json"
-        await Bun.write(configFilepath, JSON.stringify(parsed.data, null, 2))
+        await Bun.write(configFilepath, JSON.stringify(parsed.data, null, 2)).catch(() => {})
       }
       const data = parsed.data
       if (data.plugin) {

@@ -237,7 +237,6 @@ export namespace Config {
       const md = await ConfigMarkdown.parse(item)
       if (!md.data) continue
 
-<<<<<<< HEAD
       const name = (() => {
         const patterns = ["/.opencode/command/", "/.base-one/command/", "/command/"]
         const pattern = patterns.find((p) => item.includes(p))
@@ -277,7 +276,6 @@ export namespace Config {
       const md = await ConfigMarkdown.parse(item)
       if (!md.data) continue
 
-<<<<<<< HEAD
       // Extract relative path from agent folder for nested agents
       let agentName = path.basename(item, ".md")
       const agentFolderPath = item.includes("/.opencode/agent/")

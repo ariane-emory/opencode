@@ -36,7 +36,20 @@ export function DialogSessionList() {
 
   const spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
 
-  const sessions = createMemo(() => searchResults() ?? sync.data.session)
+  const sessions = createMemo(() => {
+    const results = searchResults()
+    if (!results) return sync.data.session
+    return results.map((result) => {
+      const live = sync.data.session.find((s) => s.id === result.id)
+      return live ?? result
+    })
+  })
+
+  const defaultSessionID = createMemo(() => {
+    const allSessions = sessions().filter((x) => x.parentID === undefined)
+    const sorted = allSessions.toSorted((a, b) => b.time.updated - a.time.updated)
+    return sorted[0]?.id
+  })
 
   const options = createMemo(() => {
     const today = new Date().toDateString()
@@ -88,7 +101,7 @@ export function DialogSessionList() {
       title="Sessions"
       options={options()}
       skipFilter={true}
-      current={currentSessionID()}
+      current={currentSessionID() ?? defaultSessionID()}
       onFilter={setSearch}
       onMove={() => {
         setToDelete(undefined)

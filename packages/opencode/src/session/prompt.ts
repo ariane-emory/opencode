@@ -1529,10 +1529,18 @@ export namespace SessionPrompt {
       const commandName = String(input.command)
       const cmdArguments = String(input.arguments)
       
-      Bus.publish(Command.Event.NewSessionCreated, {
-        sessionID: newSessionID,
-        commandName,
-        arguments: cmdArguments,
+      Bus.publish(Session.Event.Created, {
+        info: {
+          id: newSessionID,
+          projectID: "",
+          directory: "",
+          title: commandName,
+          version: "",
+          time: {
+            created: Date.now(),
+            updated: Date.now(),
+          },
+        },
       })
       
       // Return a dummy message to satisfy the API response schema

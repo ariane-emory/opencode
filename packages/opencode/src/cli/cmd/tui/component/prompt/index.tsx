@@ -262,7 +262,7 @@ export function Prompt(props: PromptProps) {
   const fileStyleId = syntax().getStyleId("extmark.file")!
   const agentStyleId = syntax().getStyleId("extmark.agent")!
   const pasteStyleId = syntax().getStyleId("extmark.paste")!
-  let promptPartTypeId: number
+  let promptPartTypeId = 0
 
   // Track mounted state to prevent accessing layout nodes after unmount
   // This fixes "Out of bounds call_indirect" errors in yoga-layout WASM
@@ -504,45 +504,42 @@ export function Prompt(props: PromptProps) {
     ]
   })
 
+  const ref: PromptRef = {
+    get focused() {
+      return input.focused
+    },
+    get current() {
+      return store.prompt
+    },
+    focus() {
+      input.focus()
+    },
+    blur() {
+      input.blur()
+    },
+    set(prompt) {
+      input.setText(prompt.input)
+      setStore("prompt", prompt)
+      restoreExtmarksFromParts(prompt.parts)
+      input.gotoBufferEnd()
+    },
+    reset() {
+      input.clear()
+      input.extmarks.clear()
+      setStore("prompt", {
+        input: "",
+        parts: [],
+      })
+      setStore("extmarkToPartIndex", new Map())
+    },
+    submit() {
+      submit()
+    },
+  }
+
   createEffect(() => {
     if (props.visible !== false) input?.focus()
     if (props.visible === false) input?.blur()
-  })
-
-  onMount(() => {
-    promptPartTypeId = input.extmarks.registerType("prompt-part")
-    props.ref?.({
-      get focused() {
-        return input.focused
-      },
-      get current() {
-        return store.prompt
-      },
-      focus() {
-        input.focus()
-      },
-      blur() {
-        input.blur()
-      },
-      set(prompt) {
-        input.setText(prompt.input)
-        setStore("prompt", prompt)
-        restoreExtmarksFromParts(prompt.parts)
-        input.gotoBufferEnd()
-      },
-      reset() {
-        input.clear()
-        input.extmarks.clear()
-        setStore("prompt", {
-          input: "",
-          parts: [],
-        })
-        setStore("extmarkToPartIndex", new Map())
-      },
-      submit() {
-        submit()
-      },
-    })
   })
 
   function restoreExtmarksFromParts(parts: PromptInfo["parts"]) {
@@ -1110,12 +1107,15 @@ export function Prompt(props: PromptProps) {
                 setTimeout(() => {
                   if (!mounted || !input) return
                   input.getLayoutNode().markDirty()
-                  input.gotoBufferEnd()
                   renderer.requestRender()
                 }, 0)
               }}
               ref={(r: TextareaRenderable) => {
                 input = r
+                if (promptPartTypeId === 0) {
+                  promptPartTypeId = input.extmarks.registerType("prompt-part")
+                }
+                props.ref?.(ref)
                 setTimeout(() => {
                   if (!mounted || !input) return
                   input.cursorColor = theme.text
@@ -1258,7 +1258,10 @@ export function Prompt(props: PromptProps) {
               <Switch>
                 <Match when={store.mode === "normal"}>
                   <text fg={theme.text}>
-                    {keybind.print("agent_cycle")} <span style={{ fg: theme.textMuted }}>switch agent</span>
+                    {keybind.print("variant_cycle")} <span style={{ fg: theme.textMuted }}>variants</span>
+                  </text>
+                  <text fg={theme.text}>
+                    {keybind.print("agent_cycle")} <span style={{ fg: theme.textMuted }}>agents</span>
                   </text>
                   <text fg={theme.text}>
                     {keybind.print("command_list")} <span style={{ fg: theme.textMuted }}>commands</span>

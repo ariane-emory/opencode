@@ -16,6 +16,20 @@ export namespace Flag {
     return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
   }
 
+  function truthy(key: string) {
+    const value = process.env[key]?.toLowerCase()
+    return value === "true" || value === "1"
+  }
+
+  function number(key: string): number | undefined {
+    const value = process.env[key]
+    if (!value) return undefined
+    const parsed = Number(value)
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+  }
+
+  
+
   // New BASE_ONE_* env vars with fallback to OPENCODE_*
   export const BASE_ONE_AUTO_SHARE = truthyWithFallback("BASE_ONE_AUTO_SHARE", "OPENCODE_AUTO_SHARE")
   export const BASE_ONE_GIT_BASH_PATH = envWithFallback("BASE_ONE_GIT_BASH_PATH", "OPENCODE_GIT_BASH_PATH")
@@ -55,6 +69,8 @@ export namespace Flag {
   export const BASE_ONE_EXPERIMENTAL_OUTPUT_TOKEN_MAX = numberWithFallback("BASE_ONE_EXPERIMENTAL_OUTPUT_TOKEN_MAX", "OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX")
   export const BASE_ONE_EXPERIMENTAL_OXFMT = BASE_ONE_EXPERIMENTAL || truthyWithFallback("BASE_ONE_EXPERIMENTAL_OXFMT", "OPENCODE_EXPERIMENTAL_OXFMT")
   export const BASE_ONE_EXPERIMENTAL_LSP_TY = truthyWithFallback("BASE_ONE_EXPERIMENTAL_LSP_TY", "OPENCODE_EXPERIMENTAL_LSP_TY")
+  export const BASE_ONE_EXPERIMENTAL_LSP_TOOL = BASE_ONE_EXPERIMENTAL || truthyWithFallback("BASE_ONE_EXPERIMENTAL_LSP_TOOL", "OPENCODE_EXPERIMENTAL_LSP_TOOL")
+  export const BASE_ONE_EXPERIMENTAL_PLAN_MODE = BASE_ONE_EXPERIMENTAL || truthyWithFallback("BASE_ONE_EXPERIMENTAL_PLAN_MODE", "OPENCODE_EXPERIMENTAL_PLAN_MODE")
 
   // Legacy aliases for backwards compatibility during migration
   export const OPENCODE_AUTO_SHARE = BASE_ONE_AUTO_SHARE
@@ -89,4 +105,6 @@ export namespace Flag {
   export const OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX = BASE_ONE_EXPERIMENTAL_OUTPUT_TOKEN_MAX
   export const OPENCODE_EXPERIMENTAL_OXFMT = BASE_ONE_EXPERIMENTAL_OXFMT
   export const OPENCODE_EXPERIMENTAL_LSP_TY = BASE_ONE_EXPERIMENTAL_LSP_TY
+  export const OPENCODE_EXPERIMENTAL_LSP_TOOL = BASE_ONE_EXPERIMENTAL_LSP_TOOL
+  export const OPENCODE_EXPERIMENTAL_PLAN_MODE = BASE_ONE_EXPERIMENTAL_PLAN_MODE
 }

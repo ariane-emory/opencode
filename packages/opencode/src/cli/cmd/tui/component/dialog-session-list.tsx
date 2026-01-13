@@ -46,10 +46,20 @@ export function DialogSessionList() {
   })
 
   const defaultSessionID = createMemo(() => {
+    const lastSessionID = kv.get("last_session_id")
+
+    // First try the last session we were in
+    if (lastSessionID) {
+      const session = sessions().find((s) => s.id === lastSessionID)
+      if (session) return session.id
+    }
+
+    // Fallback to most recently updated session
     const allSessions = sessions().filter((x) => x.parentID === undefined)
     const sorted = allSessions.toSorted((a, b) => b.time.updated - a.time.updated)
     return sorted[0]?.id
   })
+
 
   const options = createMemo(() => {
     const today = new Date().toDateString()

@@ -312,7 +312,6 @@ function App() {
         
         // Store the last session ID so we can return to it easily
         if (currentSessionID) {
-          const kv = useKV()
           kv.set("last_session_id", currentSessionID)
         }
         route.navigate({

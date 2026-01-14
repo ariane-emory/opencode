@@ -44,6 +44,7 @@ export interface DialogSelectOption<T = any> {
 export type DialogSelectRef<T> = {
   filter: string
   filtered: DialogSelectOption<T>[]
+  scrollToSelected: () => void
 }
 
 export function DialogSelect<T>(props: DialogSelectProps<T>) {
@@ -184,6 +185,9 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     },
     get filtered() {
       return filtered()
+    },
+    scrollToSelected() {
+      moveTo(store.selected)
     },
   }
   props.ref?.(ref)

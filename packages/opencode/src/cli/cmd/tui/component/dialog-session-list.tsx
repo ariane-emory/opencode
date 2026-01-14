@@ -1,5 +1,5 @@
 import { useDialog } from "@tui/ui/dialog"
-import { DialogSelect } from "@tui/ui/dialog-select"
+import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { useRoute } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
 import { createMemo, createSignal, createResource, onMount, Show } from "solid-js"
@@ -22,6 +22,7 @@ export function DialogSessionList() {
 
   const [toDelete, setToDelete] = createSignal<string>()
   const [search, setSearch] = createDebouncedSignal("", 150)
+  const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()
 
   const [searchResults] = createResource(search, async (query) => {
     if (!query) return undefined
@@ -108,6 +109,7 @@ export function DialogSessionList() {
 
   return (
     <DialogSelect
+      ref={setSelectRef}
       title="Sessions"
       options={options()}
       skipFilter={true}
@@ -156,6 +158,7 @@ export function DialogSessionList() {
               sessionID: option.value,
               time: { pinned: isPinned ? null : Date.now() },
             })
+            selectRef()?.scrollToSelected()
           },
         },
       ]}

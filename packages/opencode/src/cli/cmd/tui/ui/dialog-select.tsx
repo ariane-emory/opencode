@@ -96,14 +96,16 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
 
   createEffect(
     on([() => store.filter, () => props.current], ([filter, current]) => {
-      if (filter.length > 0) {
-        moveTo(0)
-      } else if (current) {
-        const currentIndex = flat().findIndex((opt) => isDeepEqual(opt.value, current))
-        if (currentIndex >= 0) {
-          moveTo(currentIndex)
+      setTimeout(() => {
+        if (filter.length > 0) {
+          moveTo(0)
+        } else if (current) {
+          const currentIndex = flat().findIndex((opt) => isDeepEqual(opt.value, current))
+          if (currentIndex >= 0) {
+            moveTo(currentIndex)
+          }
         }
-      }
+      }, 0)
     }),
   )
 

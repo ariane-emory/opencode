@@ -158,7 +158,7 @@ export function DialogSessionList() {
               sessionID: option.value,
               time: { pinned: isPinned ? null : Date.now() },
             })
-            selectRef()?.scrollToSelected()
+            selectRef()?.scrollToValue(option.value)
           },
         },
       ]}

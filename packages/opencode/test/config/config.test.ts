@@ -1374,3 +1374,26 @@ describe("deduplicatePlugins", () => {
     })
   })
 })
+
+test("loads tui.no_sidebar_auto config", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(
+        path.join(dir, "opencode.jsonc"),
+        JSON.stringify({
+          $schema: "https://opencode.ai/config.json",
+          tui: {
+            no_sidebar_auto: true,
+          },
+        }),
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      expect(config.tui?.no_sidebar_auto).toBe(true)
+    },
+  })
+})

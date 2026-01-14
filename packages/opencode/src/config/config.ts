@@ -765,6 +765,10 @@ export namespace Config {
       .enum(["auto", "stacked"])
       .optional()
       .describe("Control diff rendering style: 'auto' adapts to terminal width, 'stacked' always shows single column"),
+    no_sidebar_auto: z
+      .boolean()
+      .optional()
+      .describe("When true, 'auto' sidebar mode always shows the sidebar regardless of window width"),
   })
 
   export const Server = z

@@ -9,6 +9,7 @@ export const { use: useKV, provider: KVProvider } = createSimpleContext({
   init: () => {
     const [ready, setReady] = createSignal(false)
     const [store, setStore] = createStore<Record<string, any>>()
+    const ephemeral: Record<string, any> = {}
     const file = Bun.file(path.join(Global.Path.state, "kv.json"))
 
     file
@@ -45,6 +46,12 @@ export const { use: useKV, provider: KVProvider } = createSimpleContext({
       set(key: string, value: any) {
         setStore(key, value)
         Bun.write(file, JSON.stringify(store, null, 2))
+      },
+      getEphemeral(key: string, defaultValue?: any) {
+        return ephemeral[key] ?? defaultValue
+      },
+      setEphemeral(key: string, value: any) {
+        ephemeral[key] = value
       },
     }
     return result

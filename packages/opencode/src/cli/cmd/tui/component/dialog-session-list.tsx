@@ -47,9 +47,9 @@ export function DialogSessionList() {
   })
 
   const defaultSessionID = createMemo(() => {
-    const lastSessionID = kv.get("last_session_id")
+    const lastSessionID = kv.getEphemeral("last_session_id")
 
-    // First try the last session we were in
+    // First try last session we were in (ephemeral, per-process)
     if (lastSessionID) {
       const session = sessions().find((s) => s.id === lastSessionID)
       if (session) return session.id

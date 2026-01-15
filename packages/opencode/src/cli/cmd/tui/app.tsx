@@ -310,9 +310,9 @@ function App() {
 
         const currentSessionID = route.data.type === "session" ? route.data.sessionID : undefined
         
-        // Store the last session ID so we can return to it easily
+        // Store the last session ID so we can return to it easily (ephemeral, per-process)
         if (currentSessionID) {
-          kv.set("last_session_id", currentSessionID)
+          kv.setEphemeral("last_session_id", currentSessionID)
         }
         route.navigate({
           type: "home",

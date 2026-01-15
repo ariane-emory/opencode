@@ -86,6 +86,7 @@ export namespace Session {
           diff: z.string().optional(),
         })
         .optional(),
+      cacheInvalidated: z.boolean().optional(),
     })
     .meta({
       ref: "Session",

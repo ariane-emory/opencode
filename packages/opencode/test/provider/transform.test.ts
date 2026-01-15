@@ -364,7 +364,7 @@ describe("ProviderTransform.schema - gemini array items", () => {
 })
 
 describe("ProviderTransform.message - DeepSeek reasoning content", () => {
-  test("DeepSeek with tool calls includes reasoning_content in providerOptions", () => {
+  test("DeepSeek with tool calls includes reasoning_content in providerOptions", async () => {
     const msgs = [
       {
         role: "assistant",
@@ -380,7 +380,7 @@ describe("ProviderTransform.message - DeepSeek reasoning content", () => {
       },
     ] as any[]
 
-    const result = ProviderTransform.message(
+    const result = await ProviderTransform.message(
       msgs,
       {
         id: "deepseek/deepseek-chat",
@@ -431,7 +431,7 @@ describe("ProviderTransform.message - DeepSeek reasoning content", () => {
     expect(result[0].providerOptions?.openaiCompatible?.reasoning_content).toBe("Let me think about this...")
   })
 
-  test("Non-DeepSeek providers leave reasoning content unchanged", () => {
+  test("Non-DeepSeek providers leave reasoning content unchanged", async () => {
     const msgs = [
       {
         role: "assistant",
@@ -442,7 +442,7 @@ describe("ProviderTransform.message - DeepSeek reasoning content", () => {
       },
     ] as any[]
 
-    const result = ProviderTransform.message(
+    const result = await ProviderTransform.message(
       msgs,
       {
         id: "openai/gpt-4",
@@ -520,7 +520,7 @@ describe("ProviderTransform.message - empty image handling", () => {
     headers: {},
   } as any
 
-  test("should replace empty base64 image with error text", () => {
+  test("should replace empty base64 image with error text", async () => {
     const msgs = [
       {
         role: "user",
@@ -531,7 +531,7 @@ describe("ProviderTransform.message - empty image handling", () => {
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, mockModel, {})
+    const result = await ProviderTransform.message(msgs, mockModel, {})
 
     expect(result).toHaveLength(1)
     expect(result[0].content).toHaveLength(2)
@@ -542,7 +542,7 @@ describe("ProviderTransform.message - empty image handling", () => {
     })
   })
 
-  test("should keep valid base64 images unchanged", () => {
+  test("should keep valid base64 images unchanged", async () => {
     const validBase64 =
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
     const msgs = [
@@ -555,7 +555,7 @@ describe("ProviderTransform.message - empty image handling", () => {
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, mockModel, {})
+    const result = await ProviderTransform.message(msgs, mockModel, {})
 
     expect(result).toHaveLength(1)
     expect(result[0].content).toHaveLength(2)
@@ -563,7 +563,7 @@ describe("ProviderTransform.message - empty image handling", () => {
     expect(result[0].content[1]).toEqual({ type: "image", image: `data:image/png;base64,${validBase64}` })
   })
 
-  test("should handle mixed valid and empty images", () => {
+  test("should handle mixed valid and empty images", async () => {
     const validBase64 =
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
     const msgs = [
@@ -577,7 +577,7 @@ describe("ProviderTransform.message - empty image handling", () => {
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, mockModel, {})
+    const result = await ProviderTransform.message(msgs, mockModel, {})
 
     expect(result).toHaveLength(1)
     expect(result[0].content).toHaveLength(3)
@@ -623,21 +623,21 @@ describe("ProviderTransform.message - anthropic empty content filtering", () => 
     headers: {},
   } as any
 
-  test("filters out messages with empty string content", () => {
+  test("filters out messages with empty string content", async () => {
     const msgs = [
       { role: "user", content: "Hello" },
       { role: "assistant", content: "" },
       { role: "user", content: "World" },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, anthropicModel, {})
+    const result = await ProviderTransform.message(msgs, anthropicModel, {})
 
     expect(result).toHaveLength(2)
     expect(result[0].content).toBe("Hello")
     expect(result[1].content).toBe("World")
   })
 
-  test("filters out empty text parts from array content", () => {
+  test("filters out empty text parts from array content", async () => {
     const msgs = [
       {
         role: "assistant",
@@ -649,14 +649,14 @@ describe("ProviderTransform.message - anthropic empty content filtering", () => 
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, anthropicModel, {})
+    const result = await ProviderTransform.message(msgs, anthropicModel, {})
 
     expect(result).toHaveLength(1)
     expect(result[0].content).toHaveLength(1)
     expect(result[0].content[0]).toEqual({ type: "text", text: "Hello" })
   })
 
-  test("filters out empty reasoning parts from array content", () => {
+  test("filters out empty reasoning parts from array content", async () => {
     const msgs = [
       {
         role: "assistant",
@@ -668,14 +668,14 @@ describe("ProviderTransform.message - anthropic empty content filtering", () => 
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, anthropicModel, {})
+    const result = await ProviderTransform.message(msgs, anthropicModel, {})
 
     expect(result).toHaveLength(1)
     expect(result[0].content).toHaveLength(1)
     expect(result[0].content[0]).toEqual({ type: "text", text: "Answer" })
   })
 
-  test("removes entire message when all parts are empty", () => {
+  test("removes entire message when all parts are empty", async () => {
     const msgs = [
       { role: "user", content: "Hello" },
       {
@@ -688,14 +688,14 @@ describe("ProviderTransform.message - anthropic empty content filtering", () => 
       { role: "user", content: "World" },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, anthropicModel, {})
+    const result = await ProviderTransform.message(msgs, anthropicModel, {})
 
     expect(result).toHaveLength(2)
     expect(result[0].content).toBe("Hello")
     expect(result[1].content).toBe("World")
   })
 
-  test("keeps non-text/reasoning parts even if text parts are empty", () => {
+  test("keeps non-text/reasoning parts even if text parts are empty", async () => {
     const msgs = [
       {
         role: "assistant",
@@ -706,7 +706,7 @@ describe("ProviderTransform.message - anthropic empty content filtering", () => 
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, anthropicModel, {})
+    const result = await ProviderTransform.message(msgs, anthropicModel, {})
 
     expect(result).toHaveLength(1)
     expect(result[0].content).toHaveLength(1)
@@ -718,7 +718,7 @@ describe("ProviderTransform.message - anthropic empty content filtering", () => 
     })
   })
 
-  test("keeps messages with valid text alongside empty parts", () => {
+  test("keeps messages with valid text alongside empty parts", async () => {
     const msgs = [
       {
         role: "assistant",
@@ -730,7 +730,7 @@ describe("ProviderTransform.message - anthropic empty content filtering", () => 
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, anthropicModel, {})
+    const result = await ProviderTransform.message(msgs, anthropicModel, {})
 
     expect(result).toHaveLength(1)
     expect(result[0].content).toHaveLength(2)
@@ -738,7 +738,7 @@ describe("ProviderTransform.message - anthropic empty content filtering", () => 
     expect(result[0].content[1]).toEqual({ type: "text", text: "Result" })
   })
 
-  test("does not filter for non-anthropic providers", () => {
+  test("does not filter for non-anthropic providers", async () => {
     const openaiModel = {
       ...anthropicModel,
       providerID: "openai",
@@ -757,7 +757,7 @@ describe("ProviderTransform.message - anthropic empty content filtering", () => 
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, openaiModel, {})
+    const result = await ProviderTransform.message(msgs, openaiModel, {})
 
     expect(result).toHaveLength(2)
     expect(result[0].content).toBe("")
@@ -791,7 +791,7 @@ describe("ProviderTransform.message - strip openai metadata when store=false", (
     headers: {},
   } as any
 
-  test("preserves itemId and reasoningEncryptedContent when store=false", () => {
+  test("strips itemId and reasoningEncryptedContent when store=false", async () => {
     const msgs = [
       {
         role: "assistant",
@@ -819,14 +819,14 @@ describe("ProviderTransform.message - strip openai metadata when store=false", (
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, openaiModel, { store: false }) as any[]
+    const result = (await ProviderTransform.message(msgs, openaiModel, { store: false })) as any[]
 
     expect(result).toHaveLength(1)
-    expect(result[0].content[0].providerOptions?.openai?.itemId).toBe("rs_123")
-    expect(result[0].content[1].providerOptions?.openai?.itemId).toBe("msg_456")
+    expect(result[0].content[0].providerOptions?.openai?.itemId).toBeUndefined()
+    expect(result[0].content[1].providerOptions?.openai?.itemId).toBeUndefined()
   })
 
-  test("preserves itemId and reasoningEncryptedContent when store=false even when not openai", () => {
+  test("strips itemId and reasoningEncryptedContent when store=false even when not openai", async () => {
     const zenModel = {
       ...openaiModel,
       providerID: "zen",
@@ -858,14 +858,14 @@ describe("ProviderTransform.message - strip openai metadata when store=false", (
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, zenModel, { store: false }) as any[]
+    const result = (await ProviderTransform.message(msgs, zenModel, { store: false })) as any[]
 
     expect(result).toHaveLength(1)
-    expect(result[0].content[0].providerOptions?.openai?.itemId).toBe("rs_123")
-    expect(result[0].content[1].providerOptions?.openai?.itemId).toBe("msg_456")
+    expect(result[0].content[0].providerOptions?.openai?.itemId).toBeUndefined()
+    expect(result[0].content[1].providerOptions?.openai?.itemId).toBeUndefined()
   })
 
-  test("preserves other openai options including itemId", () => {
+  test("preserves other openai options when stripping itemId", async () => {
     const msgs = [
       {
         role: "assistant",
@@ -884,13 +884,13 @@ describe("ProviderTransform.message - strip openai metadata when store=false", (
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, openaiModel, { store: false }) as any[]
+    const result = (await ProviderTransform.message(msgs, openaiModel, { store: false })) as any[]
 
-    expect(result[0].content[0].providerOptions?.openai?.itemId).toBe("msg_123")
+    expect(result[0].content[0].providerOptions?.openai?.itemId).toBeUndefined()
     expect(result[0].content[0].providerOptions?.openai?.otherOption).toBe("value")
   })
 
-  test("preserves metadata for openai package when store is true", () => {
+  test("strips metadata for openai package even when store is true", async () => {
     const msgs = [
       {
         role: "assistant",
@@ -908,13 +908,13 @@ describe("ProviderTransform.message - strip openai metadata when store=false", (
       },
     ] as any[]
 
-    // openai package preserves itemId regardless of store value
-    const result = ProviderTransform.message(msgs, openaiModel, { store: true }) as any[]
+    // openai package always strips itemId regardless of store value
+    const result = (await ProviderTransform.message(msgs, openaiModel, { store: true })) as any[]
 
-    expect(result[0].content[0].providerOptions?.openai?.itemId).toBe("msg_123")
+    expect(result[0].content[0].providerOptions?.openai?.itemId).toBeUndefined()
   })
 
-  test("preserves metadata for non-openai packages when store is false", () => {
+  test("strips metadata for non-openai packages when store is false", async () => {
     const anthropicModel = {
       ...openaiModel,
       providerID: "anthropic",
@@ -941,13 +941,13 @@ describe("ProviderTransform.message - strip openai metadata when store=false", (
       },
     ] as any[]
 
-    // store=false preserves metadata for non-openai packages
-    const result = ProviderTransform.message(msgs, anthropicModel, { store: false }) as any[]
+    // store=false triggers stripping even for non-openai packages
+    const result = (await ProviderTransform.message(msgs, anthropicModel, { store: false })) as any[]
 
-    expect(result[0].content[0].providerOptions?.openai?.itemId).toBe("msg_123")
+    expect(result[0].content[0].providerOptions?.openai?.itemId).toBeUndefined()
   })
 
-  test("preserves metadata using providerID key when store is false", () => {
+  test("strips metadata using providerID key when store is false", async () => {
     const opencodeModel = {
       ...openaiModel,
       providerID: "opencode",
@@ -975,13 +975,13 @@ describe("ProviderTransform.message - strip openai metadata when store=false", (
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, opencodeModel, { store: false }) as any[]
+    const result = (await ProviderTransform.message(msgs, opencodeModel, { store: false })) as any[]
 
-    expect(result[0].content[0].providerOptions?.opencode?.itemId).toBe("msg_123")
+    expect(result[0].content[0].providerOptions?.opencode?.itemId).toBeUndefined()
     expect(result[0].content[0].providerOptions?.opencode?.otherOption).toBe("value")
   })
 
-  test("preserves itemId across all providerOptions keys", () => {
+  test("strips itemId across all providerOptions keys", async () => {
     const opencodeModel = {
       ...openaiModel,
       providerID: "opencode",
@@ -1013,17 +1013,17 @@ describe("ProviderTransform.message - strip openai metadata when store=false", (
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, opencodeModel, { store: false }) as any[]
+    const result = (await ProviderTransform.message(msgs, opencodeModel, { store: false })) as any[]
 
-    expect(result[0].providerOptions?.openai?.itemId).toBe("msg_root")
-    expect(result[0].providerOptions?.opencode?.itemId).toBe("msg_opencode")
-    expect(result[0].providerOptions?.extra?.itemId).toBe("msg_extra")
-    expect(result[0].content[0].providerOptions?.openai?.itemId).toBe("msg_openai_part")
-    expect(result[0].content[0].providerOptions?.opencode?.itemId).toBe("msg_opencode_part")
-    expect(result[0].content[0].providerOptions?.extra?.itemId).toBe("msg_extra_part")
+    expect(result[0].providerOptions?.openai?.itemId).toBeUndefined()
+    expect(result[0].providerOptions?.opencode?.itemId).toBeUndefined()
+    expect(result[0].providerOptions?.extra?.itemId).toBeUndefined()
+    expect(result[0].content[0].providerOptions?.openai?.itemId).toBeUndefined()
+    expect(result[0].content[0].providerOptions?.opencode?.itemId).toBeUndefined()
+    expect(result[0].content[0].providerOptions?.extra?.itemId).toBeUndefined()
   })
 
-  test("does not strip metadata for non-openai packages when store is not false", () => {
+  test("does not strip metadata for non-openai packages when store is not false", async () => {
     const anthropicModel = {
       ...openaiModel,
       providerID: "anthropic",
@@ -1050,7 +1050,7 @@ describe("ProviderTransform.message - strip openai metadata when store=false", (
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, anthropicModel, {}) as any[]
+    const result = (await ProviderTransform.message(msgs, anthropicModel, {})) as any[]
 
     expect(result[0].content[0].providerOptions?.openai?.itemId).toBe("msg_123")
   })
@@ -1083,7 +1083,7 @@ describe("ProviderTransform.message - providerOptions key remapping", () => {
       headers: {},
     }) as any
 
-  test("azure keeps 'azure' key and does not remap to 'openai'", () => {
+  test("azure keeps 'azure' key and does not remap to 'openai'", async () => {
     const model = createModel("azure", "@ai-sdk/azure")
     const msgs = [
       {
@@ -1095,13 +1095,13 @@ describe("ProviderTransform.message - providerOptions key remapping", () => {
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, model, {})
+    const result = await ProviderTransform.message(msgs, model, {})
 
     expect(result[0].providerOptions?.azure).toEqual({ someOption: "value" })
     expect(result[0].providerOptions?.openai).toBeUndefined()
   })
 
-  test("copilot remaps providerID to 'copilot' key", () => {
+  test("copilot remaps providerID to 'copilot' key", async () => {
     const model = createModel("github-copilot", "@ai-sdk/github-copilot")
     const msgs = [
       {
@@ -1113,13 +1113,13 @@ describe("ProviderTransform.message - providerOptions key remapping", () => {
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, model, {})
+    const result = await ProviderTransform.message(msgs, model, {})
 
     expect(result[0].providerOptions?.copilot).toEqual({ someOption: "value" })
     expect(result[0].providerOptions?.["github-copilot"]).toBeUndefined()
   })
 
-  test("bedrock remaps providerID to 'bedrock' key", () => {
+  test("bedrock remaps providerID to 'bedrock' key", async () => {
     const model = createModel("my-bedrock", "@ai-sdk/amazon-bedrock")
     const msgs = [
       {
@@ -1131,7 +1131,7 @@ describe("ProviderTransform.message - providerOptions key remapping", () => {
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, model, {})
+    const result = await ProviderTransform.message(msgs, model, {})
 
     expect(result[0].providerOptions?.bedrock).toEqual({ someOption: "value" })
     expect(result[0].providerOptions?.["my-bedrock"]).toBeUndefined()
@@ -1139,7 +1139,7 @@ describe("ProviderTransform.message - providerOptions key remapping", () => {
 })
 
 describe("ProviderTransform.message - claude w/bedrock custom inference profile", () => {
-  test("adds cachePoint", () => {
+  test("adds cachePoint", async () => {
     const model = {
       id: "amazon-bedrock/custom-claude-sonnet-4.5",
       providerID: "amazon-bedrock",
@@ -1161,7 +1161,7 @@ describe("ProviderTransform.message - claude w/bedrock custom inference profile"
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, model, {})
+    const result = await ProviderTransform.message(msgs, model, {})
 
     expect(result[0].providerOptions?.bedrock).toEqual(
       expect.objectContaining({

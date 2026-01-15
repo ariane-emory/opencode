@@ -1774,7 +1774,8 @@ NOTE: At any point in time through this workflow you should feel free to ask the
         if (!cleaned) return
 
         const title = cleaned.length > 100 ? cleaned.substring(0, 97) + "..." : cleaned
-        draft.title = title
+        // Only set if title is still default (wasn't changed by tool during LLM call)
+        if (Session.isDefaultTitle(draft.title)) draft.title = title
       })
   }
 }

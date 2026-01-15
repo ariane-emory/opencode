@@ -26,6 +26,7 @@ import { Log } from "@/util/log"
 import { LspTool } from "./lsp"
 import { Truncate } from "./truncation"
 import { PlanExitTool, PlanEnterTool } from "./plan"
+import { SetCurrentSessionTitleTool } from "./set-current-session-title"
 
 export namespace ToolRegistry {
   const log = Log.create({ service: "tool.registry" })
@@ -105,6 +106,7 @@ export namespace ToolRegistry {
       WebFetchTool,
       TodoWriteTool,
       TodoReadTool,
+      SetCurrentSessionTitleTool,
       WebSearchTool,
       CodeSearchTool,
       SkillTool,

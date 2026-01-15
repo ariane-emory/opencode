@@ -781,6 +781,7 @@ export type Session = {
     snapshot?: string
     diff?: string
   }
+  cacheInvalidated?: boolean
 }
 
 export type EventSessionCreated = {

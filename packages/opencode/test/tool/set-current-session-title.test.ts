@@ -10,7 +10,7 @@ describe("tool.set_current_session_title", () => {
     await Instance.provide({
       directory: tmp.path,
       fn: async () => {
-        const session = await Session.create()
+        const session = await Session.create({})
         const tool = await SetCurrentSessionTitleTool.init()
         const ctx = {
           sessionID: session.id,
@@ -38,7 +38,7 @@ describe("tool.set_current_session_title", () => {
     await Instance.provide({
       directory: tmp.path,
       fn: async () => {
-        const session = await Session.create()
+        const session = await Session.create({})
         const tool = await SetCurrentSessionTitleTool.init()
         const ctx = {
           sessionID: session.id,
@@ -60,7 +60,7 @@ describe("tool.set_current_session_title", () => {
     await Instance.provide({
       directory: tmp.path,
       fn: async () => {
-        const session = await Session.create()
+        const session = await Session.create({})
         const tool = await SetCurrentSessionTitleTool.init()
         const ctx = {
           sessionID: session.id,
@@ -83,7 +83,7 @@ describe("tool.set_current_session_title", () => {
     await Instance.provide({
       directory: tmp.path,
       fn: async () => {
-        const session = await Session.create()
+        const session = await Session.create({})
         const tool = await SetCurrentSessionTitleTool.init()
         const ctx = {
           sessionID: session.id,
@@ -110,7 +110,7 @@ describe("tool.set_current_session_title", () => {
     await Instance.provide({
       directory: tmp.path,
       fn: async () => {
-        const session = await Session.create()
+        const session = await Session.create({})
         const tool = await SetCurrentSessionTitleTool.init()
         const ctx = {
           sessionID: session.id,
@@ -136,7 +136,7 @@ describe("tool.set_current_session_title", () => {
     await Instance.provide({
       directory: tmp.path,
       fn: async () => {
-        const session = await Session.create()
+        const session = await Session.create({})
         const tool = await SetCurrentSessionTitleTool.init()
         const requests: Array<{ permission: string }> = []
         const ctx = {

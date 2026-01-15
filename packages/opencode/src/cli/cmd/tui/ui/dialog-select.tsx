@@ -96,16 +96,15 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
 
   createEffect(
     on([() => store.filter, () => props.current], ([filter, current]) => {
-      setTimeout(() => {
-        if (filter.length > 0) {
-          moveTo(0, true)
-        } else if (current) {
-          const currentIndex = flat().findIndex((opt) => isDeepEqual(opt.value, current))
-          if (currentIndex >= 0) {
-            moveTo(currentIndex, true)
-          }
+      if (filter.length > 0) {
+        setStore("selected", 0)
+      } else if (current) {
+        const currentIndex = flat().findIndex((opt) => isDeepEqual(opt.value, current))
+        if (currentIndex >= 0) {
+          setStore("selected", currentIndex)
         }
-      }, 0)
+      }
+      scroll?.scrollTo(0)
     }),
   )
 
@@ -117,7 +116,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     moveTo(next)
   }
 
-  function moveTo(next: number, center = false) {
+  function moveTo(next: number) {
     setStore("selected", next)
     props.onMove?.(selected()!)
     if (!scroll) return
@@ -126,18 +125,13 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     })
     if (!target) return
     const y = target.y - scroll.y
-    if (center) {
-      const centerOffset = Math.floor(scroll.height / 2)
-      scroll.scrollBy(y - centerOffset)
-    } else {
-      if (y >= scroll.height) {
-        scroll.scrollBy(y - scroll.height + 1)
-      }
-      if (y < 0) {
-        scroll.scrollBy(y)
-        if (isDeepEqual(flat()[0].value, selected()?.value)) {
-          scroll.scrollTo(0)
-        }
+    if (y >= scroll.height) {
+      scroll.scrollBy(y - scroll.height + 1)
+    }
+    if (y < 0) {
+      scroll.scrollBy(y)
+      if (isDeepEqual(flat()[0].value, selected()?.value)) {
+        scroll.scrollTo(0)
       }
     }
   }
@@ -181,7 +175,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     scrollToValue(value: T) {
       const index = flat().findIndex((opt) => isDeepEqual(opt.value, value))
       if (index >= 0) {
-        moveTo(index, true)
+        moveTo(index)
       }
     },
   }

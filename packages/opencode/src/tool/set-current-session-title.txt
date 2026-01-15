@@ -1,6 +1,6 @@
 Sets the title of the current session.
 
-Use this tool to give the session a descriptive title that reflects its purpose or content. The title will be immediately visible in the UI.
+Use this tool to give the session a descriptive title that reflects its purpose or content, or when the user asks you to set the session's title. The title will be immediately visible in the UI.
 
 Usage notes:
 - The title must be between 1 and 255 characters

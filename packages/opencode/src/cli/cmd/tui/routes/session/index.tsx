@@ -152,6 +152,7 @@ export function Session() {
   const sidebarVisible = createMemo(() => {
     if (session()?.parentID) return false
     if (sidebarOpen()) return true
+    if (sidebar() === "show") return true
     if (sidebar() === "auto" && wide()) return true
     return false
   })
@@ -498,7 +499,7 @@ export function Session() {
       value: "session.toggle.timestamps",
       category: "Session",
       onSelect: (dialog) => {
-        setTimestamps((prev) => (prev === "show" ? "hide" : "show"))
+        setTimestamps(timestamps() === "show" ? "hide" : "show")
         dialog.clear()
       },
     },
@@ -507,7 +508,7 @@ export function Session() {
       value: "session.toggle.thinking",
       category: "Session",
       onSelect: (dialog) => {
-        setShowThinking((prev) => !prev)
+        setShowThinking(!showThinking())
         dialog.clear()
       },
     },
@@ -526,7 +527,7 @@ export function Session() {
       keybind: "tool_details",
       category: "Session",
       onSelect: (dialog) => {
-        setShowDetails((prev) => !prev)
+        setShowDetails(!showDetails())
         dialog.clear()
       },
     },
@@ -536,7 +537,7 @@ export function Session() {
       keybind: "scrollbar_toggle",
       category: "Session",
       onSelect: (dialog) => {
-        setShowScrollbar((prev) => !prev)
+        setShowScrollbar(!showScrollbar())
         dialog.clear()
       },
     },
@@ -545,7 +546,7 @@ export function Session() {
       value: "session.toggle.animations",
       category: "Session",
       onSelect: (dialog) => {
-        setAnimationsEnabled((prev) => !prev)
+        setAnimationsEnabled(!animationsEnabled())
         dialog.clear()
       },
     },

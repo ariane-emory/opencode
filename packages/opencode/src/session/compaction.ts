@@ -36,7 +36,7 @@ export namespace SessionCompaction {
     if (context === 0) return false
     const count = input.tokens.input + input.tokens.cache.read + input.tokens.output
     const output = Math.min(input.model.limit.output, SessionPrompt.OUTPUT_TOKEN_MAX) || SessionPrompt.OUTPUT_TOKEN_MAX
-    const usable = context - output
+    const usable = input.model.limit.input || context - output
     
     // Get configurable threshold (default 100% to maintain current behavior)
     const threshold = config.experimental?.context_compaction_threshold ?? 100

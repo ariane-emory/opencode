@@ -30,7 +30,7 @@ export function DialogTimeline(props: {
           const messageID = option.value
           const allParts = sync.data.part[messageID] ?? []
           const relevantParts = allParts
-          const textPart = relevantParts.find((x) => x.type === "text") as TextPart | undefined
+          const textPart = relevantParts.find((x) => x.type === "text" && !x.synthetic && !x.ignored) as TextPart | undefined
           const input = textPart?.text ?? ""
           const parts = relevantParts.filter((x) => x.type === "file" || x.type === "agent")
           props.setPrompt!({ input, parts })
@@ -46,7 +46,7 @@ export function DialogTimeline(props: {
     for (const message of messages) {
       if (message.role !== "user") continue
       const part = (sync.data.part[message.id] ?? []).find(
-        (x) => x.type === "text",
+        (x) => x.type === "text" && !x.synthetic && !x.ignored,
       ) as TextPart | undefined
       if (!part) continue
       result.push({

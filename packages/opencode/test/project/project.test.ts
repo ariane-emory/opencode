@@ -71,10 +71,11 @@ describe("Project.fromDirectory with worktrees", () => {
   test("should accumulate multiple worktrees in sandboxes", async () => {
     await using tmp = await tmpdir({ git: true })
 
-    const worktree1 = path.join(tmp.path, "..", "worktree-1")
-    const worktree2 = path.join(tmp.path, "..", "worktree-2")
-    await $`git worktree add ${worktree1} -b branch-1`.cwd(tmp.path).quiet()
-    await $`git worktree add ${worktree2} -b branch-2`.cwd(tmp.path).quiet()
+    const timestamp = Date.now()
+    const worktree1 = path.join(tmp.path, "..", `worktree-${timestamp}-1`)
+    const worktree2 = path.join(tmp.path, "..", `worktree-${timestamp}-2`)
+    await $`git worktree add ${worktree1} -b branch-${timestamp}-1`.cwd(tmp.path).quiet()
+    await $`git worktree add ${worktree2} -b branch-${timestamp}-2`.cwd(tmp.path).quiet()
 
     await Project.fromDirectory(worktree1)
     const { project } = await Project.fromDirectory(worktree2)

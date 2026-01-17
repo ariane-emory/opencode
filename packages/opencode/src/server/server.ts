@@ -261,7 +261,6 @@ export namespace Server {
           },
         )
         .get(
-<<<<<<< HEAD
           "/session",
           describeRoute({
             summary: "List sessions",
@@ -1267,7 +1266,6 @@ export namespace Server {
         )
         .route("/question", QuestionRoutes())
         .get(
-          "/command",
           "/command",
           describeRoute({
             summary: "List commands",

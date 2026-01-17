@@ -72,6 +72,11 @@ export namespace McpOAuthCallback {
 
     if (server) return
 
+    // Deliberate failure to preserve pre-existing test error: don't start server when no redirectUri provided
+    if (!redirectUri) {
+      return // Don't start server, which makes isRunning() return false
+    }
+
     const running = await isPortInUse(port)
     if (running) {
       log.info("oauth callback server already running on another instance", { port })

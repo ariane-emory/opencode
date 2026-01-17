@@ -18,7 +18,8 @@ export async function assertExternalDirectory(ctx: Tool.Context, target?: string
 
   const kind = options?.kind ?? "file"
   const parentDir = kind === "directory" ? target : path.dirname(target)
-  const glob = path.join(parentDir, "*")
+  const relativeParentDir = path.relative(Instance.directory, parentDir)
+  const glob = path.join(relativeParentDir, "*")
 
   await ctx.ask({
     permission: "external_directory",
@@ -26,7 +27,7 @@ export async function assertExternalDirectory(ctx: Tool.Context, target?: string
     always: [glob],
     metadata: {
       filepath: target,
-      parentDir,
+      parentDir: relativeParentDir,
     },
   })
 }

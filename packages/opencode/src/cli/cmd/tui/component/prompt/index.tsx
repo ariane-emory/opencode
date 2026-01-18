@@ -31,6 +31,7 @@ import { DialogAlert } from "../../ui/dialog-alert"
 import { useToast } from "../../ui/toast"
 import { useKV } from "../../context/kv"
 import { useTextareaKeybindings } from "../textarea-keybindings"
+import { useListContinuation } from "../list-continuation"
 
 export type PromptProps = {
   sessionID?: string
@@ -86,6 +87,10 @@ export function Prompt(props: PromptProps) {
   }
 
   const textareaKeybindings = useTextareaKeybindings()
+  const listContinuation = useListContinuation()
+
+  // Filter out newline from keybindings so we can handle it in onKeyDown with list continuation
+  const promptKeybindings = createMemo(() => textareaKeybindings().filter((b) => b.action !== "newline"))
 
   const fileStyleId = syntax().getStyleId("extmark.file")!
   const agentStyleId = syntax().getStyleId("extmark.agent")!
@@ -772,10 +777,29 @@ export function Prompt(props: PromptProps) {
                 autocomplete.onInput(value)
                 syncExtmarksWithPromptParts()
               }}
-              keyBindings={textareaKeybindings()}
+              keyBindings={promptKeybindings()}
               onKeyDown={async (e) => {
                 if (props.disabled) {
                   e.preventDefault()
+                  return
+                }
+                // Handle automatic list continuation on newline
+                if (keybind.match("input_newline", e)) {
+                  e.preventDefault()
+                  const action = listContinuation.handleNewline(input.plainText, input.cursorOffset)
+                  if (action) {
+                    if (action.type === "continue") {
+                      input.insertText(action.insertText)
+                    } else if (action.type === "clear") {
+                      const before = input.plainText.slice(0, action.deleteRange.start)
+                      const after = input.plainText.slice(action.deleteRange.end)
+                      input.setText(before + after)
+                      input.cursorOffset = action.cursorPosition
+                    }
+                  } else {
+                    // No list continuation - just insert a normal newline
+                    input.insertText("\n")
+                  }
                   return
                 }
                 // Handle clipboard paste (Ctrl+V) - check for images first on Windows

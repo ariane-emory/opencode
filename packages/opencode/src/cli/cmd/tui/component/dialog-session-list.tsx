@@ -75,7 +75,7 @@ export function DialogSessionList() {
       .filter((x) => x.time.pinned === undefined)
       .toSorted((a, b) => b.time.updated - a.time.updated)
 
-    const mapSession = (session: typeof allSessions[number], category: string) => {
+    const mapSession = (session: typeof allSessions[number], category: string, showDate: boolean) => {
       const isDeleting = toDelete() === session.id
       const status = sync.data.session_status?.[session.id]
       const isWorking = status?.type === "busy"
@@ -84,7 +84,7 @@ export function DialogSessionList() {
         bg: isDeleting ? theme.error : undefined,
         value: session.id,
         category,
-        footer: Locale.time(session.time.updated),
+        footer: showDate ? Locale.shortDateTime(session.time.updated) : Locale.time(session.time.updated),
         gutter: isWorking ? (
           <Show when={kv.get("animations_enabled", true)} fallback={<text fg={theme.textMuted}>[⋯]</text>}>
             <spinner frames={spinnerFrames} interval={80} color={theme.primary} />
@@ -93,12 +93,12 @@ export function DialogSessionList() {
       }
     }
 
-    const pinnedOptions = pinned.map((x) => mapSession(x, "Bookmarks"))
+    const pinnedOptions = pinned.map((x) => mapSession(x, "Bookmarks", true))
 
     const unpinnedOptions = unpinned.map((x) => {
       const date = new Date(x.time.updated)
       const category = date.toDateString() === today ? "Today" : date.toDateString()
-      return mapSession(x, category)
+      return mapSession(x, category, false)
     })
 
     return [...pinnedOptions, ...unpinnedOptions]

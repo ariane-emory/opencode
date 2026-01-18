@@ -28,6 +28,12 @@ export namespace Locale {
     }
   }
 
+  export function shortDateTime(input: number): string {
+    const date = new Date(input)
+    const dateStr = date.toLocaleDateString(undefined, { month: "short", day: "numeric" })
+    return `${dateStr}, ${time(input)}`
+  }
+
   export function number(num: number): string {
     if (num >= 1000000) {
       return (num / 1000000).toFixed(1) + "M"

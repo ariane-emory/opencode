@@ -140,6 +140,13 @@ export const rpc = {
     await Instance.disposeAll()
     if (server) server.stop(true)
   },
+  async prepareRestart() {
+    Log.Default.info("worker preparing for restart")
+    Config.global.reset()
+    if (eventStream.abort) eventStream.abort.abort()
+    await Instance.disposeAll()
+    if (server) server.stop(true)
+  },
 }
 
 Rpc.listen(rpc)

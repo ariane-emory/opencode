@@ -16,11 +16,19 @@ declare global {
 
 type RpcClient = ReturnType<typeof Rpc.client<typeof rpc>>
 
-function createWorkerFetch(client: RpcClient): typeof fetch {
+interface WorkerState {
+  worker: Worker | null
+  client: RpcClient | null
+  eventHandlers: Set<(event: Event) => void>
+  eventUnsubs: Map<(event: Event) => void, () => void>
+}
+
+function createWorkerFetch(state: WorkerState): typeof fetch {
   const fn = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    if (!state.client) throw new Error("Worker not initialized")
     const request = new Request(input, init)
     const body = request.body ? await request.text() : undefined
-    const result = await client.call("fetch", {
+    const result = await state.client.call("fetch", {
       url: request.url,
       method: request.method,
       headers: Object.fromEntries(request.headers.entries()),
@@ -34,9 +42,36 @@ function createWorkerFetch(client: RpcClient): typeof fetch {
   return fn as typeof fetch
 }
 
-function createEventSource(client: RpcClient): EventSource {
+function createEventSource(state: WorkerState): EventSource {
   return {
-    on: (handler) => client.on<Event>("event", handler),
+    on: (handler) => {
+      state.eventHandlers.add(handler)
+      if (state.client) {
+        const unsub = state.client.on<Event>("event", handler)
+        state.eventUnsubs.set(handler, unsub)
+      }
+      return () => {
+        state.eventHandlers.delete(handler)
+        const unsub = state.eventUnsubs.get(handler)
+        if (unsub) {
+          unsub()
+          state.eventUnsubs.delete(handler)
+        }
+      }
+    },
+  }
+}
+
+function resubscribeEventHandlers(state: WorkerState) {
+  for (const [handler, unsub] of state.eventUnsubs) {
+    unsub()
+  }
+  state.eventUnsubs.clear()
+  if (state.client) {
+    for (const handler of state.eventHandlers) {
+      const unsub = state.client.on<Event>("event", handler)
+      state.eventUnsubs.set(handler, unsub)
+    }
   }
 }
 
@@ -90,15 +125,39 @@ export const TuiThreadCommand = cmd({
       return
     }
 
-    const worker = new Worker(workerPath, {
-      env: Object.fromEntries(
-        Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined),
-      ),
-    })
-    worker.onerror = (e) => {
-      Log.Default.error(e)
+    // Mutable state for worker lifecycle management
+    const state: WorkerState = {
+      worker: null,
+      client: null,
+      eventHandlers: new Set(),
+      eventUnsubs: new Map(),
     }
-    const client = Rpc.client<typeof rpc>(worker)
+
+    function createWorkerInstance() {
+      state.worker = new Worker(workerPath, {
+        env: Object.fromEntries(
+          Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined),
+        ),
+      })
+      state.worker.onerror = (e) => {
+        Log.Default.error(e)
+      }
+      state.client = Rpc.client<typeof rpc>(state.worker)
+      resubscribeEventHandlers(state)
+    }
+
+    async function restartWorker() {
+      if (state.client) {
+        await state.client.call("prepareRestart", undefined).catch(() => {})
+      }
+      if (state.worker) {
+        state.worker.terminate()
+      }
+      createWorkerInstance()
+    }
+
+    createWorkerInstance()
+
     process.on("uncaughtException", (e) => {
       Log.Default.error(e)
     })
@@ -106,7 +165,7 @@ export const TuiThreadCommand = cmd({
       Log.Default.error(e)
     })
     process.on("SIGUSR2", async () => {
-      await client.call("reload", undefined)
+      await state.client?.call("reload", undefined)
     })
 
     const prompt = await iife(async () => {
@@ -131,13 +190,13 @@ export const TuiThreadCommand = cmd({
 
     if (shouldStartServer) {
       // Start HTTP server for external access
-      const server = await client.call("server", networkOpts)
+      const server = await state.client!.call("server", networkOpts)
       url = server.url
     } else {
       // Use direct RPC communication (no HTTP)
       url = "http://opencode.internal"
-      customFetch = createWorkerFetch(client)
-      events = createEventSource(client)
+      customFetch = createWorkerFetch(state)
+      events = createEventSource(state)
     }
 
     const tuiPromise = tui({
@@ -152,12 +211,15 @@ export const TuiThreadCommand = cmd({
         prompt,
       },
       onExit: async () => {
-        await client.call("shutdown", undefined)
+        await state.client?.call("shutdown", undefined)
+      },
+      onRestart: async () => {
+        await restartWorker()
       },
     })
 
     setTimeout(() => {
-      client.call("checkUpgrade", { directory: cwd }).catch(() => {})
+      state.client?.call("checkUpgrade", { directory: cwd }).catch(() => {})
     }, 1000)
 
     await tuiPromise

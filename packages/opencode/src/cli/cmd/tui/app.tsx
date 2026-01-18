@@ -28,6 +28,7 @@ import { PromptStashProvider } from "./component/prompt/stash"
 import { DialogAlert } from "./ui/dialog-alert"
 import { ToastProvider, useToast } from "./ui/toast"
 import { ExitProvider, useExit } from "./context/exit"
+import { RestartProvider, useRestart } from "./context/restart"
 import { Session as SessionApi } from "@/session"
 import { TuiEvent } from "./event"
 import { KVProvider, useKV } from "./context/kv"
@@ -106,6 +107,7 @@ export function tui(input: {
   fetch?: typeof fetch
   events?: EventSource
   onExit?: () => Promise<void>
+  onRestart?: () => Promise<void>
 }) {
   // promise to prevent immediate exit
   return new Promise<void>(async (resolve) => {
@@ -123,7 +125,8 @@ export function tui(input: {
           >
             <ArgsProvider {...input.args}>
               <ExitProvider onExit={onExit}>
-                <KVProvider>
+                <RestartProvider onRestart={input.onRestart}>
+                  <KVProvider>
                   <ToastProvider>
                     <RouteProvider>
                       <SDKProvider
@@ -157,6 +160,7 @@ export function tui(input: {
                     </RouteProvider>
                   </ToastProvider>
                 </KVProvider>
+                </RestartProvider>
               </ExitProvider>
             </ArgsProvider>
           </ErrorBoundary>
@@ -194,6 +198,7 @@ function App() {
   const { theme, mode, setMode } = useTheme()
   const sync = useSync()
   const exit = useExit()
+  const restart = useRestart()
   const promptRef = usePromptRef()
 
   // Wire up console copy-to-clipboard via opentui's onCopySelection callback
@@ -469,6 +474,17 @@ function App() {
       title: "Exit the app",
       value: "app.exit",
       onSelect: () => exit(),
+      category: "System",
+    },
+    {
+      title: "Restart the app",
+      value: "app.restart",
+      onSelect: async () => {
+        toast.show({ message: "Restarting...", variant: "info", duration: 2000 })
+        await restart()
+        sync.bootstrap()
+        route.navigate({ type: "home" })
+      },
       category: "System",
     },
     {

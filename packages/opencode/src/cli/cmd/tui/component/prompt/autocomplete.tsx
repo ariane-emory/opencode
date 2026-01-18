@@ -480,6 +480,11 @@ export function Autocomplete(props: {
         description: "exit the app",
         onSelect: () => command.trigger("app.exit"),
       },
+      {
+        display: "/restart",
+        description: "restart the app",
+        onSelect: () => command.trigger("app.restart"),
+      },
     )
     const max = firstBy(results, [(x) => x.display.length, "desc"])?.display.length
     if (!max) return results

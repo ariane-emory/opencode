@@ -3,6 +3,7 @@ import {
   getCurrentLine,
   parseNumberedListItem,
   handleNewline,
+  cleanupForSubmit,
   type LineInfo,
   type ParsedListItem,
   type ListContinuationAction,
@@ -187,6 +188,56 @@ describe("list-continuation", () => {
       const text = "9. ninth"
       const result = handleNewline(text, 8)
       expect(result).toEqual({ type: "continue", insertText: "\n10. " })
+    })
+  })
+
+  describe("cleanupForSubmit", () => {
+    test("removes trailing empty list item", () => {
+      const text = "1. foo\n2. "
+      const result = cleanupForSubmit(text)
+      expect(result).toBe("1. foo")
+    })
+
+    test("removes trailing empty list item with no space", () => {
+      const text = "1. foo\n2."
+      const result = cleanupForSubmit(text)
+      expect(result).toBe("1. foo")
+    })
+
+    test("removes multiple trailing empty list items", () => {
+      const text = "1. foo\n2. \n3. "
+      const result = cleanupForSubmit(text)
+      expect(result).toBe("1. foo")
+    })
+
+    test("does not remove list items with content", () => {
+      const text = "1. foo\n2. bar"
+      const result = cleanupForSubmit(text)
+      expect(result).toBe("1. foo\n2. bar")
+    })
+
+    test("returns empty string when only empty list item", () => {
+      const text = "1. "
+      const result = cleanupForSubmit(text)
+      expect(result).toBe("")
+    })
+
+    test("does not modify text without list items", () => {
+      const text = "hello world"
+      const result = cleanupForSubmit(text)
+      expect(result).toBe("hello world")
+    })
+
+    test("preserves non-list trailing lines", () => {
+      const text = "1. foo\nsome text"
+      const result = cleanupForSubmit(text)
+      expect(result).toBe("1. foo\nsome text")
+    })
+
+    test("handles text with only whitespace after marker", () => {
+      const text = "1. foo\n2.   "
+      const result = cleanupForSubmit(text)
+      expect(result).toBe("1. foo")
     })
   })
 })

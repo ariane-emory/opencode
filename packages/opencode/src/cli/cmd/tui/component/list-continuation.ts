@@ -116,10 +116,38 @@ export function handleNewline(text: string, cursorOffset: number): ListContinuat
 }
 
 /**
+ * Removes trailing empty list items from text before submission.
+ * For example, "1. foo\n2. " becomes "1. foo"
+ *
+ * @param text - The full text content
+ * @returns Cleaned text with trailing empty list items removed
+ */
+export function cleanupForSubmit(text: string): string {
+  const lines = text.split("\n")
+  
+  // Work backwards, removing trailing empty list items
+  while (lines.length > 0) {
+    const last = lines[lines.length - 1]
+    const parsed = parseNumberedListItem(last)
+    
+    // If last line is an empty list item, remove it
+    if (parsed && !parsed.hasContent) {
+      lines.pop()
+      continue
+    }
+    
+    break
+  }
+  
+  return lines.join("\n")
+}
+
+/**
  * Hook that provides list continuation functionality for textarea inputs.
  */
 export function useListContinuation() {
   return {
     handleNewline,
+    cleanupForSubmit,
   }
 }

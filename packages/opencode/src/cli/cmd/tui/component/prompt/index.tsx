@@ -491,7 +491,14 @@ export function Prompt(props: PromptProps) {
     if (props.disabled) return
     if (autocomplete?.visible) return
     if (!store.prompt.input) return
-    const trimmed = store.prompt.input.trim()
+    
+    // Clean up trailing empty list items before submitting
+    const cleaned = listContinuation.cleanupForSubmit(store.prompt.input)
+    if (cleaned !== store.prompt.input) {
+      setStore("prompt", "input", cleaned)
+    }
+    
+    const trimmed = cleaned.trim()
     if (trimmed === "exit" || trimmed === "quit" || trimmed === ":q") {
       exit()
       return
@@ -508,7 +515,7 @@ export function Prompt(props: PromptProps) {
           return sessionID
         })()
     const messageID = Identifier.ascending("message")
-    let inputText = store.prompt.input
+    let inputText = cleaned
 
     // Expand pasted text inline before submitting
     const allExtmarks = input.extmarks.getAllForTypeId(promptPartTypeId)

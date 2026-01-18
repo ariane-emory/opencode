@@ -479,6 +479,7 @@ function App() {
     {
       title: "Restart the app",
       value: "app.restart",
+      keybind: "app_restart",
       onSelect: async () => {
         toast.show({ message: "Restarting...", variant: "info", duration: 2000 })
         await restart()

@@ -30,8 +30,9 @@ export namespace Locale {
 
   export function shortDateTime(input: number): string {
     const date = new Date(input)
-    const dateStr = date.toLocaleDateString(undefined, { month: "short", day: "numeric" })
-    return `${dateStr}, ${time(input)}`
+    const month = date.toLocaleDateString(undefined, { month: "short" })
+    const day = date.getDate().toString().padStart(2, " ")
+    return `${month} ${day}, ${time(input)}`
   }
 
   export function number(num: number): string {

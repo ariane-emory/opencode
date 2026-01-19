@@ -33,6 +33,8 @@ import { useSync } from "@/context/sync"
 import { FileIcon } from "@opencode-ai/ui/file-icon"
 import { Button } from "@opencode-ai/ui/button"
 import { Icon } from "@opencode-ai/ui/icon"
+import { ProviderIcon } from "@opencode-ai/ui/provider-icon"
+import type { IconName } from "@opencode-ai/ui/icons/provider"
 import { Tooltip, TooltipKeybind } from "@opencode-ai/ui/tooltip"
 import { IconButton } from "@opencode-ai/ui/icon-button"
 import { Select } from "@opencode-ai/ui/select"
@@ -298,7 +300,8 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     event.stopPropagation()
 
     const items = Array.from(clipboardData.items)
-    const imageItems = items.filter((item) => ACCEPTED_FILE_TYPES.includes(item.type))
+    const fileItems = items.filter((item) => item.kind === "file")
+    const imageItems = fileItems.filter((item) => ACCEPTED_FILE_TYPES.includes(item.type))
 
     if (imageItems.length > 0) {
       for (const item of imageItems) {
@@ -308,7 +311,16 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       return
     }
 
+    if (fileItems.length > 0) {
+      showToast({
+        title: "Unsupported paste",
+        description: "Only images or PDFs can be pasted here.",
+      })
+      return
+    }
+
     const plainText = clipboardData.getData("text/plain") ?? ""
+    if (!plainText) return
     addPart({ type: "text", content: plainText, start: 0, end: 0 })
   }
 
@@ -360,6 +372,12 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
 
   createEffect(() => {
     if (!isFocused()) setStore("popover", null)
+  })
+
+  // Safety: reset composing state on focus change to prevent stuck state
+  // This handles edge cases where compositionend event may not fire
+  createEffect(() => {
+    if (!isFocused()) setComposing(false)
   })
 
   type AtOption = { type: "agent"; name: string; display: string } | { type: "file"; path: string; display: string }
@@ -879,6 +897,14 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       }
     }
 
+    // Handle Shift+Enter BEFORE IME check - Shift+Enter is never used for IME input
+    // and should always insert a newline regardless of composition state
+    if (event.key === "Enter" && event.shiftKey) {
+      addPart({ type: "text", content: "\n", start: 0, end: 0 })
+      event.preventDefault()
+      return
+    }
+
     if (event.key === "Enter" && isImeComposing(event)) {
       return
     }
@@ -942,11 +968,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       return
     }
 
-    if (event.key === "Enter" && event.shiftKey) {
-      addPart({ type: "text", content: "\n", start: 0, end: 0 })
-      event.preventDefault()
-      return
-    }
+    // Note: Shift+Enter is handled earlier, before IME check
     if (event.key === "Enter" && !event.shiftKey) {
       handleSubmit(event)
     }
@@ -1044,7 +1066,16 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
 
     let session = info()
     if (!session && isNewSession) {
-      session = await client.session.create().then((x) => x.data ?? undefined)
+      session = await client.session
+        .create()
+        .then((x) => x.data ?? undefined)
+        .catch((err) => {
+          showToast({
+            title: "Failed to create session",
+            description: errorMessage(err),
+          })
+          return undefined
+        })
       if (session) navigate(`/${base64Encode(sessionDirectory)}/session/${session.id}`)
     }
     if (!session) return
@@ -1560,6 +1591,9 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                   fallback={
                     <TooltipKeybind placement="top" title="Choose model" keybind={command.keybind("model.choose")}>
                       <Button as="div" variant="ghost" onClick={() => dialog.show(() => <DialogSelectModelUnpaid />)}>
+                        <Show when={local.model.current()?.provider?.id}>
+                          <ProviderIcon id={local.model.current()!.provider.id as IconName} class="size-4 shrink-0" />
+                        </Show>
                         {local.model.current()?.name ?? "Select model"}
                         <Icon name="chevron-down" size="small" />
                       </Button>
@@ -1569,6 +1603,9 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                   <ModelSelectorPopover>
                     <TooltipKeybind placement="top" title="Choose model" keybind={command.keybind("model.choose")}>
                       <Button as="div" variant="ghost">
+                        <Show when={local.model.current()?.provider?.id}>
+                          <ProviderIcon id={local.model.current()!.provider.id as IconName} class="size-4 shrink-0" />
+                        </Show>
                         {local.model.current()?.name ?? "Select model"}
                         <Icon name="chevron-down" size="small" />
                       </Button>
@@ -1583,10 +1620,10 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                   >
                     <Button
                       variant="ghost"
-                      class="text-text-base _hidden group-hover/prompt-input:inline-block"
+                      class="text-text-base _hidden group-hover/prompt-input:inline-block capitalize text-12-regular"
                       onClick={() => local.model.variant.cycle()}
                     >
-                      <span class="capitalize text-12-regular">{local.model.variant.current() ?? "Default"}</span>
+                      {local.model.variant.current() ?? "Default"}
                     </Button>
                   </TooltipKeybind>
                 </Show>

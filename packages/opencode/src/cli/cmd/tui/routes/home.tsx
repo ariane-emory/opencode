@@ -3,7 +3,7 @@ import { createMemo, Match, onMount, Show, Switch } from "solid-js"
 import { useTheme } from "@tui/context/theme"
 import { useKeybind } from "@tui/context/keybind"
 import { Logo } from "../component/logo"
-import { DidYouKnow, randomizeTip } from "../component/did-you-know"
+import { Tips } from "../component/tips"
 import { Locale } from "@/util/locale"
 import { useSync } from "../context/sync"
 import { Toast } from "../ui/toast"
@@ -77,7 +77,6 @@ export function Home() {
   let prompt: PromptRef
   const args = useArgs()
   onMount(() => {
-    randomizeTip()
     if (once) return
     if (route.initialPrompt) {
       prompt.set(route.initialPrompt)
@@ -95,6 +94,7 @@ export function Home() {
   return (
     <>
       <box flexGrow={1} justifyContent="center" alignItems="center" paddingLeft={2} paddingRight={2} gap={1}>
+        <box height={3} />
         <Logo />
         <box width="100%" maxWidth={75} zIndex={1000} paddingTop={1}>
           <Prompt
@@ -105,23 +105,13 @@ export function Home() {
             hint={Hint}
           />
         </box>
-        <Show when={!isFirstTimeUser()}>
+        <box height={3} width="100%" maxWidth={75} alignItems="center" paddingTop={2}>
           <Show when={showTips()}>
-            <box width="100%" maxWidth={75} paddingTop={3} alignItems="center">
-              <DidYouKnow />
-            </box>
+            <Tips />
           </Show>
-        </Show>
+        </box>
         <Toast />
       </box>
-      <Show when={showTips()}>
-        <box position="absolute" bottom={2} right={2}>
-          <text>
-            <span style={{ fg: theme.text }}>{keybind.print("tips_toggle")}</span>
-            <span style={{ fg: theme.textMuted }}> Hide tips</span>
-          </text>
-        </box>
-      </Show>
       <box paddingTop={1} paddingBottom={1} paddingLeft={2} paddingRight={2} flexDirection="row" flexShrink={0} gap={2}>
         <text fg={theme.textMuted}>{directory()}</text>
         <box gap={1} flexDirection="row" flexShrink={0}>

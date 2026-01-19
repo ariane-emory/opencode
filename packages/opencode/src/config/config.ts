@@ -247,7 +247,7 @@ export namespace Config {
       if (!md) continue
 
       const name = (() => {
-        const patterns = ["/.opencode/command/", "/.base-one/command/", "/command/"]
+        const patterns = ["/.opencode/command/", "/.opencode/commands/", "/.base-one/command/", "/.base-one/commands/", "/command/", "/commands/"]
         const pattern = patterns.find((p) => item.includes(p))
 
         if (pattern) {
@@ -297,11 +297,17 @@ export namespace Config {
       let agentName = path.basename(item, ".md")
       const agentFolderPath = item.includes("/.opencode/agent/")
         ? item.split("/.opencode/agent/")[1]
-        : item.includes("/.base-one/agent/")
-          ? item.split("/.base-one/agent/")[1]
-          : item.includes("/agent/")
-            ? item.split("/agent/")[1]
-            : agentName + ".md"
+        : item.includes("/.opencode/agents/")
+          ? item.split("/.opencode/agents/")[1]
+          : item.includes("/.base-one/agent/")
+            ? item.split("/.base-one/agent/")[1]
+            : item.includes("/.base-one/agents/")
+              ? item.split("/.base-one/agents/")[1]
+              : item.includes("/agent/")
+                ? item.split("/agent/")[1]
+                : item.includes("/agents/")
+                  ? item.split("/agents/")[1]
+                  : agentName + ".md"
 
       // If agent is in a subfolder, include folder path in name
       if (agentFolderPath.includes("/")) {

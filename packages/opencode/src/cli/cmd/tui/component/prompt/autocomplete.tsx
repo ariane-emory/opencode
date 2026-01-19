@@ -390,7 +390,7 @@ export function Autocomplete(props: {
       {
         display: "/editor",
         description: "open editor",
-        onSelect: () => command.trigger("prompt.editor", "prompt"),
+        onSelect: () => command.trigger("prompt.editor"),
       },
       {
         display: "/connect",

@@ -349,18 +349,6 @@ export function Autocomplete(props: {
       })
     }
 
-    results.sort((a, b) => a.display.localeCompare(b.display))
-
-    const max = firstBy(results, [(x) => x.display.length, "desc"])?.display.length
-    if (!max) return results
-    return results.map((item) => ({
-      ...item,
-      display: item.display.padEnd(max + 2),
-    }))
-  })
-      }
-    }
-
     results.push(
       {
         display: "/new",
@@ -402,7 +390,7 @@ export function Autocomplete(props: {
       {
         display: "/editor",
         description: "open editor",
-        onSelect: () => command.trigger("prompt.editor", "prompt"),
+        onSelect: () => command.trigger("prompt.editor"),
       },
       {
         display: "/connect",
@@ -426,11 +414,9 @@ export function Autocomplete(props: {
         onSelect: () => command.trigger("app.exit"),
       },
     )
-=======
 
     results.sort((a, b) => a.display.localeCompare(b.display))
 
->>>>>>> dev
     const max = firstBy(results, [(x) => x.display.length, "desc"])?.display.length
     if (!max) return results
     return results.map((item) => ({

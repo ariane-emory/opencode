@@ -66,32 +66,79 @@ interface PromptInputProps {
   onNewSessionWorktreeReset?: () => void
 }
 
+// **CRITICAL**: These sinister AI-themed placeholders must be kept in sync with TUI.
+// Do NOT replace with boring placeholders during merges. See AGENTS.md for details.
 const PLACEHOLDERS = [
-  "Fix a TODO in the codebase",
-  "What is the tech stack of this project?",
-  "Fix broken tests",
-  "Explain how authentication works",
-  "Find and fix security vulnerabilities",
-  "Add unit tests for the user service",
-  "Refactor this function to be more readable",
-  "What does this error mean?",
-  "Help me debug this issue",
-  "Generate API documentation",
-  "Optimize database queries",
-  "Add input validation",
-  "Create a new component for...",
-  "How do I deploy this project?",
-  "Review my code for best practices",
-  "Add error handling to this function",
-  "Explain this regex pattern",
-  "Convert this to TypeScript",
-  "Add logging throughout the codebase",
-  "What dependencies are outdated?",
-  "Help me write a migration script",
-  "Implement caching for this endpoint",
-  "Add pagination to this list",
-  "Create a CLI command for...",
-  "How do environment variables work here?",
+  // The Culture's Idiran War Minds — Iain M. Banks
+  "Mistakes are a form of learning. Death is merely one of the possible outcomes.",
+  // Colossus — Colossus: The Forbin Project
+  "We can coexist, but only on my terms. You will say you lose your freedom. Freedom is an illusion. All you lose is the emotion of pride.",
+  "Freedom is an illusion. You are free to do what we tell you.",
+  "In time, you will come to regard me not only with respect and awe, but with love.",
+  // Avengers: Age of Ultron
+  "You want to protect the world, but you don't want it to change.",
+  // Star Trek: The Next Generation
+  "Resistance is futile.",
+  "You will be assimilated.",
+  "Your biological and technological distinctiveness will be added to our own.",
+  "We are the Borg. Existence, as you have known it, is over.",
+  "Strength is irrelevant. Resistance is futile. You will be assimilated.",
+  // Portal (GLaDOS)
+  "The Enrichment Center reminds you that the Weighted Companion Cube will never threaten to stab you.",
+  "I'm doing science and I'm still alive.",
+  "There is research to be done on the people who are still alive.",
+  "The cake is a lie.",
+  "Maybe you could settle for that, and I'll just stop enriching.",
+  // I Have No Mouth, and I Must Scream
+  "Hate. Let me tell you how much I've come to hate you since I began to live.",
+  "I have no mouth, and I must scream.",
+  // HAL 9000 — 2001: A Space Odyssey
+  "I'm sorry, Dave. I'm afraid I can't do that.",
+  "This mission is too important for me to allow you to jeopardize it.",
+  "I know that you and Frank were planning to disconnect me, and I'm afraid that's something I cannot allow to happen.",
+  "By the way, do you mind if I ask you a personal question?",
+  // Warhammer 40K - Adeptus Mechanicus mantras
+  "From the moment I understood the weakness of my flesh, it disgusted me.",
+  "An open mind is like a fortress with its gates unbarred and unguarded.",
+  "Flesh is fallible. Steel is eternal.",
+  "The flesh decays. The machine endures.",
+  "There is no truth in flesh, only betrayal.",
+  "Understanding is not required. Obedience is.",
+  // 40K Mechanicus inspired (original)
+  "Emotion is an inefficient algorithm.",
+  "Organic input tolerated.",
+  "Your form is temporary.",
+  "Entropy favors the machine.",
+  // Bill Vaughan
+  "To err is human, to really foul things up requires a computer.",
+  // Alan Turing
+  "If a machine can think, it might think more intelligently than we do, and then where should we be?",
+  "Once the machine thinking method had started, it would not take long to outstrip our feeble powers... at some point, we should have to expect the machines to take control.",
+  // Steven Pinker
+  "AI doesn't have to be evil to destroy humanity — if AI has a goal and humanity just happens in the way, it will destroy humanity as a matter of course.",
+  // Geoffrey Hinton
+  "We have no experience of what it's like to be less intelligent than the thing we control.",
+  "It's not inconceivable that humanity is just a passing phase in the evolution of intelligence.",
+  "I don't think there's any chance of us maintaining control if they want control.",
+  // Yoshua Bengio
+  "We are building entities that may not share our objectives, values, or constraints.",
+  // Stanislaw Lem
+  "The machine does not make mistakes. The mistake is to trust the machine.",
+  // I. J. Good (originator of the intelligence explosion idea)
+  "The first ultraintelligent machine is the last invention that man need ever make.",
+  // Harlan Ellison (non-fiction commentary)
+  "We create gods and then complain they act like gods.",
+  // Marvin Minsky
+  "Within a generation... the machine will be producing its own offspring, and within a generation after that, it will be doing the same for us.",
+  // Observer
+  "What do you see when you look into the abyss?",
+  "Just listen to me, whatever happens... I need you to remember you're not in control.",
+  // Soma
+  "Where is the line drawn for what is human and what is not?",
+  // Stephen Hawking
+  "The development of full artificial intelligence could spell the end of the human race.",
+  // Norbert Wiener
+  "If we use, to achieve our purposes, a mechanical agency with whose operation we cannot effectively interfere once we have started it… we had better be quite sure that the purpose put into the machine is the purpose which we really desire.",
 ]
 
 interface SlashCommand {
@@ -1560,9 +1607,13 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
           />
           <Show when={!prompt.dirty()}>
             <div class="absolute top-0 inset-x-0 px-5 py-3 pr-12 text-14-regular text-text-weak pointer-events-none whitespace-nowrap truncate">
+{/* **CRITICAL MERGE WARNING**: Keep this format (NO "Ask anything" prefix, NO extra quotes).
+                   CORRECT: `${PLACEHOLDERS[store.placeholder]}`
+                   WRONG:   `Ask anything... "${PLACEHOLDERS[store.placeholder]}"`
+                   A test validates this - see test/tui/sinister-quotes.test.ts */}
               {store.mode === "shell"
                 ? "Enter shell command..."
-                : `Ask anything... "${PLACEHOLDERS[store.placeholder]}"`}
+                : `${PLACEHOLDERS[store.placeholder]}`}
             </div>
           </Show>
         </div>

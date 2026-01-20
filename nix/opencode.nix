@@ -1,6 +1,7 @@
 {
   lib,
   stdenvNoCC,
+  callPackage,
   bun,
   sysctl,
   makeBinaryWrapper,
@@ -9,14 +10,8 @@
   installShellFiles,
   versionCheckHook,
   writableTmpDirAsHomeHook,
-  rev ? "dirty",
+  node_modules ? callPackage ./node-modules.nix { },
 }:
-let
-  packageJson = lib.pipe ../packages/opencode/package.json [
-    builtins.readFile
-    builtins.fromJSON
-  ];
-in
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "base-one";
   version = args.version;
@@ -95,29 +90,14 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     writableTmpDirAsHomeHook
   ];
 
-<<<<<<< HEAD
   env.MODELS_DEV_API_JSON = args.modelsDev;
   env.BASE_ONE_VERSION = args.version;
   env.BASE_ONE_CHANNEL = "stable";
   dontConfigure = true;
-=======
-  configurePhase = ''
-    runHook preConfigure
-
-    cp -R ${finalAttrs.node_modules}/. .
-
-    runHook postConfigure
-  '';
-
-  env.MODELS_DEV_API_JSON = "${models-dev}/dist/_api.json";
-  env.OPENCODE_VERSION = finalAttrs.version;
-  env.OPENCODE_CHANNEL = "local";
->>>>>>> dev
 
   buildPhase = ''
     runHook preBuild
 
-<<<<<<< HEAD
     cp -r ${finalAttrs.node_modules}/node_modules .
     cp -r ${finalAttrs.node_modules}/packages .
 
@@ -135,11 +115,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       chmod +x ./bundle.ts
       bun run ./bundle.ts
     )
-=======
-    cd ./packages/opencode
-    bun --bun ./script/build.ts --single --skip-install
-    bun --bun ./script/schema.ts schema.json
->>>>>>> dev
 
     runHook postBuild
   '';
@@ -150,7 +125,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     install -Dm755 dist/opencode-*/bin/opencode $out/bin/opencode
     install -Dm644 schema.json $out/share/opencode/schema.json
 
-<<<<<<< HEAD
     mkdir -p $out/lib/base-one
     cp -r dist $out/lib/base-one/
     chmod -R u+w $out/lib/base-one/dist
@@ -182,10 +156,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     makeWrapper ${bun}/bin/bun $out/bin/base-one \
       --add-flags "run" \
       --add-flags "$out/lib/base-one/dist/src/index.js" \
-      --prefix PATH : ${lib.makeBinPath [ ripgrep ]} \
-      --argv0 base-one
-=======
-    wrapProgram $out/bin/opencode \
       --prefix PATH : ${
         lib.makeBinPath (
           [
@@ -194,13 +164,12 @@ stdenvNoCC.mkDerivation (finalAttrs: {
           # bun runs sysctl to detect if dunning on rosetta2
           ++ lib.optional stdenvNoCC.hostPlatform.isDarwin sysctl
         )
-      }
->>>>>>> dev
+      } \
+      --argv0 base-one
 
     runHook postInstall
   '';
 
-<<<<<<< HEAD
   postInstall = ''
     for pkg in $out/lib/base-one/node_modules/.bun/@opentui+core-* $out/lib/base-one/node_modules/.bun/@opentui+solid-* $out/lib/base-one/node_modules/.bun/@opentui+core@* $out/lib/base-one/node_modules/.bun/@opentui+solid@*; do
       if [ -d "$pkg" ]; then
@@ -209,13 +178,11 @@ stdenvNoCC.mkDerivation (finalAttrs: {
           $out/lib/base-one/node_modules/@opentui/$pkgName
       fi
     done
-=======
-  postInstall = lib.optionalString (stdenvNoCC.buildPlatform.canExecute stdenvNoCC.hostPlatform) ''
+  '' + lib.optionalString (stdenvNoCC.buildPlatform.canExecute stdenvNoCC.hostPlatform) ''
     # trick yargs into also generating zsh completions
-    installShellCompletion --cmd opencode \
-      --bash <($out/bin/opencode completion) \
-      --zsh <(SHELL=/bin/zsh $out/bin/opencode completion)
->>>>>>> dev
+    installShellCompletion --cmd base-one \
+      --bash <($out/bin/base-one completion) \
+      --zsh <(SHELL=/bin/zsh $out/bin/base-one completion)
   '';
 
   nativeInstallCheckInputs = [
@@ -231,7 +198,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   };
 
   meta = {
-<<<<<<< HEAD
     description = "AI coding agent built for the terminal";
     longDescription = ''
       BaseOne is a terminal-based agent that can build anything.
@@ -239,21 +205,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       to provide an interactive AI coding experience.
     '';
     homepage = "https://github.com/ariane-emory/base-one";
-=======
-    description = "The open source coding agent";
-    homepage = "https://opencode.ai/";
->>>>>>> dev
     license = lib.licenses.mit;
-    mainProgram = "opencode";
-    platforms = [
-      "aarch64-linux"
-      "x86_64-linux"
-      "aarch64-darwin"
-      "x86_64-darwin"
-    ];
-<<<<<<< HEAD
     mainProgram = "base-one";
-=======
->>>>>>> dev
+    inherit (node_modules.meta) platforms;
   };
 })

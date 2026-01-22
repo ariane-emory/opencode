@@ -248,6 +248,27 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
               }
             }),
           )
+          const updated = store.message[event.properties.info.sessionID]
+          const maxMessages = (store.config.tui as any)?.messages_limit
+          const maxMessagesCount = maxMessages === "none" ? Infinity : maxMessages || 100
+          if (updated.length > maxMessagesCount) {
+            const oldest = updated[0]
+            batch(() => {
+              setStore(
+                "message",
+                event.properties.info.sessionID,
+                produce((draft) => {
+                  draft.shift()
+                }),
+              )
+              setStore(
+                "part",
+                produce((draft) => {
+                  delete draft[oldest.id]
+                }),
+              )
+            })
+          }
           break
         }
         case "message.removed": {

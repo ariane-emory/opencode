@@ -1634,5 +1634,3 @@ describe("OPENCODE_DISABLE_PROJECT_CONFIG", () => {
     }
   })
 })
-  })
-})

@@ -1,3 +1,8 @@
+function truthy(key: string) {
+  const value = process.env[key]?.toLowerCase()
+  return value === "true" || value === "1"
+}
+
 export namespace Flag {
 // Helper to get env var with new name first, fallback to legacy
   function envWithFallback(newName: string, legacyName: string): string | undefined {
@@ -21,20 +26,16 @@ export namespace Flag {
     return value === "true" || value === "1"
   }
 
-  function number(key: string): number | undefined {
+  function number(key: string) {
     const value = process.env[key]
     if (!value) return undefined
     const parsed = Number(value)
     return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
   }
-
-  
-
   // New BASE_ONE_* env vars with fallback to OPENCODE_*
   export const BASE_ONE_AUTO_SHARE = truthyWithFallback("BASE_ONE_AUTO_SHARE", "OPENCODE_AUTO_SHARE")
   export const BASE_ONE_GIT_BASH_PATH = envWithFallback("BASE_ONE_GIT_BASH_PATH", "OPENCODE_GIT_BASH_PATH")
   export const BASE_ONE_CONFIG = envWithFallback("BASE_ONE_CONFIG", "OPENCODE_CONFIG")
-  export const BASE_ONE_CONFIG_DIR = envWithFallback("BASE_ONE_CONFIG_DIR", "OPENCODE_CONFIG_DIR")
   export const BASE_ONE_CONFIG_CONTENT = envWithFallback("BASE_ONE_CONFIG_CONTENT", "OPENCODE_CONFIG_CONTENT")
   export const BASE_ONE_DISABLE_AUTOUPDATE = truthyWithFallback("BASE_ONE_DISABLE_AUTOUPDATE", "OPENCODE_DISABLE_AUTOUPDATE")
   export const BASE_ONE_DISABLE_PRUNE = truthyWithFallback("BASE_ONE_DISABLE_PRUNE", "OPENCODE_DISABLE_PRUNE")
@@ -76,7 +77,6 @@ export namespace Flag {
   export const OPENCODE_AUTO_SHARE = BASE_ONE_AUTO_SHARE
   export const OPENCODE_GIT_BASH_PATH = BASE_ONE_GIT_BASH_PATH
   export const OPENCODE_CONFIG = BASE_ONE_CONFIG
-  export const OPENCODE_CONFIG_DIR = BASE_ONE_CONFIG_DIR
   export const OPENCODE_CONFIG_CONTENT = BASE_ONE_CONFIG_CONTENT
   export const OPENCODE_DISABLE_AUTOUPDATE = BASE_ONE_DISABLE_AUTOUPDATE
   export const OPENCODE_DISABLE_PRUNE = BASE_ONE_DISABLE_PRUNE
@@ -108,3 +108,47 @@ export namespace Flag {
   export const OPENCODE_EXPERIMENTAL_LSP_TOOL = BASE_ONE_EXPERIMENTAL_LSP_TOOL
   export const OPENCODE_EXPERIMENTAL_PLAN_MODE = BASE_ONE_EXPERIMENTAL_PLAN_MODE
 }
+
+// Dynamic getter for BASE_ONE_DISABLE_PROJECT_CONFIG (alias for OPENCODE_DISABLE_PROJECT_CONFIG)
+// This must be evaluated at access time, not module load time,
+// because external tooling may set this env var at runtime
+Object.defineProperty(Flag, "BASE_ONE_DISABLE_PROJECT_CONFIG", {
+  get() {
+    return truthyWithFallback("BASE_ONE_DISABLE_PROJECT_CONFIG", "OPENCODE_DISABLE_PROJECT_CONFIG")
+  },
+  enumerable: true,
+  configurable: false,
+})
+
+// Dynamic getter for BASE_ONE_CONFIG_DIR (alias for OPENCODE_CONFIG_DIR)
+// This must be evaluated at access time, not module load time,
+// because external tooling may set this env var at runtime
+Object.defineProperty(Flag, "BASE_ONE_CONFIG_DIR", {
+  get() {
+    return process.env["BASE_ONE_CONFIG_DIR"] ?? process.env["OPENCODE_CONFIG_DIR"]
+  },
+  enumerable: true,
+  configurable: false,
+})
+
+// Dynamic getter for OPENCODE_DISABLE_PROJECT_CONFIG (legacy alias)
+// This must be evaluated at access time, not module load time,
+// because external tooling may set this env var at runtime
+Object.defineProperty(Flag, "OPENCODE_DISABLE_PROJECT_CONFIG", {
+  get() {
+    return truthy("OPENCODE_DISABLE_PROJECT_CONFIG")
+  },
+  enumerable: true,
+  configurable: false,
+})
+
+// Dynamic getter for OPENCODE_CONFIG_DIR (legacy alias)
+// This must be evaluated at access time, not module load time,
+// because external tooling may set this env var at runtime
+Object.defineProperty(Flag, "OPENCODE_CONFIG_DIR", {
+  get() {
+    return process.env["OPENCODE_CONFIG_DIR"]
+  },
+  enumerable: true,
+  configurable: false,
+})

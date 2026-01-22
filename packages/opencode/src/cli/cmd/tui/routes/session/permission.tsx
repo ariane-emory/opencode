@@ -306,6 +306,8 @@ function RejectPrompt(props: { onConfirm: (message: string) => void; onCancel: (
   const { theme } = useTheme()
   const keybind = useKeybind()
   const textareaKeybindings = useTextareaKeybindings()
+  const dimensions = useTerminalDimensions()
+  const narrow = createMemo(() => dimensions().width < 80)
 
   useKeyboard((evt) => {
     if (evt.name === "escape" || keybind.match("app_exit", evt)) {
@@ -336,14 +338,16 @@ function RejectPrompt(props: { onConfirm: (message: string) => void; onCancel: (
         </box>
       </box>
       <box
-        flexDirection="row"
+        flexDirection={narrow() ? "column" : "row"}
         flexShrink={0}
         paddingTop={1}
         paddingLeft={2}
         paddingRight={3}
         paddingBottom={1}
         backgroundColor={theme.backgroundElement}
-        justifyContent="space-between"
+        justifyContent={narrow() ? "flex-start" : "space-between"}
+        alignItems={narrow() ? "flex-start" : "center"}
+        gap={1}
       >
         <textarea
           ref={(val: TextareaRenderable) => (input = val)}
@@ -353,7 +357,7 @@ function RejectPrompt(props: { onConfirm: (message: string) => void; onCancel: (
           cursorColor={theme.primary}
           keyBindings={textareaKeybindings()}
         />
-        <box flexDirection="row" gap={2} flexShrink={0} marginLeft={1}>
+        <box flexDirection="row" gap={2} flexShrink={0}>
           <text fg={theme.text}>
             enter <span style={{ fg: theme.textMuted }}>confirm</span>
           </text>
@@ -385,6 +389,7 @@ function Prompt<const T extends Record<string, string>>(props: {
     expanded: false,
   })
   const diffKey = Keybind.parse("ctrl+f")[0]
+  const narrow = createMemo(() => dimensions().width < 80)
 
   const pulseSpinnerDef = createMemo(() => {
     const color = local.agent.color(local.agent.current().name)
@@ -460,7 +465,7 @@ function Prompt<const T extends Record<string, string>>(props: {
         {props.body}
       </box>
       <box
-        flexDirection="row"
+        flexDirection={narrow() ? "column" : "row"}
         flexShrink={0}
         gap={1}
         paddingTop={1}
@@ -468,9 +473,10 @@ function Prompt<const T extends Record<string, string>>(props: {
         paddingRight={3}
         paddingBottom={1}
         backgroundColor={theme.backgroundElement}
-        justifyContent="space-between"
+        justifyContent={narrow() ? "flex-start" : "space-between"}
+        alignItems={narrow() ? "flex-start" : "center"}
       >
-        <box flexDirection="row" gap={1}>
+        <box flexDirection="row" gap={1} flexShrink={0}>
           <Show when={kv.get("animations_enabled", true)} fallback={<text fg={theme.textMuted}>[⋯]</text>}>
             {/* @ts-ignore */}
             <spinner color={pulseSpinnerDef().color} frames={pulseSpinnerDef().frames} interval={40} />
@@ -494,7 +500,7 @@ function Prompt<const T extends Record<string, string>>(props: {
             )}
           </For>
         </box>
-        <box flexDirection="row" gap={2}>
+        <box flexDirection="row" gap={2} flexShrink={0}>
           <Show when={props.fullscreen}>
             <text fg={theme.text}>
               {"ctrl+f"} <span style={{ fg: theme.textMuted }}>{hint()}</span>

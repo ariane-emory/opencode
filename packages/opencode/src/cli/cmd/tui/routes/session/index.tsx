@@ -493,6 +493,9 @@ export function Session() {
       value: "session.continue",
       keybind: "session_continue",
       category: "Session",
+      slash: {
+        name: "continue",
+      },
       onSelect: async (dialog) => {
         const result = await sdk.client.session.continue({
           sessionID: route.sessionID,

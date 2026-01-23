@@ -42,7 +42,19 @@ describe("sinister-quotes placeholder format", () => {
     expect(content).not.toMatch(/: `Ask anything\.\.\. "\$\{PLACEHOLDERS/)
   })
 
-  test("Both TUI and web app should have sinister placeholders", () => {
+  test("Shared placeholders module should contain sinister quotes", () => {
+    const sharedPath = join(
+      import.meta.dir,
+      "../../../ui/src/constants/placeholders.ts",
+    )
+    const sharedContent = readFileSync(sharedPath, "utf-8")
+
+    // The shared module should contain sinister-themed placeholder quotes
+    expect(sharedContent).toContain("The cake is a lie")
+    expect(sharedContent).toContain("SINISTER_PLACEHOLDERS")
+  })
+
+  test("Both TUI and web app should import from shared module", () => {
     const tuiPath = join(
       import.meta.dir,
       "../../src/cli/cmd/tui/component/prompt/index.tsx",
@@ -55,9 +67,8 @@ describe("sinister-quotes placeholder format", () => {
     const tuiContent = readFileSync(tuiPath, "utf-8")
     const webContent = readFileSync(webPath, "utf-8")
 
-    // Both should contain sinister-themed placeholder quotes
-    // Using a quote without apostrophes to avoid escaping issues
-    expect(tuiContent).toContain("The cake is a lie")
-    expect(webContent).toContain("The cake is a lie")
+    // Both should import PLACEHOLDERS from the shared module
+    expect(tuiContent).toContain("@opencode-ai/ui/constants/placeholders")
+    expect(webContent).toContain("@opencode-ai/ui/constants/placeholders")
   })
 })

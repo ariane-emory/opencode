@@ -3,7 +3,14 @@
 - ALWAYS USE PARALLEL TOOLS WHEN APPLICABLE.
 - The default branch in this repo is `dev`.
 
-## Critical Merge Warning: Sinister-Quotes Placeholder
+## Sinister-Quotes Placeholders
+
+The sinister AI-themed placeholder quotes are defined in a single shared location:
+- `packages/ui/src/constants/placeholders.ts`
+
+Both the TUI and web app import from this shared module. To add, remove, or modify quotes, edit only this file.
+
+### Placeholder Format Warning
 
 When merging branches that touch prompt placeholder formatting in:
 - `packages/opencode/src/cli/cmd/tui/component/prompt/index.tsx`
@@ -21,5 +28,4 @@ placeholder={... : `${PLACEHOLDERS[store.placeholder]}`}
 placeholder={... : `Ask anything... "${PLACEHOLDERS[store.placeholder]}"`}
 ```
 
-This is marked with **CRITICAL MERGE WARNING** comments in the source.
 A test in `test/tui/sinister-quotes.test.ts` validates this - merges that clobber the format will fail tests.

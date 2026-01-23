@@ -65,6 +65,7 @@ interface PromptInputProps {
   ref?: (el: HTMLDivElement) => void
   newSessionWorktree?: string
   onNewSessionWorktreeReset?: () => void
+  onSubmit?: () => void
 }
 
 const EXAMPLES = [
@@ -1111,6 +1112,8 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     }
     if (!session) return
 
+    props.onSubmit?.()
+
     const model = {
       modelID: currentModel.id,
       providerID: currentModel.provider.id,
@@ -1392,7 +1395,10 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                             />
                             <div class="flex items-center text-14-regular min-w-0">
                               <span class="text-text-weak whitespace-nowrap truncate min-w-0">
-                                {getDirectory((item as { type: "file"; path: string }).path)}
+                                {(() => {
+                                  const path = (item as { type: "file"; path: string }).path
+                                  return path.endsWith("/") ? path : getDirectory(path)
+                                })()}
                               </span>
                               <Show when={!(item as { type: "file"; path: string }).path.endsWith("/")}>
                                 <span class="text-text-strong whitespace-nowrap">
@@ -1488,6 +1494,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                     variant="ghost"
                     class="h-6 w-6"
                     onClick={() => prompt.context.removeActive()}
+                    aria-label={language.t("prompt.context.removeActiveFile")}
                   />
                 </div>
               )}
@@ -1525,6 +1532,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                     variant="ghost"
                     class="h-6 w-6"
                     onClick={() => prompt.context.remove(item.key)}
+                    aria-label={language.t("prompt.context.removeFile")}
                   />
                 </div>
               )}
@@ -1557,6 +1565,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                     type="button"
                     onClick={() => removeImageAttachment(attachment.id)}
                     class="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-surface-raised-stronger-non-alpha border border-border-base flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-surface-raised-base-hover"
+                    aria-label={language.t("prompt.attachment.remove")}
                   >
                     <Icon name="close" class="size-3 text-text-weak" />
                   </button>
@@ -1575,6 +1584,13 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
               editorRef = el
               props.ref?.(el)
             }}
+            role="textbox"
+            aria-multiline="true"
+            aria-label={
+              store.mode === "shell"
+                ? language.t("prompt.placeholder.shell")
+                : language.t("prompt.placeholder.normal", { example: language.t(EXAMPLES[store.placeholder]) })
+            }
             contenteditable="true"
             onInput={handleInput}
             onPaste={handlePaste}
@@ -1639,21 +1655,19 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                     </TooltipKeybind>
                   }
                 >
-                  <ModelSelectorPopover>
-                    <TooltipKeybind
-                      placement="top"
-                      title={language.t("command.model.choose")}
-                      keybind={command.keybind("model.choose")}
-                    >
-                      <Button as="div" variant="ghost">
-                        <Show when={local.model.current()?.provider?.id}>
-                          <ProviderIcon id={local.model.current()!.provider.id as IconName} class="size-4 shrink-0" />
-                        </Show>
-                        {local.model.current()?.name ?? language.t("dialog.model.select.title")}
-                        <Icon name="chevron-down" size="small" />
-                      </Button>
-                    </TooltipKeybind>
-                  </ModelSelectorPopover>
+                  <TooltipKeybind
+                    placement="top"
+                    title={language.t("command.model.choose")}
+                    keybind={command.keybind("model.choose")}
+                  >
+                    <ModelSelectorPopover triggerAs={Button} triggerProps={{ variant: "ghost" }}>
+                      <Show when={local.model.current()?.provider?.id}>
+                        <ProviderIcon id={local.model.current()!.provider.id as IconName} class="size-4 shrink-0" />
+                      </Show>
+                      {local.model.current()?.name ?? language.t("dialog.model.select.title")}
+                      <Icon name="chevron-down" size="small" />
+                    </ModelSelectorPopover>
+                  </TooltipKeybind>
                 </Show>
                 <Show when={local.model.variant.list().length > 0}>
                   <TooltipKeybind
@@ -1684,6 +1698,12 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                         "text-text-base": !permission.isAutoAccepting(params.id!, sdk.directory),
                         "hover:bg-surface-success-base": permission.isAutoAccepting(params.id!, sdk.directory),
                       }}
+                      aria-label={
+                        permission.isAutoAccepting(params.id!, sdk.directory)
+                          ? language.t("command.permissions.autoaccept.disable")
+                          : language.t("command.permissions.autoaccept.enable")
+                      }
+                      aria-pressed={permission.isAutoAccepting(params.id!, sdk.directory)}
                     >
                       <Icon
                         name="chevron-double-right"
@@ -1712,7 +1732,13 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
               <SessionContextUsage />
               <Show when={store.mode === "normal"}>
                 <Tooltip placement="top" value={language.t("prompt.action.attachFile")}>
-                  <Button type="button" variant="ghost" class="size-6" onClick={() => fileInputRef.click()}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    class="size-6"
+                    onClick={() => fileInputRef.click()}
+                    aria-label={language.t("prompt.action.attachFile")}
+                  >
                     <Icon name="photo" class="size-4.5" />
                   </Button>
                 </Tooltip>
@@ -1744,6 +1770,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                 icon={working() ? "stop" : "arrow-up"}
                 variant="primary"
                 class="h-6 w-4.5"
+                aria-label={working() ? language.t("prompt.action.stop") : language.t("prompt.action.send")}
               />
             </Tooltip>
           </div>

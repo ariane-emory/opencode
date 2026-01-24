@@ -10,7 +10,6 @@ import { afterAll } from "bun:test"
 // This ensures xdg-basedir picks up the test directories, not the user's real ones
 const dir = path.join(os.tmpdir(), "opencode-test-data-" + process.pid)
 await fs.mkdir(dir, { recursive: true })
-
 // Set test home directory to isolate tests from user's actual home directory
 // This prevents tests from picking up real user configs/skills from ~/.claude/skills
 const testHome = path.join(dir, "home")

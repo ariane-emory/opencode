@@ -63,7 +63,10 @@ export const TaskTool = Tool.define("task", async (ctx) => {
           return {
             title: params.description,
             output,
-            metadata: {},
+            metadata: {
+              summary: [],
+              sessionId: ctx.sessionID,
+            },
           }
         }
       }

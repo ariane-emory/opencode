@@ -56,10 +56,12 @@ export function DialogSessionList() {
       if (session) return session.id
     }
 
-    // Fallback to most recently updated session
+    // Fallback to most recently updated non-bookmarked session
     const allSessions = sessions().filter((x) => x.parentID === undefined)
-    const sorted = allSessions.toSorted((a, b) => b.time.updated - a.time.updated)
-    return sorted[0]?.id
+    const unpinned = allSessions.filter((x) => x.time.pinned === undefined)
+    const sorted = unpinned.toSorted((a, b) => b.time.updated - a.time.updated)
+    // Fall back to bookmarked sessions only if no non-bookmarked sessions exist
+    return sorted[0]?.id ?? allSessions.toSorted((a, b) => b.time.updated - a.time.updated)[0]?.id
   })
 
 

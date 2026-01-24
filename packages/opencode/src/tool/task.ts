@@ -11,6 +11,7 @@ import { iife } from "@/util/iife"
 import { defer } from "@/util/defer"
 import { Config } from "../config/config"
 import { PermissionNext } from "@/permission/next"
+import { Command } from "../command"
 
 const parameters = z.object({
   description: z.string().describe("A short (3-5 words) description of the task"),
@@ -40,6 +41,30 @@ export const TaskTool = Tool.define("task", async (ctx) => {
     parameters,
     async execute(params: z.infer<typeof parameters>, ctx) {
       const config = await Config.get()
+
+      const slashCommandMatch = params.prompt.trim().match(/^\/([a-zA-Z0-9_-]+)(?:\s+(.*))?$/)
+
+      if (slashCommandMatch) {
+        const commandName = slashCommandMatch[1]
+        const commandArgs = slashCommandMatch[2] ?? ""
+
+        const command = await Command.get(commandName)
+        if (command && command.subtask === false) {
+          const result = await SessionPrompt.command({
+            sessionID: ctx.sessionID,
+            messageID: ctx.messageID,
+            agent: command.agent ?? params.subagent_type,
+            model: command.model ?? undefined,
+            command: commandName,
+            arguments: commandArgs,
+          })
+          return {
+            title: result.parts.findLast((x) => x.type === "text")?.text ?? "",
+            output: result.parts.findLast((x) => x.type === "text")?.text ?? "",
+            metadata: {},
+          }
+        }
+      }
 
       // Skip permission check when user explicitly invoked via @ or command subtask
       if (!ctx.extra?.bypassAgentCheck) {

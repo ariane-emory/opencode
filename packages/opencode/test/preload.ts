@@ -5,13 +5,12 @@ import path from "path"
 import fs from "fs/promises"
 import fsSync from "fs"
 import { afterAll } from "bun:test"
-const { Global } = await import("../src/global")
 
+// Create temp directory and set env vars BEFORE importing from src/
+// This ensures xdg-basedir picks up the test directories, not the user's real ones
 const dir = path.join(os.tmpdir(), "opencode-test-data-" + process.pid)
 await fs.mkdir(dir, { recursive: true })
-afterAll(() => {
-  fsSync.rmSync(dir, { recursive: true, force: true })
-})
+
 // Set test home directory to isolate tests from user's actual home directory
 // This prevents tests from picking up real user configs/skills from ~/.claude/skills
 const testHome = path.join(dir, "home")
@@ -22,6 +21,23 @@ process.env["XDG_DATA_HOME"] = path.join(dir, "share")
 process.env["XDG_CACHE_HOME"] = path.join(dir, "cache")
 process.env["XDG_CONFIG_HOME"] = path.join(dir, "config")
 process.env["XDG_STATE_HOME"] = path.join(dir, "state")
+
+// NOW it's safe to import from src/ - env vars are set
+const { Global } = await import("../src/global")
+
+// Verify test isolation is working - Global.Path.data should point to temp directory
+// If this fails, it means the import order is wrong and tests would write to real user data
+if (!Global.Path.data.startsWith(dir)) {
+  throw new Error(
+    `Test isolation failed! Global.Path.data points to "${Global.Path.data}" instead of temp directory "${dir}". ` +
+      `This would cause tests to overwrite user's real auth.json. ` +
+      `Ensure XDG_DATA_HOME is set BEFORE importing from src/.`,
+  )
+}
+
+afterAll(() => {
+  fsSync.rmSync(dir, { recursive: true, force: true })
+})
 
 // Pre-fetch models.json so tests don't need the macro fallback
 // Also write the cache version file to prevent global/index.ts from clearing the cache

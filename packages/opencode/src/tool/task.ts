@@ -58,9 +58,11 @@ export const TaskTool = Tool.define("task", async (ctx) => {
             command: commandName,
             arguments: commandArgs,
           })
+          const text = result.parts.findLast((x) => x.type === "text")?.text ?? ""
+          const output = text + "\n\n" + ["<task_metadata>", `session_id: ${ctx.sessionID}`, "</task_metadata>"].join("\n")
           return {
-            title: result.parts.findLast((x) => x.type === "text")?.text ?? "",
-            output: result.parts.findLast((x) => x.type === "text")?.text ?? "",
+            title: params.description,
+            output,
             metadata: {},
           }
         }

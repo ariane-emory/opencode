@@ -1,9 +1,10 @@
 import { createMemo, onMount } from "solid-js"
 import { useSync } from "@tui/context/sync"
-import { DialogSelect, type DialogSelectOption } from "@tui/ui/dialog-select"
+import { DialogSelect, type DialogSelectOption, type DialogSelectRef } from "@tui/ui/dialog-select"
 import type { Part, Message, AssistantMessage, ToolPart, FilePart } from "@opencode-ai/sdk/v2"
 import { Locale } from "@/util/locale"
 import { DialogMessage } from "./dialog-message"
+import { DialogInspect } from "./dialog-inspect"
 import { useDialog } from "../../ui/dialog"
 import type { PromptInfo } from "../../component/prompt/history"
 import { Token } from "@/util/token"
@@ -14,6 +15,9 @@ import path from "path"
 import { produce } from "solid-js/store"
 import { Binary } from "@opencode-ai/util/binary"
 import { Global } from "@/global"
+
+// Module-level variable to store the selected message when opening details
+let timelineSelection: string | undefined
 
 function formatTokenCount(tokens: number): string {
   return tokens.toString().padStart(7)
@@ -109,8 +113,21 @@ export function DialogTimeline(props: {
   const { theme } = useTheme()
   const sdk = useSDK()
 
+  // Capture the stored selection and clear it
+  const initialSelection = timelineSelection
+  timelineSelection = undefined
+
+  let selectRef: DialogSelectRef<string> | undefined
+
   onMount(() => {
     dialog.setSize("large")
+
+    // Restore selection after mount if we have one
+    if (initialSelection && selectRef) {
+      setTimeout(() => {
+        selectRef?.moveToValue(initialSelection)
+      }, 0)
+    }
   })
 
   const options = createMemo((): DialogSelectOption<string>[] => {
@@ -251,6 +268,9 @@ export function DialogTimeline(props: {
 
   return (
     <DialogSelect
+      ref={(r) => {
+        selectRef = r
+      }}
       onMove={(option) => props.onMove(option.value)}
       title="Timeline"
       options={options()}
@@ -260,6 +280,21 @@ export function DialogTimeline(props: {
           title: "Delete",
           onTrigger: (option) => {
             handleDelete(option.value)
+          },
+        },
+        {
+          keybind: { name: "insert", ctrl: false, meta: false, shift: false, leader: false },
+          title: "Details",
+          onTrigger: (option) => {
+            const messageID = option.value
+            const message = sync.message[props.sessionID]?.find((m) => m.id === messageID)
+            const parts = sync.part[messageID] ?? []
+
+            if (message && message.role === "assistant") {
+              // Store the current selection before opening details
+              timelineSelection = messageID
+              dialog.push(() => <DialogInspect message={message as AssistantMessage} parts={parts} />)
+            }
           },
         },
       ]}

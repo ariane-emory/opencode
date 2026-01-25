@@ -21,10 +21,6 @@ export namespace Flag {
     return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
   }
 
-  function truthy(key: string) {
-    const value = process.env[key]?.toLowerCase()
-    return value === "true" || value === "1"
-  }
 
   function number(key: string) {
     const value = process.env[key]
@@ -107,6 +103,8 @@ export namespace Flag {
   export const OPENCODE_EXPERIMENTAL_LSP_TY = BASE_ONE_EXPERIMENTAL_LSP_TY
   export const OPENCODE_EXPERIMENTAL_LSP_TOOL = BASE_ONE_EXPERIMENTAL_LSP_TOOL
   export const OPENCODE_EXPERIMENTAL_PLAN_MODE = BASE_ONE_EXPERIMENTAL_PLAN_MODE
+  export const OPENCODE_DISABLE_FILETIME_CHECK = truthy("OPENCODE_DISABLE_FILETIME_CHECK")
+  export const OPENCODE_MODELS_URL = process.env["OPENCODE_MODELS_URL"]
 }
 
 // Dynamic getter for BASE_ONE_DISABLE_PROJECT_CONFIG (alias for OPENCODE_DISABLE_PROJECT_CONFIG)
@@ -136,7 +134,7 @@ Object.defineProperty(Flag, "BASE_ONE_CONFIG_DIR", {
 // because external tooling may set this env var at runtime
 Object.defineProperty(Flag, "OPENCODE_DISABLE_PROJECT_CONFIG", {
   get() {
-    return truthy("OPENCODE_DISABLE_PROJECT_CONFIG")
+    return truthyWithFallback("OPENCODE_DISABLE_PROJECT_CONFIG", "OPENCODE_DISABLE_PROJECT_CONFIG")
   },
   enumerable: true,
   configurable: false,

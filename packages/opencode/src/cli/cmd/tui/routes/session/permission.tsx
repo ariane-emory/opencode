@@ -18,6 +18,7 @@ import { LANGUAGE_EXTENSIONS } from "@/lsp/language"
 import { Keybind } from "@/util/keybind"
 import { Locale } from "@/util/locale"
 import { Global } from "@/global"
+import { useDialog } from "../../ui/dialog"
 
 type PermissionStage = "permission" | "always" | "reject"
 
@@ -308,8 +309,11 @@ function RejectPrompt(props: { onConfirm: (message: string) => void; onCancel: (
   const textareaKeybindings = useTextareaKeybindings()
   const dimensions = useTerminalDimensions()
   const narrow = createMemo(() => dimensions().width < 80)
+  const dialog = useDialog()
 
   useKeyboard((evt) => {
+    if (dialog.stack.length > 0) return
+
     if (evt.name === "escape" || keybind.match("app_exit", evt)) {
       evt.preventDefault()
       props.onCancel()
@@ -390,6 +394,7 @@ function Prompt<const T extends Record<string, string>>(props: {
   })
   const diffKey = Keybind.parse("ctrl+f")[0]
   const narrow = createMemo(() => dimensions().width < 80)
+  const dialog = useDialog()
 
   const pulseSpinnerDef = createMemo(() => {
     const color = local.agent.color(local.agent.current().name)
@@ -406,6 +411,8 @@ function Prompt<const T extends Record<string, string>>(props: {
   })
 
   useKeyboard((evt) => {
+    if (dialog.stack.length > 0) return
+
     if (evt.name === "left" || evt.name == "h") {
       evt.preventDefault()
       const idx = keys.indexOf(store.selected)

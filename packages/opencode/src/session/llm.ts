@@ -94,8 +94,14 @@ export namespace LLM {
       system.push(header, rest.join("\n"))
     }
 
-    const variant =
-      !input.small && input.model.variants && input.user.variant ? input.model.variants[input.user.variant] : {}
+    const selectedVariant = input.user.variant || input.agent.variant
+    const variant = !input.small && input.model.variants && selectedVariant ? input.model.variants[selectedVariant] : {}
+    l.info("variant selection", {
+      selectedVariant,
+      hasModelVariants: !!input.model.variants,
+      availableVariants: input.model.variants ? Object.keys(input.model.variants) : [],
+      variantOptions: variant,
+    })
     const base = input.small
       ? ProviderTransform.smallOptions(input.model)
       : ProviderTransform.options({
@@ -109,6 +115,7 @@ export namespace LLM {
       mergeDeep(input.agent.options),
       mergeDeep(variant),
     )
+    l.info("merged options", { options })
     if (isCodex) {
       options.instructions = SystemPrompt.instructions()
     }
@@ -121,6 +128,7 @@ export namespace LLM {
         model: input.model,
         provider,
         message: input.user,
+        variant: selectedVariant,
       },
       {
         temperature: input.model.capabilities.temperature
@@ -140,6 +148,7 @@ export namespace LLM {
         model: input.model,
         provider,
         message: input.user,
+        variant: selectedVariant,
       },
       {
         headers: {},

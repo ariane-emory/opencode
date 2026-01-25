@@ -121,6 +121,7 @@ export type AssistantMessage = {
   parentID: string
   modelID: string
   providerID: string
+  variant?: string
   mode: string
   path: {
     cwd: string
@@ -991,6 +992,10 @@ export type AgentConfig = {
    */
   color?: string
   /**
+   * Default model variant to use for this agent (e.g., 'high')
+   */
+  variant?: string
+  /**
    * Maximum number of agentic iterations before forcing text-only response
    */
   maxSteps?: number
@@ -1590,6 +1595,7 @@ export type Agent = {
   topP?: number
   temperature?: number
   color?: string
+  variant?: string
   permission: {
     edit: "ask" | "allow" | "deny"
     bash: {

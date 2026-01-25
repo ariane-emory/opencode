@@ -300,7 +300,11 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
             const m = current()
             if (!m) return undefined
             const key = `${m.provider.id}/${m.id}`
-            return store.variant?.[key]
+            const a = agent.current()
+            return (
+              store.variant?.[key] ??
+              (a?.model && `${a.model.providerID}/${a.model.modelID}` === key ? a.variant : undefined)
+            )
           },
           list() {
             const m = current()

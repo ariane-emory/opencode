@@ -365,6 +365,7 @@ export namespace MessageV2 {
     parentID: z.string(),
     modelID: z.string(),
     providerID: z.string(),
+    variant: z.string().optional(),
     /**
      * @deprecated
      */

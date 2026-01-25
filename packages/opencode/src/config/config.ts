@@ -579,6 +579,7 @@ export namespace Config {
         .regex(/^#[0-9a-fA-F]{6}$/, "Invalid hex color format")
         .optional()
         .describe("Hex color code for the agent (e.g., #FF5733)"),
+      variant: z.string().optional().describe("Default model variant to use for this agent (e.g., 'high')"),
       steps: z
         .number()
         .int()
@@ -600,6 +601,7 @@ export namespace Config {
         "mode",
         "hidden",
         "color",
+        "variant",
         "steps",
         "maxSteps",
         "options",
@@ -630,10 +632,11 @@ export namespace Config {
       // Convert legacy maxSteps to steps
       const steps = agent.steps ?? agent.maxSteps
 
-      return { ...agent, options, permission, steps } as typeof agent & {
+      return { ...agent, options, permission, steps, variant: agent.variant } as typeof agent & {
         options?: Record<string, unknown>
         permission?: Permission
         steps?: number
+        variant?: string
       }
     })
     .meta({

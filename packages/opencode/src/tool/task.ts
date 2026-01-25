@@ -103,12 +103,14 @@ export const TaskTool = Tool.define("task", async (ctx) => {
         modelID: msg.info.modelID,
         providerID: msg.info.providerID,
       }
+      const variant = agent.variant ?? msg.info.variant
 
       ctx.metadata({
         title: params.description,
         metadata: {
           sessionId: session.id,
           model,
+          variant,
         },
       })
 
@@ -133,6 +135,7 @@ export const TaskTool = Tool.define("task", async (ctx) => {
             summary: Object.values(parts).sort((a, b) => a.id.localeCompare(b.id)),
             sessionId: session.id,
             model,
+            variant,
           },
         })
       })
@@ -151,6 +154,7 @@ export const TaskTool = Tool.define("task", async (ctx) => {
           modelID: model.modelID,
           providerID: model.providerID,
         },
+        variant,
         agent: agent.name,
         tools: {
           todowrite: false,
@@ -183,6 +187,7 @@ export const TaskTool = Tool.define("task", async (ctx) => {
           summary,
           sessionId: session.id,
           model,
+          variant,
         },
         output,
       }

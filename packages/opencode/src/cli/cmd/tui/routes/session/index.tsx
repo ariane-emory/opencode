@@ -56,6 +56,7 @@ import type { PromptInfo } from "../../component/prompt/history"
 import { DialogConfirm } from "@tui/ui/dialog-confirm"
 import { DialogTimeline } from "./dialog-timeline"
 import { DialogForkFromTimeline } from "./dialog-fork-from-timeline"
+import { DialogInspect } from "./dialog-inspect"
 import { DialogSessionRename } from "../../component/dialog-session-rename"
 import { Sidebar } from "./sidebar"
 import { LANGUAGE_EXTENSIONS } from "@/lsp/language"
@@ -1071,6 +1072,11 @@ export function Session() {
                         last={lastAssistant()?.id === message.id}
                         message={message as AssistantMessage}
                         parts={sync.data.part[message.id] ?? []}
+                        next={
+                          messages()
+                            .slice(index() + 1)
+                            .find((x) => x.role === "assistant") as AssistantMessage | undefined
+                        }
                       />
                     </Match>
                   </Switch>
@@ -1235,11 +1241,13 @@ function UserMessage(props: {
   )
 }
 
-function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; last: boolean }) {
+function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; last: boolean; next?: AssistantMessage }) {
   const local = useLocal()
   const { theme } = useTheme()
   const sync = useSync()
   const messages = createMemo(() => sync.data.message[props.message.sessionID] ?? [])
+  const dialog = useDialog()
+  const [hover, setHover] = createSignal(false)
 
   const final = createMemo(() => {
     return props.message.finish && !["tool-calls", "unknown"].includes(props.message.finish)
@@ -1270,6 +1278,32 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
           )
         }}
       </For>
+      <box flexDirection="row" gap={1} justifyContent="flex-end">
+        <text>
+          <Show when={props.message.tokens}>
+            <span style={{ fg: theme.textMuted }}>
+              {" "}
+              {(props.message.tokens.input + (props.message.tokens.cache?.read ?? 0)).toLocaleString()} token
+              {props.next?.tokens
+                ? ` (+${(
+                    props.next.tokens.input +
+                    (props.next.tokens.cache?.read ?? 0) -
+                    (props.message.tokens.input + (props.message.tokens.cache?.read ?? 0))
+                  ).toLocaleString()})`
+                : ""}
+            </span>
+          </Show>
+        </text>
+        <box
+          onMouseOver={() => setHover(true)}
+          onMouseOut={() => setHover(false)}
+          onMouseUp={() => dialog.replace(() => <DialogInspect message={props.message} parts={props.parts} />)}
+          backgroundColor={hover() ? theme.backgroundElement : undefined}
+        >
+          <text fg={theme.accent}>[?]</text>
+        </box>
+      </box>
+
       <Show when={props.message.error && props.message.error.name !== "MessageAbortedError"}>
         <box
           border={["left"]}

@@ -1,4 +1,4 @@
-import { createMemo, onMount } from "solid-js"
+import { createMemo, onMount, createSignal } from "solid-js"
 import { useSync } from "@tui/context/sync"
 import { DialogSelect, type DialogSelectOption, type DialogSelectRef } from "@tui/ui/dialog-select"
 import type { Part, Message, AssistantMessage, ToolPart, FilePart } from "@opencode-ai/sdk/v2"
@@ -15,6 +15,7 @@ import path from "path"
 import { produce } from "solid-js/store"
 import { Binary } from "@opencode-ai/util/binary"
 import { Global } from "@/global"
+import { useKeyboard } from "@opentui/solid"
 
 // Module-level variable to store the selected message when opening details
 let timelineSelection: string | undefined
@@ -118,6 +119,7 @@ export function DialogTimeline(props: {
   timelineSelection = undefined
 
   let selectRef: DialogSelectRef<string> | undefined
+  const [selectedMessageID, setSelectedMessageID] = createSignal<string | undefined>(undefined)
 
   onMount(() => {
     dialog.setSize("large")
@@ -127,6 +129,46 @@ export function DialogTimeline(props: {
       setTimeout(() => {
         selectRef?.moveToValue(initialSelection)
       }, 0)
+    }
+  })
+
+  useKeyboard((evt) => {
+    // Only handle 'n' and 'p' without any modifiers
+    if (evt.ctrl || evt.meta || evt.shift) return
+
+    const opts = options()
+    if (opts.length === 0) return
+
+    const currentIndex = opts.findIndex(opt => opt.value === selectedMessageID())
+
+    if (evt.name === "n") {
+      evt.preventDefault()
+      evt.stopPropagation()
+      // Find next user message
+      for (let i = currentIndex + 1; i < opts.length; i++) {
+        const msgID = opts[i].value
+        const msg = sync.message[props.sessionID]?.find(m => m.id === msgID)
+        if (msg && msg.role === "user") {
+          setSelectedMessageID(msgID)
+          props.onMove(msgID)
+          break
+        }
+      }
+    }
+
+    if (evt.name === "p") {
+      evt.preventDefault()
+      evt.stopPropagation()
+      // Find previous user message
+      for (let i = currentIndex - 1; i >= 0; i--) {
+        const msgID = opts[i].value
+        const msg = sync.message[props.sessionID]?.find(m => m.id === msgID)
+        if (msg && msg.role === "user") {
+          setSelectedMessageID(msgID)
+          props.onMove(msgID)
+          break
+        }
+      }
     }
   })
 
@@ -271,7 +313,10 @@ export function DialogTimeline(props: {
       ref={(r) => {
         selectRef = r
       }}
-      onMove={(option) => props.onMove(option.value)}
+      onMove={(option) => {
+        setSelectedMessageID(option.value)
+        props.onMove(option.value)
+      }}
       title="Timeline"
       options={options()}
       keybind={[
@@ -289,7 +334,7 @@ export function DialogTimeline(props: {
             const messageID = option.value
             const message = sync.message[props.sessionID]?.find((m) => m.id === messageID)
             const parts = sync.part[messageID] ?? []
-
+ 
             if (message && message.role === "assistant") {
               // Store the current selection before opening details
               timelineSelection = messageID

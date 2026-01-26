@@ -96,6 +96,7 @@ const context = createContext<{
   showTimestamps: () => boolean
   showDetails: () => boolean
   diffWrapMode: () => "word" | "none"
+  diffStyle: () => "auto" | "unified"
   sync: ReturnType<typeof useSync>
 }>()
 
@@ -147,6 +148,7 @@ export function Session() {
   const [showAssistantMetadata, setShowAssistantMetadata] = kv.signal("assistant_metadata_visibility", true)
   const [showScrollbar, setShowScrollbar] = kv.signal("scrollbar_visible", false)
   const [diffWrapMode, setDiffWrapMode] = createSignal<"word" | "none">("word")
+  const [diffStyle, setDiffStyle] = kv.signal<"auto" | "unified">("diff_style", "auto")
   const [animationsEnabled, setAnimationsEnabled] = kv.signal("animations_enabled", true)
 
   const wide = createMemo(() => dimensions().width > 120)
@@ -548,6 +550,18 @@ export function Session() {
       },
       onSelect: (dialog) => {
         setDiffWrapMode((prev) => (prev === "word" ? "none" : "word"))
+        dialog.clear()
+      },
+    },
+    {
+      title: diffStyle() === "auto" ? "Use unified diff style" : "Use automatic diff style",
+      value: "session.toggle.diffstyle",
+      category: "Session",
+      slash: {
+        name: "diffstyle",
+      },
+      onSelect: (dialog) => {
+        setDiffStyle((prev) => (prev === "auto" ? "unified" : "auto"))
         dialog.clear()
       },
     },
@@ -955,6 +969,7 @@ export function Session() {
         showTimestamps,
         showDetails,
         diffWrapMode,
+        diffStyle,
         sync,
       }}
     >
@@ -1865,8 +1880,8 @@ function Edit(props: ToolProps<typeof EditTool>) {
   const { theme, syntax } = useTheme()
 
   const view = createMemo(() => {
-    const diffStyle = ctx.sync.data.config.tui?.diff_style
-    if (diffStyle === "stacked") return "unified"
+    const diffStyle = ctx.diffStyle()
+    if (diffStyle === "unified") return "unified"
     // Default to "auto" behavior
     return ctx.width > 120 ? "split" : "unified"
   })
@@ -1936,8 +1951,8 @@ function ApplyPatch(props: ToolProps<typeof ApplyPatchTool>) {
   const files = createMemo(() => props.metadata.files ?? [])
 
   const view = createMemo(() => {
-    const diffStyle = ctx.sync.data.config.tui?.diff_style
-    if (diffStyle === "stacked") return "unified"
+    const diffStyle = ctx.diffStyle()
+    if (diffStyle === "unified") return "unified"
     return ctx.width > 120 ? "split" : "unified"
   })
 

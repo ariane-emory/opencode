@@ -92,6 +92,7 @@ function AssistantMessageItem(props: {
   responsePartId: string | undefined
   hideResponsePart: boolean
   hideReasoning: boolean
+  anchorId?: string
 }) {
   const data = useData()
   const emptyParts: PartType[] = []
@@ -121,7 +122,7 @@ function AssistantMessageItem(props: {
     return parts.filter((part) => part?.id !== responsePartId)
   })
 
-  return <Message message={props.message} parts={filteredParts()} />
+  return <Message message={props.message} parts={filteredParts()} id={props.anchorId} />
 }
 
 export function SessionTurn(
@@ -605,18 +606,19 @@ export function SessionTurn(
                       </Show>
                     </div>
                     {/* Response */}
-                    <Show when={props.stepsExpanded && assistantMessages().length > 0}>
-                      <div data-slot="session-turn-collapsible-content-inner" aria-hidden={working()}>
-                        <For each={assistantMessages()}>
-                          {(assistantMessage) => (
-                            <AssistantMessageItem
-                              message={assistantMessage}
-                              responsePartId={responsePartId()}
-                              hideResponsePart={hideResponsePart()}
-                              hideReasoning={!working()}
-                            />
-                          )}
-                        </For>
+                      <Show when={props.stepsExpanded && assistantMessages().length > 0}>
+                        <div data-slot="session-turn-collapsible-content-inner" aria-hidden={working()}>
+                          <For each={assistantMessages()}>
+                            {(assistantMessage) => (
+                              <AssistantMessageItem
+                                message={assistantMessage}
+                                responsePartId={responsePartId()}
+                                hideResponsePart={hideResponsePart()}
+                                hideReasoning={!working()}
+                                anchorId={`message-${assistantMessage.id}`}
+                              />
+                            )}
+                          </For>
                         <Show when={error()}>
                           <Card variant="error" class="error-card">
                             {error()?.data?.message as string}

@@ -92,6 +92,7 @@ function DiagnosticsDisplay(props: { diagnostics: Diagnostic[] }): JSX.Element {
 export interface MessageProps {
   message: MessageType
   parts: PartType[]
+  id?: string
 }
 
 export interface MessagePartProps {
@@ -277,18 +278,18 @@ export function Message(props: MessageProps) {
   return (
     <Switch>
       <Match when={props.message.role === "user" && props.message}>
-        {(userMessage) => <UserMessageDisplay message={userMessage() as UserMessage} parts={props.parts} />}
+        {(userMessage) => <UserMessageDisplay message={userMessage() as UserMessage} parts={props.parts} id={props.id} />}
       </Match>
       <Match when={props.message.role === "assistant" && props.message}>
         {(assistantMessage) => (
-          <AssistantMessageDisplay message={assistantMessage() as AssistantMessage} parts={props.parts} />
+          <AssistantMessageDisplay message={assistantMessage() as AssistantMessage} parts={props.parts} id={props.id} />
         )}
       </Match>
     </Switch>
   )
 }
 
-export function AssistantMessageDisplay(props: { message: AssistantMessage; parts: PartType[] }) {
+export function AssistantMessageDisplay(props: { message: AssistantMessage; parts: PartType[]; id?: string }) {
   const emptyParts: PartType[] = []
   const filteredParts = createMemo(
     () =>
@@ -298,10 +299,16 @@ export function AssistantMessageDisplay(props: { message: AssistantMessage; part
     emptyParts,
     { equals: same },
   )
-  return <For each={filteredParts()}>{(part) => <Part part={part} message={props.message} />}</For>
+  return (
+    <div id={props.id}>
+      <For each={filteredParts()}>
+        {(part) => <Part part={part} message={props.message} />}
+      </For>
+    </div>
+  )
 }
 
-export function UserMessageDisplay(props: { message: UserMessage; parts: PartType[] }) {
+export function UserMessageDisplay(props: { message: UserMessage; parts: PartType[]; id?: string }) {
   const dialog = useDialog()
   const i18n = useI18n()
   const [copied, setCopied] = createSignal(false)
@@ -370,7 +377,7 @@ export function UserMessageDisplay(props: { message: UserMessage; parts: PartTyp
   }
 
   return (
-    <div data-component="user-message" data-expanded={expanded()} data-can-expand={canExpand()}>
+    <div data-component="user-message" data-expanded={expanded()} data-can-expand={canExpand()} id={props.id}>
       <Show when={attachments().length > 0}>
         <div data-slot="user-message-attachments">
           <For each={attachments()}>

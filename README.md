@@ -6,7 +6,6 @@
   </picture>
 </p>
 <p align="center">The open source AI coding agent.</p>
-<p align="center">A fork of <a href="https://github.com/sst/opencode">OpenCode</a></p>
 
 ---
 

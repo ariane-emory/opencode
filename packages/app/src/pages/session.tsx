@@ -50,7 +50,7 @@ import { DialogFork } from "@/components/dialog-fork"
 import { useCommand } from "@/context/command"
 import { useLanguage } from "@/context/language"
 import { useNavigate, useParams } from "@solidjs/router"
-import { UserMessage } from "@opencode-ai/sdk/v2"
+import { UserMessage, AssistantMessage } from "@opencode-ai/sdk/v2"
 import type { FileDiff } from "@opencode-ai/sdk/v2/client"
 import { useSDK } from "@/context/sdk"
 import { usePrompt } from "@/context/prompt"
@@ -279,6 +279,8 @@ export default function Page() {
       })
       .finally(() => setUi("responding", false))
   }
+
+  const [pendingAssistantMessage, setPendingAssistantMessage] = createSignal<string | undefined>(undefined)
   const sessionKey = createMemo(() => `${params.dir}${params.id ? "/" + params.id : ""}`)
   const tabs = createMemo(() => layout.tabs(sessionKey))
   const view = createMemo(() => layout.view(sessionKey))
@@ -1530,6 +1532,38 @@ export default function Page() {
     updateHash(message.id)
   }
 
+  const scrollToAnyMessage = (messageID: string, behavior: ScrollBehavior = "smooth") => {
+    const allMsgs = messages()
+    const message = allMsgs.find((m) => m.id === messageID)
+    if (!message) return
+
+    if (message.role === "user") {
+      scrollToMessage(message as UserMessage, behavior)
+      return
+    }
+
+    const assistantMsg = message as AssistantMessage
+    const parentUserMsg = userMessages().find((m) => m.id === assistantMsg.parentID)
+    if (!parentUserMsg) return
+
+    setStore("expanded", parentUserMsg.id, true)
+
+    requestAnimationFrame(() => {
+      const el = document.getElementById(anchor(messageID))
+      if (!el) {
+        requestAnimationFrame(() => {
+          const next = document.getElementById(anchor(messageID))
+          if (!next) return
+          scrollToElement(next, behavior)
+        })
+        return
+      }
+      scrollToElement(el, behavior)
+    })
+
+    updateHash(messageID)
+  }
+
   const applyHash = (behavior: ScrollBehavior) => {
     const hash = window.location.hash.slice(1)
     if (!hash) {
@@ -1540,14 +1574,18 @@ export default function Page() {
     const match = hash.match(/^message-(.+)$/)
     if (match) {
       autoScroll.pause()
-      const msg = visibleUserMessages().find((m) => m.id === match[1])
-      if (msg) {
-        scrollToMessage(msg, behavior)
+      const msg = messages().find((m) => m.id === match[1])
+      if (!msg) {
+        if (visibleUserMessages().find((m) => m.id === match[1])) return
         return
       }
 
-      // If we have a message hash but the message isn't loaded/rendered yet,
-      // don't fall back to "bottom". We'll retry once messages arrive.
+      if (msg.role === "assistant") {
+        setPendingAssistantMessage(match[1])
+        return
+      }
+
+      scrollToMessage(msg as UserMessage, behavior)
       return
     }
 
@@ -1642,7 +1680,10 @@ export default function Page() {
         const hash = window.location.hash.slice(1)
         const match = hash.match(/^message-(.+)$/)
         if (!match) return undefined
-        return match[1]
+        const hashId = match[1]
+        const msg = messages().find((m) => m.id === hashId)
+        if (msg && msg.role === "assistant") return undefined
+        return hashId
       })()
     if (!targetId) return
     if (store.messageId === targetId) return
@@ -1652,6 +1693,26 @@ export default function Page() {
     if (ui.pendingMessage === targetId) setUi("pendingMessage", undefined)
     autoScroll.pause()
     requestAnimationFrame(() => scrollToMessage(msg, "auto"))
+  })
+
+  // Handle pending assistant message navigation
+  createEffect(() => {
+    const sessionID = params.id
+    const ready = messagesReady()
+    if (!sessionID || !ready) return
+
+    // dependencies
+    messages().length
+    store.turnStart
+
+    const targetId = pendingAssistantMessage()
+    if (!targetId) return
+    if (store.messageId === targetId) return
+
+    const msg = messages().find((m) => m.id === targetId)
+    if (!msg) return
+    if (pendingAssistantMessage() === targetId) setPendingAssistantMessage(undefined)
+    requestAnimationFrame(() => scrollToAnyMessage(targetId, "auto"))
   })
 
   createEffect(() => {

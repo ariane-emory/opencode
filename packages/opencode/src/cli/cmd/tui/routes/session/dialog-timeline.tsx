@@ -319,7 +319,7 @@ export function DialogTimeline(props: {
             const messageID = option.value
             const message = sync.message[props.sessionID]?.find((m) => m.id === messageID)
             const parts = sync.part[messageID] ?? []
-  
+
             if (message && message.role === "assistant") {
               // Store the current selection before opening details
               timelineSelection = messageID

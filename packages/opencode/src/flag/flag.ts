@@ -3,31 +3,30 @@ function truthy(key: string) {
   return value === "true" || value === "1"
 }
 
+function number(key: string) {
+  const value = process.env[key]
+  if (!value) return undefined
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+}
+
+function envWithFallback(newName: string, legacyName: string): string | undefined {
+  return process.env[newName] ?? process.env[legacyName]
+}
+
+function truthyWithFallback(newName: string, legacyName: string): boolean {
+  const value = (process.env[newName] ?? process.env[legacyName])?.toLowerCase()
+  return value === "true" || value === "1"
+}
+
+function numberWithFallback(newName: string, legacyName: string): number | undefined {
+  const value = process.env[newName] ?? process.env[legacyName]
+  if (!value) return undefined
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+}
+
 export namespace Flag {
-// Helper to get env var with new name first, fallback to legacy
-  function envWithFallback(newName: string, legacyName: string): string | undefined {
-    return process.env[newName] ?? process.env[legacyName]
-  }
-
-  function truthyWithFallback(newName: string, legacyName: string): boolean {
-    const value = (process.env[newName] ?? process.env[legacyName])?.toLowerCase()
-    return value === "true" || value === "1"
-  }
-
-  function numberWithFallback(newName: string, legacyName: string): number | undefined {
-    const value = process.env[newName] ?? process.env[legacyName]
-    if (!value) return undefined
-    const parsed = Number(value)
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
-  }
-
-
-  function number(key: string) {
-    const value = process.env[key]
-    if (!value) return undefined
-    const parsed = Number(value)
-    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
-  }
   // New BASE_ONE_* env vars with fallback to OPENCODE_*
   export const BASE_ONE_AUTO_SHARE = truthyWithFallback("BASE_ONE_AUTO_SHARE", "OPENCODE_AUTO_SHARE")
   export const BASE_ONE_GIT_BASH_PATH = envWithFallback("BASE_ONE_GIT_BASH_PATH", "OPENCODE_GIT_BASH_PATH")

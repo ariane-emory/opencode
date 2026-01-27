@@ -1538,7 +1538,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       const timeoutMs = 5 * 60 * 1000
       const timeout = new Promise<Awaited<ReturnType<typeof WorktreeState.wait>>>((resolve) => {
         setTimeout(() => {
-          resolve({ status: "failed", message: "Workspace is still preparing" })
+          resolve({ status: "failed", message: language.t("workspace.error.stillPreparing") })
         }, timeoutMs)
       })
 
@@ -1854,7 +1854,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
           <Show when={!prompt.dirty()}>
             <div class="absolute top-0 inset-x-0 p-3 pr-12 text-14-regular text-text-weak pointer-events-none whitespace-nowrap truncate">
               {store.mode === "shell"
-                ? "Enter shell command..."
+                ? language.t("prompt.placeholder.shell")
                 : `${PLACEHOLDERS[store.placeholder]}`}
             </div>
           </Show>

@@ -194,6 +194,14 @@ export namespace Session {
           })
         }
       }
+
+      // Inherit bookmark status from original session
+      if (original.time.pinned !== undefined) {
+        await update(session.id, (draft) => {
+          draft.time.pinned = original.time.pinned
+        }, { touch: false })
+      }
+
       return session
     },
   )

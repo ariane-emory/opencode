@@ -3,13 +3,6 @@ function truthy(key: string) {
   return value === "true" || value === "1"
 }
 
-function number(key: string) {
-  const value = process.env[key]
-  if (!value) return undefined
-  const parsed = Number(value)
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
-}
-
 function envWithFallback(newName: string, legacyName: string): string | undefined {
   return process.env[newName] ?? process.env[legacyName]
 }
@@ -67,6 +60,7 @@ export namespace Flag {
   export const BASE_ONE_EXPERIMENTAL_LSP_TY = truthyWithFallback("BASE_ONE_EXPERIMENTAL_LSP_TY", "OPENCODE_EXPERIMENTAL_LSP_TY")
   export const BASE_ONE_EXPERIMENTAL_LSP_TOOL = BASE_ONE_EXPERIMENTAL || truthyWithFallback("BASE_ONE_EXPERIMENTAL_LSP_TOOL", "OPENCODE_EXPERIMENTAL_LSP_TOOL")
   export const BASE_ONE_EXPERIMENTAL_PLAN_MODE = BASE_ONE_EXPERIMENTAL || truthyWithFallback("BASE_ONE_EXPERIMENTAL_PLAN_MODE", "OPENCODE_EXPERIMENTAL_PLAN_MODE")
+  export const BASE_ONE_EXPERIMENTAL_MARKDOWN = truthyWithFallback("BASE_ONE_EXPERIMENTAL_MARKDOWN", "OPENCODE_EXPERIMENTAL_MARKDOWN")
 
   // Legacy aliases for backwards compatibility during migration
   export const OPENCODE_AUTO_SHARE = BASE_ONE_AUTO_SHARE
@@ -102,6 +96,7 @@ export namespace Flag {
   export const OPENCODE_EXPERIMENTAL_LSP_TY = BASE_ONE_EXPERIMENTAL_LSP_TY
   export const OPENCODE_EXPERIMENTAL_LSP_TOOL = BASE_ONE_EXPERIMENTAL_LSP_TOOL
   export const OPENCODE_EXPERIMENTAL_PLAN_MODE = BASE_ONE_EXPERIMENTAL_PLAN_MODE
+  export const OPENCODE_EXPERIMENTAL_MARKDOWN = BASE_ONE_EXPERIMENTAL_MARKDOWN
   export const OPENCODE_DISABLE_FILETIME_CHECK = truthy("OPENCODE_DISABLE_FILETIME_CHECK")
   export const OPENCODE_MODELS_URL = process.env["OPENCODE_MODELS_URL"]
 }

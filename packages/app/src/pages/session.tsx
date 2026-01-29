@@ -1581,12 +1581,19 @@ export default function Page() {
         return
       }
 
-      if (msg.role === "assistant") {
+      // Check if message exists in all messages (including hidden ones)
+      const allMsg = messages().find((m) => m.id === match[1])
+      if (!allMsg) {
+        if (visibleUserMessages().find((m) => m.id === match[1])) return
+        return
+      }
+
+      if (allMsg.role === "assistant") {
         setPendingAssistantMessage(match[1])
         return
       }
 
-      scrollToMessage(msg as UserMessage, behavior)
+      scrollToMessage(allMsg as UserMessage, behavior)
       return
     }
 

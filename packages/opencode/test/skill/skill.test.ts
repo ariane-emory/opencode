@@ -95,6 +95,38 @@ description: Second test skill.
   })
 })
 
+test("discovers skills from .opencode/skills/ (plural) directory", async () => {
+  await using tmp = await tmpdir({
+    git: true,
+    init: async (dir) => {
+      const skillDir = path.join(dir, ".opencode", "skills", "plural-test-skill")
+      await Bun.write(
+        path.join(skillDir, "SKILL.md"),
+        `---
+name: plural-test-skill
+description: A test skill in the plural skills directory.
+---
+
+# Plural Test Skill
+
+Instructions here.
+`,
+      )
+    },
+  })
+
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const skills = await Skill.all()
+      expect(skills.length).toBe(1)
+      const testSkill = skills.find((s) => s.name === "plural-test-skill")
+      expect(testSkill).toBeDefined()
+      expect(testSkill!.location).toContain("skills/plural-test-skill/SKILL.md")
+    },
+  })
+})
+
 test("skips skills with missing frontmatter", async () => {
   await using tmp = await tmpdir({
     git: true,

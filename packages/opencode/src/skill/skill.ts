@@ -117,6 +117,7 @@ export namespace Skill {
         absolute: true,
         onlyFiles: true,
         followSymlinks: true,
+        dot: true,
       })) {
         await addSkill(match)
       }

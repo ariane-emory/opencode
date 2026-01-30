@@ -25,6 +25,89 @@ const TOOL: Record<string, [string, string]> = {
   websearch: ["Search", UI.Style.TEXT_DIM_BOLD],
 }
 
+type RunArgs = {
+  message: string[]
+  "--"?: string[]
+  command?: string
+  continue?: boolean
+  session?: string
+  share?: boolean
+  model?: string
+  agent?: string
+  format?: string
+  file?: string[]
+  title?: string
+  attach?: string
+  port?: number
+  variant?: string
+  "fork-session"?: boolean
+}
+
+async function resolveSessionID(
+  sdk: OpencodeClient,
+  args: RunArgs,
+  message: string,
+): Promise<string | undefined> {
+  if (args.continue) {
+    const result = await sdk.session.list()
+    return result.data?.find((s) => !s.parentID)?.id
+  }
+  if (args.session) return args.session
+
+  const title =
+    args.title !== undefined
+      ? args.title === ""
+        ? message.slice(0, 50) + (message.length > 50 ? "..." : "")
+        : args.title
+      : undefined
+
+  const result = await sdk.session.create(
+    title
+      ? {
+          title,
+          permission: [
+            {
+              permission: "question",
+              action: "deny",
+              pattern: "*",
+            },
+          ],
+        }
+      : {
+          permission: [
+            {
+              permission: "question",
+              action: "deny",
+              pattern: "*",
+            },
+          ],
+        },
+  )
+  return result.data?.id
+}
+
+async function getOrCreateSession(
+  sdk: OpencodeClient,
+  args: RunArgs,
+  message: string,
+): Promise<string | undefined> {
+  const sessionID = await resolveSessionID(sdk, args, message)
+
+  if (!sessionID) return undefined
+
+  if (args["fork-session"]) {
+    if (!args.continue && !args.session) {
+      UI.error("--fork-session must be used with --continue or --session")
+      process.exit(1)
+    }
+
+    const forkResult = await sdk.session.fork({ sessionID })
+    return forkResult.data?.id
+  }
+
+  return sessionID
+}
+
 export const RunCommand = cmd({
   command: "run [message..]",
   describe: "run opencode with a message",
@@ -90,6 +173,10 @@ export const RunCommand = cmd({
       .option("variant", {
         type: "string",
         describe: "model variant (provider-specific reasoning effort, e.g., high, max, minimal)",
+      })
+      .option("fork-session", {
+        type: "boolean",
+        describe: "fork the session before continuing (use with --continue or --session)",
       })
   },
   handler: async (args) => {
@@ -278,44 +365,7 @@ export const RunCommand = cmd({
     if (args.attach) {
       const sdk = createOpencodeClient({ baseUrl: args.attach })
 
-      const sessionID = await (async () => {
-        if (args.continue) {
-          const result = await sdk.session.list()
-          return result.data?.find((s) => !s.parentID)?.id
-        }
-        if (args.session) return args.session
-
-        const title =
-          args.title !== undefined
-            ? args.title === ""
-              ? message.slice(0, 50) + (message.length > 50 ? "..." : "")
-              : args.title
-            : undefined
-
-        const result = await sdk.session.create(
-          title
-            ? {
-                title,
-                permission: [
-                  {
-                    permission: "question",
-                    action: "deny",
-                    pattern: "*",
-                  },
-                ],
-              }
-            : {
-                permission: [
-                  {
-                    permission: "question",
-                    action: "deny",
-                    pattern: "*",
-                  },
-                ],
-              },
-        )
-        return result.data?.id
-      })()
+      const sessionID = await getOrCreateSession(sdk, args, message)
 
       if (!sessionID) {
         UI.error("Session not found")
@@ -353,23 +403,7 @@ export const RunCommand = cmd({
         }
       }
 
-      const sessionID = await (async () => {
-        if (args.continue) {
-          const result = await sdk.session.list()
-          return result.data?.find((s) => !s.parentID)?.id
-        }
-        if (args.session) return args.session
-
-        const title =
-          args.title !== undefined
-            ? args.title === ""
-              ? message.slice(0, 50) + (message.length > 50 ? "..." : "")
-              : args.title
-            : undefined
-
-        const result = await sdk.session.create(title ? { title } : {})
-        return result.data?.id
-      })()
+      const sessionID = await getOrCreateSession(sdk, args, message)
 
       if (!sessionID) {
         UI.error("Session not found")

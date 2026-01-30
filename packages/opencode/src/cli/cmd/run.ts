@@ -283,15 +283,21 @@ export const RunCommand = cmd({
       const sdk = createOpencodeClient({ baseUrl: args.attach })
 
       const sessionID = await (async () => {
-        if (args.continue || args.session) {
-          const sourceSessionID = args.continue
-            ? (await sdk.session.list()).data?.find((s) => !s.parentID)?.id
-            : args.session
-          if (args.forkSession && sourceSessionID) {
-            const forkResult = await sdk.session.fork({ sessionID: sourceSessionID })
+        if (args.continue) {
+          const result = await sdk.session.list()
+          const sessionID = result.data?.find((s) => !s.parentID)?.id
+          if (args.forkSession && sessionID) {
+            const forkResult = await sdk.session.fork({ sessionID })
             return forkResult.data?.id
           }
-          return sourceSessionID
+          return sessionID
+        }
+        if (args.session) {
+          if (args.forkSession) {
+            const forkResult = await sdk.session.fork({ sessionID: args.session })
+            return forkResult.data?.id
+          }
+          return args.session
         }
 
         const title =
@@ -363,15 +369,21 @@ export const RunCommand = cmd({
       }
 
       const sessionID = await (async () => {
-        if (args.continue || args.session) {
-          const sourceSessionID = args.continue
-            ? (await sdk.session.list()).data?.find((s) => !s.parentID)?.id
-            : args.session
-          if (args.forkSession && sourceSessionID) {
-            const forkResult = await sdk.session.fork({ sessionID: sourceSessionID })
+        if (args.continue) {
+          const result = await sdk.session.list()
+          const sessionID = result.data?.find((s) => !s.parentID)?.id
+          if (args.forkSession && sessionID) {
+            const forkResult = await sdk.session.fork({ sessionID })
             return forkResult.data?.id
           }
-          return sourceSessionID
+          return sessionID
+        }
+        if (args.session) {
+          if (args.forkSession) {
+            const forkResult = await sdk.session.fork({ sessionID: args.session })
+            return forkResult.data?.id
+          }
+          return args.session
         }
 
         const title =

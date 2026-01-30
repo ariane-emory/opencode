@@ -258,26 +258,39 @@ function App() {
 
   let continued = false
   createEffect(() => {
-    // When using -c, session list is loaded in blocking phase, so we can navigate at "partial"
-    if (continued || sync.status === "loading" || (!args.continue && !args.sessionID)) return
+    if (continued || sync.status === "loading") return
 
-    const match = args.sessionID
-      ? args.sessionID
-      : sync.data.session
-          .toSorted((a, b) => b.time.updated - a.time.updated)
-          .find((x) => x.parentID === undefined)?.id
+    if (args.continue) {
+      const match = sync.data.session
+        .toSorted((a, b) => b.time.updated - a.time.updated)
+        .find((x) => x.parentID === undefined)?.id
 
-    if (match) {
-      continued = true
+      if (match) {
+        continued = true
+        if (args.forkSession) {
+          sdk.client.session.fork({ sessionID: match }).then((forkResult) => {
+            if (forkResult.data) {
+              route.navigate({ type: "session", sessionID: forkResult.data.id })
+            }
+          })
+        } else {
+          route.navigate({ type: "session", sessionID: match })
+        }
+      }
+      return
+    }
+
+    if (args.sessionID) {
       if (args.forkSession) {
-        sdk.client.session.fork({ sessionID: match }).then((forkResult) => {
+        sdk.client.session.fork({ sessionID: args.sessionID }).then((forkResult) => {
           if (forkResult.data) {
             route.navigate({ type: "session", sessionID: forkResult.data.id })
           }
         })
       } else {
-        route.navigate({ type: "session", sessionID: match })
+        route.navigate({ type: "session", sessionID: args.sessionID })
       }
+      return
     }
   })
 

@@ -1236,7 +1236,9 @@ export namespace Config {
       })
     }
 
-    const parsed = Info.safeParse(data)
+    const dataWithImports = await resolveImportsInObject(data, configFilepath)
+
+    const parsed = Info.safeParse(dataWithImports)
     if (parsed.success) {
       if (!parsed.data.$schema) {
         parsed.data.$schema = "https://opencode.ai/config.json"
@@ -1314,6 +1316,69 @@ export namespace Config {
 
   function isRecord(value: unknown): value is Record<string, unknown> {
     return !!value && typeof value === "object" && !Array.isArray(value)
+  }
+
+  async function resolveImportsInObject(
+    obj: unknown,
+    configFilepath: string,
+    importChain = new Set<string>(),
+  ): Promise<unknown> {
+    if (typeof obj === "string") {
+      const importMatch = obj.match(/^\{import:([^}]+)\}$/)
+      if (importMatch) {
+        let filePath = importMatch[1]
+        if (filePath.startsWith("~/")) {
+          filePath = path.join(os.homedir(), filePath.slice(2))
+        }
+        const configDir = path.dirname(configFilepath)
+        const resolvedPath = path.isAbsolute(filePath) ? filePath : path.resolve(configDir, filePath)
+        if (importChain.has(resolvedPath)) {
+          throw new InvalidError({
+            path: configFilepath,
+            message: `circular import detected: "${obj}" -> ${resolvedPath}`,
+          })
+        }
+        const fileContent = await Bun.file(resolvedPath)
+          .text()
+          .catch((error) => {
+            const errMsg = `bad import reference: "${obj}"`
+            if (error.code === "ENOENT") {
+              throw new InvalidError(
+                {
+                  path: configFilepath,
+                  message: errMsg + ` ${resolvedPath} does not exist`,
+                },
+                { cause: error },
+              )
+            }
+            throw new InvalidError({ path: configFilepath, message: errMsg }, { cause: error })
+          })
+        const nestedImportChain = new Set(importChain)
+        nestedImportChain.add(resolvedPath)
+        let parsedContent: unknown
+        try {
+          parsedContent = JSON.parse(fileContent)
+        } catch (error) {
+          throw new InvalidError({
+            path: configFilepath,
+            message: `bad import reference: "${obj}" -> ${resolvedPath} contains invalid JSON`,
+          })
+        }
+        return resolveImportsInObject(parsedContent, resolvedPath, nestedImportChain)
+      }
+      return obj
+    }
+    if (Array.isArray(obj)) {
+      return Promise.all(obj.map((item) => resolveImportsInObject(item, configFilepath, importChain)))
+    }
+    if (isRecord(obj)) {
+      const result: Record<string, unknown> = {}
+      for (const [key, value] of Object.entries(obj)) {
+        result[key] = await resolveImportsInObject(value, configFilepath, importChain)
+      }
+      return result
+    }
+    return obj
   }
 
   function patchJsonc(input: string, patch: unknown, path: string[] = []): string {

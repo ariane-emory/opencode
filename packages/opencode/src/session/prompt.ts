@@ -1594,7 +1594,70 @@ NOTE: At any point in time through this workflow you should feel free to ask the
   // Match [Image N] as single token, quoted strings, or non-space sequences
   const argsRegex = /(?:\[Image\s+\d+\]|"[^"]*"|'[^']*'|[^\s"']+)/gi
   const placeholderRegex = /\$(\d+)/g
+  // Matches: ${N}, ${N:M}, ${:M}, ${N:}, ${:}
+  // Group 1: start index (optional), Group 2: colon+end (e.g., ":3" or ":" or undefined)
+  const extendedPlaceholderRegex = /\$\{(\d*)(:\d*)?\}/g
   const quoteTrimRegex = /^["']|["']$/g
+
+  export function substituteArguments(
+    template: string,
+    args: string[],
+  ): { result: string; hasPlaceholders: boolean } {
+    // Find all placeholders ($N and ${...}) to determine the last one for swallowing behavior
+    const simplePlaceholders = template.match(placeholderRegex) ?? []
+    const extendedPlaceholders = template.match(extendedPlaceholderRegex) ?? []
+
+    let last = 0
+    for (const item of simplePlaceholders) {
+      const value = Number(item.slice(1))
+      if (value > last) last = value
+    }
+    for (const item of extendedPlaceholders) {
+      // Extract the start index from ${start:end} or ${start}
+      const match = item.match(/\$\{(\d*)/)
+      if (match) {
+        const value = match[1] ? Number(match[1]) : 1
+        if (value > last) last = value
+      }
+    }
+
+    // Process extended placeholders ${...} first, then simple $N placeholders
+    let withArgs = template.replaceAll(extendedPlaceholderRegex, (_, start, colonAndEnd) => {
+      const startIndex = start ? Number(start) : 1
+      // colonAndEnd is either undefined (for ${N}), ":" (for ${N:}), ":3" (for ${N:3} or ${:3})
+      const hasColon = colonAndEnd !== undefined
+      const endIndex = hasColon
+        ? colonAndEnd.length > 1
+          ? Number(colonAndEnd.slice(1))
+          : undefined
+        : undefined
+      const isLast = startIndex === last
+      const argStart = startIndex - 1
+      if (argStart >= args.length) return ""
+      // Determine the actual end index:
+      // - If explicit endIndex is provided, use it
+      // - If this is the last placeholder and no explicit end, swallow remaining (undefined)
+      // - Otherwise, return just the single element at startIndex
+      const actualEndIndex = endIndex !== undefined ? endIndex : isLast ? undefined : startIndex
+      const slice = args.slice(argStart, actualEndIndex)
+      const nonEmpty = slice.filter((arg) => arg.trim() !== "")
+      return nonEmpty.join(" ")
+    })
+
+    // Process simple $N placeholders - these DO have swallowing behavior for the last one
+    withArgs = withArgs.replaceAll(placeholderRegex, (_, index) => {
+      const position = Number(index)
+      const argIndex = position - 1
+      if (argIndex >= args.length) return ""
+      if (position === last) return args.slice(argIndex).join(" ")
+      return args[argIndex]
+    })
+
+    const hasPlaceholders =
+      simplePlaceholders.length > 0 || extendedPlaceholders.length > 0
+
+    return { result: withArgs, hasPlaceholders }
+  }
   /**
    * Regular expression to match @ file references in text
    * Matches @ followed by file paths, excluding commas, periods at end of sentences, and backticks
@@ -1611,27 +1674,17 @@ NOTE: At any point in time through this workflow you should feel free to ask the
 
     const templateCommand = await command.template
 
-    const placeholders = templateCommand.match(placeholderRegex) ?? []
-    let last = 0
-    for (const item of placeholders) {
-      const value = Number(item.slice(1))
-      if (value > last) last = value
-    }
+    const { result: withArgs, hasPlaceholders } = substituteArguments(
+      templateCommand,
+      args,
+    )
 
-    // Let the final placeholder swallow any extra arguments so prompts read naturally
-    const withArgs = templateCommand.replaceAll(placeholderRegex, (_, index) => {
-      const position = Number(index)
-      const argIndex = position - 1
-      if (argIndex >= args.length) return ""
-      if (position === last) return args.slice(argIndex).join(" ")
-      return args[argIndex]
-    })
     const usesArgumentsPlaceholder = templateCommand.includes("$ARGUMENTS")
     let template = withArgs.replaceAll("$ARGUMENTS", input.arguments)
 
-    // If command doesn't explicitly handle arguments (no $N or $ARGUMENTS placeholders)
+    // If command doesn't explicitly handle arguments (no $N, ${...}, or $ARGUMENTS placeholders)
     // but user provided arguments, append them to the template
-    if (placeholders.length === 0 && !usesArgumentsPlaceholder && input.arguments.trim()) {
+    if (!hasPlaceholders && !usesArgumentsPlaceholder && input.arguments.trim()) {
       template = template + "\n\n" + input.arguments
     }
 

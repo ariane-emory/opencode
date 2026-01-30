@@ -1603,25 +1603,19 @@ NOTE: At any point in time through this workflow you should feel free to ask the
     template: string,
     args: string[],
   ): { result: string; hasPlaceholders: boolean } {
-    // Find all placeholders ($N and ${...}) to determine the last one for swallowing behavior
+    // Find all placeholders ($N and ${...})
     const simplePlaceholders = template.match(placeholderRegex) ?? []
     const extendedPlaceholders = template.match(extendedPlaceholderRegex) ?? []
 
-    let last = 0
+    // Only $N placeholders have swallowing behavior - find the last one
+    let lastSimple = 0
     for (const item of simplePlaceholders) {
       const value = Number(item.slice(1))
-      if (value > last) last = value
-    }
-    for (const item of extendedPlaceholders) {
-      // Extract the start index from ${start:end} or ${start}
-      const match = item.match(/\$\{(\d*)/)
-      if (match) {
-        const value = match[1] ? Number(match[1]) : 1
-        if (value > last) last = value
-      }
+      if (value > lastSimple) lastSimple = value
     }
 
     // Process extended placeholders ${...} first, then simple $N placeholders
+    // ${N} syntax NEVER swallows - use ${N:} for open-ended slice
     let withArgs = template.replaceAll(extendedPlaceholderRegex, (_, start, colonAndEnd) => {
       const startIndex = start ? Number(start) : 1
       // colonAndEnd is either undefined (for ${N}), ":" (for ${N:}), ":3" (for ${N:3} or ${:3})
@@ -1631,14 +1625,12 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           ? Number(colonAndEnd.slice(1))
           : undefined
         : undefined
-      const isLast = startIndex === last
       const argStart = startIndex - 1
       if (argStart >= args.length) return ""
-      // Determine the actual end index:
-      // - If explicit endIndex is provided, use it
-      // - If this is the last placeholder and no explicit end, swallow remaining (undefined)
-      // - Otherwise, return just the single element at startIndex
-      const actualEndIndex = endIndex !== undefined ? endIndex : isLast ? undefined : startIndex
+      // ${N} without colon: single argument only
+      // ${N:} with colon but no end: slice to end (open-ended)
+      // ${N:M} with both: slice from N to M
+      const actualEndIndex = hasColon ? endIndex : startIndex
       const slice = args.slice(argStart, actualEndIndex)
       const nonEmpty = slice.filter((arg) => arg.trim() !== "")
       return nonEmpty.join(" ")
@@ -1649,7 +1641,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       const position = Number(index)
       const argIndex = position - 1
       if (argIndex >= args.length) return ""
-      if (position === last) return args.slice(argIndex).join(" ")
+      if (position === lastSimple) return args.slice(argIndex).join(" ")
       return args[argIndex]
     })
 

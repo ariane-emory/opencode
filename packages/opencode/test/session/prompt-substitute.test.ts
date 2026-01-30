@@ -2,15 +2,15 @@ import { describe, expect, test } from "bun:test"
 import { SessionPrompt } from "../../src/session/prompt"
 
 describe("SessionPrompt.substituteArguments", () => {
-  test("${1} as only placeholder should swallow remaining args", () => {
+  test("${1} should return single argument (no swallowing)", () => {
     const result = SessionPrompt.substituteArguments("Hello ${1}", ["foo", "bar", "baz"])
-    expect(result.result).toBe("Hello foo bar baz")
+    expect(result.result).toBe("Hello foo")
     expect(result.hasPlaceholders).toBe(true)
   })
 
-  test("${2} as only placeholder should swallow remaining args", () => {
+  test("${2} should return single argument (no swallowing)", () => {
     const result = SessionPrompt.substituteArguments("Hello ${2}", ["foo", "bar", "baz"])
-    expect(result.result).toBe("Hello bar baz")
+    expect(result.result).toBe("Hello bar")
   })
 
   test("${2:3} should return 2nd and 3rd arguments joined by space", () => {
@@ -38,16 +38,22 @@ describe("SessionPrompt.substituteArguments", () => {
     expect(result.result).toBe("Hello foo bar baz")
   })
 
-  test("${1} should be equivalent to $1", () => {
-    const extended = SessionPrompt.substituteArguments("Hello ${1}", ["foo", "bar"])
-    const simple = SessionPrompt.substituteArguments("Hello $1", ["foo", "bar"])
-    expect(extended.result).toBe(simple.result)
+  test("$1 should swallow remaining args (backward compatibility)", () => {
+    const result = SessionPrompt.substituteArguments("Hello $1", ["foo", "bar", "baz"])
+    expect(result.result).toBe("Hello foo bar baz")
   })
 
-  test("${2} should be equivalent to $2", () => {
-    const extended = SessionPrompt.substituteArguments("Hello ${2}", ["foo", "bar"])
-    const simple = SessionPrompt.substituteArguments("Hello $2", ["foo", "bar"])
-    expect(extended.result).toBe(simple.result)
+  test("$2 should swallow remaining args (backward compatibility)", () => {
+    const result = SessionPrompt.substituteArguments("Hello $2", ["foo", "bar", "baz"])
+    expect(result.result).toBe("Hello bar baz")
+  })
+
+  test("${1} should NOT swallow - different from $1", () => {
+    const extended = SessionPrompt.substituteArguments("Hello ${1}", ["foo", "bar"])
+    const simple = SessionPrompt.substituteArguments("Hello $1", ["foo", "bar"])
+    expect(extended.result).toBe("Hello foo")
+    expect(simple.result).toBe("Hello foo bar")
+    expect(extended.result).not.toBe(simple.result)
   })
 
   test("mixed syntax should work together", () => {
@@ -57,7 +63,7 @@ describe("SessionPrompt.substituteArguments", () => {
       "c",
       "d",
     ])
-    expect(result.result).toBe("First: a, Second: b, Rest: c d")
+    expect(result.result).toBe("First: a, Second: b c d, Rest: c d")
   })
 
   test("out of bounds should return empty string", () => {
@@ -70,12 +76,12 @@ describe("SessionPrompt.substituteArguments", () => {
     expect(result.result).toBe("Hello  and ")
   })
 
-  test("last placeholder should swallow remaining arguments", () => {
+  test("$N syntax: last placeholder should swallow remaining arguments", () => {
     const result = SessionPrompt.substituteArguments("First: $1, Rest: $2", ["a", "b", "c", "d"])
     expect(result.result).toBe("First: a, Rest: b c d")
   })
 
-  test("last extended placeholder with open end should swallow remaining", () => {
+  test("${N:} syntax: open end should include remaining arguments", () => {
     const result = SessionPrompt.substituteArguments("First: ${1}, Rest: ${2:}", ["a", "b", "c", "d"])
     expect(result.result).toBe("First: a, Rest: b c d")
   })

@@ -64,6 +64,10 @@ export const TuiThreadCommand = cmd({
         type: "string",
         describe: "session id to continue",
       })
+      .option("fork-session", {
+        type: "boolean",
+        describe: "fork the session when continuing (use with --continue or --session)",
+      })
       .option("prompt", {
         type: "string",
         describe: "prompt to use",
@@ -147,6 +151,7 @@ export const TuiThreadCommand = cmd({
       args: {
         continue: args.continue,
         sessionID: args.session,
+        forkSession: args.forkSession,
         agent: args.agent,
         model: args.model,
         prompt,

@@ -259,13 +259,25 @@ function App() {
   let continued = false
   createEffect(() => {
     // When using -c, session list is loaded in blocking phase, so we can navigate at "partial"
-    if (continued || sync.status === "loading" || !args.continue) return
-    const match = sync.data.session
-      .toSorted((a, b) => b.time.updated - a.time.updated)
-      .find((x) => x.parentID === undefined)?.id
+    if (continued || sync.status === "loading" || (!args.continue && !args.sessionID)) return
+
+    const match = args.sessionID
+      ? args.sessionID
+      : sync.data.session
+          .toSorted((a, b) => b.time.updated - a.time.updated)
+          .find((x) => x.parentID === undefined)?.id
+
     if (match) {
       continued = true
-      route.navigate({ type: "session", sessionID: match })
+      if (args.forkSession) {
+        sdk.client.session.fork({ sessionID: match }).then((forkResult) => {
+          if (forkResult.data) {
+            route.navigate({ type: "session", sessionID: forkResult.data.id })
+          }
+        })
+      } else {
+        route.navigate({ type: "session", sessionID: match })
+      }
     }
   })
 

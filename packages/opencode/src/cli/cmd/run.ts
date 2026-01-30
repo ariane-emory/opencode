@@ -50,6 +50,10 @@ export const RunCommand = cmd({
         describe: "session id to continue",
         type: "string",
       })
+      .option("fork-session", {
+        type: "boolean",
+        describe: "fork the session when continuing (use with --continue or --session)",
+      })
       .option("share", {
         type: "boolean",
         describe: "share the session",
@@ -279,11 +283,16 @@ export const RunCommand = cmd({
       const sdk = createOpencodeClient({ baseUrl: args.attach })
 
       const sessionID = await (async () => {
-        if (args.continue) {
-          const result = await sdk.session.list()
-          return result.data?.find((s) => !s.parentID)?.id
+        if (args.continue || args.session) {
+          const sourceSessionID = args.continue
+            ? (await sdk.session.list()).data?.find((s) => !s.parentID)?.id
+            : args.session
+          if (args.forkSession && sourceSessionID) {
+            const forkResult = await sdk.session.fork({ sessionID: sourceSessionID })
+            return forkResult.data?.id
+          }
+          return sourceSessionID
         }
-        if (args.session) return args.session
 
         const title =
           args.title !== undefined
@@ -354,11 +363,16 @@ export const RunCommand = cmd({
       }
 
       const sessionID = await (async () => {
-        if (args.continue) {
-          const result = await sdk.session.list()
-          return result.data?.find((s) => !s.parentID)?.id
+        if (args.continue || args.session) {
+          const sourceSessionID = args.continue
+            ? (await sdk.session.list()).data?.find((s) => !s.parentID)?.id
+            : args.session
+          if (args.forkSession && sourceSessionID) {
+            const forkResult = await sdk.session.fork({ sessionID: sourceSessionID })
+            return forkResult.data?.id
+          }
+          return sourceSessionID
         }
-        if (args.session) return args.session
 
         const title =
           args.title !== undefined

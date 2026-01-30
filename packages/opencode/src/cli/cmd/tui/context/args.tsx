@@ -6,6 +6,7 @@ export interface Args {
   prompt?: string
   continue?: boolean
   sessionID?: string
+  forkSession?: boolean
 }
 
 export const { use: useArgs, provider: ArgsProvider } = createSimpleContext({

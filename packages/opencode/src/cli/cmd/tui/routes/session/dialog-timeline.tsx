@@ -165,6 +165,9 @@ export function DialogTimeline(props: {
 
       const summary = getMessageSummary(parts)
 
+      // Skip messages with no content
+      if (summary === "[no content]") continue
+
       // Debug: Extract token breakdown for assistant messages
       let tokenDebug = ""
       if (message.role === "assistant") {

@@ -1212,6 +1212,9 @@ export namespace Config {
       }
     }
 
+    // Process {import:...} substitutions - raw JSON injection before parsing
+    text = await resolveImports(text, configFilepath)
+
     const errors: JsoncParseError[] = []
     const data = parseJsonc(text, errors, { allowTrailingComma: true })
     if (errors.length) {
@@ -1236,9 +1239,7 @@ export namespace Config {
       })
     }
 
-    const dataWithImports = await resolveImportsInObject(data, configFilepath)
-
-    const parsed = Info.safeParse(dataWithImports)
+    const parsed = Info.safeParse(data)
     if (parsed.success) {
       if (!parsed.data.$schema) {
         parsed.data.$schema = "https://opencode.ai/config.json"
@@ -1318,67 +1319,62 @@ export namespace Config {
     return !!value && typeof value === "object" && !Array.isArray(value)
   }
 
-  async function resolveImportsInObject(
-    obj: unknown,
+  async function resolveImports(
+    text: string,
     configFilepath: string,
     importChain = new Set<string>(),
-  ): Promise<unknown> {
-    if (typeof obj === "string") {
-      const importMatch = obj.match(/^\{import:([^}]+)\}$/)
-      if (importMatch) {
-        let filePath = importMatch[1]
-        if (filePath.startsWith("~/")) {
-          filePath = path.join(os.homedir(), filePath.slice(2))
-        }
-        const configDir = path.dirname(configFilepath)
-        const resolvedPath = path.isAbsolute(filePath) ? filePath : path.resolve(configDir, filePath)
-        if (importChain.has(resolvedPath)) {
-          throw new InvalidError({
-            path: configFilepath,
-            message: `circular import detected: "${obj}" -> ${resolvedPath}`,
-          })
-        }
-        const fileContent = await Bun.file(resolvedPath)
-          .text()
-          .catch((error) => {
-            const errMsg = `bad import reference: "${obj}"`
-            if (error.code === "ENOENT") {
-              throw new InvalidError(
-                {
-                  path: configFilepath,
-                  message: errMsg + ` ${resolvedPath} does not exist`,
-                },
-                { cause: error },
-              )
-            }
-            throw new InvalidError({ path: configFilepath, message: errMsg }, { cause: error })
-          })
-        const nestedImportChain = new Set(importChain)
-        nestedImportChain.add(resolvedPath)
-        let parsedContent: unknown
-        try {
-          parsedContent = JSON.parse(fileContent)
-        } catch (error) {
-          throw new InvalidError({
-            path: configFilepath,
-            message: `bad import reference: "${obj}" -> ${resolvedPath} contains invalid JSON`,
-          })
-        }
-        return resolveImportsInObject(parsedContent, resolvedPath, nestedImportChain)
+  ): Promise<string> {
+    const importMatches = text.match(/\{import:[^}]+\}/g)
+    if (!importMatches) return text
+
+    const configDir = path.dirname(configFilepath)
+    const lines = text.split("\n")
+
+    for (const match of importMatches) {
+      const lineIndex = lines.findIndex((line) => line.includes(match))
+      if (lineIndex !== -1 && lines[lineIndex].trim().startsWith("//")) {
+        continue // Skip if line is commented
       }
-      return obj
-    }
-    if (Array.isArray(obj)) {
-      return Promise.all(obj.map((item) => resolveImportsInObject(item, configFilepath, importChain)))
-    }
-    if (isRecord(obj)) {
-      const result: Record<string, unknown> = {}
-      for (const [key, value] of Object.entries(obj)) {
-        result[key] = await resolveImportsInObject(value, configFilepath, importChain)
+
+      let filePath = match.replace(/^\{import:/, "").replace(/\}$/, "")
+      if (filePath.startsWith("~/")) {
+        filePath = path.join(os.homedir(), filePath.slice(2))
       }
-      return result
+      const resolvedPath = path.isAbsolute(filePath) ? filePath : path.resolve(configDir, filePath)
+
+      if (importChain.has(resolvedPath)) {
+        throw new InvalidError({
+          path: configFilepath,
+          message: `circular import detected: "${match}" -> ${resolvedPath}`,
+        })
+      }
+
+      const fileContent = await Bun.file(resolvedPath)
+        .text()
+        .catch((error) => {
+          const errMsg = `bad import reference: "${match}"`
+          if (error.code === "ENOENT") {
+            throw new InvalidError(
+              {
+                path: configFilepath,
+                message: errMsg + ` ${resolvedPath} does not exist`,
+              },
+              { cause: error },
+            )
+          }
+          throw new InvalidError({ path: configFilepath, message: errMsg }, { cause: error })
+        })
+
+      // Recursively resolve imports in the imported file
+      const nestedChain = new Set(importChain)
+      nestedChain.add(resolvedPath)
+      const resolved = await resolveImports(fileContent.trim(), resolvedPath, nestedChain)
+
+      // Substitute the raw JSON content directly
+      text = text.replace(match, resolved)
     }
-    return obj
+
+    return text
   }
 
   function patchJsonc(input: string, patch: unknown, path: string[] = []): string {

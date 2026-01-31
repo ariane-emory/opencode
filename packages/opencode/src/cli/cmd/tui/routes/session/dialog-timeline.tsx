@@ -276,7 +276,7 @@ export function DialogTimeline(props: {
       options={options()}
       keybind={[
         {
-          keybind: { name: "n", ctrl: false, meta: false, shift: false, leader: false },
+          keybind: { name: "n", ctrl: false, meta: true, shift: false, leader: false },
           title: "Next user",
           onTrigger: (option) => {
             const currentIdx = options().findIndex(opt => opt.value === option.value)
@@ -291,7 +291,7 @@ export function DialogTimeline(props: {
           },
         },
         {
-          keybind: { name: "p", ctrl: false, meta: false, shift: false, leader: false },
+          keybind: { name: "p", ctrl: false, meta: true, shift: false, leader: false },
           title: "Previous user",
           onTrigger: (option) => {
             const currentIdx = options().findIndex(opt => opt.value === option.value)

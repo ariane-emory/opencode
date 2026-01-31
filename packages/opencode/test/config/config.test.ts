@@ -203,12 +203,12 @@ test("handles import substitution with JSON objects", async () => {
           anthropic: { options: { apiKey: "anthropic-key" } },
         }),
       )
-      // Use raw string for unquoted {import:...} syntax
+      // Use raw string for unquoted {import:...} syntax with whitespace
       await Bun.write(
         path.join(dir, "opencode.json"),
         `{
   "$schema": "https://opencode.ai/config.json",
-  "provider": {import:./providers.json}
+  "provider": { import: ./providers.json }
 }`,
       )
     },

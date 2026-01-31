@@ -1324,7 +1324,7 @@ export namespace Config {
     configFilepath: string,
     importChain = new Set<string>(),
   ): Promise<string> {
-    const importMatches = text.match(/\{import:[^}]+\}/g)
+    const importMatches = text.match(/\{\s*import\s*:\s*[^}]+\}/g)
     if (!importMatches) return text
 
     const configDir = path.dirname(configFilepath)
@@ -1336,7 +1336,7 @@ export namespace Config {
         continue // Skip if line is commented
       }
 
-      let filePath = match.replace(/^\{import:/, "").replace(/\}$/, "")
+      let filePath = match.replace(/^\{\s*import\s*:\s*/, "").replace(/\s*\}$/, "")
       if (filePath.startsWith("~/")) {
         filePath = path.join(os.homedir(), filePath.slice(2))
       }

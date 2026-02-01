@@ -3,6 +3,13 @@ function truthy(key: string) {
   return value === "true" || value === "1"
 }
 
+function number(key: string) {
+  const value = process.env[key]
+  if (!value) return undefined
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+}
+
 function envWithFallback(newName: string, legacyName: string): string | undefined {
   return process.env[newName] ?? process.env[legacyName]
 }
@@ -140,6 +147,17 @@ Object.defineProperty(Flag, "OPENCODE_DISABLE_PROJECT_CONFIG", {
 Object.defineProperty(Flag, "OPENCODE_CONFIG_DIR", {
   get() {
     return process.env["OPENCODE_CONFIG_DIR"]
+  },
+  enumerable: true,
+  configurable: false,
+})
+
+// Dynamic getter for OPENCODE_CLIENT
+// This must be evaluated at access time, not module load time,
+// because some commands override the client at runtime
+Object.defineProperty(Flag, "OPENCODE_CLIENT", {
+  get() {
+    return process.env["OPENCODE_CLIENT"] ?? "cli"
   },
   enumerable: true,
   configurable: false,

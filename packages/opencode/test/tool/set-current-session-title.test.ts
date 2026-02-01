@@ -18,6 +18,7 @@ describe("tool.set_current_session_title", () => {
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
+          messages: [],
           metadata: () => {},
           ask: async () => {},
         }
@@ -46,6 +47,7 @@ describe("tool.set_current_session_title", () => {
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
+          messages: [],
           metadata: () => {},
           ask: async () => {},
         }
@@ -68,6 +70,7 @@ describe("tool.set_current_session_title", () => {
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
+          messages: [],
           metadata: () => {},
           ask: async () => {},
         }
@@ -91,6 +94,7 @@ describe("tool.set_current_session_title", () => {
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
+          messages: [],
           metadata: () => {},
           ask: async () => {},
         }
@@ -118,6 +122,7 @@ describe("tool.set_current_session_title", () => {
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
+          messages: [],
           metadata: () => {},
           ask: async () => {},
         }
@@ -145,6 +150,7 @@ describe("tool.set_current_session_title", () => {
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
+          messages: [],
           metadata: () => {},
           ask: async (req: { permission: string }) => {
             requests.push(req)

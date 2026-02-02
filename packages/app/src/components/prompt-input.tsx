@@ -32,7 +32,9 @@ import { useNavigate, useParams } from "@solidjs/router"
 import { useSync } from "@/context/sync"
 import { useComments } from "@/context/comments"
 import { FileIcon } from "@opencode-ai/ui/file-icon"
+import { MorphChevron } from "@opencode-ai/ui/morph-chevron"
 import { Button } from "@opencode-ai/ui/button"
+import { CycleLabel } from "@opencode-ai/ui/cycle-label"
 import { Icon } from "@opencode-ai/ui/icon"
 import { ProviderIcon } from "@opencode-ai/ui/provider-icon"
 import type { IconName } from "@opencode-ai/ui/icons/provider"
@@ -42,6 +44,7 @@ import { Select } from "@opencode-ai/ui/select"
 import { getDirectory, getFilename, getFilenameTruncated } from "@opencode-ai/util/path"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { ImagePreview } from "@opencode-ai/ui/image-preview"
+import { ReasoningIcon } from "@opencode-ai/ui/reasoning-icon"
 import { ModelSelectorPopover } from "@/components/dialog-select-model"
 import { DialogSelectModelUnpaid } from "@/components/dialog-select-model-unpaid"
 import { useProviders } from "@/hooks/use-providers"
@@ -112,6 +115,7 @@ interface SlashCommand {
   description?: string
   keybind?: string
   type: "builtin" | "custom"
+  source?: "command" | "mcp" | "skill"
 }
 
 export const PromptInput: Component<PromptInputProps> = (props) => {
@@ -517,6 +521,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       title: cmd.name,
       description: cmd.description,
       type: "custom" as const,
+      source: cmd.source,
     }))
 
     return [...custom, ...builtin]
@@ -1253,7 +1258,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       clearInput()
       client.session
         .shell({
-          sessionID: session.id,
+          sessionID: session?.id || "",
           agent,
           model,
           command: text,
@@ -1276,7 +1281,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
         clearInput()
         client.session
           .command({
-            sessionID: session.id,
+            sessionID: session?.id || "",
             command: commandName,
             arguments: args.join(" "),
             agent,
@@ -1432,13 +1437,13 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
 
     const optimisticParts = requestParts.map((part) => ({
       ...part,
-      sessionID: session.id,
+      sessionID: session?.id || "",
       messageID,
     })) as unknown as Part[]
 
     const optimisticMessage: Message = {
       id: messageID,
-      sessionID: session.id,
+      sessionID: session?.id || "",
       role: "user",
       time: { created: Date.now() },
       agent,
@@ -1449,9 +1454,9 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       if (sessionDirectory === projectDirectory) {
         sync.set(
           produce((draft) => {
-            const messages = draft.message[session.id]
+            const messages = draft.message[session?.id || ""]
             if (!messages) {
-              draft.message[session.id] = [optimisticMessage]
+              draft.message[session?.id || ""] = [optimisticMessage]
             } else {
               const result = Binary.search(messages, messageID, (m) => m.id)
               messages.splice(result.index, 0, optimisticMessage)
@@ -1467,9 +1472,9 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
 
       globalSync.child(sessionDirectory)[1](
         produce((draft) => {
-          const messages = draft.message[session.id]
+          const messages = draft.message[session?.id || ""]
           if (!messages) {
-            draft.message[session.id] = [optimisticMessage]
+            draft.message[session?.id || ""] = [optimisticMessage]
           } else {
             const result = Binary.search(messages, messageID, (m) => m.id)
             messages.splice(result.index, 0, optimisticMessage)
@@ -1486,7 +1491,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       if (sessionDirectory === projectDirectory) {
         sync.set(
           produce((draft) => {
-            const messages = draft.message[session.id]
+            const messages = draft.message[session?.id || ""]
             if (messages) {
               const result = Binary.search(messages, messageID, (m) => m.id)
               if (result.found) messages.splice(result.index, 1)
@@ -1499,7 +1504,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
 
       globalSync.child(sessionDirectory)[1](
         produce((draft) => {
-          const messages = draft.message[session.id]
+          const messages = draft.message[session?.id || ""]
           if (messages) {
             const result = Binary.search(messages, messageID, (m) => m.id)
             if (result.found) messages.splice(result.index, 1)
@@ -1520,15 +1525,15 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       const worktree = WorktreeState.get(sessionDirectory)
       if (!worktree || worktree.status !== "pending") return true
 
-      if (sessionDirectory === projectDirectory) {
-        sync.set("session_status", session.id, { type: "busy" })
+      if (sessionDirectory === projectDirectory && session?.id) {
+        sync.set("session_status", session?.id, { type: "busy" })
       }
 
       const controller = new AbortController()
 
       const cleanup = () => {
-        if (sessionDirectory === projectDirectory) {
-          sync.set("session_status", session.id, { type: "idle" })
+        if (sessionDirectory === projectDirectory && session?.id) {
+          sync.set("session_status", session?.id, { type: "idle" })
         }
         removeOptimisticMessage()
         for (const item of commentItems) {
@@ -1545,7 +1550,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
         restoreInput()
       }
 
-      pending.set(session.id, { abort: controller, cleanup })
+      pending.set(session?.id || "", { abort: controller, cleanup })
 
       const abort = new Promise<Awaited<ReturnType<typeof WorktreeState.wait>>>((resolve) => {
         if (controller.signal.aborted) {
@@ -1573,7 +1578,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
         if (timer.id === undefined) return
         clearTimeout(timer.id)
       })
-      pending.delete(session.id)
+      pending.delete(session?.id || "")
       if (controller.signal.aborted) return false
       if (result.status === "failed") throw new Error(result.message)
       return true
@@ -1583,7 +1588,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       const ok = await waitForWorktree()
       if (!ok) return
       await client.session.prompt({
-        sessionID: session.id,
+        sessionID: session?.id || "",
         agent,
         model,
         messageID,
@@ -1593,9 +1598,9 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     }
 
     void send().catch((err) => {
-      pending.delete(session.id)
-      if (sessionDirectory === projectDirectory) {
-        sync.set("session_status", session.id, { type: "idle" })
+      pending.delete(session?.id || "")
+      if (sessionDirectory === projectDirectory && session?.id) {
+        sync.set("session_status", session?.id, { type: "idle" })
       }
       showToast({
         title: language.t("prompt.toast.promptSendFailed.title"),
@@ -1616,6 +1621,28 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       restoreInput()
     })
   }
+
+  const currrentModelVariant = createMemo(() => {
+    const modelVariant = local.model.variant.current() ?? ""
+    return modelVariant === "xhigh"
+      ? "xHigh"
+      : modelVariant.length > 0
+        ? modelVariant[0].toUpperCase() + modelVariant.slice(1)
+        : "Default"
+  })
+
+  const reasoningPercentage = createMemo(() => {
+    const variants = local.model.variant.list()
+    const current = local.model.variant.current()
+    const totalEntries = variants.length + 1
+
+    if (totalEntries <= 2 || current === "Default") {
+      return 0
+    }
+
+    const currentIndex = current ? variants.indexOf(current) + 1 : 0
+    return ((currentIndex + 1) / totalEntries) * 100
+  }, [local.model.variant])
 
   return (
     <div class="relative size-full _max-h-[320px] flex flex-col gap-3">
@@ -1669,7 +1696,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                           </>
                         }
                       >
-                        <Icon name="brain" size="small" class="text-icon-info-active shrink-0" />
+                        <Icon name="brain" size="normal" class="text-icon-info-active shrink-0" />
                         <span class="text-14-regular text-text-strong whitespace-nowrap">
                           @{(item as { type: "agent"; name: string }).name}
                         </span>
@@ -1702,9 +1729,13 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                         </Show>
                       </div>
                       <div class="flex items-center gap-2 shrink-0">
-                        <Show when={cmd.type === "custom"}>
+                        <Show when={cmd.type === "custom" && cmd.source !== "command"}>
                           <span class="text-11-regular text-text-subtle px-1.5 py-0.5 bg-surface-base rounded">
-                            {language.t("prompt.slash.badge.custom")}
+                            {cmd.source === "skill"
+                              ? language.t("prompt.slash.badge.skill")
+                              : cmd.source === "mcp"
+                                ? language.t("prompt.slash.badge.mcp")
+                                : language.t("prompt.slash.badge.custom")}
                           </span>
                         </Show>
                         <Show when={command.keybind(cmd.id)}>
@@ -1730,9 +1761,9 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
         }}
       >
         <Show when={store.dragging}>
-          <div class="absolute inset-0 z-10 flex items-center justify-center bg-surface-raised-stronger-non-alpha/90 pointer-events-none">
+          <div class="absolute inset-0 z-10 flex items-center justify-center bg-surface-raised-stronger-non-alpha/90 mr-1 pointer-events-none">
             <div class="flex flex-col items-center gap-2 text-text-weak">
-              <Icon name="photo" class="size-8" />
+              <Icon name="photo" size={18} class="text-icon-base stroke-1.5" />
               <span class="text-14-regular">{language.t("prompt.dropzone.label")}</span>
             </div>
           </div>
@@ -1771,7 +1802,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                       }}
                     >
                       <div class="flex items-center gap-1.5">
-                        <FileIcon node={{ path: item.path, type: "file" }} class="shrink-0 size-3.5" />
+                        <FileIcon node={{ path: item.path, type: "file" }} class="shrink-0 size-7" />
                         <div class="flex items-center text-11-regular min-w-0 font-medium">
                           <span class="text-text-strong whitespace-nowrap">{getFilenameTruncated(item.path, 14)}</span>
                           <Show when={item.selection}>
@@ -1788,7 +1819,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                           type="button"
                           icon="close-small"
                           variant="ghost"
-                          class="ml-auto h-5 w-5 opacity-0 group-hover:opacity-100 transition-all"
+                          class="ml-auto size-7 opacity-0 group-hover:opacity-100 transition-all"
                           onClick={(e) => {
                             e.stopPropagation()
                             if (item.commentID) comments.remove(item.path, item.commentID)
@@ -1818,7 +1849,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                     when={attachment.mime.startsWith("image/")}
                     fallback={
                       <div class="size-16 rounded-md bg-surface-base flex items-center justify-center border border-border-base">
-                        <Icon name="folder" class="size-6 text-text-weak" />
+                        <Icon name="folder" size="normal" class="size-6 text-text-base" />
                       </div>
                     }
                   >
@@ -1892,7 +1923,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
           </Show>
         </div>
         <div class="relative p-3 flex items-center justify-between">
-          <div class="flex items-center justify-start gap-0.5">
+          <div class="flex items-center justify-start gap-2">
             <Switch>
               <Match when={store.mode === "shell"}>
                 <div class="flex items-center gap-2 px-2 h-6">
@@ -1913,6 +1944,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                     onSelect={local.agent.set}
                     class="capitalize"
                     variant="ghost"
+                    gutter={12}
                   />
                 </TooltipKeybind>
                 <Show
@@ -1923,12 +1955,19 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                       title={language.t("command.model.choose")}
                       keybind={command.keybind("model.choose")}
                     >
-                      <Button as="div" variant="ghost" onClick={() => dialog.show(() => <DialogSelectModelUnpaid />)}>
+                      <Button
+                        as="div"
+                        variant="ghost"
+                        class="px-2"
+                        onClick={() => dialog.show(() => <DialogSelectModelUnpaid />)}
+                      >
                         <Show when={local.model.current()?.provider?.id}>
                           <ProviderIcon id={local.model.current()!.provider.id as IconName} class="size-4 shrink-0" />
                         </Show>
                         {local.model.current()?.name ?? language.t("dialog.model.select.title")}
-                        <Icon name="chevron-down" size="small" />
+                        <MorphChevron
+                          expanded={!!dialog.active?.id && dialog.active.id.startsWith("select-model-unpaid")}
+                        />
                       </Button>
                     </TooltipKeybind>
                   }
@@ -1938,12 +1977,16 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                     title={language.t("command.model.choose")}
                     keybind={command.keybind("model.choose")}
                   >
-                    <ModelSelectorPopover triggerAs={Button} triggerProps={{ variant: "ghost" }}>
-                      <Show when={local.model.current()?.provider?.id}>
-                        <ProviderIcon id={local.model.current()!.provider.id as IconName} class="size-4 shrink-0" />
-                      </Show>
-                      {local.model.current()?.name ?? language.t("dialog.model.select.title")}
-                      <Icon name="chevron-down" size="small" />
+                    <ModelSelectorPopover triggerAs={Button} triggerProps={{ variant: "ghost" }} gutter={12}>
+                      {(open) => (
+                        <>
+                          <Show when={local.model.current()?.provider?.id}>
+                            <ProviderIcon id={local.model.current()!.provider.id as IconName} class="size-4 shrink-0" />
+                          </Show>
+                          {local.model.current()?.name ?? language.t("dialog.model.select.title")}
+                          <MorphChevron expanded={open} class="text-text-weak" />
+                        </>
+                      )}
                     </ModelSelectorPopover>
                   </TooltipKeybind>
                 </Show>
@@ -1956,10 +1999,13 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                     <Button
                       data-action="model-variant-cycle"
                       variant="ghost"
-                      class="text-text-base _hidden group-hover/prompt-input:inline-block capitalize text-12-regular"
+                      class="text-text-strong text-12-regular"
                       onClick={() => local.model.variant.cycle()}
                     >
-                      {local.model.variant.current() ?? language.t("common.default")}
+                      <Show when={local.model.variant.list().length > 1}>
+                        <ReasoningIcon percentage={reasoningPercentage()} size={16} strokeWidth={1.25} />
+                      </Show>
+                      <CycleLabel value={currrentModelVariant()} />
                     </Button>
                   </TooltipKeybind>
                 </Show>
@@ -1973,7 +2019,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                       variant="ghost"
                       onClick={() => permission.toggleAutoAccept(params.id!, sdk.directory)}
                       classList={{
-                        "_hidden group-hover/prompt-input:flex size-6 items-center justify-center": true,
+                        "_hidden group-hover/prompt-input:flex items-center justify-center": true,
                         "text-text-base": !permission.isAutoAccepting(params.id!, sdk.directory),
                         "hover:bg-surface-success-base": permission.isAutoAccepting(params.id!, sdk.directory),
                       }}
@@ -1995,7 +2041,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
               </Match>
             </Switch>
           </div>
-          <div class="flex items-center gap-3 absolute right-3 bottom-3">
+          <div class="flex items-center gap-1 absolute right-3 bottom-3">
             <input
               ref={fileInputRef}
               type="file"
@@ -2007,18 +2053,19 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                 e.currentTarget.value = ""
               }}
             />
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5 mr-1.5">
               <SessionContextUsage />
               <Show when={store.mode === "normal"}>
                 <Tooltip placement="top" value={language.t("prompt.action.attachFile")}>
                   <Button
                     type="button"
                     variant="ghost"
-                    class="size-6"
+                    size="small"
+                    class="px-1"
                     onClick={() => fileInputRef.click()}
                     aria-label={language.t("prompt.action.attachFile")}
                   >
-                    <Icon name="photo" class="size-4.5" />
+                    <Icon name="photo" class="size-6 text-icon-base" />
                   </Button>
                 </Tooltip>
               </Show>
@@ -2037,7 +2084,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                   <Match when={true}>
                     <div class="flex items-center gap-2">
                       <span>{language.t("prompt.action.send")}</span>
-                      <Icon name="enter" size="small" class="text-icon-base" />
+                      <Icon name="enter" size="normal" class="text-icon-base" />
                     </div>
                   </Match>
                 </Switch>
@@ -2048,7 +2095,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                 disabled={!prompt.dirty() && !working()}
                 icon={working() ? "stop" : "arrow-up"}
                 variant="primary"
-                class="h-6 w-4.5"
+                class="h-6 w-5.5"
                 aria-label={working() ? language.t("prompt.action.stop") : language.t("prompt.action.send")}
               />
             </Tooltip>

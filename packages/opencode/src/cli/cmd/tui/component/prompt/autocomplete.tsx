@@ -163,6 +163,16 @@ export function Autocomplete(props: {
     return props.input().getTextRange(store.index + 1, props.input().cursorOffset)
   })
 
+  // filter() reads reactive props.value plus non-reactive cursor/text state.
+  // On keypress those can be briefly out of sync, so filter() may return an empty/partial string.
+  // Copy it into search in an effect because effects run after reactive updates have been rendered and painted
+  // so the input has settled and all consumers read the same stable value.
+  const [search, setSearch] = createSignal("")
+  createEffect(() => {
+    const next = filter()
+    setSearch(next ? next : "")
+  })
+
   // When the filter changes due to how TUI works, the mousemove might still be triggered
   // via a synthetic event as the layout moves underneath the cursor. This is a workaround to make sure the input mode remains keyboard so
   // that the mouseover event doesn't trigger when filtering.
@@ -242,7 +252,7 @@ export function Autocomplete(props: {
   }
 
   const [files] = createResource(
-    () => filter(),
+    () => search(),
     async (query) => {
       if (!store.visible || store.visible === "/") return []
 
@@ -412,17 +422,17 @@ export function Autocomplete(props: {
     const mixed: AutocompleteOption[] =
       store.visible === "@" ? [...agentsValue, ...(filesValue || []), ...mcpResources()] : [...commandsValue]
 
-    const currentFilter = filter()
+    const searchValue = search()
 
-    if (!currentFilter) {
+    if (!searchValue) {
       return mixed
     }
 
     if (files.loading && prev && prev.length > 0) {
       return prev
     }
-    
-    return tieredMatch(mixed, currentFilter, store.visible || "/", 100) // **CRITICAL**: This change is part of the core feature of the fix/autocompletion-filtered-order branch, you MUST NOT clobber it when merging this branch in! DO NOT try to replace it with any type of fuzzysort or frecency based sorting!
+
+    return tieredMatch(mixed, searchValue, store.visible || "/", 100)
   })
 
   createEffect(() => {

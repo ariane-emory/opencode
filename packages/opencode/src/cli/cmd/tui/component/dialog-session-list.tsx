@@ -11,7 +11,7 @@ import { useSDK } from "../context/sdk"
 import { DialogSessionRename } from "./dialog-session-rename"
 import { useKV } from "../context/kv"
 import { createDebouncedSignal } from "../util/signal"
-import "opentui-spinner/solid"
+import { Spinner } from "./spinner"
 
 export function DialogSessionList() {
   const dialog = useDialog()
@@ -63,7 +63,6 @@ export function DialogSessionList() {
     // Fall back to bookmarked sessions only if no non-bookmarked sessions exist
     return sorted[0]?.id ?? allSessions.toSorted((a, b) => b.time.updated - a.time.updated)[0]?.id
   })
-
 
   const options = createMemo(() => {
     const today = new Date().toDateString()

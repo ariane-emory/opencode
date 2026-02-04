@@ -3,13 +3,6 @@ function truthy(key: string) {
   return value === "true" || value === "1"
 }
 
-function number(key: string) {
-  const value = process.env[key]
-  if (!value) return undefined
-  const parsed = Number(value)
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
-}
-
 function envWithFallback(newName: string, legacyName: string): string | undefined {
   return process.env[newName] ?? process.env[legacyName]
 }

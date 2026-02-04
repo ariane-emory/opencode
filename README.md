@@ -59,19 +59,51 @@ nix run nixpkgs#opencode           # or github:anomalyco/opencode for latest dev
 ```
 
 
+### Desktop App (BETA)
+
+BaseOne is also available as a desktop application. Download directly from the [releases page](https://github.com/ariane-emory/base-one/releases) or [opencode.ai/download](https://opencode.ai/download).
+
+| Platform              | Download                              |
+| --------------------- | ------------------------------------- |
+| macOS (Apple Silicon) | `opencode-desktop-darwin-aarch64.dmg` |
+| macOS (Intel)         | `opencode-desktop-darwin-x64.dmg`     |
+| Windows               | `opencode-desktop-windows-x64.exe`    |
+| Linux                 | `.deb`, `.rpm`, or AppImage           |
+
+```bash
+# macOS (Homebrew)
+brew install --cask opencode-desktop
+# Windows (Scoop)
+scoop bucket add extras; scoop install extras/opencode-desktop
+```
+
+#### Installation Directory
+
+The install script respects the following priority order for the installation path:
+
+1. `$BASE_ONE_INSTALL_DIR` or `$OPENCODE_INSTALL_DIR` - Custom installation directory
+2. `$XDG_BIN_DIR` - XDG Base Directory Specification compliant path
+3. `$HOME/bin` - Standard user binary directory (if it exists or can be created)
+4. `$HOME/.base-one/bin` or `$HOME/.opencode/bin` - Default fallback
+
+```bash
+# Examples
+BASE_ONE_INSTALL_DIR=/usr/local/bin curl -fsSL https://opencode.ai/install | bash
+XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://opencode.ai/install | bash
+```
 
 ### Agents
 
 BaseOne includes two built-in agents you can switch between,
 you can switch between these using the `Tab` key.
 
-- **build** - Default, full access agent for development work
+- **build** - Default, full-access agent for development work
 - **plan** - Read-only agent for analysis and code exploration
   - Denies file edits by default
   - Asks permission before running bash commands
   - Ideal for exploring unfamiliar codebases or planning changes
 
-Also, included is a **general** subagent for complex searches and multistep tasks.
+Also included is a **general** subagent for complex searches and multistep tasks.
 This is used internally and can be invoked using `@general` in messages.
 
 ### Configuration

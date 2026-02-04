@@ -111,7 +111,7 @@ export namespace ToolRegistry {
       TaskTool,
       WebFetchTool,
       TodoWriteTool,
-      TodoReadTool,
+      // TodoReadTool,
       SetCurrentSessionTitleTool,
       WebSearchTool,
       CodeSearchTool,

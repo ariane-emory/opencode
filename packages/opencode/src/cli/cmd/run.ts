@@ -458,7 +458,6 @@ export const RunCommand = cmd({
             }
 
             if (part.type === "text" && part.time?.end) {
-            if (part.type === "text" && part.time?.end) {
               if (emit("text", { part })) continue
               const text = part.text.trim()
               if (!text) continue

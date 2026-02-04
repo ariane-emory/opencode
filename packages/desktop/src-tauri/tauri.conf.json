@@ -40,9 +40,15 @@
       "icons/dev/icon.ico"
     ],
     "active": true,
-<<<<<<< HEAD
     "targets": ["deb", "rpm", "dmg", "nsis", "app", "appimage"],
-    "externalBin": ["sidecars/base-one-cli"]
+    "externalBin": ["sidecars/base-one-cli"],
+    "linux": {
+      "rpm": {
+        "compression": {
+          "type": "none"
+        }
+      }
+    },
     "macOS": {
       "entitlements": "./entitlements.plist"
     },

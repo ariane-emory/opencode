@@ -146,6 +146,12 @@ export namespace Clipboard {
   })
 
   export async function copy(text: string): Promise<void> {
+    const renderer = rendererRef.current
+    if (renderer) {
+      // Try OSC52 but don't early return - always fall back to native method
+      // OSC52 may report success but not actually work in all terminals
+      renderer.copyToClipboardOSC52(text)
+    }
     await getCopyMethod()(text)
   }
 }

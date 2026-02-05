@@ -145,6 +145,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
 
   const sessionKey = createMemo(() => `${params.dir}${params.id ? "/" + params.id : ""}`)
   const tabs = createMemo(() => layout.tabs(sessionKey))
+  const view = createMemo(() => layout.view(sessionKey))
 
   const commentInReview = (path: string) => {
     const sessionID = params.id
@@ -163,12 +164,14 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
 
     const wantsReview = item.commentOrigin === "review" || (item.commentOrigin !== "file" && commentInReview(item.path))
     if (wantsReview) {
+      if (!view().reviewPanel.opened()) view().reviewPanel.open()
       layout.fileTree.open()
       layout.fileTree.setTab("changes")
       requestAnimationFrame(() => comments.setFocus(focus))
       return
     }
 
+    if (!view().reviewPanel.opened()) view().reviewPanel.open()
     layout.fileTree.open()
     layout.fileTree.setTab("all")
     const tab = files.tab(item.path)

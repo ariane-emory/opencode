@@ -15,7 +15,7 @@
       {
         "label": "main",
         "create": false,
-        "title": "OpenCode",
+        "title": "BaseOne",
         "url": "/",
         "decorations": true,
         "dragDropEnabled": false,

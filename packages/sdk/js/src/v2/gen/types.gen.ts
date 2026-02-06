@@ -1640,6 +1640,10 @@ export type Config = {
      * Control diff rendering style: 'auto' adapts to terminal width, 'stacked' always shows single column
      */
     diff_style?: "auto" | "stacked"
+    /**
+     * When true, 'auto' sidebar mode always shows the sidebar regardless of window width
+     */
+    no_sidebar_auto?: boolean
   }
   server?: ServerConfig
   /**

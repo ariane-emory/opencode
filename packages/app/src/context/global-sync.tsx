@@ -27,6 +27,7 @@ import type { InitError } from "../pages/error"
 import {
   batch,
   createContext,
+  createRoot,
   createEffect,
   untrack,
   getOwner,
@@ -119,6 +120,8 @@ type ChildOptions = {
   bootstrap?: boolean
 }
 
+const cmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0)
+
 function normalizeProviderList(input: ProviderListResponse): ProviderListResponse {
   return {
     ...input,
@@ -127,6 +130,96 @@ function normalizeProviderList(input: ProviderListResponse): ProviderListRespons
       models: Object.fromEntries(Object.entries(provider.models).filter(([, info]) => info.status !== "deprecated")),
     })),
   }
+}
+
+const MAX_DIR_STORES = 30
+const DIR_IDLE_TTL_MS = 20 * 60 * 1000
+
+type DirState = {
+  lastAccessAt: number
+}
+
+type EvictPlan = {
+  stores: string[]
+  state: Map<string, DirState>
+  pins: Set<string>
+  max: number
+  ttl: number
+  now: number
+}
+
+export function pickDirectoriesToEvict(input: EvictPlan) {
+  const overflow = Math.max(0, input.stores.length - input.max)
+  let pendingOverflow = overflow
+  const sorted = input.stores
+    .filter((dir) => !input.pins.has(dir))
+    .slice()
+    .sort((a, b) => (input.state.get(a)?.lastAccessAt ?? 0) - (input.state.get(b)?.lastAccessAt ?? 0))
+
+  const output: string[] = []
+  for (const dir of sorted) {
+    const last = input.state.get(dir)?.lastAccessAt ?? 0
+    const idle = input.now - last >= input.ttl
+    if (!idle && pendingOverflow <= 0) continue
+    output.push(dir)
+    if (pendingOverflow > 0) pendingOverflow -= 1
+  }
+  return output
+}
+
+type RootLoadArgs = {
+  directory: string
+  limit: number
+  list: (query: { directory: string; roots: true; limit?: number }) => Promise<{ data?: Session[] }>
+  onFallback: () => void
+}
+
+type RootLoadResult = {
+  data?: Session[]
+  limit: number
+  limited: boolean
+}
+
+export async function loadRootSessionsWithFallback(input: RootLoadArgs) {
+  try {
+    const result = await input.list({ directory: input.directory, roots: true, limit: input.limit })
+    return {
+      data: result.data,
+      limit: input.limit,
+      limited: true,
+    } satisfies RootLoadResult
+  } catch {
+    input.onFallback()
+    const result = await input.list({ directory: input.directory, roots: true })
+    return {
+      data: result.data,
+      limit: input.limit,
+      limited: false,
+    } satisfies RootLoadResult
+  }
+}
+
+export function estimateRootSessionTotal(input: { count: number; limit: number; limited: boolean }) {
+  if (!input.limited) return input.count
+  if (input.count < input.limit) return input.count
+  return input.count + 1
+}
+
+type DisposeCheck = {
+  directory: string
+  hasStore: boolean
+  pinned: boolean
+  booting: boolean
+  loadingSessions: boolean
+}
+
+export function canDisposeDirectory(input: DisposeCheck) {
+  if (!input.directory) return false
+  if (!input.hasStore) return false
+  if (input.pinned) return false
+  if (input.booting) return false
+  if (input.loadingSessions) return false
+  return true
 }
 
 function createGlobalSync() {
@@ -138,8 +231,133 @@ function createGlobalSync() {
   const vcsCache = new Map<string, VcsCache>()
   const metaCache = new Map<string, MetaCache>()
   const iconCache = new Map<string, IconCache>()
+  const lifecycle = new Map<string, DirState>()
+  const pins = new Map<string, number>()
+  const ownerPins = new WeakMap<object, Set<string>>()
+  const disposers = new Map<string, () => void>()
+  const stats = {
+    evictions: 0,
+    loadSessionsFallback: 0,
+  }
 
   const sdkCache = new Map<string, ReturnType<typeof createOpencodeClient>>()
+
+  const updateStats = () => {
+    if (!import.meta.env.DEV) return
+    ;(
+      globalThis as {
+        __OPENCODE_GLOBAL_SYNC_STATS?: {
+          activeDirectoryStores: number
+          evictions: number
+          loadSessionsFullFetchFallback: number
+        }
+      }
+    ).__OPENCODE_GLOBAL_SYNC_STATS = {
+      activeDirectoryStores: Object.keys(children).length,
+      evictions: stats.evictions,
+      loadSessionsFullFetchFallback: stats.loadSessionsFallback,
+    }
+  }
+
+  const mark = (directory: string) => {
+    if (!directory) return
+    lifecycle.set(directory, { lastAccessAt: Date.now() })
+    runEviction()
+  }
+
+  const pin = (directory: string) => {
+    if (!directory) return
+    pins.set(directory, (pins.get(directory) ?? 0) + 1)
+    mark(directory)
+  }
+
+  const unpin = (directory: string) => {
+    if (!directory) return
+    const next = (pins.get(directory) ?? 0) - 1
+    if (next > 0) {
+      pins.set(directory, next)
+      return
+    }
+    pins.delete(directory)
+    runEviction()
+  }
+
+  const pinned = (directory: string) => (pins.get(directory) ?? 0) > 0
+
+  const pinForOwner = (directory: string) => {
+    const current = getOwner()
+    if (!current) return
+    if (current === owner) return
+    const key = current as object
+    const set = ownerPins.get(key)
+    if (set?.has(directory)) return
+    if (set) set.add(directory)
+    else ownerPins.set(key, new Set([directory]))
+    pin(directory)
+    onCleanup(() => {
+      const set = ownerPins.get(key)
+      if (set) {
+        set.delete(directory)
+        if (set.size === 0) ownerPins.delete(key)
+      }
+      unpin(directory)
+    })
+  }
+
+  function disposeDirectory(directory: string) {
+    if (
+      !canDisposeDirectory({
+        directory,
+        hasStore: !!children[directory],
+        pinned: pinned(directory),
+        booting: booting.has(directory),
+        loadingSessions: sessionLoads.has(directory),
+      })
+    ) {
+      return false
+    }
+
+    queued.delete(directory)
+    sessionMeta.delete(directory)
+    sdkCache.delete(directory)
+    vcsCache.delete(directory)
+    metaCache.delete(directory)
+    iconCache.delete(directory)
+    lifecycle.delete(directory)
+
+    const dispose = disposers.get(directory)
+    if (dispose) {
+      dispose()
+      disposers.delete(directory)
+    }
+
+    delete children[directory]
+    updateStats()
+    return true
+  }
+
+  function runEviction() {
+    const stores = Object.keys(children)
+    if (stores.length === 0) return
+    const list = pickDirectoriesToEvict({
+      stores,
+      state: lifecycle,
+      pins: new Set(stores.filter(pinned)),
+      max: MAX_DIR_STORES,
+      ttl: DIR_IDLE_TTL_MS,
+      now: Date.now(),
+    })
+
+    if (list.length === 0) return
+    let changed = false
+    for (const directory of list) {
+      if (!disposeDirectory(directory)) continue
+      stats.evictions += 1
+      changed = true
+    }
+    if (changed) updateStats()
+  }
+
   const sdkFor = (directory: string) => {
     const cached = sdkCache.get(directory)
     if (cached) return cached
@@ -297,7 +515,7 @@ function createGlobalSync() {
     const aUpdated = sessionUpdatedAt(a)
     const bUpdated = sessionUpdatedAt(b)
     if (aUpdated !== bUpdated) return bUpdated - aUpdated
-    return a.id.localeCompare(b.id)
+    return cmp(a.id, b.id)
   }
 
   function takeRecentSessions(sessions: Session[], limit: number, cutoff: number) {
@@ -325,7 +543,7 @@ function createGlobalSync() {
     const all = input
       .filter((s) => !!s?.id)
       .filter((s) => !s.time?.archived)
-      .sort((a, b) => a.id.localeCompare(b.id))
+      .sort((a, b) => cmp(a.id, b.id))
 
     const roots = all.filter((s) => !s.parentID)
     const children = all.filter((s) => !!s.parentID)
@@ -342,7 +560,7 @@ function createGlobalSync() {
       return sessionUpdatedAt(s) > cutoff
     })
 
-    return [...keepRoots, ...keepChildren].sort((a, b) => a.id.localeCompare(b.id))
+    return [...keepRoots, ...keepChildren].sort((a, b) => cmp(a.id, b.id))
   }
 
   function ensureChild(directory: string) {
@@ -377,52 +595,56 @@ function createGlobalSync() {
       if (!icon) throw new Error("Failed to create persisted project icon")
       iconCache.set(directory, { store: icon[0], setStore: icon[1], ready: icon[3] })
 
-      const init = () => {
-        const child = createStore<State>({
-          project: "",
-          projectMeta: meta[0].value,
-          icon: icon[0].value,
-          provider: { all: [], connected: [], default: {} },
-          config: {},
-          path: { state: "", config: "", worktree: "", directory: "", home: "" },
-          status: "loading" as const,
-          agent: [],
-          command: [],
-          session: [],
-          sessionTotal: 0,
-          session_status: {},
-          session_diff: {},
-          todo: {},
-          permission: {},
-          question: {},
-          mcp: {},
-          lsp: [],
-          vcs: vcsStore.value,
-          limit: 5,
-          message: {},
-          part: {},
-        })
+      const init = () =>
+        createRoot((dispose) => {
+          const child = createStore<State>({
+            project: "",
+            projectMeta: meta[0].value,
+            icon: icon[0].value,
+            provider: { all: [], connected: [], default: {} },
+            config: {},
+            path: { state: "", config: "", worktree: "", directory: "", home: "" },
+            status: "loading" as const,
+            agent: [],
+            command: [],
+            session: [],
+            sessionTotal: 0,
+            session_status: {},
+            session_diff: {},
+            todo: {},
+            permission: {},
+            question: {},
+            mcp: {},
+            lsp: [],
+            vcs: vcsStore.value,
+            limit: 5,
+            message: {},
+            part: {},
+          })
 
-        children[directory] = child
+          children[directory] = child
+          disposers.set(directory, dispose)
 
-        createEffect(() => {
-          if (!vcsReady()) return
-          const cached = vcsStore.value
-          if (!cached?.branch) return
-          child[1]("vcs", (value) => value ?? cached)
-        })
+          createEffect(() => {
+            if (!vcsReady()) return
+            const cached = vcsStore.value
+            if (!cached?.branch) return
+            child[1]("vcs", (value) => value ?? cached)
+          })
 
-        createEffect(() => {
-          child[1]("projectMeta", meta[0].value)
-        })
+          createEffect(() => {
+            child[1]("projectMeta", meta[0].value)
+          })
 
-        createEffect(() => {
-          child[1]("icon", icon[0].value)
+          createEffect(() => {
+            child[1]("icon", icon[0].value)
+          })
         })
-      }
 
       runWithOwner(owner, init)
+      updateStats()
     }
+    mark(directory)
     const childStore = children[directory]
     if (!childStore) throw new Error("Failed to create store")
     return childStore
@@ -430,6 +652,7 @@ function createGlobalSync() {
 
   function child(directory: string, options: ChildOptions = {}) {
     const childStore = ensureChild(directory)
+    pinForOwner(directory)
     const shouldBootstrap = options.bootstrap ?? true
     if (shouldBootstrap && childStore[0].status === "loading") {
       void bootstrapInstance(directory)
@@ -441,6 +664,7 @@ function createGlobalSync() {
     const pending = sessionLoads.get(directory)
     if (pending) return pending
 
+    pin(directory)
     const [store, setStore] = child(directory, { bootstrap: false })
     const meta = sessionMeta.get(directory)
     if (meta && meta.limit >= store.limit) {
@@ -448,16 +672,25 @@ function createGlobalSync() {
       if (next.length !== store.session.length) {
         setStore("session", reconcile(next, { key: "id" }))
       }
+      unpin(directory)
       return
     }
 
-    const promise = globalSDK.client.session
-      .list({ directory, roots: true })
+    const limit = Math.max(store.limit + sessionRecentLimit, sessionRecentLimit)
+    const promise = loadRootSessionsWithFallback({
+      directory,
+      limit,
+      list: (query) => globalSDK.client.session.list(query),
+      onFallback: () => {
+        stats.loadSessionsFallback += 1
+        updateStats()
+      },
+    })
       .then((x) => {
         const nonArchived = (x.data ?? [])
           .filter((s) => !!s?.id)
           .filter((s) => !s.time?.archived)
-          .sort((a, b) => a.id.localeCompare(b.id))
+          .sort((a, b) => cmp(a.id, b.id))
 
         // Read the current limit at resolve-time so callers that bump the limit while
         // a request is in-flight still get the expanded result.
@@ -466,8 +699,13 @@ function createGlobalSync() {
         const children = store.session.filter((s) => !!s.parentID)
         const sessions = trimSessions([...nonArchived, ...children], { limit, permission: store.permission })
 
-        // Store total session count (used for "load more" pagination)
-        setStore("sessionTotal", nonArchived.length)
+        // Store root session total for "load more" pagination.
+        // For limited root queries, preserve has-more behavior by treating
+        // full-limit responses as "potentially more".
+        setStore(
+          "sessionTotal",
+          estimateRootSessionTotal({ count: nonArchived.length, limit: x.limit, limited: x.limited }),
+        )
         setStore("session", reconcile(sessions, { key: "id" }))
         sessionMeta.set(directory, { limit })
       })
@@ -480,6 +718,7 @@ function createGlobalSync() {
     sessionLoads.set(directory, promise)
     promise.finally(() => {
       sessionLoads.delete(directory)
+      unpin(directory)
     })
     return promise
   }
@@ -489,6 +728,7 @@ function createGlobalSync() {
     const pending = booting.get(directory)
     if (pending) return pending
 
+    pin(directory)
     const promise = (async () => {
       const [store, setStore] = ensureChild(directory)
       const cache = vcsCache.get(directory)
@@ -559,7 +799,7 @@ function createGlobalSync() {
                 "permission",
                 sessionID,
                 reconcile(
-                  permissions.filter((p) => !!p?.id).sort((a, b) => a.id.localeCompare(b.id)),
+                  permissions.filter((p) => !!p?.id).sort((a, b) => cmp(a.id, b.id)),
                   { key: "id" },
                 ),
               )
@@ -588,7 +828,7 @@ function createGlobalSync() {
                 "question",
                 sessionID,
                 reconcile(
-                  questions.filter((q) => !!q?.id).sort((a, b) => a.id.localeCompare(b.id)),
+                  questions.filter((q) => !!q?.id).sort((a, b) => cmp(a.id, b.id)),
                   { key: "id" },
                 ),
               )
@@ -603,6 +843,7 @@ function createGlobalSync() {
     booting.set(directory, promise)
     promise.finally(() => {
       booting.delete(directory)
+      unpin(directory)
     })
     return promise
   }
@@ -668,6 +909,7 @@ function createGlobalSync() {
 
     const existing = children[directory]
     if (!existing) return
+    mark(directory)
 
     const [store, setStore] = existing
 
@@ -953,6 +1195,11 @@ function createGlobalSync() {
     if (!timer) return
     clearTimeout(timer)
   })
+  onCleanup(() => {
+    for (const directory of Object.keys(children)) {
+      disposeDirectory(directory)
+    }
+  })
 
   async function bootstrap() {
     const health = await globalSDK.client.global
@@ -986,7 +1233,7 @@ function createGlobalSync() {
             .filter((p) => !!p?.id)
             .filter((p) => !!p.worktree && !p.worktree.includes("opencode-test"))
             .slice()
-            .sort((a, b) => a.id.localeCompare(b.id))
+            .sort((a, b) => cmp(a.id, b.id))
           setGlobalStore("project", projects)
         }),
       ),

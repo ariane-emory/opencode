@@ -209,7 +209,7 @@ test("handles import substitution with JSON objects", async () => {
         `{
   "$schema": "https://opencode.ai/config.json",
   "provider": { import: ./providers.json }
-}`,
+ }`,
       )
     },
   })
@@ -221,6 +221,25 @@ test("handles import substitution with JSON objects", async () => {
         openai: { options: { apiKey: "test-key" } },
         anthropic: { options: { apiKey: "anthropic-key" } },
       })
+    },
+  })
+})
+
+test("handles file inclusion with replacement tokens", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(path.join(dir, "included.md"), "const out = await Bun.$`echo hi`")
+      await writeConfig(dir, {
+        $schema: "https://opencode.ai/config.json",
+        theme: "{file:included.md}",
+      })
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      expect(config.theme).toBe("const out = await Bun.$`echo hi`")
     },
   })
 })
@@ -238,7 +257,7 @@ test("handles nested imports", async () => {
         `{
   "model": "gpt-4",
   "options": {import:./nested.json}
-}`,
+ }`,
       )
       // Use raw string for unquoted {import:...} syntax
       await Bun.write(
@@ -248,7 +267,7 @@ test("handles nested imports", async () => {
   "agent": {
     "test": {import:./agent.json}
   }
-}`,
+ }`,
       )
     },
   })
@@ -281,7 +300,7 @@ test("throws error for circular imports", async () => {
         `{
   "$schema": "https://opencode.ai/config.json",
   "value": {import:./a.json}
-}`,
+ }`,
       )
     },
   })
@@ -302,7 +321,7 @@ test("throws error for missing import file", async () => {
         `{
   "$schema": "https://opencode.ai/config.json",
   "value": {import:./nonexistent.json}
-}`,
+ }`,
       )
     },
   })
@@ -324,7 +343,7 @@ test("throws error for import file with invalid JSON", async () => {
         `{
   "$schema": "https://opencode.ai/config.json",
   "value": {import:./invalid.json}
-}`,
+ }`,
       )
     },
   })

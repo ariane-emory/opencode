@@ -432,6 +432,7 @@ export function UserMessageDisplay(props: { message: UserMessage; parts: PartTyp
             >
               <IconButton
                 icon={copied() ? "check" : "copy"}
+                size="small"
                 variant="secondary"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={(event) => {
@@ -701,6 +702,7 @@ PART_MAPPING["text"] = function TextPartDisplay(props) {
             >
               <IconButton
                 icon={copied() ? "check" : "copy"}
+                size="small"
                 variant="secondary"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={handleCopy}

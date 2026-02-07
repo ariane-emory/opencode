@@ -117,6 +117,7 @@ export namespace SessionCompaction {
       sessionID: input.sessionID,
       mode: "compaction",
       agent: "compaction",
+      variant: userMessage.variant,
       summary: true,
       path: {
         cwd: Instance.directory,

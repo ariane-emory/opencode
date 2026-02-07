@@ -102,6 +102,7 @@ const context = createContext<{
   showTimestamps: () => boolean
   showDetails: () => boolean
   diffWrapMode: () => "word" | "none"
+  markdownAll: () => boolean
   sync: ReturnType<typeof useSync>
 }>()
 
@@ -153,6 +154,7 @@ export function Session() {
   const [showAssistantMetadata, setShowAssistantMetadata] = kv.signal("assistant_metadata_visibility", true)
   const [showScrollbar, setShowScrollbar] = kv.signal("scrollbar_visible", false)
   const [diffWrapMode] = kv.signal<"word" | "none">("diff_wrap_mode", "word")
+  const [markdownAll, setMarkdownAll] = kv.signal("markdown_all_messages", false)
   const [animationsEnabled, setAnimationsEnabled] = kv.signal("animations_enabled", true)
 
   const wide = createMemo(() => dimensions().width > 120)
@@ -581,6 +583,15 @@ export function Session() {
       },
     },
     {
+      title: markdownAll() ? "Render markdown: agent messages only" : "Render markdown: all messages",
+      value: "session.toggle.markdown_all",
+      category: "Session",
+      onSelect: (dialog) => {
+        setMarkdownAll((prev) => !prev)
+        dialog.clear()
+      },
+    },
+    {
       title: "Page up",
       value: "session.page.up",
       keybind: "messages_page_up",
@@ -955,6 +966,7 @@ export function Session() {
         showTimestamps,
         showDetails,
         diffWrapMode,
+        markdownAll,
         sync,
       }}
     >
@@ -1155,11 +1167,13 @@ function UserMessage(props: {
   const text = createMemo(() => props.parts.flatMap((x) => (x.type === "text" && !x.synthetic ? [x] : []))[0])
   const files = createMemo(() => props.parts.flatMap((x) => (x.type === "file" ? [x] : [])))
   const sync = useSync()
-  const { theme } = useTheme()
+  const tui = useTheme()
+  const theme = tui.theme
   const [hover, setHover] = createSignal(false)
   const queued = createMemo(() => props.pending && props.message.id > props.pending)
   const color = createMemo(() => (queued() ? theme.accent : local.agent.color(props.message.agent)))
   const metadataVisible = createMemo(() => queued() || ctx.showTimestamps())
+  const segments = createMemo(() => parseMarkdownSegments(text()?.text?.trim() ?? ""))
 
   const compaction = createMemo(() => props.parts.find((x) => x.type === "compaction"))
 
@@ -1187,7 +1201,32 @@ function UserMessage(props: {
             backgroundColor={hover() ? theme.backgroundElement : theme.backgroundPanel}
             flexShrink={0}
           >
-            <text fg={theme.text}>{text()?.text}</text>
+            <Show when={ctx.markdownAll()} fallback={<text fg={theme.text}>{text()?.text}</text>}>
+              <Switch>
+                <Match when={Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+                  <markdown
+                    syntaxStyle={tui.syntax()}
+                    streaming={false}
+                    content={text()?.text?.trim() ?? ""}
+                    conceal={ctx.conceal()}
+                  />
+                </Match>
+                <Match when={!Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+                  <box flexDirection="column">
+                    <Index each={segments()}>
+                      {(segment) => (
+                        <Show
+                          when={segment().type === "code"}
+                          fallback={<Prose segment={segment() as any} theme={tui.theme} width={ctx.width - 5} />}
+                        >
+                          <CodeBlock segment={segment() as any} syntax={tui.syntax()} />
+                        </Show>
+                      )}
+                    </Index>
+                  </box>
+                </Match>
+              </Switch>
+            </Show>
             <Show when={files().length}>
               <box flexDirection="row" paddingBottom={metadataVisible() ? 1 : 0} paddingTop={1} gap={1} flexWrap="wrap">
                 <For each={files()}>

@@ -26,6 +26,8 @@ import { SkillTool } from "../../tool/skill"
 import { BashTool } from "../../tool/bash"
 import { TodoWriteTool } from "../../tool/todo"
 import { Locale } from "../../util/locale"
+import { loadTheme } from "../theme-loader"
+import type { MarkdownTheme } from "../markdown-renderer"
 
 type ToolProps<T extends Tool.Info> = {
   input: Tool.InferParameters<T>
@@ -389,6 +391,14 @@ export const RunCommand = cmd({
     }
 
     async function execute(sdk: OpencodeClient) {
+      let theme: MarkdownTheme | undefined
+      try {
+        const cfg = await sdk.config.get()
+        theme = loadTheme(cfg.data?.theme)
+      } catch {
+        theme = loadTheme()
+      }
+
       function tool(part: ToolPart) {
         if (part.tool === "bash") return bash(props<typeof BashTool>(part))
         if (part.tool === "glob") return glob(props<typeof GlobTool>(part))
@@ -470,7 +480,7 @@ export const RunCommand = cmd({
                 continue
               }
               UI.empty()
-              UI.println(text)
+              process.stdout.write(UI.markdown(text, theme) + EOL)
               UI.empty()
             }
 

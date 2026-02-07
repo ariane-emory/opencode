@@ -2,6 +2,7 @@ import z from "zod"
 import { EOL } from "os"
 import { NamedError } from "@opencode-ai/util/error"
 import { logo as glyphs } from "./logo"
+import { renderMarkdown, type MarkdownTheme } from "./markdown-renderer"
 
 export namespace UI {
   export const CancelledError = NamedError.create("UICancelledError", z.void())
@@ -107,7 +108,7 @@ export namespace UI {
     println(Style.TEXT_DANGER_BOLD + "Error: " + Style.TEXT_NORMAL + message)
   }
 
-  export function markdown(text: string): string {
-    return text
+  export function markdown(text: string, theme?: MarkdownTheme): string {
+    return renderMarkdown(text, { theme })
   }
 }

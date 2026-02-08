@@ -936,46 +936,34 @@ function renderInlineThemedWithDefault(
     }
 
     if (match[1]) {
-      // Bold+Italic (*** or ___)
-      addChunk(match[2], theme.markdownStrong, Attr.BOLD | Attr.ITALIC)
+      // Bold+Italic (*** or ___) - recursively render inner content
+      renderInlineThemedWithDefault(
+        match[2],
+        theme,
+        chunks,
+        theme.markdownStrong,
+        defaultAttrs | Attr.BOLD | Attr.ITALIC,
+      )
     } else if (match[3] !== undefined) {
-      // Bold (**) - may contain nested italic
-      const boldContent = match[3]
-      // Check for nested italic inside bold
-      const nestedItalic = boldContent.match(/^(.*)?\*(.+?)\*(.*)$/)
-      if (nestedItalic) {
-        if (nestedItalic[1]) addChunk(nestedItalic[1], theme.markdownStrong, Attr.BOLD)
-        addChunk(nestedItalic[2], theme.markdownStrong, Attr.BOLD | Attr.ITALIC)
-        if (nestedItalic[3]) addChunk(nestedItalic[3], theme.markdownStrong, Attr.BOLD)
-      } else {
-        addChunk(boldContent, theme.markdownStrong, Attr.BOLD)
-      }
+      // Bold (**) - recursively render inner content to handle nested code, italic, etc.
+      renderInlineThemedWithDefault(match[3], theme, chunks, theme.markdownStrong, defaultAttrs | Attr.BOLD)
     } else if (match[4] !== undefined) {
-      // Italic (*) - may contain nested bold
-      const italicContent = match[4]
-      // Check for nested bold inside italic
-      const nestedBold = italicContent.match(/^(.*)?\*\*(.+?)\*\*(.*)$/)
-      if (nestedBold) {
-        if (nestedBold[1]) addChunk(nestedBold[1], theme.markdownEmph, Attr.ITALIC)
-        addChunk(nestedBold[2], theme.markdownStrong, Attr.BOLD | Attr.ITALIC)
-        if (nestedBold[3]) addChunk(nestedBold[3], theme.markdownEmph, Attr.ITALIC)
-      } else {
-        addChunk(italicContent, theme.markdownEmph, Attr.ITALIC)
-      }
+      // Italic (*) - recursively render inner content to handle nested code, bold, etc.
+      renderInlineThemedWithDefault(match[4], theme, chunks, theme.markdownEmph, defaultAttrs | Attr.ITALIC)
     } else if (match[5] !== undefined) {
       // Inline code
-      addChunk(match[5], theme.markdownCode)
+      addChunk(match[5], theme.markdownCode, defaultAttrs)
     } else if (match[6] !== undefined) {
       // Link [text](url "title") - show text and URL like original
       const linkText = match[6]
       const url = match[7]
-      addChunk(linkText, theme.markdownLinkText, Attr.UNDERLINE)
-      addChunk(" (", theme.markdownText)
-      addChunk(url, theme.markdownLink, Attr.UNDERLINE)
-      addChunk(")", theme.markdownText)
+      addChunk(linkText, theme.markdownLinkText, defaultAttrs | Attr.UNDERLINE)
+      addChunk(" (", theme.markdownText, defaultAttrs)
+      addChunk(url, theme.markdownLink, defaultAttrs | Attr.UNDERLINE)
+      addChunk(")", theme.markdownText, defaultAttrs)
     } else if (match[8] !== undefined) {
       // Strikethrough ~~text~~ - use muted color with strikethrough attribute
-      addChunk(match[8], theme.textMuted, Attr.STRIKETHROUGH)
+      addChunk(match[8], theme.textMuted, defaultAttrs | Attr.STRIKETHROUGH)
     }
 
     lastIndex = match.index + match[0].length
@@ -1057,17 +1045,17 @@ function renderTableThemed(tableLines: string[], theme: MarkdownTheme, chunks: T
   const wordWrap = (text: string, width: number): string[] => {
     // First, handle <br> tags by splitting into segments
     const brSegments = text.split(/<br\s*\/?>/gi)
-    
+
     // Process each segment and collect all lines
     const allLines: string[] = []
-    
+
     for (const segment of brSegments) {
       const segmentTrimmed = segment.trim()
       if (!segmentTrimmed) {
         allLines.push("")
         continue
       }
-      
+
       if (visibleLength(segmentTrimmed) <= width) {
         allLines.push(segmentTrimmed)
         continue
@@ -1097,10 +1085,10 @@ function renderTableThemed(tableLines: string[], theme: MarkdownTheme, chunks: T
       // Recursively breaks until all parts fit within maxLen
       const breakLongToken = (token: string, maxLen: number): string[] => {
         if (visibleLength(token) <= maxLen) return [token]
-        
+
         // Don't break backtick-quoted tokens
         if (token.startsWith("`") && token.endsWith("`")) return [token]
-        
+
         // Try to find a break point
         let bestBreak = -1
         for (let i = 0; i < token.length - 1; i++) {
@@ -1108,20 +1096,20 @@ function renderTableThemed(tableLines: string[], theme: MarkdownTheme, chunks: T
             bestBreak = i
           }
         }
-        
+
         if (bestBreak === -1) {
           // No good break point found, return as-is
           return [token]
         }
-        
+
         const firstPart = token.slice(0, bestBreak + 1)
         const rest = token.slice(bestBreak + 1)
-        
+
         // Recursively break the rest if still too long
         if (visibleLength(rest) > maxLen) {
           return [firstPart, ...breakLongToken(rest, maxLen)]
         }
-        
+
         return [firstPart, rest]
       }
 
@@ -1163,25 +1151,25 @@ function renderTableThemed(tableLines: string[], theme: MarkdownTheme, chunks: T
         }
       }
       if (line) lines.push(line.trimEnd())
-      
+
       // Post-process: fix bold markers across line breaks
       // Each line should have complete **...** pairs for renderInlineThemed to work
       const countBoldMarkers = (s: string): number => (s.match(/\*\*/g) || []).length
-      
+
       let inBold = false
       for (let i = 0; i < lines.length; i++) {
         let l = lines[i]
         const markers = countBoldMarkers(l)
-        
+
         // If we're in bold from previous line, prepend **
         if (inBold && !l.startsWith("**")) {
           l = "**" + l
         }
-        
+
         // Recount after potential prepend
         const newMarkers = countBoldMarkers(l)
-        const lineEndsInBold = (newMarkers % 2 === 1)
-        
+        const lineEndsInBold = newMarkers % 2 === 1
+
         // If line ends in bold (odd markers), close it and mark for next line
         if (lineEndsInBold) {
           if (!l.endsWith("**")) {
@@ -1191,15 +1179,15 @@ function renderTableThemed(tableLines: string[], theme: MarkdownTheme, chunks: T
         } else {
           // Even markers - check if we started in bold
           // If we started in bold and have even markers, we're still in bold
-          inBold = inBold && (markers % 2 === 0)
+          inBold = inBold && markers % 2 === 0
         }
-        
+
         lines[i] = l
       }
-      
+
       allLines.push(...(lines.length ? lines : [""]))
     }
-    
+
     return allLines.length ? allLines : [""]
   }
 
@@ -1227,6 +1215,47 @@ function renderTableThemed(tableLines: string[], theme: MarkdownTheme, chunks: T
     colWidths[maxIdx] = Math.max(10, colWidths[maxIdx] - 1)
   }
 
+  // Helper to render cell with inline formatting and pad to width
+  const renderCell = (text: string, width: number, isHeader: boolean) => {
+    if (!text) {
+      addChunk(" ".repeat(width), theme.markdownText)
+      return
+    }
+    // Render inline markdown to temporary chunks
+    const cellChunks: TextChunk[] = []
+    if (isHeader) {
+      renderInlineThemedWithDefault(text, theme, cellChunks, theme.markdownHeading, Attr.BOLD)
+    } else {
+      renderInlineThemed(text, theme, cellChunks)
+    }
+    // Calculate visible length (accounting for double-width unicode) and add chunks
+    // Truncate if content exceeds column width
+    let len = 0
+    for (const c of cellChunks) {
+      const w = Bun.stringWidth(c.text)
+      if (len + w > width) {
+        const remaining = width - len
+        if (remaining > 0) {
+          // Truncate this chunk to fit
+          let truncated = ""
+          for (const char of c.text) {
+            if (Bun.stringWidth(truncated + char) > remaining) break
+            truncated += char
+          }
+          if (truncated) chunks.push({ ...c, text: truncated })
+        }
+        len = width
+        break
+      }
+      chunks.push(c)
+      len += w
+    }
+    // Pad remaining space
+    if (len < width) {
+      addChunk(" ".repeat(width - len), theme.markdownText)
+    }
+  }
+
   // Top border
   addChunk(
     Box.topLeft + colWidths.map((w) => Box.horizontal.repeat(w + 2)).join(Box.topT) + Box.topRight + "\n",
@@ -1237,15 +1266,7 @@ function renderTableThemed(tableLines: string[], theme: MarkdownTheme, chunks: T
   addChunk(Box.vertical, theme.border)
   headerRow.forEach((cell, i) => {
     addChunk(" ", theme.border)
-    const cellWidth = Bun.stringWidth(cell)
-    const targetWidth = colWidths[i]
-    if (cellWidth <= targetWidth) {
-      // Pad with spaces
-      addChunk(cell + " ".repeat(targetWidth - cellWidth), theme.markdownHeading, Attr.BOLD)
-    } else {
-      // Truncate - simple approach, may cut mid-emoji
-      addChunk(cell.slice(0, targetWidth), theme.markdownHeading, Attr.BOLD)
-    }
+    renderCell(cell, colWidths[i], true)
     addChunk(" " + Box.vertical, theme.border)
   })
   addChunk("\n")
@@ -1255,31 +1276,6 @@ function renderTableThemed(tableLines: string[], theme: MarkdownTheme, chunks: T
     Box.leftT + colWidths.map((w) => Box.horizontal.repeat(w + 2)).join(Box.cross) + Box.rightT + "\n",
     theme.border,
   )
-
-  // Helper to render cell with inline formatting and pad to width
-  const renderCell = (text: string, width: number, isHeader: boolean) => {
-    if (!text) {
-      addChunk(" ".repeat(width), theme.markdownText)
-      return
-    }
-    // Render inline markdown to temporary chunks
-    const cellChunks: TextChunk[] = []
-    if (isHeader) {
-      cellChunks.push({ __isChunk: true, text, fg: theme.markdownHeading, attributes: Attr.BOLD })
-    } else {
-      renderInlineThemed(text, theme, cellChunks)
-    }
-    // Calculate visible length (accounting for double-width unicode) and add chunks
-    let len = 0
-    for (const c of cellChunks) {
-      chunks.push(c)
-      len += Bun.stringWidth(c.text)
-    }
-    // Pad remaining space
-    if (len < width) {
-      addChunk(" ".repeat(width - len), theme.markdownText)
-    }
-  }
 
   // Data rows with word wrap
   dataRows.forEach((row) => {

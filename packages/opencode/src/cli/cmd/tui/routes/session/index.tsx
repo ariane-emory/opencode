@@ -582,15 +582,7 @@ export function Session() {
         dialog.clear()
       },
     },
-    {
-      title: markdownAll() ? "Render markdown: agent messages only" : "Render markdown: all messages",
-      value: "session.toggle.markdown_all",
-      category: "Session",
-      onSelect: (dialog) => {
-        setMarkdownAll((prev) => !prev)
-        dialog.clear()
-      },
-    },
+
     {
       title: "Page up",
       value: "session.page.up",

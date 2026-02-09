@@ -6,7 +6,7 @@
   "publisher": "sst-dev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ariane-emory/base-one"
+    "url": "https://github.com/ariane-emory/baseone"
   },
   "license": "MIT",
   "icon": "images/icon.png",
@@ -25,7 +25,7 @@
   "contributes": {
     "commands": [
       {
-        "command": "base-one.openTerminal",
+        "command": "baseone.openTerminal",
         "title": "Open BaseOne",
         "icon": {
           "light": "images/button-dark.svg",
@@ -33,7 +33,7 @@
         }
       },
       {
-        "command": "base-one.openNewTerminal",
+        "command": "baseone.openNewTerminal",
         "title": "Open BaseOne in new tab",
         "icon": {
           "light": "images/button-dark.svg",
@@ -41,21 +41,21 @@
         }
       },
       {
-        "command": "base-one.addFilepathToTerminal",
+        "command": "baseone.addFilepathToTerminal",
         "title": "Add Filepath to Terminal"
       }
     ],
     "menus": {
       "editor/title": [
         {
-          "command": "base-one.openNewTerminal",
+          "command": "baseone.openNewTerminal",
           "group": "navigation"
         }
       ]
     },
     "keybindings": [
       {
-        "command": "base-one.openTerminal",
+        "command": "baseone.openTerminal",
         "title": "Run BaseOne",
         "key": "cmd+escape",
         "mac": "cmd+escape",
@@ -63,7 +63,7 @@
         "linux": "ctrl+escape"
       },
       {
-        "command": "base-one.openNewTerminal",
+        "command": "baseone.openNewTerminal",
         "title": "Run BaseOne",
         "key": "cmd+shift+escape",
         "mac": "cmd+shift+escape",
@@ -71,7 +71,7 @@
         "linux": "ctrl+shift+escape"
       },
       {
-        "command": "base-one.addFilepathToTerminal",
+        "command": "baseone.addFilepathToTerminal",
         "title": "BaseOne: Insert At-Mentioned",
         "key": "cmd+alt+k",
         "mac": "cmd+alt+k",

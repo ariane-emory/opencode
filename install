@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-APP=base-one
+APP=baseone
 
 MUTED='\033[0;2m'
 RED='\033[0;31m'
@@ -66,7 +66,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Use new directory, fall back to legacy if it exists
-INSTALL_DIR=$HOME/.base-one/bin
+INSTALL_DIR=$HOME/.baseone/bin
 LEGACY_INSTALL_DIR=$HOME/.opencode/bin
 if [ -d "$LEGACY_INSTALL_DIR" ] && [ ! -d "$INSTALL_DIR" ]; then
   INSTALL_DIR=$LEGACY_INSTALL_DIR
@@ -173,8 +173,8 @@ case "$combo" in
     fi
 
     if [ -z "$requested_version" ]; then
-        url="https://github.com/ariane-emory/base-one/releases/latest/download/$filename"
-        specific_version=$(curl -s https://api.github.com/repos/ariane-emory/base-one/releases/latest | sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p')
+        url="https://github.com/ariane-emory/baseone/releases/latest/download/$filename"
+        specific_version=$(curl -s https://api.github.com/repos/ariane-emory/baseone/releases/latest | sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p')
 
         if [[ $? -ne 0 || -z "$specific_version" ]]; then
             echo -e "${RED}Failed to fetch version information${NC}"
@@ -183,14 +183,14 @@ case "$combo" in
     else
         # Strip leading 'v' if present
         requested_version="${requested_version#v}"
-        url="https://github.com/ariane-emory/base-one/releases/download/v${requested_version}/$filename"
+        url="https://github.com/ariane-emory/baseone/releases/download/v${requested_version}/$filename"
         specific_version=$requested_version
 
         # Verify the release exists before downloading
-        http_status=$(curl -sI -o /dev/null -w "%{http_code}" "https://github.com/ariane-emory/base-one/releases/tag/v${requested_version}")
+        http_status=$(curl -sI -o /dev/null -w "%{http_code}" "https://github.com/ariane-emory/baseone/releases/tag/v${requested_version}")
         if [ "$http_status" = "404" ]; then
             echo -e "${RED}Error: Release v${requested_version} not found${NC}"
-            echo -e "${MUTED}Available releases: https://github.com/ariane-emory/base-one/releases${NC}"
+            echo -e "${MUTED}Available releases: https://github.com/ariane-emory/baseone/releases${NC}"
             exit 1
         fi
     fi
@@ -211,11 +211,11 @@ print_message() {
 }
 
 check_version() {
-    if command -v base-one >/dev/null 2>&1; then
-        baseone_path=$(which base-one)
+    if command -v baseone >/dev/null 2>&1; then
+        baseone_path=$(which baseone)
 
-        ## Check the installed version
-        installed_version=$(base-one --version 2>/dev/null || echo "")
+        ## Check installed version
+        installed_version=$(baseone --version 2>/dev/null || echo "")
 
         if [[ "$installed_version" != "$specific_version" ]]; then
             print_message info "${MUTED}Installed version: ${NC}$installed_version."
@@ -317,7 +317,7 @@ download_with_progress() {
 }
 
 download_and_install() {
-    print_message info "\n${MUTED}Installing ${NC}base-one ${MUTED}version: ${NC}$specific_version"
+    print_message info "\n${MUTED}Installing ${NC}baseone ${MUTED}version: ${NC}$specific_version"
     local tmp_dir="${TMPDIR:-/tmp}/baseone_install_$$"
     mkdir -p "$tmp_dir"
 
@@ -332,15 +332,15 @@ download_and_install() {
         unzip -q "$tmp_dir/$filename" -d "$tmp_dir"
     fi
     
-    mv "$tmp_dir/base-one" "$INSTALL_DIR"
-    chmod 755 "${INSTALL_DIR}/base-one"
+    mv "$tmp_dir/baseone" "$INSTALL_DIR"
+    chmod 755 "${INSTALL_DIR}/baseone"
     rm -rf "$tmp_dir"
 }
 
 install_from_binary() {
-    print_message info "\n${MUTED}Installing ${NC}base-one ${MUTED}from: ${NC}$binary_path"
-    cp "$binary_path" "${INSTALL_DIR}/base-one"
-    chmod 755 "${INSTALL_DIR}/base-one"
+    print_message info "\n${MUTED}Installing ${NC}baseone ${MUTED}from: ${NC}$binary_path"
+    cp "$binary_path" "${INSTALL_DIR}/baseone"
+    chmod 755 "${INSTALL_DIR}/baseone"
 }
 
 if [ -n "$binary_path" ]; then
@@ -357,10 +357,10 @@ add_to_path() {
 
     if grep -Fxq "$command" "$config_file"; then
         print_message info "Command already exists in $config_file, skipping write."
-    elif [[ -w $config_file ]]; then
-        echo -e "\n# base-one" >> "$config_file"
+    el    if [[ -w $config_file ]]; then
+        echo -e "\n# baseone" >> "$config_file"
         echo "$command" >> "$config_file"
-        print_message info "${MUTED}Successfully added ${NC}base-one ${MUTED}to \$PATH in ${NC}$config_file"
+        print_message info "${MUTED}Successfully added ${NC}baseone ${MUTED}to \$PATH in ${NC}$config_file"
     else
         print_message warning "Manually add the directory to $config_file (or similar):"
         print_message info "  $command"
@@ -447,7 +447,7 @@ echo -e ""
 echo -e "${MUTED}BaseOne includes free models, to start:${NC}"
 echo -e ""
 echo -e "cd <project>  ${MUTED}# Open directory${NC}"
-echo -e "base-one      ${MUTED}# Run command${NC}"
+echo -e "baseone      ${MUTED}# Run command${NC}"
 echo -e ""
 echo -e "${MUTED}For more information visit the documentation${NC}"
 echo -e ""

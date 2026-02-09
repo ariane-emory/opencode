@@ -13,7 +13,7 @@
   node_modules ? callPackage ./node-modules.nix { },
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
-  pname = "base-one";
+  pname = "baseone";
   version = args.version;
 
   src = args.src;
@@ -91,8 +91,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   ];
 
   env.MODELS_DEV_API_JSON = args.modelsDev;
-  env.BASE_ONE_VERSION = args.version;
-  env.BASE_ONE_CHANNEL = "stable";
+  env.BASEONE_VERSION = args.version;
+  env.BASEONE_CHANNEL = "stable";
   dontConfigure = true;
 
   buildPhase = ''
@@ -125,9 +125,9 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     install -Dm755 dist/opencode-*/bin/opencode $out/bin/opencode
     install -Dm644 schema.json $out/share/opencode/schema.json
 
-    mkdir -p $out/lib/base-one
-    cp -r dist $out/lib/base-one/
-    chmod -R u+w $out/lib/base-one/dist
+    mkdir -p $out/lib/baseone
+    cp -r dist $out/lib/baseone/
+    chmod -R u+w $out/lib/baseone/dist
 
     # Select bundled worker assets deterministically (sorted find output)
     worker_file=$(find "$out/lib/base-one/dist" -type f \( -path '*/tui/worker.*' -o -name 'worker.*' \) | sort | head -n1)
@@ -137,8 +137,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       exit 1
     fi
 
-    main_wasm=$(printf '%s\n' "$out"/lib/base-one/dist/tree-sitter-*.wasm | sort | head -n1)
-    wasm_list=$(find "$out/lib/base-one/dist" -maxdepth 1 -name 'tree-sitter-*.wasm' -print)
+    main_wasm=$(printf '%s\n' "$out"/lib/baseone/dist/tree-sitter-*.wasm | sort | head -n1)
+    wasm_list=$(find "$out/lib/baseone/dist" -maxdepth 1 -name 'tree-sitter-*.wasm' -print)
     for patch_file in "$worker_file" "$parser_worker_file"; do
       [ -z "$patch_file" ] && continue
       [ ! -f "$patch_file" ] && continue
@@ -148,14 +148,14 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       fi
     done
 
-    mkdir -p $out/lib/base-one/node_modules
-    cp -r ../../node_modules/.bun $out/lib/base-one/node_modules/
-    mkdir -p $out/lib/base-one/node_modules/@opentui
+    mkdir -p $out/lib/baseone/node_modules
+    cp -r ../../node_modules/.bun $out/lib/baseone/node_modules/
+    mkdir -p $out/lib/baseone/node_modules/@opentui
 
     mkdir -p $out/bin
-    makeWrapper ${bun}/bin/bun $out/bin/base-one \
+    makeWrapper ${bun}/bin/bun $out/bin/baseone \
       --add-flags "run" \
-      --add-flags "$out/lib/base-one/dist/src/index.js" \
+      --add-flags "$out/lib/baseone/dist/src/index.js" \
       --prefix PATH : ${
         lib.makeBinPath (
           [
@@ -165,24 +165,24 @@ stdenvNoCC.mkDerivation (finalAttrs: {
           ++ lib.optional stdenvNoCC.hostPlatform.isDarwin sysctl
         )
       } \
-      --argv0 base-one
+      --argv0 baseone
 
     runHook postInstall
   '';
 
   postInstall = ''
-    for pkg in $out/lib/base-one/node_modules/.bun/@opentui+core-* $out/lib/base-one/node_modules/.bun/@opentui+solid-* $out/lib/base-one/node_modules/.bun/@opentui+core@* $out/lib/base-one/node_modules/.bun/@opentui+solid@*; do
+    for pkg in $out/lib/baseone/node_modules/.bun/@opentui+core-* $out/lib/baseone/node_modules/.bun/@opentui+solid-* $out/lib/baseone/node_modules/.bun/@opentui+core@* $out/lib/baseone/node_modules/.bun/@opentui+solid@*; do
       if [ -d "$pkg" ]; then
         pkgName=$(basename "$pkg" | sed 's/@opentui+\([^@]*\)@.*/\1/')
         ln -sf ../.bun/$(basename "$pkg")/node_modules/@opentui/$pkgName \
-          $out/lib/base-one/node_modules/@opentui/$pkgName
+          $out/lib/baseone/node_modules/@opentui/$pkgName
       fi
     done
   '' + lib.optionalString (stdenvNoCC.buildPlatform.canExecute stdenvNoCC.hostPlatform) ''
     # trick yargs into also generating zsh completions
-    installShellCompletion --cmd base-one \
-      --bash <($out/bin/base-one completion) \
-      --zsh <(SHELL=/bin/zsh $out/bin/base-one completion)
+    installShellCompletion --cmd baseone \
+      --bash <($out/bin/baseone completion) \
+      --zsh <(SHELL=/bin/zsh $out/bin/baseone completion)
   '';
 
   nativeInstallCheckInputs = [
@@ -204,9 +204,9 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       It combines a TypeScript/JavaScript core with a Go-based TUI
       to provide an interactive AI coding experience.
     '';
-    homepage = "https://github.com/ariane-emory/base-one";
+    homepage = "https://github.com/ariane-emory/baseone";
     license = lib.licenses.mit;
-    mainProgram = "base-one";
+    mainProgram = "baseone";
     inherit (node_modules.meta) platforms;
   };
 })

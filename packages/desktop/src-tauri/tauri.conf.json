@@ -41,7 +41,7 @@
     ],
     "active": true,
     "targets": ["deb", "rpm", "dmg", "nsis", "app", "appimage"],
-    "externalBin": ["sidecars/base-one-cli"],
+    "externalBin": ["sidecars/baseone-cli"],
     "linux": {
       "rpm": {
         "compression": {

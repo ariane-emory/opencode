@@ -3,7 +3,7 @@ import { xdgData, xdgCache, xdgConfig, xdgState } from "xdg-basedir"
 import path from "path"
 import os from "os"
 
-const app = "base-one"
+const app = "baseone"
 const legacyApp = "opencode"
 
 // Helper to check if a directory exists

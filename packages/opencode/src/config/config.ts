@@ -100,9 +100,9 @@ export namespace Config {
     result = mergeConfigConcatArrays(result, await global())
 
     // Override with custom config if provided
-    if (Flag.BASE_ONE_CONFIG) {
-      result = mergeConfigConcatArrays(result, await loadFile(Flag.BASE_ONE_CONFIG))
-      log.debug("loaded custom config", { path: Flag.BASE_ONE_CONFIG })
+    if (Flag.BASEONE_CONFIG) {
+      result = mergeConfigConcatArrays(result, await loadFile(Flag.BASEONE_CONFIG))
+      log.debug("loaded custom config", { path: Flag.BASEONE_CONFIG })
     }
 
     // Project config overrides global and remote config.
@@ -125,9 +125,9 @@ export namespace Config {
       // Only scan project directories when project discovery is enabled
       ...(!Flag.OPENCODE_DISABLE_PROJECT_CONFIG
         ? await Array.fromAsync(
-            // Search for .opencode first, then fall back to .base-one
+            // Search for .opencode first, then fall back to .baseone
             Filesystem.up({
-              targets: [".opencode", ".base-one"],
+              targets: [".opencode", ".baseone"],
               start: Instance.directory,
               stop: Instance.worktree,
             }),
@@ -136,24 +136,24 @@ export namespace Config {
       // Always scan ~/.opencode/ (user home directory)
       ...(await Array.fromAsync(
         Filesystem.up({
-          targets: [".opencode", ".base-one"],
+          targets: [".opencode", ".baseone"],
           start: Global.Path.home,
           stop: Global.Path.home,
         }),
       )),
     ]
 
-    if (Flag.BASE_ONE_CONFIG_DIR) {
-      directories.push(Flag.BASE_ONE_CONFIG_DIR)
-      log.debug("loading config from BASE_ONE_CONFIG_DIR", { path: Flag.BASE_ONE_CONFIG_DIR })
+    if (Flag.BASEONE_CONFIG_DIR) {
+      directories.push(Flag.BASEONE_CONFIG_DIR)
+      log.debug("loading config from BASEONE_CONFIG_DIR", { path: Flag.BASEONE_CONFIG_DIR })
     }
 
     const deps = []
 
     for (const dir of unique(directories)) {
-      if (dir.endsWith(".opencode") || dir.endsWith(".base-one") || dir === Flag.BASE_ONE_CONFIG_DIR) {
+      if (dir.endsWith(".opencode") || dir.endsWith(".baseone") || dir === Flag.BASEONE_CONFIG_DIR) {
         // Try new config file names first, fall back to legacy
-        for (const file of ["opencode.jsonc", "opencode.json", "base-one.jsonc", "base-one.json"]) {
+      for (const file of ["opencode.jsonc", "opencode.json", "baseone.jsonc", "baseone.json"]) {
           log.debug(`loading config from ${path.join(dir, file)}`)
           result = mergeConfigConcatArrays(result, await loadFile(path.join(dir, file)))
           // to satisfy the type checker
@@ -196,8 +196,8 @@ export namespace Config {
       })
     }
 
-    if (Flag.BASE_ONE_PERMISSION) {
-      result.permission = mergeDeep(result.permission ?? {}, JSON.parse(Flag.BASE_ONE_PERMISSION))
+    if (Flag.BASEONE_PERMISSION) {
+      result.permission = mergeDeep(result.permission ?? {}, JSON.parse(Flag.BASEONE_PERMISSION))
     }
 
     // Backwards compatibility: legacy top-level `tools` config
@@ -354,7 +354,7 @@ export namespace Config {
       if (!md) continue
 
       const name = (() => {
-        const patterns = ["/.opencode/command/", "/.opencode/commands/", "/.base-one/command/", "/.base-one/commands/", "/command/", "/commands/"]
+        const patterns = ["/.opencode/command/", "/.opencode/commands/", "/.baseone/command/", "/.baseone/commands/", "/command/", "/commands/"]
         const pattern = patterns.find((p) => item.includes(p))
 
         if (pattern) {
@@ -406,10 +406,10 @@ export namespace Config {
         ? item.split("/.opencode/agent/")[1]
         : item.includes("/.opencode/agents/")
           ? item.split("/.opencode/agents/")[1]
-          : item.includes("/.base-one/agent/")
-            ? item.split("/.base-one/agent/")[1]
-            : item.includes("/.base-one/agents/")
-              ? item.split("/.base-one/agents/")[1]
+          : item.includes("/.baseone/agent/")
+            ? item.split("/.baseone/agent/")[1]
+            : item.includes("/.baseone/agents/")
+              ? item.split("/.baseone/agents/")[1]
               : item.includes("/agent/")
                 ? item.split("/agent/")[1]
                 : item.includes("/agents/")
@@ -1220,8 +1220,8 @@ export namespace Config {
     result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "config.json")))
     result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "opencode.json")))
     result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "opencode.jsonc")))
-    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "base-one.json")))
-    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "base-one.jsonc")))
+    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "baseone.json")))
+    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "baseone.jsonc")))
 
     const legacy = path.join(Global.Path.config, "config")
     if (existsSync(legacy)) {

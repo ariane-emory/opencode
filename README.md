@@ -8,7 +8,7 @@
 <p align="center">The open source AI coding agent.</p>
 <p align="center">
   <a href="https://opencode.ai/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
-  <a href="https://www.npmjs.com/package/base-one"><img alt="npm" src="https://img.shields.io/npm/v/base-one?style=flat-square" /></a>
+  <a href="https://www.npmjs.com/package/baseone"><img alt="npm" src="https://img.shields.io/npm/v/baseone?style=flat-square" /></a>
 </p>
 
 <p align="center">
@@ -32,7 +32,7 @@
   <a href="README.tr.md">Türkçe</a>
 </p>
 
-[![BaseOne Terminal UI](packages/console/app/src/asset/screenshot.png)](https://github.com/ariane-emory/base-one)
+[![BaseOne Terminal UI](packages/console/app/src/asset/screenshot.png)](https://github.com/ariane-emory/baseone)
 
 ---
 
@@ -40,8 +40,8 @@
 
 ```bash
 # From source
-git clone https://github.com/ariane-emory/base-one.git
-cd base-one
+git clone https://github.com/ariane-emory/baseone.git
+cd baseone
 bun install
 bun dev
 
@@ -80,16 +80,16 @@ scoop bucket add extras; scoop install extras/opencode-desktop
 
 #### Installation Directory
 
-The install script respects the following priority order for the installation path:
+The install script respects following priority order for installation path:
 
-1. `$BASE_ONE_INSTALL_DIR` or `$OPENCODE_INSTALL_DIR` - Custom installation directory
+1. `$BASEONE_INSTALL_DIR` or `$OPENCODE_INSTALL_DIR` - Custom installation directory
 2. `$XDG_BIN_DIR` - XDG Base Directory Specification compliant path
 3. `$HOME/bin` - Standard user binary directory (if it exists or can be created)
-4. `$HOME/.base-one/bin` or `$HOME/.opencode/bin` - Default fallback
+4. `$HOME/.baseone/bin` or `$HOME/.opencode/bin` - Default fallback
 
 ```bash
 # Examples
-BASE_ONE_INSTALL_DIR=/usr/local/bin curl -fsSL https://opencode.ai/install | bash
+BASEONE_INSTALL_DIR=/usr/local/bin curl -fsSL https://opencode.ai/install | bash
 XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://opencode.ai/install | bash
 ```
 
@@ -109,10 +109,10 @@ This is used internally and can be invoked using `@general` in messages.
 
 ### Configuration
 
-BaseOne uses configuration files named `base-one.json` or `base-one.jsonc`. 
+BaseOne uses configuration files named `baseone.json` or `baseone.jsonc`.
 For backwards compatibility, it will also look for `opencode.json` and `opencode.jsonc`.
 
-Environment variables use the `BASE_ONE_` prefix, with fallback to `OPENCODE_` for backwards compatibility.
+Environment variables use the `BASEONE_` prefix, with fallback to `OPENCODE_` for backwards compatibility.
 
 ### Contributing
 
@@ -120,7 +120,7 @@ If you're interested in contributing to BaseOne, please read our [contributing d
 
 ### Building on BaseOne
 
-If you are working on a project that's related to BaseOne and is using "base-one" as a part of its name; for example, "base-one-dashboard" or "base-one-mobile", please add a note to your README to clarify that it is not built by the BaseOne team and is not affiliated with us in any way.
+If you are working on a project that's related to BaseOne and is using "baseone" as a part of its name; for example, "baseone-dashboard" or "baseone-mobile", please add a note to your README to clarify that it is not built by the BaseOne team and is not affiliated with us in any way.
 
 ### FAQ
 

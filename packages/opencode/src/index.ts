@@ -41,7 +41,7 @@ process.on("uncaughtException", (e) => {
 
 const cli = yargs(hideBin(process.argv))
   .parserConfiguration({ "populate--": true })
-  .scriptName("base-one")
+  .scriptName("baseone")
   .wrap(100)
   .help("help", "show help")
   .alias("help", "h")
@@ -68,10 +68,10 @@ const cli = yargs(hideBin(process.argv))
     })
 
     process.env.AGENT = "1"
-    process.env.BASE_ONE = "1"
+    process.env.BASEONE = "1"
     process.env.OPENCODE = "1" // Legacy compatibility
 
-    Log.Default.info("base-one", {
+    Log.Default.info("baseone", {
       version: Installation.VERSION,
       args: process.argv.slice(2),
     })

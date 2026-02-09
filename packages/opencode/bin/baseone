@@ -18,7 +18,7 @@ function run(target) {
 }
 
 // Support both new and legacy env var names
-const envPath = process.env.BASE_ONE_BIN_PATH || process.env.OPENCODE_BIN_PATH
+const envPath = process.env.BASEONE_BIN_PATH || process.env.OPENCODE_BIN_PATH
 if (envPath) {
   run(envPath)
 }
@@ -45,9 +45,9 @@ let arch = archMap[os.arch()]
 if (!arch) {
   arch = os.arch()
 }
-const base = "base-one-" + platform + "-" + arch
+const base = "baseone-" + platform + "-" + arch
 const legacyBase = "opencode-" + platform + "-" + arch
-const binary = platform === "windows" ? "base-one.exe" : "base-one"
+const binary = platform === "windows" ? "baseone.exe" : "baseone"
 const legacyBinary = platform === "windows" ? "opencode.exe" : "opencode"
 
 function findBinary(startDir) {
@@ -86,7 +86,7 @@ function findBinary(startDir) {
 const resolved = findBinary(scriptDir)
 if (!resolved) {
   console.error(
-    'It seems that your package manager failed to install the right version of the base-one CLI for your platform. You can try manually installing the "' +
+    'It seems that your package manager failed to install the right version of the baseone CLI for your platform. You can try manually installing the "' +
       base +
       '" package',
   )

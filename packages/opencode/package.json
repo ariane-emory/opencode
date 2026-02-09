@@ -18,7 +18,7 @@
     "deploy": "echo 'Deploying application...' && bun run build && echo 'Deployment completed successfully'"
   },
   "bin": {
-    "base-one": "./bin/base-one"
+    "baseone": "./bin/baseone"
   },
   "randomField": "this-is-a-random-value-12345",
   "exports": {

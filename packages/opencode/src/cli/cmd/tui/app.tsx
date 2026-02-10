@@ -610,6 +610,46 @@ function App() {
         dialog.clear()
       },
     },
+    {
+      title: kv.get("timestamps", "hide") === "show" ? "Hide timestamps" : "Show timestamps",
+      value: "system.toggle.timestamps",
+      category: "System",
+      slash: {
+        name: "timestamps",
+        aliases: ["toggle-timestamps"],
+      },
+      onSelect: (dialog) => {
+        const current = kv.get("timestamps", "hide")
+        kv.set("timestamps", current === "show" ? "hide" : "show")
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("thinking_visibility", true) ? "Hide thinking" : "Show thinking",
+      value: "system.toggle.thinking",
+      keybind: "display_thinking",
+      category: "System",
+      slash: {
+        name: "thinking",
+        aliases: ["toggle-thinking"],
+      },
+      onSelect: (dialog) => {
+        const current = kv.get("thinking_visibility", true)
+        kv.set("thinking_visibility", !current)
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("tool_details_visibility", true) ? "Hide tool details" : "Show tool details",
+      value: "system.toggle.tool_details",
+      keybind: "tool_details",
+      category: "System",
+      onSelect: (dialog) => {
+        const current = kv.get("tool_details_visibility", true)
+        kv.set("tool_details_visibility", !current)
+        dialog.clear()
+      },
+    },
   ])
 
   createEffect(() => {

@@ -531,43 +531,6 @@ export function Session() {
       },
     },
     {
-      title: showTimestamps() ? "Hide timestamps" : "Show timestamps",
-      value: "session.toggle.timestamps",
-      category: "Session",
-      slash: {
-        name: "timestamps",
-        aliases: ["toggle-timestamps"],
-      },
-      onSelect: (dialog) => {
-        setTimestamps((prev) => (prev === "show" ? "hide" : "show"))
-        dialog.clear()
-      },
-    },
-    {
-      title: showThinking() ? "Hide thinking" : "Show thinking",
-      value: "session.toggle.thinking",
-      keybind: "display_thinking",
-      category: "Session",
-      slash: {
-        name: "thinking",
-        aliases: ["toggle-thinking"],
-      },
-      onSelect: (dialog) => {
-        setShowThinking((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
-      title: showDetails() ? "Hide tool details" : "Show tool details",
-      value: "session.toggle.actions",
-      keybind: "tool_details",
-      category: "Session",
-      onSelect: (dialog) => {
-        setShowDetails((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
       title: "Toggle session scrollbar",
       value: "session.toggle.scrollbar",
       keybind: "scrollbar_toggle",

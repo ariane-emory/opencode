@@ -261,6 +261,47 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
 
   const isFocused = createFocusSignal(() => editorRef)
 
+  const closePopover = () => setStore("popover", null)
+
+  const resetHistoryNavigation = (force = false) => {
+    if (!force && (store.historyIndex < 0 || store.applyingHistory)) return
+    setStore("historyIndex", -1)
+    setStore("savedPrompt", null)
+  }
+
+  const clearEditor = () => {
+    editorRef.innerHTML = ""
+  }
+
+  const setEditorText = (text: string) => {
+    clearEditor()
+    editorRef.textContent = text
+  }
+
+  const focusEditorEnd = () => {
+    requestAnimationFrame(() => {
+      editorRef.focus()
+      const range = document.createRange()
+      const selection = window.getSelection()
+      range.selectNodeContents(editorRef)
+      range.collapse(false)
+      selection?.removeAllRanges()
+      selection?.addRange(range)
+    })
+  }
+
+  const currentCursor = () => {
+    const selection = window.getSelection()
+    if (!selection || selection.rangeCount === 0 || !editorRef.contains(selection.anchorNode)) return null
+    return getCursorPosition(editorRef)
+  }
+
+  const renderEditorWithCursor = (parts: Prompt) => {
+    const cursor = currentCursor()
+    renderEditor(parts)
+    if (cursor !== null) setCursorPosition(editorRef, cursor)
+  }
+
   createEffect(() => {
     params.id
     if (params.id) return
@@ -274,7 +315,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   const isImeComposing = (event: KeyboardEvent) => event.isComposing || composing() || event.keyCode === 229
 
   createEffect(() => {
-    if (!isFocused()) setStore("popover", null)
+    if (!isFocused()) closePopover()
   })
 
   // Safety: reset composing state on focus change to prevent stuck state
@@ -288,6 +329,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
       .filter((agent) => !agent.hidden && agent.mode !== "primary")
       .map((agent): AtOption => ({ type: "agent", name: agent.name, display: agent.name })),
   )
+  const agentNames = createMemo(() => local.agent.list().map((agent) => agent.name))
 
   const handleAtSelect = (option: AtOption | undefined) => {
     if (!option) return
@@ -365,26 +407,17 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
 
   const handleSlashSelect = (cmd: SlashCommand | undefined) => {
     if (!cmd) return
-    setStore("popover", null)
+    closePopover()
 
     if (cmd.type === "custom") {
       const text = `/${cmd.trigger} `
-      editorRef.innerHTML = ""
-      editorRef.textContent = text
+      setEditorText(text)
       prompt.set([{ type: "text", content: text, start: 0, end: text.length }], text.length)
-      requestAnimationFrame(() => {
-        editorRef.focus()
-        const range = document.createRange()
-        const sel = window.getSelection()
-        range.selectNodeContents(editorRef)
-        range.collapse(false)
-        sel?.removeAllRanges()
-        sel?.addRange(range)
-      })
+      focusEditorEnd()
       return
     }
 
-    editorRef.innerHTML = ""
+    clearEditor()
     prompt.set([{ type: "text", content: "", start: 0, end: 0 }], 0)
     command.trigger(cmd.id, "slash")
   }
@@ -438,7 +471,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     })
 
   const renderEditor = (parts: Prompt) => {
-    editorRef.innerHTML = ""
+    clearEditor()
     for (const part of parts) {
       if (part.type === "text") {
         editorRef.appendChild(createTextFragment(part.content))
@@ -498,34 +531,14 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
           mirror.input = false
           if (isNormalizedEditor()) return
 
-          const selection = window.getSelection()
-          let cursorPosition: number | null = null
-          if (selection && selection.rangeCount > 0 && editorRef.contains(selection.anchorNode)) {
-            cursorPosition = getCursorPosition(editorRef)
-          }
-
-          renderEditor(inputParts)
-
-          if (cursorPosition !== null) {
-            setCursorPosition(editorRef, cursorPosition)
-          }
+          renderEditorWithCursor(inputParts)
           return
         }
 
         const domParts = parseFromDOM()
         if (isNormalizedEditor() && isPromptEqual(inputParts, domParts)) return
 
-        const selection = window.getSelection()
-        let cursorPosition: number | null = null
-        if (selection && selection.rangeCount > 0 && editorRef.contains(selection.anchorNode)) {
-          cursorPosition = getCursorPosition(editorRef)
-        }
-
-        renderEditor(inputParts)
-
-        if (cursorPosition !== null) {
-          setCursorPosition(editorRef, cursorPosition)
-        }
+        renderEditorWithCursor(inputParts)
       },
     ),
   )
@@ -620,11 +633,8 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     const shouldReset = trimmed.length === 0 && !hasNonText && images.length === 0
 
     if (shouldReset) {
-      setStore("popover", null)
-      if (store.historyIndex >= 0 && !store.applyingHistory) {
-        setStore("historyIndex", -1)
-        setStore("savedPrompt", null)
-      }
+      closePopover()
+      resetHistoryNavigation()
       if (prompt.dirty()) {
         mirror.input = true
         prompt.set(DEFAULT_PROMPT, 0)
@@ -646,16 +656,13 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
         slashOnInput(slashMatch[1])
         setStore("popover", "slash")
       } else {
-        setStore("popover", null)
+        closePopover()
       }
     } else {
-      setStore("popover", null)
+      closePopover()
     }
 
-    if (store.historyIndex >= 0 && !store.applyingHistory) {
-      setStore("historyIndex", -1)
-      setStore("savedPrompt", null)
-    }
+    resetHistoryNavigation()
 
     mirror.input = true
     prompt.set([...rawParts, ...images], cursorPosition)
@@ -716,7 +723,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     }
 
     handleInput()
-    setStore("popover", null)
+    closePopover()
   }
 
   const addToHistory = (prompt: Prompt, mode: "normal" | "shell") => {
@@ -766,8 +773,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     promptLength,
     addToHistory,
     resetHistoryNavigation: () => {
-      setStore("historyIndex", -1)
-      setStore("savedPrompt", null)
+      resetHistoryNavigation(true)
     },
     setMode: (mode) => setStore("mode", mode),
     setPopover: (popover) => setStore("popover", popover),
@@ -856,7 +862,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
 
     if (ctrl && event.code === "KeyG") {
       if (store.popover) {
-        setStore("popover", null)
+        closePopover()
         event.preventDefault()
         return
       }
@@ -907,7 +913,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     }
     if (event.key === "Escape") {
       if (store.popover) {
-        setStore("popover", null)
+        closePopover()
       } else if (working()) {
         abort()
       }
@@ -1023,7 +1029,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                   keybind={command.keybind("agent.cycle")}
                 >
                   <Select
-                    options={local.agent.list().map((agent) => agent.name)}
+                    options={agentNames()}
                     current={local.agent.current()?.name ?? ""}
                     onSelect={local.agent.set}
                     class={`capitalize ${local.model.variant.list().length > 0 ? "max-w-full" : "max-w-[120px]"}`}

@@ -175,8 +175,8 @@ export namespace Config {
     }
 
     // Inline config content overrides all non-managed config sources.
-    if (Flag.OPENCODE_CONFIG_CONTENT) {
-      result = mergeConfigConcatArrays(result, JSON.parse(Flag.OPENCODE_CONFIG_CONTENT))
+    if (process.env.OPENCODE_CONFIG_CONTENT) {
+      result = mergeConfigConcatArrays(result, await load(process.env.OPENCODE_CONFIG_CONTENT, path.join(Instance.directory, "<inline>")))
       log.debug("loaded custom config from OPENCODE_CONFIG_CONTENT")
     }
 

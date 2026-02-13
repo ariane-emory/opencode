@@ -405,7 +405,7 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
                 toast.show({
                   variant: "error",
                   title: "Plugin Errors",
-                  message: errors.join("\n"),
+                  message: errors.join("\n\n"),
                   duration: 15000,
                 })
               }

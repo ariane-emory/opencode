@@ -13,6 +13,31 @@ import { NamedError } from "@opencode-ai/util/error"
 import { CopilotAuthPlugin } from "./copilot"
 import { gitlabAuthPlugin as GitlabAuthPlugin } from "@gitlab/opencode-gitlab-auth"
 
+interface BuildMessage {
+  message: string
+  position?: {
+    file?: string
+    line?: number
+    column?: number
+    lineText?: string
+  }
+}
+
+function formatPluginBuildError(e: unknown, plugin: string): string {
+  if (e instanceof AggregateError && e.errors?.length) {
+    const buildError = e.errors.find((err): err is BuildMessage => err && typeof err === "object" && "message" in err)
+    if (buildError) {
+      const pos = buildError.position
+      const file = pos?.file ? pos.file.replace(plugin, "").replace(/^\/+/, "") : undefined
+      const line = pos?.line
+      const details = file ? `${file}:${line ?? "?"}` : line ? `line ${line}` : undefined
+      return details ? `${buildError.message} (${details})` : buildError.message
+    }
+  }
+  if (e instanceof Error) return e.message
+  return String(e)
+}
+
 export namespace Plugin {
   const log = Log.create({ service: "plugin" })
 
@@ -79,10 +104,20 @@ export namespace Plugin {
         })
         if (!plugin) continue
       }
-      const mod = await import(plugin)
-      // Prevent duplicate initialization when plugins export the same function
-      // as both a named export and default export (e.g., `export const X` and `export default X`).
-      // Object.entries(mod) would return both entries pointing to the same function reference.
+      let mod: Record<string, PluginInstance>
+      try {
+        mod = await import(plugin)
+      } catch (e) {
+        const name = Config.getPluginName(plugin)
+        const message = formatPluginBuildError(e, plugin)
+        log.error("failed to load plugin", { plugin: name, error: message })
+        Bus.publish(Session.Event.Error, {
+          error: new NamedError.Unknown({
+            message: `Failed to load plugin "${name}": ${message}`,
+          }).toObject(),
+        })
+        continue
+      }
       const seen = new Set<PluginInstance>()
       for (const [_name, fn] of Object.entries<PluginInstance>(mod)) {
         if (seen.has(fn)) continue

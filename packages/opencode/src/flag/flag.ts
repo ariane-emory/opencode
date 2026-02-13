@@ -163,3 +163,14 @@ Object.defineProperty(Flag, "OPENCODE_CLIENT", {
   enumerable: true,
   configurable: false,
 })
+
+// Dynamic getter for OPENCODE_CONFIG_CONTENT
+// This must be evaluated at access time, not module load time,
+// because external tooling may set this env var at runtime
+Object.defineProperty(Flag, "OPENCODE_CONFIG_CONTENT", {
+  get() {
+    return process.env["OPENCODE_CONFIG_CONTENT"]
+  },
+  enumerable: true,
+  configurable: false,
+})

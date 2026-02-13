@@ -176,6 +176,18 @@ export namespace Config {
       result.plugin.push(...(await loadPlugin(dir)))
     }
 
+    // Inline config content overrides all non-managed config sources.
+    // Route through load() to enable {env:} and {file:} token substitution.
+    // Use a path within Instance.directory so relative {file:} paths resolve correctly.
+    // The filename "OPENCODE_CONFIG_CONTENT" appears in error messages for clarity.
+    if (Flag.OPENCODE_CONFIG_CONTENT) {
+      result = mergeConfigConcatArrays(
+        result,
+        await load(Flag.OPENCODE_CONFIG_CONTENT, path.join(Instance.directory, "OPENCODE_CONFIG_CONTENT")),
+      )
+      log.debug("loaded custom config from OPENCODE_CONFIG_CONTENT")
+    }
+
     // Load managed config files last (highest priority) - enterprise admin-controlled
     // Kept separate from directories array to avoid write operations when installing plugins
     // which would fail on system directories requiring elevated permissions

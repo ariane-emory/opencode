@@ -400,7 +400,7 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
             sdk.client.config.startupErrors().then((x) => {
               const errors = x.data ?? []
               if (errors.length === 1) {
-                toast.show({ variant: "error", message: errors[0], duration: 10000 })
+                toast.show({ variant: "error", title: "Plugin Error", message: errors[0], duration: 10000 })
               } else if (errors.length > 1) {
                 toast.show({
                   variant: "error",

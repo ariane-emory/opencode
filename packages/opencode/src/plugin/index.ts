@@ -23,7 +23,29 @@ interface BuildMessage {
   }
 }
 
+interface ResolveMessage {
+  name: string
+  message: string
+  code: string
+  specifier: string
+  referrer?: string
+}
+
+function isResolveMessage(e: unknown): e is ResolveMessage {
+  return (
+    typeof e === "object" &&
+    e !== null &&
+    "name" in e &&
+    (e as { name: string }).name === "ResolveMessage" &&
+    "specifier" in e
+  )
+}
+
 function formatPluginBuildError(e: unknown, plugin: string): string {
+  if (isResolveMessage(e)) {
+    const path = e.specifier.replace("file://", "")
+    return `File not found: ${path}`
+  }
   if (e instanceof AggregateError && e.errors?.length) {
     const buildError = e.errors.find((err): err is BuildMessage => err && typeof err === "object" && "message" in err)
     if (buildError) {

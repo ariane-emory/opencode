@@ -398,8 +398,16 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
             sdk.client.vcs.get().then((x) => setStore("vcs", reconcile(x.data))),
             sdk.client.path.get().then((x) => setStore("path", reconcile(x.data!))),
             sdk.client.config.startupErrors().then((x) => {
-              for (const error of x.data ?? []) {
-                toast.show({ variant: "error", message: error, duration: 10000 })
+              const errors = x.data ?? []
+              if (errors.length === 1) {
+                toast.show({ variant: "error", message: errors[0], duration: 10000 })
+              } else if (errors.length > 1) {
+                toast.show({
+                  variant: "error",
+                  title: "Plugin Errors",
+                  message: errors.join("\n"),
+                  duration: 15000,
+                })
               }
             }),
           ]).then(() => {

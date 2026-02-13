@@ -189,6 +189,14 @@ export async function bootstrapDirectory(input: {
         }
       })
     }),
+    input.sdk.config.startupErrors().then((x) => {
+      const errors = x.data ?? []
+      if (errors.length === 1) {
+        showToast({ variant: "error", title: "Plugin Error", description: errors[0] })
+      } else if (errors.length > 1) {
+        showToast({ variant: "error", title: "Plugin Errors", description: errors.join("\n\n") })
+      }
+    }),
   ]).then(() => {
     input.setStore("status", "complete")
   })

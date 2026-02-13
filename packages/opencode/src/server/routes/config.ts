@@ -7,6 +7,7 @@ import { mapValues } from "remeda"
 import { errors } from "../error"
 import { Log } from "../../util/log"
 import { lazy } from "../../util/lazy"
+import { Plugin } from "../../plugin"
 
 const log = Log.create({ service: "server" })
 
@@ -87,6 +88,29 @@ export const ConfigRoutes = lazy(() =>
           providers: Object.values(providers),
           default: mapValues(providers, (item) => Provider.sort(Object.values(item.models))[0].id),
         })
+      },
+    )
+    .get(
+      "/startup-errors",
+      describeRoute({
+        summary: "Get startup errors",
+        description: "Retrieve any errors that occurred during plugin loading at startup.",
+        operationId: "config.startupErrors",
+        responses: {
+          200: {
+            description: "List of startup errors",
+            content: {
+              "application/json": {
+                schema: resolver(z.array(z.string())),
+              },
+            },
+          },
+        },
+      }),
+      async (c) => {
+        const errors = Plugin.getStartupErrors()
+        Plugin.clearStartupErrors()
+        return c.json(errors)
       },
     ),
 )

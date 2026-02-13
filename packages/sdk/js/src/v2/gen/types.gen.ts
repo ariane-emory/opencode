@@ -2708,6 +2708,24 @@ export type ConfigProvidersResponses = {
 
 export type ConfigProvidersResponse = ConfigProvidersResponses[keyof ConfigProvidersResponses]
 
+export type ConfigStartupErrorsData = {
+  body?: never
+  path?: never
+  query?: {
+    directory?: string
+  }
+  url: "/config/startup-errors"
+}
+
+export type ConfigStartupErrorsResponses = {
+  /**
+   * List of startup errors
+   */
+  200: Array<string>
+}
+
+export type ConfigStartupErrorsResponse = ConfigStartupErrorsResponses[keyof ConfigStartupErrorsResponses]
+
 export type ToolIdsData = {
   body?: never
   path?: never

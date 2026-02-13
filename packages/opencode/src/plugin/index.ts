@@ -68,6 +68,24 @@ export namespace Plugin {
   // Built-in plugins that are directly imported (not installed from npm)
   const INTERNAL_PLUGINS: PluginInstance[] = [CodexAuthPlugin, CopilotAuthPlugin, GitlabAuthPlugin]
 
+  const startupErrors: string[] = []
+
+  function recordError(message: string) {
+    startupErrors.push(message)
+    log.error("plugin error", { message })
+    Bus.publish(Session.Event.Error, {
+      error: new NamedError.Unknown({ message }).toObject(),
+    })
+  }
+
+  export function getStartupErrors(): string[] {
+    return [...startupErrors]
+  }
+
+  export function clearStartupErrors() {
+    startupErrors.length = 0
+  }
+
   const state = Instance.state(async () => {
     const client = createOpencodeClient({
       baseUrl: "http://localhost:4096",
@@ -111,16 +129,7 @@ export namespace Plugin {
           if (!builtin) throw err
 
           const message = err instanceof Error ? err.message : String(err)
-          log.error("failed to install builtin plugin", {
-            pkg,
-            version,
-            error: message,
-          })
-          Bus.publish(Session.Event.Error, {
-            error: new NamedError.Unknown({
-              message: `Failed to install built-in plugin ${pkg}@${version}: ${message}`,
-            }).toObject(),
-          })
+          recordError(`Failed to install built-in plugin ${pkg}@${version}: ${message}`)
 
           return ""
         })
@@ -132,12 +141,7 @@ export namespace Plugin {
       } catch (e) {
         const name = Config.getPluginName(plugin)
         const message = formatPluginBuildError(e, plugin)
-        log.error("failed to load plugin", { plugin: name, error: message })
-        Bus.publish(Session.Event.Error, {
-          error: new NamedError.Unknown({
-            message: `Failed to load plugin "${name}": ${message}`,
-          }).toObject(),
-        })
+        recordError(`Failed to load plugin "${name}": ${message}`)
         continue
       }
       const seen = new Set<PluginInstance>()

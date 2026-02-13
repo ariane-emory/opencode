@@ -17,6 +17,7 @@ import type {
   Config as Config3,
   ConfigGetResponses,
   ConfigProvidersResponses,
+  ConfigStartupErrorsResponses,
   ConfigUpdateErrors,
   ConfigUpdateResponses,
   EventSubscribeResponses,
@@ -713,6 +714,25 @@ export class Config2 extends HeyApiClient {
     const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
     return (options?.client ?? this.client).get<ConfigProvidersResponses, unknown, ThrowOnError>({
       url: "/config/providers",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Get startup errors
+   *
+   * Retrieve any errors that occurred during plugin loading at startup.
+   */
+  public startupErrors<ThrowOnError extends boolean = false>(
+    parameters?: {
+      directory?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams([parameters], [{ args: [{ in: "query", key: "directory" }] }])
+    return (options?.client ?? this.client).get<ConfigStartupErrorsResponses, unknown, ThrowOnError>({
+      url: "/config/startup-errors",
       ...options,
       ...params,
     })

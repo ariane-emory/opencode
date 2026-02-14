@@ -399,16 +399,13 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
             sdk.client.path.get().then((x) => setStore("path", reconcile(x.data!))),
             sdk.client.config.startupErrors().then((x) => {
               const errors = x.data ?? []
-              if (errors.length === 1) {
-                toast.show({ variant: "error", title: "Plugin Error", message: errors[0], duration: 10000 })
-              } else if (errors.length > 1) {
-                toast.show({
-                  variant: "error",
-                  title: "Plugin Errors",
-                  message: errors.join("\n\n"),
-                  duration: 15000,
-                })
-              }
+              if (errors.length === 0) return
+              toast.show({
+                variant: "error",
+                title: `Plugin Error${errors.length > 1 ? "s" : ""}`,
+                message: errors.join("\n\n"),
+                duration: errors.length === 1 ? 10000 : 15000,
+              })
             }),
           ]).then(() => {
             setStore("status", "complete")

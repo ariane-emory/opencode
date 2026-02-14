@@ -223,6 +223,7 @@ export namespace JsonMigration {
           time_updated: data.time?.updated ?? now,
           time_compacting: data.time?.compacting ?? null,
           time_archived: data.time?.archived ?? null,
+          time_pinned: data.time?.pinned ?? null,
         })
       }
       stats.sessions += insert(sessionValues, SessionTable, "session")

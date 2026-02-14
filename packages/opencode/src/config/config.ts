@@ -31,6 +31,7 @@ import { Event } from "../server/event"
 import { PackageRegistry } from "@/bun/registry"
 import { proxied } from "@/util/proxied"
 import { iife } from "@/util/iife"
+import { Control } from "@/control"
 
 export namespace Config {
   const ModelId = z.string().meta({ $ref: "https://models.dev/model-schema.json#/$defs/Model" })
@@ -53,7 +54,7 @@ export namespace Config {
   const managedConfigDir = process.env.OPENCODE_TEST_MANAGED_CONFIG_DIR || getManagedConfigDir()
 
   // Custom merge function that concatenates array fields instead of replacing them
-  function mergeConfigConcatArrays(target: Info, source: Info): Info {
+  function merge(target: Info, source: Info): Info {
     const merged = mergeDeep(target, source)
     if (target.plugin && source.plugin) {
       merged.plugin = Array.from(new Set([...target.plugin, ...source.plugin]))
@@ -88,20 +89,21 @@ export namespace Config {
         const remoteConfig = wellknown.config ?? {}
         // Add $schema to prevent load() from trying to write back to a non-existent file
         if (!remoteConfig.$schema) remoteConfig.$schema = "https://opencode.ai/config.json"
-        result = mergeConfigConcatArrays(
-          result,
-          await load(JSON.stringify(remoteConfig), `${key}/.well-known/opencode`),
-        )
+        result = merge(result, await load(JSON.stringify(remoteConfig), `${key}/.well-known/opencode`))
         log.debug("loaded remote config from well-known", { url: key })
       }
     }
 
+    const token = await Control.token()
+    if (token) {
+    }
+
     // Global user config overrides remote config.
-    result = mergeConfigConcatArrays(result, await global())
+    result = merge(result, await global())
 
     // Override with custom config if provided
     if (Flag.BASEONE_CONFIG) {
-      result = mergeConfigConcatArrays(result, await loadFile(Flag.BASEONE_CONFIG))
+      result = merge(result, await loadFile(Flag.BASEONE_CONFIG))
       log.debug("loaded custom config", { path: Flag.BASEONE_CONFIG })
     }
 
@@ -111,7 +113,7 @@ export namespace Config {
       for (const file of ["opencode.jsonc", "opencode.json", "base-one.jsonc", "base-one.json"]) {
         const found = await Filesystem.findUp(file, Instance.directory, Instance.worktree)
         for (const resolved of found.toReversed()) {
-          result = mergeConfigConcatArrays(result, await loadFile(resolved))
+          result = merge(result, await loadFile(resolved))
         }
       }
     }
@@ -155,7 +157,7 @@ export namespace Config {
         // Try new config file names first, fall back to legacy
       for (const file of ["opencode.jsonc", "opencode.json", "baseone.jsonc", "baseone.json"]) {
           log.debug(`loading config from ${path.join(dir, file)}`)
-          result = mergeConfigConcatArrays(result, await loadFile(path.join(dir, file)))
+          result = merge(result, await loadFile(path.join(dir, file)))
           // to satisfy the type checker
           result.agent ??= {}
           result.mode ??= {}
@@ -177,14 +179,8 @@ export namespace Config {
     }
 
     // Inline config content overrides all non-managed config sources.
-    // Route through load() to enable {env:} and {file:} token substitution.
-    // Use a path within Instance.directory so relative {file:} paths resolve correctly.
-    // The filename "OPENCODE_CONFIG_CONTENT" appears in error messages for clarity.
     if (Flag.OPENCODE_CONFIG_CONTENT) {
-      result = mergeConfigConcatArrays(
-        result,
-        await load(Flag.OPENCODE_CONFIG_CONTENT, path.join(Instance.directory, "OPENCODE_CONFIG_CONTENT")),
-      )
+      result = merge(result, JSON.parse(Flag.OPENCODE_CONFIG_CONTENT))
       log.debug("loaded custom config from OPENCODE_CONFIG_CONTENT")
     }
 
@@ -194,7 +190,7 @@ export namespace Config {
     // This way it only loads config file and not skills/plugins/commands
     if (existsSync(managedConfigDir)) {
       for (const file of ["opencode.jsonc", "opencode.json"]) {
-        result = mergeConfigConcatArrays(result, await loadFile(path.join(managedConfigDir, file)))
+        result = merge(result, await loadFile(path.join(managedConfigDir, file)))
       }
     }
 

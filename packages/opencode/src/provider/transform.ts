@@ -2,6 +2,7 @@ import type { ModelMessage } from "ai"
 import { mergeDeep, unique } from "remeda"
 import type { JSONSchema7 } from "@ai-sdk/provider"
 import type { JSONSchema } from "zod/v4/core"
+import path from "path"
 import type { Provider } from "./provider"
 import type { ModelsDev } from "./models"
 import { iife } from "@/util/iife"
@@ -203,14 +204,28 @@ export namespace ProviderTransform {
   async function applyCaching(msgs: ModelMessage[], model: Provider.Model, sessionID?: string): Promise<ModelMessage[]> {
     // Skip caching if session cache was invalidated (e.g., message deletion)
     if (sessionID) {
+      const { Global } = await import("@/global")
       const { Session } = await import("../session")
       const session = await Session.get(sessionID).catch(() => null)
-      if (session?.cacheInvalidated) {
-        // Clear flag and return without cache control markers
-        await Session.update(sessionID, (draft) => {
-          delete draft.cacheInvalidated
-        }).catch(() => {})
-        return msgs
+      if (session) {
+        const sessionPath = path.join(
+          Global.Path.data,
+          "storage",
+          "session",
+          `project_${session.projectID}`,
+          `${sessionID}.json`
+        )
+        try {
+          const sessionData = await Bun.file(sessionPath).json()
+          if (sessionData.cacheInvalidated) {
+            // Clear flag and return without cache control markers
+            delete sessionData.cacheInvalidated
+            await Bun.write(sessionPath, JSON.stringify(sessionData, null, 2))
+            return msgs
+          }
+        } catch {
+          // File doesn't exist or can't be read, continue with caching
+        }
       }
     }
 

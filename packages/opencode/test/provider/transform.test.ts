@@ -1458,7 +1458,7 @@ describe("ProviderTransform.message - cache control on gateway", () => {
       ...overrides,
     }) as any
 
-  test("gateway does not set cache control for anthropic models", () => {
+  test("gateway does not set cache control for anthropic models", async () => {
     const model = createModel()
     const msgs = [
       {
@@ -1471,13 +1471,13 @@ describe("ProviderTransform.message - cache control on gateway", () => {
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, model, {}) as any[]
+    const result = (await ProviderTransform.message(msgs, model, {})) as any[]
 
     expect(result[0].content[0].providerOptions).toBeUndefined()
     expect(result[0].providerOptions).toBeUndefined()
   })
 
-  test("non-gateway anthropic keeps existing cache control behavior", () => {
+  test("non-gateway anthropic keeps existing cache control behavior", async () => {
     const model = createModel({
       providerID: "anthropic",
       api: {
@@ -1497,7 +1497,7 @@ describe("ProviderTransform.message - cache control on gateway", () => {
       },
     ] as any[]
 
-    const result = ProviderTransform.message(msgs, model, {}) as any[]
+    const result = (await ProviderTransform.message(msgs, model, {})) as any[]
 
     expect(result[0].providerOptions).toEqual({
       anthropic: {

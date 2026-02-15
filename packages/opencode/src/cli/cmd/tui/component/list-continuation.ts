@@ -15,7 +15,15 @@ const NUMBERED_LIST_WITH_CONTENT = /^(\d+)\.\s+\S/
 const NUMBERED_LIST_EMPTY = /^(\d+)\.\s*$/
 
 export type ListContinuationAction =
-  | { type: "continue"; insertText: string }
+  | {
+      type: "continue";
+      insertText: string;
+      renumber?: {
+        start: number;
+        end: number;
+        newText: string;
+      };
+    }
   | { type: "clear"; deleteRange: { start: number; end: number }; cursorPosition: number }
 
 export type LineInfo = {
@@ -77,6 +85,50 @@ export function parseNumberedListItem(lineText: string): ParsedListItem | null {
   return null
 }
 
+export type SubsequentListItem = {
+  start: number
+  end: number
+  number: number
+  text: string
+}
+
+/**
+ * Finds all subsequent numbered list items starting from a given position.
+ * Stops when it encounters a non-list line or end of text.
+ */
+export function findSubsequentListItems(text: string, startOffset: number): SubsequentListItem[] {
+  const items: SubsequentListItem[] = []
+  let offset = startOffset
+
+  while (offset < text.length) {
+    // Find the end of the current line
+    let lineEnd = offset
+    while (lineEnd < text.length && text[lineEnd] !== "\n") {
+      lineEnd++
+    }
+
+    const lineText = text.slice(offset, lineEnd)
+    const parsed = parseNumberedListItem(lineText)
+
+    if (!parsed) {
+      // Stop when we hit a non-list line
+      break
+    }
+
+    items.push({
+      start: offset,
+      end: lineEnd,
+      number: parsed.number,
+      text: lineText,
+    })
+
+    // Move to next line (skip the newline)
+    offset = lineEnd + 1
+  }
+
+  return items
+}
+
 /**
  * Determines what action to take when newline is pressed.
  *
@@ -100,10 +152,50 @@ export function handleNewline(text: string, cursorOffset: number): ListContinuat
 
   if (parsed.hasContent) {
     // Line has content - continue the list with next number
-    const next = parsed.number + 1
+    let nextNum = parsed.number + 1
+    const insertText = `\n${nextNum}. `
+
+    // Check for subsequent list items that need renumbering
+    // Start searching after the current line (including the newline we'll insert)
+    const searchStart = line.end + 1
+    const subsequentItems = findSubsequentListItems(text, searchStart)
+
+    if (subsequentItems.length > 0) {
+      // Build renumbered text
+      let renumberOffset = searchStart
+      let renumberText = ""
+
+      for (const item of subsequentItems) {
+        // Add any content between the previous item and this one
+        if (item.start > renumberOffset) {
+          renumberText += text.slice(renumberOffset, item.start)
+        }
+
+        // Replace the number in this list item
+        nextNum++
+        const newLineText = item.text.replace(/^\d+\./, `${nextNum}.`)
+        renumberText += newLineText
+        renumberOffset = item.end
+      }
+
+      // Include any trailing content after the last list item
+      const lastItem = subsequentItems[subsequentItems.length - 1]
+      const renumberEnd = lastItem.end
+
+      return {
+        type: "continue",
+        insertText,
+        renumber: {
+          start: searchStart,
+          end: renumberEnd,
+          newText: renumberText,
+        },
+      }
+    }
+
     return {
       type: "continue",
-      insertText: `\n${next}. `,
+      insertText,
     }
   }
 

@@ -853,6 +853,13 @@ export function Prompt(props: PromptProps) {
                   if (action) {
                     if (action.type === "continue") {
                       input.insertText(action.insertText)
+                      if (action.renumber) {
+                        const before = input.plainText.slice(0, action.renumber.start)
+                        const after = input.plainText.slice(action.renumber.end)
+                        input.setText(before + action.renumber.newText + after)
+                        // Cursor should be at the end of the inserted text
+                        input.cursorOffset = action.renumber.start + action.renumber.newText.length
+                      }
                     } else if (action.type === "clear") {
                       const before = input.plainText.slice(0, action.deleteRange.start)
                       const after = input.plainText.slice(action.deleteRange.end)

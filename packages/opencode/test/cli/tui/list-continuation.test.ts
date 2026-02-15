@@ -189,6 +189,54 @@ describe("list-continuation", () => {
       const result = handleNewline(text, 8)
       expect(result).toEqual({ type: "continue", insertText: "\n10. " })
     })
+
+    test("renumbers single subsequent list item", () => {
+      const text = "1. red\n2. blue"
+      const result = handleNewline(text, 6) // cursor at end of "1. red"
+      expect(result).toEqual({
+        type: "continue",
+        insertText: "\n2. ",
+        renumber: {
+          start: 7, // after the newline following "1. red"
+          end: 14,  // end of "2. blue"
+          newText: "3. blue",
+        },
+      })
+    })
+
+    test("renumbers multiple subsequent list items", () => {
+      const text = "1. red\n2. blue\n3. green"
+      const result = handleNewline(text, 6) // cursor at end of "1. red"
+      expect(result).toEqual({
+        type: "continue",
+        insertText: "\n2. ",
+        renumber: {
+          start: 7, // after the newline following "1. red"
+          end: 23,  // end of "3. green" (exclusive)
+          newText: "3. blue\n4. green",
+        },
+      })
+    })
+
+    test("stops renumbering at non-list line", () => {
+      const text = "1. red\nnot a list\n3. blue"
+      const result = handleNewline(text, 6) // cursor at end of "1. red"
+      expect(result).toEqual({ type: "continue", insertText: "\n2. " })
+    })
+
+    test("renumbers with multi-digit numbers", () => {
+      const text = "9. item\n10. next"
+      const result = handleNewline(text, 7) // cursor at end of "9. item"
+      expect(result).toEqual({
+        type: "continue",
+        insertText: "\n10. ",
+        renumber: {
+          start: 8,
+          end: 16,
+          newText: "11. next",
+        },
+      })
+    })
   })
 
   describe("cleanupForSubmit", () => {

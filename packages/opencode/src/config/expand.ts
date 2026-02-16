@@ -1,6 +1,7 @@
 import { $ } from "bun"
 import matter from "gray-matter"
 import { ConfigMarkdown } from "./markdown"
+import { substituteArguments } from "./substitute"
 
 export namespace MarkdownExpand {
   const MAX_ITERATIONS = 100
@@ -34,18 +35,8 @@ export namespace MarkdownExpand {
       }
     }
 
-    // Substitute $1, $2, ... and $ARGUMENTS in the content BEFORE running shell commands
-    // Replace $ARGUMENTS with all arguments joined (or empty string if none)
-    result = result.replace(/\$ARGUMENTS\b/g, args.join(" "))
-
-    // Replace $1, $2, ... with positional arguments
-    for (let i = 0; i < args.length; i++) {
-      const pattern = new RegExp(`\\$${i + 1}\\b`, "g")
-      result = result.replace(pattern, args[i])
-    }
-
-    // Replace any remaining $N patterns with empty string
-    result = result.replace(/\$\d+\b/g, "")
+    // Substitute $1, $2, ..., ${N:M}, and $ARGUMENTS using shared module
+    result = substituteArguments(result, args).result
 
     let iteration = 0
     while (iteration < MAX_ITERATIONS) {

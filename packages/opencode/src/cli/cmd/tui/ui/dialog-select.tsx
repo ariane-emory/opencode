@@ -167,7 +167,12 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     setStore("selected", next)
     ignoreNextEffect = true
     const option = selected()
+    const scrollY = scroll?.y
     if (option) props.onMove?.(option)
+    // Restore scroll position after re-render
+    if (scrollY !== undefined && scroll) {
+      setTimeout(() => scroll?.scrollTo(scrollY), 0)
+    }
     if (!scroll) return
     const target = scroll.getChildren().find((child) => {
       return child.id === JSON.stringify(selected()?.value)

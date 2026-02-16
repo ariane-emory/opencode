@@ -355,21 +355,26 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
 
     async function bootstrap() {
       console.log("bootstrapping")
+      
+      // Fetch config first to get session_list_limit
+      const configResponse = await sdk.client.config.get({}, { throwOnError: true })
+      const config = configResponse.data!
+      const sessionsListLimit = (config.tui as any)?.session_list_limit
+      const sessionsLimit = sessionsListLimit === "none" ? undefined : sessionsListLimit || 150
+
       const start = Date.now() - 30 * 24 * 60 * 60 * 1000
       const sessionListPromise = sdk.client.session
-        .list({ start: start })
+        .list({ start, limit: sessionsLimit })
         .then((x) => (x.data ?? []).toSorted((a, b) => a.id.localeCompare(b.id)))
 
       // blocking - include session.list when continuing a session
       const providersPromise = sdk.client.config.providers({}, { throwOnError: true })
       const providerListPromise = sdk.client.provider.list({}, { throwOnError: true })
       const agentsPromise = sdk.client.app.agents({}, { throwOnError: true })
-      const configPromise = sdk.client.config.get({}, { throwOnError: true })
       const blockingRequests: Promise<unknown>[] = [
         providersPromise,
         providerListPromise,
         agentsPromise,
-        configPromise,
         ...(args.continue ? [sessionListPromise] : []),
       ]
 
@@ -378,21 +383,18 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
           const providersResponse = providersPromise.then((x) => x.data!)
           const providerListResponse = providerListPromise.then((x) => x.data!)
           const agentsResponse = agentsPromise.then((x) => x.data ?? [])
-          const configResponse = configPromise.then((x) => x.data!)
           const sessionListResponse = args.continue ? sessionListPromise : undefined
 
           return Promise.all([
             providersResponse,
             providerListResponse,
             agentsResponse,
-            configResponse,
             ...(sessionListResponse ? [sessionListResponse] : []),
           ]).then((responses) => {
             const providers = responses[0]
             const providerList = responses[1]
             const agents = responses[2]
-            const config = responses[3]
-            const sessions = responses[4]
+            const sessions = responses[3]
 
             batch(() => {
               setStore("provider", reconcile(providers.providers))

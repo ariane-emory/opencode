@@ -11,13 +11,6 @@ export function substituteArguments(
   const simplePlaceholders = template.match(placeholderRegex) ?? []
   const extendedPlaceholders = template.match(extendedPlaceholderRegex) ?? []
 
-  // Only $N placeholders have swallowing behavior - find the last one
-  let lastSimple = 0
-  for (const item of simplePlaceholders) {
-    const value = Number(item.slice(1))
-    if (value > lastSimple) lastSimple = value
-  }
-
   // Process extended placeholders ${...} first, then simple $N placeholders
   // ${N} syntax NEVER swallows - use ${N:} for open-ended slice
   let withArgs = template.replaceAll(extendedPlaceholderRegex, (_, start, colonAndEnd) => {
@@ -40,12 +33,10 @@ export function substituteArguments(
     return nonEmpty.join(" ")
   })
 
-  // Process simple $N placeholders - these DO have swallowing behavior for the last one
+  // Process simple $N placeholders - no swallowing, just return the specific arg
   withArgs = withArgs.replaceAll(placeholderRegex, (_, index) => {
-    const position = Number(index)
-    const argIndex = position - 1
+    const argIndex = Number(index) - 1
     if (argIndex >= args.length) return ""
-    if (position === lastSimple) return args.slice(argIndex).join(" ")
     return args[argIndex]
   })
 

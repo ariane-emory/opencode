@@ -360,9 +360,10 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       const configResponse = await sdk.client.config.get({}, { throwOnError: true })
       const config = configResponse.data!
       const sessionsListLimit = (config.tui as any)?.session_list_limit
-      const sessionsLimit = sessionsListLimit === "none" ? undefined : sessionsListLimit || 150
+      const unlimited = sessionsListLimit === "none"
+      const sessionsLimit = unlimited ? undefined : sessionsListLimit || 150
 
-      const start = Date.now() - 30 * 24 * 60 * 60 * 1000
+      const start = unlimited ? undefined : Date.now() - 30 * 24 * 60 * 60 * 1000
       const sessionListPromise = sdk.client.session
         .list({ start, limit: sessionsLimit })
         .then((x) => (x.data ?? []).toSorted((a, b) => a.id.localeCompare(b.id)))

@@ -446,6 +446,12 @@ export namespace SessionPrompt {
           log.error("subtask execution failed", { error, agent: task.agent, description: task.description })
           return undefined
         })
+        const attachments = result?.attachments?.map((attachment) => ({
+          ...attachment,
+          id: Identifier.ascending("part"),
+          sessionID,
+          messageID: assistantMessage.id,
+        }))
         await Plugin.trigger(
           "tool.execute.after",
           {
@@ -468,7 +474,7 @@ export namespace SessionPrompt {
               title: result.title,
               metadata: result.metadata,
               output: result.output,
-              attachments: result.attachments,
+              attachments,
               time: {
                 ...part.state.time,
                 end: Date.now(),
@@ -798,6 +804,15 @@ export namespace SessionPrompt {
             },
           )
           const result = await item.execute(args, ctx)
+          const output = {
+            ...result,
+            attachments: result.attachments?.map((attachment) => ({
+              ...attachment,
+              id: Identifier.ascending("part"),
+              sessionID: ctx.sessionID,
+              messageID: input.processor.message.id,
+            })),
+          }
           await Plugin.trigger(
             "tool.execute.after",
             {
@@ -806,9 +821,9 @@ export namespace SessionPrompt {
               callID: ctx.callID,
               args,
             },
-            result,
+            output,
           )
-          return result
+          return output
         },
       })
     }
@@ -856,16 +871,13 @@ export namespace SessionPrompt {
         )
 
         const textParts: string[] = []
-        const attachments: MessageV2.FilePart[] = []
+        const attachments: Omit<MessageV2.FilePart, "id" | "sessionID" | "messageID">[] = []
 
         for (const contentItem of result.content) {
           if (contentItem.type === "text") {
             textParts.push(contentItem.text)
           } else if (contentItem.type === "image") {
             attachments.push({
-              id: Identifier.ascending("part"),
-              sessionID: input.session.id,
-              messageID: input.processor.message.id,
               type: "file",
               mime: contentItem.mimeType,
               url: `data:${contentItem.mimeType};base64,${contentItem.data}`,
@@ -877,9 +889,6 @@ export namespace SessionPrompt {
             }
             if (resource.blob) {
               attachments.push({
-                id: Identifier.ascending("part"),
-                sessionID: input.session.id,
-                messageID: input.processor.message.id,
                 type: "file",
                 mime: resource.mimeType ?? "application/octet-stream",
                 url: `data:${resource.mimeType ?? "application/octet-stream"};base64,${resource.blob}`,
@@ -966,17 +975,22 @@ export namespace SessionPrompt {
     }
     using _ = defer(() => InstructionPrompt.clear(info.id))
 
+    type Draft<T> = T extends MessageV2.Part ? Omit<T, "id"> & { id?: string } : never
+    const assign = (part: Draft<MessageV2.Part>): MessageV2.Part => ({
+      ...part,
+      id: part.id ?? Identifier.ascending("part"),
+    })
+
     const parts = await Promise.all(
-      input.parts.map(async (part): Promise<MessageV2.Part[]> => {
+      input.parts.map(async (part): Promise<Draft<MessageV2.Part>[]> => {
         if (part.type === "file") {
           // before checking the protocol we check if this is an mcp resource because it needs special handling
           if (part.source?.type === "resource") {
             const { clientName, uri } = part.source
             log.info("mcp resource", { clientName, uri, mime: part.mime })
 
-            const pieces: MessageV2.Part[] = [
+            const pieces: Draft<MessageV2.Part>[] = [
               {
-                id: Identifier.ascending("part"),
                 messageID: info.id,
                 sessionID: input.sessionID,
                 type: "text",
@@ -999,7 +1013,6 @@ export namespace SessionPrompt {
               for (const content of contents) {
                 if ("text" in content && content.text) {
                   pieces.push({
-                    id: Identifier.ascending("part"),
                     messageID: info.id,
                     sessionID: input.sessionID,
                     type: "text",
@@ -1010,7 +1023,6 @@ export namespace SessionPrompt {
                   // Handle binary content if needed
                   const mimeType = "mimeType" in content ? content.mimeType : part.mime
                   pieces.push({
-                    id: Identifier.ascending("part"),
                     messageID: info.id,
                     sessionID: input.sessionID,
                     type: "text",
@@ -1022,7 +1034,6 @@ export namespace SessionPrompt {
 
               pieces.push({
                 ...part,
-                id: part.id ?? Identifier.ascending("part"),
                 messageID: info.id,
                 sessionID: input.sessionID,
               })
@@ -1030,7 +1041,6 @@ export namespace SessionPrompt {
               log.error("failed to read MCP resource", { error, clientName, uri })
               const message = error instanceof Error ? error.message : String(error)
               pieces.push({
-                id: Identifier.ascending("part"),
                 messageID: info.id,
                 sessionID: input.sessionID,
                 type: "text",
@@ -1047,7 +1057,6 @@ export namespace SessionPrompt {
               if (part.mime === "text/plain") {
                 return [
                   {
-                    id: Identifier.ascending("part"),
                     messageID: info.id,
                     sessionID: input.sessionID,
                     type: "text",
@@ -1055,7 +1064,6 @@ export namespace SessionPrompt {
                     text: `Called the Read tool with the following input: ${JSON.stringify({ filePath: part.filename })}`,
                   },
                   {
-                    id: Identifier.ascending("part"),
                     messageID: info.id,
                     sessionID: input.sessionID,
                     type: "text",
@@ -1064,7 +1072,6 @@ export namespace SessionPrompt {
                   },
                   {
                     ...part,
-                    id: part.id ?? Identifier.ascending("part"),
                     messageID: info.id,
                     sessionID: input.sessionID,
                   },
@@ -1121,9 +1128,8 @@ export namespace SessionPrompt {
                 }
                 const args = { filePath: filepath, offset, limit }
 
-                const pieces: MessageV2.Part[] = [
+                const pieces: Draft<MessageV2.Part>[] = [
                   {
-                    id: Identifier.ascending("part"),
                     messageID: info.id,
                     sessionID: input.sessionID,
                     type: "text",
@@ -1147,7 +1153,6 @@ export namespace SessionPrompt {
                     }
                     const result = await t.execute(args, readCtx)
                     pieces.push({
-                      id: Identifier.ascending("part"),
                       messageID: info.id,
                       sessionID: input.sessionID,
                       type: "text",
@@ -1167,7 +1172,6 @@ export namespace SessionPrompt {
                     } else {
                       pieces.push({
                         ...part,
-                        id: part.id ?? Identifier.ascending("part"),
                         messageID: info.id,
                         sessionID: input.sessionID,
                       })
@@ -1183,7 +1187,6 @@ export namespace SessionPrompt {
                       }).toObject(),
                     })
                     pieces.push({
-                      id: Identifier.ascending("part"),
                       messageID: info.id,
                       sessionID: input.sessionID,
                       type: "text",
@@ -1210,7 +1213,6 @@ export namespace SessionPrompt {
                 const result = await ReadTool.init().then((t) => t.execute(args, listCtx))
                 return [
                   {
-                    id: Identifier.ascending("part"),
                     messageID: info.id,
                     sessionID: input.sessionID,
                     type: "text",
@@ -1218,7 +1220,6 @@ export namespace SessionPrompt {
                     text: `Called the Read tool with the following input: ${JSON.stringify(args)}`,
                   },
                   {
-                    id: Identifier.ascending("part"),
                     messageID: info.id,
                     sessionID: input.sessionID,
                     type: "text",
@@ -1227,7 +1228,6 @@ export namespace SessionPrompt {
                   },
                   {
                     ...part,
-                    id: part.id ?? Identifier.ascending("part"),
                     messageID: info.id,
                     sessionID: input.sessionID,
                   },
@@ -1238,7 +1238,6 @@ export namespace SessionPrompt {
               FileTime.read(input.sessionID, filepath)
               return [
                 {
-                  id: Identifier.ascending("part"),
                   messageID: info.id,
                   sessionID: input.sessionID,
                   type: "text",
@@ -1246,7 +1245,7 @@ export namespace SessionPrompt {
                   synthetic: true,
                 },
                 {
-                  id: part.id ?? Identifier.ascending("part"),
+                  id: part.id,
                   messageID: info.id,
                   sessionID: input.sessionID,
                   type: "file",
@@ -1265,13 +1264,11 @@ export namespace SessionPrompt {
           const hint = perm.action === "deny" ? " . Invoked by user; guaranteed to exist." : ""
           return [
             {
-              id: Identifier.ascending("part"),
               ...part,
               messageID: info.id,
               sessionID: input.sessionID,
             },
             {
-              id: Identifier.ascending("part"),
               messageID: info.id,
               sessionID: input.sessionID,
               type: "text",
@@ -1288,14 +1285,13 @@ export namespace SessionPrompt {
 
         return [
           {
-            id: Identifier.ascending("part"),
             ...part,
             messageID: info.id,
             sessionID: input.sessionID,
           },
         ]
       }),
-    ).then((x) => x.flat())
+    ).then((x) => x.flat().map(assign))
 
     await Plugin.trigger(
       "chat.message",

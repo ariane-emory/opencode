@@ -591,7 +591,7 @@ export function Session() {
       value: "session.toggle.header",
       category: "Session",
       onSelect: (dialog) => {
-        setShowHeader((prev) => !prev)
+        setShowHeader(!showHeader())
         dialog.clear()
       },
     },

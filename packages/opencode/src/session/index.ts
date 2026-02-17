@@ -99,7 +99,7 @@ export namespace Session {
       time_updated: info.time.updated,
       time_compacting: info.time.compacting,
       time_archived: info.time.archived,
-      time_pinned: info.time.pinned,
+      time_pinned: info.time.pinned ?? null,
     }
   }
 

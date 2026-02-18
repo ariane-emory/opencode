@@ -15,6 +15,7 @@ export interface DialogSelectProps<T> {
   title: string
   placeholder?: string
   options: DialogSelectOption<T>[]
+  sort?: boolean
   flat?: boolean
   ref?: (ref: DialogSelectRef<T>) => void
   onMove?: (option: DialogSelectOption<T>) => void
@@ -108,7 +109,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     const result = pipe(
       filtered(),
       groupBy((x) => x.category ?? ""),
-      mapValues((x) => x.sort((a, b) => a.title.localeCompare(b.title))),
+      mapValues((x) => (props.sort ? x.sort((a, b) => a.title.localeCompare(b.title)) : x)),
       entries(),
     )
     return result

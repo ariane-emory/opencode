@@ -3201,6 +3201,41 @@ export type SessionInitResponses = {
 
 export type SessionInitResponse = SessionInitResponses[keyof SessionInitResponses]
 
+export type SessionRewindData = {
+  body?: {
+    messageID: string
+  }
+  path: {
+    sessionID: string
+  }
+  query?: {
+    directory?: string
+  }
+  url: "/session/{sessionID}/rewind"
+}
+
+export type SessionRewindErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+  /**
+   * Not found
+   */
+  404: NotFoundError
+}
+
+export type SessionRewindError = SessionRewindErrors[keyof SessionRewindErrors]
+
+export type SessionRewindResponses = {
+  /**
+   * Rewound session
+   */
+  200: Session
+}
+
+export type SessionRewindResponse = SessionRewindResponses[keyof SessionRewindResponses]
+
 export type SessionForkData = {
   body?: {
     messageID?: string

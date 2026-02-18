@@ -124,6 +124,8 @@ import type {
   SessionPromptResponses,
   SessionRevertErrors,
   SessionRevertResponses,
+  SessionRewindErrors,
+  SessionRewindResponses,
   SessionShareErrors,
   SessionShareResponses,
   SessionShellErrors,
@@ -1213,6 +1215,43 @@ export class Session extends HeyApiClient {
     )
     return (options?.client ?? this.client).post<SessionInitResponses, SessionInitErrors, ThrowOnError>({
       url: "/session/{sessionID}/init",
+      ...options,
+      ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
+    })
+  }
+
+  /**
+   * Rewind session
+   *
+   * Rewind a session to a specific message, removing all messages from that point without reverting file changes.
+   */
+  public rewind<ThrowOnError extends boolean = false>(
+    parameters: {
+      sessionID: string
+      directory?: string
+      messageID?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "path", key: "sessionID" },
+            { in: "query", key: "directory" },
+            { in: "body", key: "messageID" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).post<SessionRewindResponses, SessionRewindErrors, ThrowOnError>({
+      url: "/session/{sessionID}/rewind",
       ...options,
       ...params,
       headers: {

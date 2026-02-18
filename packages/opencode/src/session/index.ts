@@ -207,6 +207,27 @@ export namespace Session {
     },
   )
 
+  export const rewind = fn(
+    z.object({
+      sessionID: Identifier.schema("session"),
+      messageID: Identifier.schema("message"),
+    }),
+    async (input) => {
+      SessionPrompt.assertNotBusy(input.sessionID)
+      const msgs = await messages({ sessionID: input.sessionID })
+      for (const msg of msgs) {
+        if (msg.info.id >= input.messageID) {
+          Database.use((db) => db.delete(MessageTable).where(eq(MessageTable.id, msg.info.id)).run())
+          Bus.publish(MessageV2.Event.Removed, {
+            sessionID: input.sessionID,
+            messageID: msg.info.id,
+          })
+        }
+      }
+      return get(input.sessionID)
+    },
+  )
+
   export const fork = fn(
     z.object({
       sessionID: Identifier.schema("session"),

@@ -161,26 +161,28 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     setStore("selected", next)
     const option = selected()
     if (option) props.onMove?.(option)
-    if (!scroll) return
-    const target = scroll.getChildren().find((child) => {
-      return child.id === JSON.stringify(selected()?.value)
-    })
-    if (!target) return
-    const y = target.y - scroll.y
-    if (center) {
-      const centerOffset = Math.floor(scroll.height / 2)
-      scroll.scrollBy(y - centerOffset)
-    } else {
-      if (y >= scroll.height) {
-        scroll.scrollBy(y - scroll.height + 1)
-      }
-      if (y < 0) {
-        scroll.scrollBy(y)
-        if (isDeepEqual(flat()[0].value, selected()?.value)) {
-          scroll.scrollTo(0)
+    setTimeout(() => {
+      if (!scroll) return
+      const target = scroll.getChildren().find((child) => {
+        return child.id === JSON.stringify(selected()?.value)
+      })
+      if (!target) return
+      const y = target.y - scroll.y
+      if (center) {
+        const centerOffset = Math.floor(scroll.height / 2)
+        scroll.scrollBy(y - centerOffset)
+      } else {
+        if (y >= scroll.height) {
+          scroll.scrollBy(y - scroll.height + 1)
+        }
+        if (y < 0) {
+          scroll.scrollBy(y)
+          if (isDeepEqual(flat()[0].value, selected()?.value)) {
+            scroll.scrollTo(0)
+          }
         }
       }
-    }
+    }, 0)
   }
 
   const keybind = useKeybind()

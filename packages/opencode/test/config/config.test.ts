@@ -193,6 +193,38 @@ test("handles file inclusion substitution", async () => {
   })
 })
 
+test("handles import substitution with JSON objects", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(
+        path.join(dir, "providers.json"),
+        JSON.stringify({
+          openai: { options: { apiKey: "test-key" } },
+          anthropic: { options: { apiKey: "anthropic-key" } },
+        }),
+      )
+      // Use raw string for unquoted {import:...} syntax with whitespace
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        `{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": { import: ./providers.json }
+ }`,
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      expect(config.provider).toEqual({
+        openai: { options: { apiKey: "test-key" } },
+        anthropic: { options: { apiKey: "anthropic-key" } },
+      })
+    },
+  })
+})
+
 test("handles file inclusion with replacement tokens", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
@@ -208,6 +240,117 @@ test("handles file inclusion with replacement tokens", async () => {
     fn: async () => {
       const config = await Config.get()
       expect(config.theme).toBe("const out = await Bun.$`echo hi`")
+    },
+  })
+})
+
+test("handles nested imports", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(
+        path.join(dir, "nested.json"),
+        JSON.stringify({ temperature: 0.7 }),
+      )
+      // Use raw string for unquoted {import:...} syntax
+      await Bun.write(
+        path.join(dir, "agent.json"),
+        `{
+  "model": "gpt-4",
+  "options": {import:./nested.json}
+ }`,
+      )
+      // Use raw string for unquoted {import:...} syntax
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        `{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "test": {import:./agent.json}
+  }
+ }`,
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      expect(config.agent?.["test"]).toMatchObject({
+        model: "gpt-4",
+        options: { temperature: 0.7 },
+      })
+    },
+  })
+})
+
+test("throws error for circular imports", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      // Use raw strings for unquoted {import:...} syntax
+      await Bun.write(
+        path.join(dir, "a.json"),
+        `{ "ref": {import:./b.json} }`,
+      )
+      await Bun.write(
+        path.join(dir, "b.json"),
+        `{ "ref": {import:./a.json} }`,
+      )
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        `{
+  "$schema": "https://opencode.ai/config.json",
+  "value": {import:./a.json}
+ }`,
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      await expect(Config.get()).rejects.toThrow(Config.InvalidError)
+    },
+  })
+})
+
+test("throws error for missing import file", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      // Use raw string for unquoted {import:...} syntax
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        `{
+  "$schema": "https://opencode.ai/config.json",
+  "value": {import:./nonexistent.json}
+ }`,
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      await expect(Config.get()).rejects.toThrow(Config.InvalidError)
+    },
+  })
+})
+
+test("throws error for import file with invalid JSON", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(path.join(dir, "invalid.json"), "{ not valid json }")
+      // Use raw string for unquoted {import:...} syntax
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        `{
+  "$schema": "https://opencode.ai/config.json",
+  "value": {import:./invalid.json}
+ }`,
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      await expect(Config.get()).rejects.toThrow()
     },
   })
 })

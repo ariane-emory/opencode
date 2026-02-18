@@ -685,3 +685,25 @@ These are useful for:
 - Keeping sensitive data like API keys in separate files.
 - Including large instruction files without cluttering your config.
 - Sharing common configuration snippets across multiple config files.
+
+---
+
+### Imports
+
+Use `{import:path/to/file.json}` to import entire JSON objects from external files:
+
+```json title="opencode.json"
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": { import: ./providers.json }
+}
+```
+
+The imported JSON is substituted directly into your config before parsing, allowing you to extract complex objects like provider configurations into separate files.
+
+File paths follow the same rules as `{file:...}`:
+
+- Relative to the config file directory
+- Absolute paths starting with `/` or `~`
+
+Imported files can also contain their own `{import:...}`, `{file:...}`, and `{env:...}` references. Circular imports are detected and will throw an error.

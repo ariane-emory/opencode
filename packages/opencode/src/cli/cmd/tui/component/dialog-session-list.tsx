@@ -2,7 +2,7 @@ import { useDialog } from "@tui/ui/dialog"
 import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { useRoute } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
-import { createMemo, createSignal, createResource, onMount, Show } from "solid-js"
+import { createMemo, createSignal, createResource, onMount } from "solid-js"
 import { Locale } from "@/util/locale"
 import { useKeybind } from "../context/keybind"
 import { Keybind } from "@/util/keybind"
@@ -32,11 +32,8 @@ export function DialogSessionList() {
     return result.data ?? []
   })
 
-  const deleteKeybind = "ctrl+d"
   const pinKeybind = "ctrl+b"
   const currentSessionID = createMemo(() => (route.data.type === "session" ? route.data.sessionID : undefined))
-
-  const spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
 
   const sessions = createMemo(() => {
     const results = searchResults()
@@ -86,11 +83,7 @@ export function DialogSessionList() {
         value: session.id,
         category,
         footer: showDate ? Locale.shortDateTime(session.time.updated) : Locale.time(session.time.updated),
-        gutter: isWorking ? (
-          <Show when={kv.get("animations_enabled", true)} fallback={<text fg={theme.textMuted}>[⋯]</text>}>
-            <spinner frames={spinnerFrames} interval={80} color={theme.primary} />
-          </Show>
-        ) : undefined,
+        gutter: isWorking ? <Spinner /> : undefined,
       }
     }
 

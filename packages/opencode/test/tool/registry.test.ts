@@ -119,4 +119,24 @@ describe("tool.registry", () => {
       },
     })
   })
+
+  test("registers plan tools when experimental.plan_mode is enabled", async () => {
+    await using tmp = await tmpdir({
+      git: true,
+      config: {
+        experimental: {
+          plan_mode: true,
+        },
+      },
+    })
+
+    await Instance.provide({
+      directory: tmp.path,
+      fn: async () => {
+        const ids = await ToolRegistry.ids()
+        expect(ids).toContain("plan_exit")
+        expect(ids).toContain("plan_enter")
+      },
+    })
+  }, 30000)
 })

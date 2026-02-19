@@ -101,6 +101,7 @@ const context = createContext<{
   showThinking: () => boolean
   showTimestamps: () => boolean
   showDetails: () => boolean
+  showGenericToolOutput: () => boolean
   diffWrapMode: () => "word" | "none"
   markdownAll: () => boolean
   sync: ReturnType<typeof useSync>
@@ -157,6 +158,7 @@ export function Session() {
   const [diffWrapMode] = kv.signal<"word" | "none">("diff_wrap_mode", "word")
   const [markdownAll, setMarkdownAll] = kv.signal("markdown_all_messages", false)
   const [animationsEnabled, setAnimationsEnabled] = kv.signal("animations_enabled", true)
+  const [showGenericToolOutput, setShowGenericToolOutput] = kv.signal("generic_tool_output_visibility", false)
 
   const wide = createMemo(() => dimensions().width > 120)
   const sidebarVisible = createMemo(() => {
@@ -607,6 +609,15 @@ export function Session() {
       },
     },
     {
+      title: showGenericToolOutput() ? "Hide generic tool output" : "Show generic tool output",
+      value: "session.toggle.generic_tool_output",
+      category: "Session",
+      onSelect: (dialog) => {
+        setShowGenericToolOutput((prev) => !prev)
+        dialog.clear()
+      },
+    },
+    {
       title: "Page up",
       value: "session.page.up",
       keybind: "messages_page_up",
@@ -980,6 +991,7 @@ export function Session() {
         showThinking,
         showTimestamps,
         showDetails,
+        showGenericToolOutput,
         diffWrapMode,
         markdownAll,
         sync,
@@ -1628,10 +1640,40 @@ type ToolProps<T extends Tool.Info> = {
   part: ToolPart
 }
 function GenericTool(props: ToolProps<any>) {
+  const { theme } = useTheme()
+  const ctx = use()
+  const output = createMemo(() => props.output?.trim() ?? "")
+  const [expanded, setExpanded] = createSignal(false)
+  const lines = createMemo(() => output().split("\n"))
+  const maxLines = 3
+  const overflow = createMemo(() => lines().length > maxLines)
+  const limited = createMemo(() => {
+    if (expanded() || !overflow()) return output()
+    return [...lines().slice(0, maxLines), "…"].join("\n")
+  })
+
   return (
-    <InlineTool icon="⚙" pending="Writing command..." complete={true} part={props.part}>
-      {props.tool} {input(props.input)}
-    </InlineTool>
+    <Show
+      when={props.output && ctx.showGenericToolOutput()}
+      fallback={
+        <InlineTool icon="⚙" pending="Writing command..." complete={true} part={props.part}>
+          {props.tool} {input(props.input)}
+        </InlineTool>
+      }
+    >
+      <BlockTool
+        title={`# ${props.tool} ${input(props.input)}`}
+        part={props.part}
+        onClick={overflow() ? () => setExpanded((prev) => !prev) : undefined}
+      >
+        <box gap={1}>
+          <text fg={theme.text}>{limited()}</text>
+          <Show when={overflow()}>
+            <text fg={theme.textMuted}>{expanded() ? "Click to collapse" : "Click to expand"}</text>
+          </Show>
+        </box>
+      </BlockTool>
+    </Show>
   )
 }
 

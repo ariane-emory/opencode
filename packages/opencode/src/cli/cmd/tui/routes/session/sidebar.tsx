@@ -17,6 +17,15 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const { theme } = useTheme()
   const session = createMemo(() => sync.session.get(props.sessionID)!)
   const diff = createMemo(() => sync.data.session_diff[props.sessionID] ?? [])
+  const totalDiff = createMemo(() =>
+    diff().reduce(
+      (acc, item) => ({
+        additions: acc.additions + (item.additions ?? 0),
+        deletions: acc.deletions + (item.deletions ?? 0),
+      }),
+      { additions: 0, deletions: 0 },
+    ),
+  )
   const todo = createMemo(() => sync.data.todo[props.sessionID] ?? [])
   const messages = createMemo(() => sync.data.message[props.sessionID] ?? [])
 
@@ -234,14 +243,25 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
                 <box
                   flexDirection="row"
                   gap={1}
+                  justifyContent="space-between"
                   onMouseDown={() => diff().length > 2 && setExpanded("diff", !expanded.diff)}
                 >
-                  <Show when={diff().length > 2}>
-                    <text fg={theme.text}>{expanded.diff ? "▼" : "▶"}</text>
-                  </Show>
-                  <text fg={theme.text}>
-                    <b>Modified Files</b>
-                  </text>
+                  <box flexDirection="row" gap={1}>
+                    <Show when={diff().length > 2}>
+                      <text fg={theme.text}>{expanded.diff ? "▼" : "▶"}</text>
+                    </Show>
+                    <text fg={theme.text}>
+                      <b>Modified Files</b>
+                    </text>
+                  </box>
+                  <box flexDirection="row" gap={1} flexShrink={0}>
+                    <Show when={totalDiff().additions > 0}>
+                      <text fg={theme.diffAdded}>+{totalDiff().additions}</text>
+                    </Show>
+                    <Show when={totalDiff().deletions > 0}>
+                      <text fg={theme.diffRemoved}>-{totalDiff().deletions}</text>
+                    </Show>
+                  </box>
                 </box>
                 <Show when={diff().length <= 2 || expanded.diff}>
                   <For each={diff() || []}>

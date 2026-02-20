@@ -1294,7 +1294,7 @@ export namespace Config {
     }
 
     // Process {import:...} substitutions - raw JSON injection before parsing
-    text = await resolveImports(text, configFilepath)
+    text = await resolveImports(text, source)
 
     const errors: JsoncParseError[] = []
     const data = parseJsonc(text, errors, { allowTrailingComma: true })

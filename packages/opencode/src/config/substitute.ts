@@ -1,7 +1,7 @@
 const placeholderRegex = /\$(\d+)/g
-// Matches: ${N}, ${N:M}, ${:M}, ${N:}, ${:}
-// Group 1: start index (optional), Group 2: colon+end (e.g., ":3" or ":" or undefined)
-const extendedPlaceholderRegex = /\$\{(\d*)(:\d*)?\}/g
+// Matches: ${N}, ${N..M}, ${..M}, ${N..}, ${..}
+// Group 1: start index (optional), Group 2: dots+end (e.g., "..3" or ".." or undefined)
+const extendedPlaceholderRegex = /\$\{(\d*)(\.\.\d*)?\}/g
 
 export function substituteArguments(
   template: string,
@@ -12,22 +12,22 @@ export function substituteArguments(
   const extendedPlaceholders = template.match(extendedPlaceholderRegex) ?? []
 
   // Process extended placeholders ${...} first, then simple $N placeholders
-  // ${N} syntax NEVER swallows - use ${N:} for open-ended slice
-  let withArgs = template.replaceAll(extendedPlaceholderRegex, (_, start, colonAndEnd) => {
+  // ${N} syntax NEVER swallows - use ${N..} for open-ended slice
+  let withArgs = template.replaceAll(extendedPlaceholderRegex, (_, start, dotsAndEnd) => {
     const startIndex = start ? Number(start) : 1
-    // colonAndEnd is either undefined (for ${N}), ":" (for ${N:}), ":3" (for ${N:3} or ${:3})
-    const hasColon = colonAndEnd !== undefined
-    const endIndex = hasColon
-      ? colonAndEnd.length > 1
-        ? Number(colonAndEnd.slice(1))
+    // dotsAndEnd is either undefined (for ${N}), ".." (for ${N..}), "..3" (for ${N..3} or ${..3})
+    const hasDots = dotsAndEnd !== undefined
+    const endIndex = hasDots
+      ? dotsAndEnd.length > 2
+        ? Number(dotsAndEnd.slice(2))
         : undefined
       : undefined
     const argStart = startIndex - 1
     if (argStart >= args.length) return ""
-    // ${N} without colon: single argument only
-    // ${N:} with colon but no end: slice to end (open-ended)
-    // ${N:M} with both: slice from N to M
-    const actualEndIndex = hasColon ? endIndex : startIndex
+    // ${N} without dots: single argument only
+    // ${N..} with dots but no end: slice to end (open-ended)
+    // ${N..M} with both: slice from N to M
+    const actualEndIndex = hasDots ? endIndex : startIndex
     const slice = args.slice(argStart, actualEndIndex)
     const nonEmpty = slice.filter((arg) => arg.trim() !== "")
     return nonEmpty.join(" ")

@@ -9,9 +9,9 @@ describe("Command.hints", () => {
   })
 
   test("should extract ${...} placeholders", () => {
-    const template = "Hello ${1} and ${2:3}"
+    const template = "Hello ${1} and ${2..3}"
     const result = Command.hints(template)
-    expect(result).toEqual(["${1}", "${2:3}"])
+    expect(result).toEqual(["${1}", "${2..3}"])
   })
 
   test("should extract $ARGUMENTS placeholder", () => {
@@ -21,9 +21,9 @@ describe("Command.hints", () => {
   })
 
   test("should extract mixed placeholders", () => {
-    const template = "Hello $1 and ${2:3} and $ARGUMENTS"
+    const template = "Hello $1 and ${2..3} and $ARGUMENTS"
     const result = Command.hints(template)
-    expect(result).toEqual(["$1", "${2:3}", "$ARGUMENTS"])
+    expect(result).toEqual(["$1", "${2..3}", "$ARGUMENTS"])
   })
 
   test("should deduplicate placeholders", () => {
@@ -32,21 +32,21 @@ describe("Command.hints", () => {
     expect(result).toEqual(["$1"])
   })
 
-  test("should handle ${:} syntax", () => {
-    const template = "All args: ${:}"
+  test("should handle ${..} syntax", () => {
+    const template = "All args: ${..}"
     const result = Command.hints(template)
-    expect(result).toEqual(["${:}"])
+    expect(result).toEqual(["${..}"])
   })
 
-  test("should handle ${:3} syntax", () => {
-    const template = "First three: ${:3}"
+  test("should handle ${..3} syntax", () => {
+    const template = "First three: ${..3}"
     const result = Command.hints(template)
-    expect(result).toEqual(["${:3}"])
+    expect(result).toEqual(["${..3}"])
   })
 
-  test("should handle ${2:} syntax", () => {
-    const template = "From second: ${2:}"
+  test("should handle ${2..} syntax", () => {
+    const template = "From second: ${2..}"
     const result = Command.hints(template)
-    expect(result).toEqual(["${2:}"])
+    expect(result).toEqual(["${2..}"])
   })
 })

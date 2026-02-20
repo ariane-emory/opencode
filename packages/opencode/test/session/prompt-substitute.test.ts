@@ -13,28 +13,28 @@ describe("SessionPrompt.substituteArguments", () => {
     expect(result.result).toBe("Hello bar")
   })
 
-  test("${2:3} should return 2nd and 3rd arguments joined by space", () => {
-    const result = SessionPrompt.substituteArguments("Hello ${2:3}", ["foo", "bar", "baz", "qux"])
+  test("${2..3} should return 2nd and 3rd arguments joined by space", () => {
+    const result = SessionPrompt.substituteArguments("Hello ${2..3}", ["foo", "bar", "baz", "qux"])
     expect(result.result).toBe("Hello bar baz")
   })
 
-  test("${:3} should return 1st through 3rd arguments joined by space", () => {
-    const result = SessionPrompt.substituteArguments("Hello ${:3}", ["foo", "bar", "baz", "qux"])
+  test("${..3} should return 1st through 3rd arguments joined by space", () => {
+    const result = SessionPrompt.substituteArguments("Hello ${..3}", ["foo", "bar", "baz", "qux"])
     expect(result.result).toBe("Hello foo bar baz")
   })
 
-  test("${2:} should return 2nd through last arguments joined by space", () => {
-    const result = SessionPrompt.substituteArguments("Hello ${2:}", ["foo", "bar", "baz", "qux"])
+  test("${2..} should return 2nd through last arguments joined by space", () => {
+    const result = SessionPrompt.substituteArguments("Hello ${2..}", ["foo", "bar", "baz", "qux"])
     expect(result.result).toBe("Hello bar baz qux")
   })
 
-  test("${:} should return all arguments joined by space", () => {
-    const result = SessionPrompt.substituteArguments("Hello ${:}", ["foo", "bar", "baz", "qux"])
+  test("${..} should return all arguments joined by space", () => {
+    const result = SessionPrompt.substituteArguments("Hello ${..}", ["foo", "bar", "baz", "qux"])
     expect(result.result).toBe("Hello foo bar baz qux")
   })
 
   test("should skip empty arguments when joining slices", () => {
-    const result = SessionPrompt.substituteArguments("Hello ${:}", ["foo", "", "bar", "", "baz"])
+    const result = SessionPrompt.substituteArguments("Hello ${..}", ["foo", "", "bar", "", "baz"])
     expect(result.result).toBe("Hello foo bar baz")
   })
 
@@ -57,7 +57,7 @@ describe("SessionPrompt.substituteArguments", () => {
   })
 
   test("mixed syntax should work together", () => {
-    const result = SessionPrompt.substituteArguments("First: ${1}, Second: $2, Rest: ${3:}", [
+    const result = SessionPrompt.substituteArguments("First: ${1}, Second: $2, Rest: ${3..}", [
       "a",
       "b",
       "c",
@@ -72,37 +72,37 @@ describe("SessionPrompt.substituteArguments", () => {
   })
 
   test("empty input should return empty for all placeholders", () => {
-    const result = SessionPrompt.substituteArguments("Hello ${1} and ${2:}", [])
+    const result = SessionPrompt.substituteArguments("Hello ${1} and ${2..}", [])
     expect(result.result).toBe("Hello  and ")
   })
 
-  test("$N syntax: returns single argument only (use ${N:} for remaining)", () => {
+  test("$N syntax: returns single argument only (use ${N..} for remaining)", () => {
     const result = SessionPrompt.substituteArguments("First: $1, Rest: $2", ["a", "b", "c", "d"])
     expect(result.result).toBe("First: a, Rest: b")
   })
 
-  test("${N:} syntax: open end should include remaining arguments", () => {
-    const result = SessionPrompt.substituteArguments("First: ${1}, Rest: ${2:}", ["a", "b", "c", "d"])
+  test("${N..} syntax: open end should include remaining arguments", () => {
+    const result = SessionPrompt.substituteArguments("First: ${1}, Rest: ${2..}", ["a", "b", "c", "d"])
     expect(result.result).toBe("First: a, Rest: b c d")
   })
 
-  test("${2:3} with insufficient args should return what is available", () => {
-    const result = SessionPrompt.substituteArguments("Hello ${2:3}", ["foo"])
+  test("${2..3} with insufficient args should return what is available", () => {
+    const result = SessionPrompt.substituteArguments("Hello ${2..3}", ["foo"])
     expect(result.result).toBe("Hello ")
   })
 
-  test("${:3} with insufficient args should return what is available", () => {
-    const result = SessionPrompt.substituteArguments("Hello ${:3}", ["foo", "bar"])
+  test("${..3} with insufficient args should return what is available", () => {
+    const result = SessionPrompt.substituteArguments("Hello ${..3}", ["foo", "bar"])
     expect(result.result).toBe("Hello foo bar")
   })
 
-  test("${2:} with single arg should return empty", () => {
-    const result = SessionPrompt.substituteArguments("Hello ${2:}", ["foo"])
+  test("${2..} with single arg should return empty", () => {
+    const result = SessionPrompt.substituteArguments("Hello ${2..}", ["foo"])
     expect(result.result).toBe("Hello ")
   })
 
   test("should handle whitespace-only args as empty", () => {
-    const result = SessionPrompt.substituteArguments("Hello ${:}", ["foo", "   ", "bar"])
+    const result = SessionPrompt.substituteArguments("Hello ${..}", ["foo", "   ", "bar"])
     expect(result.result).toBe("Hello foo bar")
   })
 

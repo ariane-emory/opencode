@@ -1,4 +1,5 @@
 import { Global } from "@/global"
+import { Filesystem } from "@/util/filesystem"
 import { createSignal, type Setter } from "solid-js"
 import { createStore } from "solid-js/store"
 import { createSimpleContext } from "./helper"
@@ -9,13 +10,10 @@ export const { use: useKV, provider: KVProvider } = createSimpleContext({
   init: () => {
     const [ready, setReady] = createSignal(false)
     const [store, setStore] = createStore<Record<string, any>>()
-    const file = Bun.file(path.join(Global.Path.state, "kv.json"))
-    let rawData: Record<string, any> = {}
+    const filePath = path.join(Global.Path.state, "kv.json")
 
-    file
-      .json()
+    Filesystem.readJson(filePath)
       .then((x) => {
-        rawData = x
         setStore(x)
       })
       .catch(() => {})
@@ -46,8 +44,7 @@ export const { use: useKV, provider: KVProvider } = createSimpleContext({
       },
       set(key: string, value: any) {
         setStore(key, value)
-        rawData[key] = value
-        Bun.write(file, JSON.stringify(rawData, null, 2))
+        Filesystem.writeJson(filePath, store)
       },
     }
     return result

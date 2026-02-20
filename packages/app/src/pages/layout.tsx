@@ -18,6 +18,7 @@ import { useGlobalSync } from "@/context/global-sync"
 import { Persist, persisted } from "@/utils/persist"
 import { base64Encode } from "@opencode-ai/util/encode"
 import { decode64 } from "@/utils/base64"
+import { formatSessionTitle } from "@/utils/session-title"
 import { ResizeHandle } from "@opencode-ai/ui/resize-handle"
 import { Button } from "@opencode-ai/ui/button"
 import { Icon } from "@opencode-ai/ui/icon"
@@ -372,7 +373,7 @@ export default function Layout(props: ParentProps) {
         const session = store.session.find((s) => s.id === props.sessionID)
         const sessionKey = `${directory}:${props.sessionID}`
 
-        const sessionTitle = session?.title ?? language.t("command.session.new")
+        const sessionTitle = formatSessionTitle(session?.title ?? "") || language.t("command.session.new")
         const projectName = getFilename(directory)
         const description =
           e.details.type === "permission.asked"

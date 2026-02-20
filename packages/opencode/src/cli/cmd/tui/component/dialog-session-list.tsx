@@ -47,7 +47,8 @@ export function DialogSessionList() {
       return { displayTitle }
     }
 
-    return { group, displayTitle }
+    const capitalized = group.charAt(0).toUpperCase() + group.slice(1)
+    return { group: capitalized + ":", displayTitle }
   }
 
   const options = createMemo(() => {

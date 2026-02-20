@@ -15,6 +15,7 @@ import { useLayout } from "@/context/layout"
 import { useFile } from "@/context/file"
 import { useLanguage } from "@/context/language"
 import { decode64 } from "@/utils/base64"
+import { formatSessionTitle } from "@/utils/session-title"
 import { getRelativeTime } from "@/utils/time"
 
 type EntryType = "command" | "file" | "session"
@@ -206,7 +207,7 @@ function createSessionEntries(props: {
               .filter((s) => !!s?.id)
               .map((s) => ({
                 id: s.id,
-                title: s.title ?? props.language.t("command.session.new"),
+                title: formatSessionTitle(s.title ?? "") || props.language.t("command.session.new"),
                 description,
                 directory,
                 archived: s.time?.archived,

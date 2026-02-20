@@ -11,6 +11,7 @@ import { SessionTurn } from "@opencode-ai/ui/session-turn"
 import type { UserMessage } from "@opencode-ai/sdk/v2"
 import { showToast } from "@opencode-ai/ui/toast"
 import { shouldMarkBoundaryGesture, normalizeWheelDelta } from "@/pages/session/message-gesture"
+import { formatSessionTitle } from "@/utils/session-title"
 import { SessionContextUsage } from "@/components/session-context-usage"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { useLanguage } from "@/context/language"
@@ -400,7 +401,7 @@ export function MessageTimeline(props: {
                           class="text-14-medium text-text-strong truncate grow-1 min-w-0 pl-2"
                           onDblClick={openTitleEditor}
                         >
-                          {titleValue()}
+                          {formatSessionTitle(titleValue() ?? "")}
                         </h1>
                       }
                     >

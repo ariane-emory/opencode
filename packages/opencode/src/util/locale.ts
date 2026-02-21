@@ -1,4 +1,6 @@
 export namespace Locale {
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
   export function titlecase(str: string) {
     return str.replace(/\b\w/g, (c) => c.toUpperCase())
   }
@@ -25,6 +27,25 @@ export namespace Locale {
       return time(input)
     } else {
       return datetime(input)
+    }
+  }
+
+  export function shortDateTime(input: number): string {
+    const date = new Date(input)
+    const now = new Date()
+    const isToday =
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth() &&
+      date.getDate() === now.getDate()
+
+    const timeStr = time(input)
+
+    if (isToday) {
+      return timeStr
+    } else {
+      const month = MONTHS[date.getMonth()]
+      const day = date.getDate()
+      return `${month} ${day} ${timeStr}`
     }
   }
 

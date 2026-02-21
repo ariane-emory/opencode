@@ -8,6 +8,7 @@ import { DropdownMenu } from "@opencode-ai/ui/dropdown-menu"
 import { Dialog } from "@opencode-ai/ui/dialog"
 import { InlineInput } from "@opencode-ai/ui/inline-input"
 import { SessionTurn } from "@opencode-ai/ui/session-turn"
+import { ScrollView } from "@opencode-ai/ui/scroll-view"
 import type { UserMessage } from "@opencode-ai/sdk/v2"
 import { showToast } from "@opencode-ai/ui/toast"
 import { shouldMarkBoundaryGesture, normalizeWheelDelta } from "@/pages/session/message-gesture"
@@ -15,6 +16,7 @@ import { formatSessionTitle } from "@/utils/session-title"
 import { SessionContextUsage } from "@/components/session-context-usage"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { useLanguage } from "@/context/language"
+import { useSettings } from "@/context/settings"
 import { useSDK } from "@/context/sdk"
 import { useSync } from "@/context/sync"
 
@@ -81,6 +83,7 @@ export function MessageTimeline(props: {
   const navigate = useNavigate()
   const sdk = useSDK()
   const sync = useSync()
+  const settings = useSettings()
   const dialog = useDialog()
   const language = useLanguage()
 
@@ -321,8 +324,8 @@ export function MessageTimeline(props: {
             <Icon name="arrow-down-to-line" />
           </button>
         </div>
-        <div
-          ref={props.setScrollRef}
+        <ScrollView
+          viewportRef={props.setScrollRef}
           onWheel={(e) => {
             const root = e.currentTarget
             const delta = normalizeWheelDelta({
@@ -366,7 +369,7 @@ export function MessageTimeline(props: {
             if (props.isDesktop) props.onScrollSpyScroll()
           }}
           onClick={props.onAutoScrollInteraction}
-          class="relative min-w-0 w-full h-full overflow-y-auto session-scroller"
+          class="relative min-w-0 w-full h-full"
           style={{
             "--session-title-height": showHeader() ? "40px" : "0px",
             "--sticky-accordion-top": showHeader() ? "48px" : "0px",
@@ -536,6 +539,7 @@ export function MessageTimeline(props: {
                     sessionID={sessionID() ?? ""}
                     messageID={message.id}
                     lastUserMessageID={props.lastUserMessageID}
+                    showReasoningSummaries={settings.general.showReasoningSummaries()}
                     classes={{
                       root: "min-w-0 w-full relative",
                       content: "flex flex-col justify-between !overflow-visible",
@@ -546,7 +550,7 @@ export function MessageTimeline(props: {
               )}
             </For>
           </div>
-        </div>
+        </ScrollView>
       </div>
     </Show>
   )

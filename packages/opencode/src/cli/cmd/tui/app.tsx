@@ -251,6 +251,7 @@ function App() {
     renderer.clearSelection()
   }
   const [terminalTitleEnabled, setTerminalTitleEnabled] = createSignal(kv.get("terminal_title_enabled", true))
+  const [sidebarClockEnabled, setSidebarClockEnabled] = createSignal(kv.get("sidebar_clock_visible", true))
 
   createEffect(() => {
     console.log(JSON.stringify(route.data))
@@ -649,6 +650,19 @@ function App() {
       onSelect: (dialog) => {
         const current = kv.get("diff_wrap_mode", "word")
         kv.set("diff_wrap_mode", current === "word" ? "none" : "word")
+        dialog.clear()
+      },
+    },
+    {
+      title: sidebarClockEnabled() ? "Hide sidebar clock" : "Show sidebar clock",
+      value: "system.toggle.sidebar_clock",
+      category: "System",
+      onSelect: (dialog) => {
+        setSidebarClockEnabled((prev) => {
+          const next = !prev
+          kv.set("sidebar_clock_visible", next)
+          return next
+        })
         dialog.clear()
       },
     },

@@ -106,8 +106,10 @@ export namespace Plugin {
 
     for (const plugin of INTERNAL_PLUGINS) {
       log.info("loading internal plugin", { name: plugin.name })
-      const init = await plugin(input)
-      hooks.push(init)
+      const init = await plugin(input).catch((err) => {
+        log.error("failed to load internal plugin", { name: plugin.name, error: err })
+      })
+      if (init) hooks.push(init)
     }
 
     let plugins = config.plugin ?? []
@@ -124,17 +126,17 @@ export namespace Plugin {
         const lastAtIndex = plugin.lastIndexOf("@")
         const pkg = lastAtIndex > 0 ? plugin.substring(0, lastAtIndex) : plugin
         const version = lastAtIndex > 0 ? plugin.substring(lastAtIndex + 1) : "latest"
-        const builtin = BUILTIN.some((x) => x.startsWith(pkg + "@"))
         plugin = await BunProc.install(pkg, version).catch((err) => {
-          if (!builtin) throw err
-
-          const message = err instanceof Error ? err.message : String(err)
-          recordError(`Failed to install built-in plugin ${pkg}@${version}: ${message}`)
-
+          const cause = err instanceof Error ? err.cause : err
+          const detail = cause instanceof Error ? cause.message : String(cause ?? err)
+          recordError(`Failed to install plugin ${pkg}@${version}: ${detail}`)
           return ""
         })
         if (!plugin) continue
       }
+      // Prevent duplicate initialization when plugins export the same function
+      // as both a named export and default export (e.g., `export const X` and `export default X`).
+      // Object.entries(mod) would return both entries pointing to the same function reference.
       let mod: Record<string, PluginInstance>
       try {
         mod = await import(plugin)

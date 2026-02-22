@@ -1021,7 +1021,8 @@ export function Prompt(props: PromptProps) {
                   const text = input.plainText
                   const cursorOffset = input.cursorOffset
                   let start = cursorOffset
-                  while (start > 0 && !/\s/.test(text[start - 1])) start--
+                  while (start > 0 && !isWordChar(text[start - 1])) start--
+                  while (start > 0 && isWordChar(text[start - 1])) start--
                   setStore("killBuffer", text.slice(start, cursorOffset))
                 }
                 if (
@@ -1073,22 +1074,6 @@ export function Prompt(props: PromptProps) {
                     e.preventDefault()
                     return
                   }
-                }
-                if (
-                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_transpose_characters", e)
-                ) {
-                  const text = input.plainText
-                  const cursorOffset = input.cursorOffset
-                  if (cursorOffset >= 2) {
-                    const before = text.slice(cursorOffset - 2, cursorOffset - 1)
-                    const current = text.slice(cursorOffset - 1, cursorOffset)
-                    const newText = text.slice(0, cursorOffset - 2) + current + before + text.slice(cursorOffset)
-                    input.setText(newText)
-                    input.cursorOffset = cursorOffset
-                    setStore("prompt", "input", newText)
-                    e.preventDefault()
-                  }
-                  return
                 }
               }}
               onSubmit={submit}

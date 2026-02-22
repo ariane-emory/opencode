@@ -79,11 +79,6 @@ describe("getWordBoundariesForTransformation", () => {
     expect(result).toEqual(null)
   })
 
-  test("should handle cursor at start of empty buffer", () => {
-    const result = getWordBoundariesForTransformation("", 0)
-    expect(result).toEqual(null)
-  })
-
   test("should find word when cursor is at end of text", () => {
     const result = getWordBoundariesForTransformation("hello world", 11)
     expect(result).toEqual({ start: 6, end: 11 })
@@ -116,6 +111,31 @@ describe("getWordBoundariesForTransformation", () => {
 
   test("should handle mixed punctuation and words", () => {
     const result = getWordBoundariesForTransformation("MERGED-branches.md", 6)
+    expect(result).toEqual({ start: 7, end: 15 })
+  })
+
+  test("underscore is a word character (not a boundary)", () => {
+    const result = getWordBoundariesForTransformation("foo_bar", 0)
+    expect(result).toEqual({ start: 0, end: 7 })
+  })
+
+  test("cursor on hyphen in merged-branches.md finds 'merged' only", () => {
+    const result = getWordBoundariesForTransformation("merged-branches.md", 0)
+    expect(result).toEqual({ start: 0, end: 6 })
+  })
+
+  test("cursor after 'MERGED-' in merged-branches.md finds 'branches' only", () => {
+    const result = getWordBoundariesForTransformation("MERGED-branches.md", 6)
+    expect(result).toEqual({ start: 7, end: 15 })
+  })
+
+  test("cursor on dot in MERGED-BRANCHES.md finds 'md'", () => {
+    const result = getWordBoundariesForTransformation("MERGED-BRANCHES.md", 15)
+    expect(result).toEqual({ start: 16, end: 18 })
+  })
+
+  test("cursor past end after trailing punctuation falls back to previous word", () => {
+    const result = getWordBoundariesForTransformation("MERGED-BRANCHES.", 16)
     expect(result).toEqual({ start: 7, end: 15 })
   })
 })

@@ -49,4 +49,10 @@ describe("Command.hints", () => {
     const result = Command.hints(template)
     expect(result).toEqual(["${2..}"])
   })
+
+  test("should not extract invalid ${...} with three dots", () => {
+    const template = "Invalid ${...} should be ignored"
+    const result = Command.hints(template)
+    expect(result).toEqual([])
+  })
 })

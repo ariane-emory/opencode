@@ -42,14 +42,20 @@ export namespace Config {
   // Managed settings directory for enterprise deployments (highest priority, admin-controlled)
   // These settings override all user and project settings
   function getManagedConfigDir(): string {
-    switch (process.platform) {
-      case "darwin":
-        return "/Library/Application Support/opencode"
-      case "win32":
-        return path.join(process.env.ProgramData || "C:\\ProgramData", "opencode")
-      default:
-        return "/etc/opencode"
+    const dirs = {
+      darwin: "/Library/Application Support",
+      win32: process.env.ProgramData || "C:\\ProgramData",
+      default: "/etc"
     }
+    const base = process.platform === "darwin" ? dirs.darwin
+      : process.platform === "win32" ? dirs.win32
+      : dirs.default
+
+    const baseonePath = path.join(base, "baseone")
+    const opencodePath = path.join(base, "opencode")
+    if (existsSync(baseonePath)) return baseonePath
+    if (existsSync(opencodePath)) return opencodePath
+    return baseonePath
   }
 
   const managedConfigDir = process.env.OPENCODE_TEST_MANAGED_CONFIG_DIR || getManagedConfigDir()
@@ -116,12 +122,9 @@ export namespace Config {
 
     // Project config overrides global and remote config.
     if (!Flag.OPENCODE_DISABLE_PROJECT_CONFIG) {
-      // Try new config file names first, fall back to legacy names
-      for (const file of ["opencode.jsonc", "opencode.json", "base-one.jsonc", "base-one.json"]) {
-        const found = await Filesystem.findUp(file, Instance.directory, Instance.worktree)
-        for (const resolved of found.toReversed()) {
-          result = merge(result, await loadFile(resolved))
-        }
+      const configFileCandidates = ["baseone.jsonc", "baseone.json", "opencode.jsonc", "opencode.json"]
+      for await (const filepath of Filesystem.findFirstUp(configFileCandidates, Instance.directory, Instance.worktree)) {
+        result = merge(result, await loadFile(filepath))
       }
     }
 
@@ -134,18 +137,18 @@ export namespace Config {
       // Only scan project directories when project discovery is enabled
       ...(!Flag.OPENCODE_DISABLE_PROJECT_CONFIG
         ? await Array.fromAsync(
-            // Search for .opencode first, then fall back to .baseone
-            Filesystem.up({
-              targets: [".opencode", ".baseone"],
+            // Prefer .baseone, fall back to .opencode
+            Filesystem.upFirst({
+              targets: [".baseone", ".opencode"],
               start: Instance.directory,
               stop: Instance.worktree,
             }),
           )
         : []),
-      // Always scan ~/.opencode/ (user home directory)
+      // Always scan home directory - prefer .baseone, fall back to .opencode
       ...(await Array.fromAsync(
-        Filesystem.up({
-          targets: [".opencode", ".baseone"],
+        Filesystem.upFirst({
+          targets: [".baseone", ".opencode"],
           start: Global.Path.home,
           stop: Global.Path.home,
         }),
@@ -161,15 +164,19 @@ export namespace Config {
 
     for (const dir of unique(directories)) {
       if (dir.endsWith(".opencode") || dir.endsWith(".baseone") || dir === Flag.BASEONE_CONFIG_DIR) {
-        // Try new config file names first, fall back to legacy
-      for (const file of ["opencode.jsonc", "opencode.json", "baseone.jsonc", "baseone.json"]) {
-          log.debug(`loading config from ${path.join(dir, file)}`)
-          result = merge(result, await loadFile(path.join(dir, file)))
-          // to satisfy the type checker
-          result.agent ??= {}
-          result.mode ??= {}
-          result.plugin ??= []
+        // Prefer baseone config files, fall back to opencode
+        const dirConfigCandidates = ["baseone.jsonc", "baseone.json", "opencode.jsonc", "opencode.json"]
+        for (const file of dirConfigCandidates) {
+          const filePath = path.join(dir, file)
+          if (existsSync(filePath)) {
+            log.debug(`loading config from ${filePath}`)
+            result = merge(result, await loadFile(filePath))
+            break
+          }
         }
+        result.agent ??= {}
+        result.mode ??= {}
+        result.plugin ??= []
       }
 
       deps.push(
@@ -202,8 +209,13 @@ export namespace Config {
     // which would fail on system directories requiring elevated permissions
     // This way it only loads config file and not skills/plugins/commands
     if (existsSync(managedConfigDir)) {
-      for (const file of ["opencode.jsonc", "opencode.json"]) {
-        result = merge(result, await loadFile(path.join(managedConfigDir, file)))
+      const managedConfigCandidates = ["baseone.jsonc", "baseone.json", "opencode.jsonc", "opencode.json"]
+      for (const file of managedConfigCandidates) {
+        const filePath = path.join(managedConfigDir, file)
+        if (existsSync(filePath)) {
+          result = merge(result, await loadFile(filePath))
+          break
+        }
       }
     }
 
@@ -1240,13 +1252,16 @@ export namespace Config {
   export type Info = z.output<typeof Info>
 
   export const global = lazy(async () => {
-    // Load config files with new names first, falling back to legacy names
+    // Prefer baseone config files, fall back to opencode
     let result: Info = {}
-    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "config.json")))
-    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "opencode.json")))
-    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "opencode.jsonc")))
-    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "baseone.json")))
-    result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "baseone.jsonc")))
+    const globalConfigCandidates = ["baseone.jsonc", "baseone.json", "opencode.jsonc", "opencode.json", "config.json"]
+    for (const file of globalConfigCandidates) {
+      const filePath = path.join(Global.Path.config, file)
+      if (existsSync(filePath)) {
+        result = mergeDeep(result, await loadFile(filePath))
+        break
+      }
+    }
 
     const legacy = path.join(Global.Path.config, "config")
     if (existsSync(legacy)) {

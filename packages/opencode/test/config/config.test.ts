@@ -80,21 +80,22 @@ test("loads JSONC config file", async () => {
   })
 })
 
-test("merges multiple config files with correct precedence", async () => {
+test("uses first found config file with fallback order", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await writeConfig(
         dir,
         {
           $schema: "https://opencode.ai/config.json",
-          model: "base",
-          username: "base",
+          model: "baseone",
+          username: "baseone-user",
         },
-        "opencode.jsonc",
+        "baseone.json",
       )
       await writeConfig(dir, {
         $schema: "https://opencode.ai/config.json",
-        model: "override",
+        model: "opencode",
+        username: "opencode-user",
       })
     },
   })
@@ -102,8 +103,9 @@ test("merges multiple config files with correct precedence", async () => {
     directory: tmp.path,
     fn: async () => {
       const config = await Config.get()
-      expect(config.model).toBe("override")
-      expect(config.username).toBe("base")
+      // baseone.json should be loaded (first in fallback order), not opencode.json
+      expect(config.model).toBe("baseone")
+      expect(config.username).toBe("baseone-user")
     },
   })
 })
@@ -1284,14 +1286,14 @@ test("permission config preserves key order", async () => {
   })
 })
 
-// MCP config merging tests
+// MCP config tests - fallback behavior (only first found file is loaded)
 
-test("project config can override MCP server enabled status", async () => {
+test("project config uses baseone.json over opencode.json for MCP", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      // Simulates a base config (like from remote .well-known) with disabled MCP
+      // opencode.json with disabled MCP
       await Filesystem.write(
-        path.join(dir, "opencode.jsonc"),
+        path.join(dir, "opencode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           mcp: {
@@ -1300,17 +1302,12 @@ test("project config can override MCP server enabled status", async () => {
               url: "https://jira.example.com/mcp",
               enabled: false,
             },
-            wiki: {
-              type: "remote",
-              url: "https://wiki.example.com/mcp",
-              enabled: false,
-            },
           },
         }),
       )
-      // Project config enables just jira
+      // baseone.json with enabled MCP - should be preferred
       await Filesystem.write(
-        path.join(dir, "opencode.json"),
+        path.join(dir, "baseone.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           mcp: {
@@ -1328,43 +1325,20 @@ test("project config can override MCP server enabled status", async () => {
     directory: tmp.path,
     fn: async () => {
       const config = await Config.get()
-      // jira should be enabled (overridden by project config)
+      // baseone.json should be loaded, so jira should be enabled
       expect(config.mcp?.jira).toEqual({
         type: "remote",
         url: "https://jira.example.com/mcp",
         enabled: true,
       })
-      // wiki should still be disabled (not overridden)
-      expect(config.mcp?.wiki).toEqual({
-        type: "remote",
-        url: "https://wiki.example.com/mcp",
-        enabled: false,
-      })
     },
   })
 })
 
-test("MCP config deep merges preserving base config properties", async () => {
+test("project config falls back to opencode.json when no baseone.json exists", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      // Base config with full MCP definition
-      await Filesystem.write(
-        path.join(dir, "opencode.jsonc"),
-        JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
-          mcp: {
-            myserver: {
-              type: "remote",
-              url: "https://myserver.example.com/mcp",
-              enabled: false,
-              headers: {
-                "X-Custom-Header": "value",
-              },
-            },
-          },
-        }),
-      )
-      // Override just enables it, should preserve other properties
+      // Only opencode.json exists
       await Filesystem.write(
         path.join(dir, "opencode.json"),
         JSON.stringify({
@@ -1374,6 +1348,9 @@ test("MCP config deep merges preserving base config properties", async () => {
               type: "remote",
               url: "https://myserver.example.com/mcp",
               enabled: true,
+              headers: {
+                "X-Custom-Header": "value",
+              },
             },
           },
         }),

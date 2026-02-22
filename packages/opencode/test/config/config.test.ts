@@ -80,7 +80,7 @@ test("loads JSONC config file", async () => {
   })
 })
 
-test("uses first found config file with fallback order", async () => {
+test("uses baseone brand over opencode brand (not merged)", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await writeConfig(
@@ -103,9 +103,75 @@ test("uses first found config file with fallback order", async () => {
     directory: tmp.path,
     fn: async () => {
       const config = await Config.get()
-      // baseone.json should be loaded (first in fallback order), not opencode.json
+      // baseone brand should be used, not opencode (fallback, not merge)
       expect(config.model).toBe("baseone")
       expect(config.username).toBe("baseone-user")
+    },
+  })
+})
+
+test("merges opencode.json and opencode.jsonc together", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await writeConfig(
+        dir,
+        {
+          $schema: "https://opencode.ai/config.json",
+          model: "from-json",
+          username: "from-json",
+        },
+        "opencode.json",
+      )
+      await writeConfig(
+        dir,
+        {
+          $schema: "https://opencode.ai/config.json",
+          model: "from-jsonc",
+        },
+        "opencode.jsonc",
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      // .jsonc is loaded after .json, so it overrides
+      expect(config.model).toBe("from-jsonc")
+      expect(config.username).toBe("from-json")
+    },
+  })
+})
+
+test("merges baseone.json and baseone.jsonc together", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await writeConfig(
+        dir,
+        {
+          $schema: "https://opencode.ai/config.json",
+          model: "from-json",
+          username: "from-json",
+        },
+        "baseone.json",
+      )
+      await writeConfig(
+        dir,
+        {
+          $schema: "https://opencode.ai/config.json",
+          model: "from-jsonc",
+        },
+        "baseone.jsonc",
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      // .jsonc is loaded after .json, so it overrides
+      expect(config.model).toBe("from-jsonc")
+      expect(config.username).toBe("from-json")
     },
   })
 })

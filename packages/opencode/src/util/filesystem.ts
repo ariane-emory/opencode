@@ -187,6 +187,17 @@ export namespace Filesystem {
     }
   }
 
+  export async function* upDirs(start: string, stop?: string) {
+    let current = start
+    while (true) {
+      yield current
+      if (stop === current) break
+      const parent = dirname(current)
+      if (parent === current) break
+      current = parent
+    }
+  }
+
   export async function globUp(pattern: string, start: string, stop?: string) {
     let current = start
     const result = []

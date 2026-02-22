@@ -1,32 +1,35 @@
 import { describe, test, expect } from "bun:test"
 
+function isWordChar(ch: string): boolean {
+  return /\w/.test(ch)
+}
+
 function getWordBoundariesForTransformation(text: string, cursorOffset: number): { start: number; end: number } | null {
   if (text.length === 0) return null
 
   const effectiveOffset = Math.min(cursorOffset, text.length)
-  if (effectiveOffset < text.length && !/\s/.test(text[effectiveOffset])) {
-    // Inside a word - transform from cursor to end of word (Emacs-style behavior)
+  if (effectiveOffset < text.length && isWordChar(text[effectiveOffset])) {
     let end = effectiveOffset
-    while (end < text.length && !/\s/.test(text[end])) end++
+    while (end < text.length && isWordChar(text[end])) end++
 
     return { start: effectiveOffset, end }
   }
 
   let end = effectiveOffset
-  while (end < text.length && /\s/.test(text[end])) end++
+  while (end < text.length && !isWordChar(text[end])) end++
 
   let nextEnd = end
-  while (nextEnd < text.length && !/\s/.test(text[nextEnd])) nextEnd++
+  while (nextEnd < text.length && isWordChar(text[nextEnd])) nextEnd++
 
   if (nextEnd > end) {
     return { start: end, end: nextEnd }
   }
 
   let start = effectiveOffset
-  while (start > 0 && /\s/.test(text[start - 1])) start--
+  while (start > 0 && !isWordChar(text[start - 1])) start--
 
   let wordStart = start
-  while (wordStart > 0 && !/\s/.test(text[wordStart - 1])) wordStart--
+  while (wordStart > 0 && isWordChar(text[wordStart - 1])) wordStart--
 
   return { start: wordStart, end: start }
 }
@@ -89,6 +92,31 @@ describe("getWordBoundariesForTransformation", () => {
   test("should handle cursor past end of text on whitespace", () => {
     const result = getWordBoundariesForTransformation("hello world ", 12)
     expect(result).toEqual({ start: 6, end: 11 })
+  })
+
+  test("should treat period as word boundary", () => {
+    const result = getWordBoundariesForTransformation("foo.bar", 4)
+    expect(result).toEqual({ start: 4, end: 7 })
+  })
+
+  test("should treat hyphen as word boundary", () => {
+    const result = getWordBoundariesForTransformation("foo-bar", 4)
+    expect(result).toEqual({ start: 4, end: 7 })
+  })
+
+  test("should handle punctuation in filename", () => {
+    const result = getWordBoundariesForTransformation("branches.md", 8)
+    expect(result).toEqual({ start: 9, end: 11 })
+  })
+
+  test("should find word before period when cursor on period", () => {
+    const result = getWordBoundariesForTransformation("foo.bar", 3)
+    expect(result).toEqual({ start: 4, end: 7 })
+  })
+
+  test("should handle mixed punctuation and words", () => {
+    const result = getWordBoundariesForTransformation("MERGED-branches.md", 6)
+    expect(result).toEqual({ start: 7, end: 15 })
   })
 })
 

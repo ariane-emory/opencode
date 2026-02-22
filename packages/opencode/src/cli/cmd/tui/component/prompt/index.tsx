@@ -58,36 +58,36 @@ export type PromptRef = {
 const PLACEHOLDERS = ["Fix a TODO in the codebase", "What is the tech stack of this project?", "Fix broken tests"]
 const SHELL_PLACEHOLDERS = ["ls -la", "git status", "pwd"]
 
+function isWordChar(ch: string): boolean {
+  return /\w/.test(ch)
+}
+
 function getWordBoundariesForTransformation(text: string, cursorOffset: number): { start: number; end: number } | null {
   if (text.length === 0) return null
 
-  // Check if cursor is on a word character (inside a word)
   const effectiveOffset = Math.min(cursorOffset, text.length)
-  if (effectiveOffset < text.length && !/\s/.test(text[effectiveOffset])) {
-    // Inside a word - transform from cursor to end of word (Emacs-style behavior)
+  if (effectiveOffset < text.length && isWordChar(text[effectiveOffset])) {
     let end = effectiveOffset
-    while (end < text.length && !/\s/.test(text[end])) end++
+    while (end < text.length && isWordChar(text[end])) end++
 
     return { start: effectiveOffset, end }
   }
 
-  // Cursor is on whitespace or at end - find the next word
   let end = effectiveOffset
-  while (end < text.length && /\s/.test(text[end])) end++
+  while (end < text.length && !isWordChar(text[end])) end++
 
   let nextEnd = end
-  while (nextEnd < text.length && !/\s/.test(text[nextEnd])) nextEnd++
+  while (nextEnd < text.length && isWordChar(text[nextEnd])) nextEnd++
 
   if (nextEnd > end) {
     return { start: end, end: nextEnd }
   }
 
-  // No next word - find the previous word
   let start = effectiveOffset
-  while (start > 0 && /\s/.test(text[start - 1])) start--
+  while (start > 0 && !isWordChar(text[start - 1])) start--
 
   let wordStart = start
-  while (wordStart > 0 && !/\s/.test(text[wordStart - 1])) wordStart--
+  while (wordStart > 0 && isWordChar(text[wordStart - 1])) wordStart--
 
   return { start: wordStart, end: start }
 }

@@ -13,6 +13,7 @@ import { Identifier } from "@/id/id"
 import { createStore, produce } from "solid-js/store"
 import { useKeybind } from "@tui/context/keybind"
 import { usePromptHistory, type PromptInfo } from "./history"
+import { isWordChar, getWordBoundaries, lowercaseWord, uppercaseWord, capitalizeWord } from "./word"
 import { usePromptStash } from "./stash"
 import { DialogStash } from "../dialog-stash"
 import { type AutocompleteRef, Autocomplete } from "./autocomplete"
@@ -57,54 +58,6 @@ export type PromptRef = {
 
 const PLACEHOLDERS = ["Fix a TODO in the codebase", "What is the tech stack of this project?", "Fix broken tests"]
 const SHELL_PLACEHOLDERS = ["ls -la", "git status", "pwd"]
-
-function isWordChar(ch: string): boolean {
-  return /\w/.test(ch)
-}
-
-function getWordBoundariesForTransformation(text: string, cursorOffset: number): { start: number; end: number } | null {
-  if (text.length === 0) return null
-
-  const effectiveOffset = Math.min(cursorOffset, text.length)
-  if (effectiveOffset < text.length && isWordChar(text[effectiveOffset])) {
-    let end = effectiveOffset
-    while (end < text.length && isWordChar(text[end])) end++
-
-    return { start: effectiveOffset, end }
-  }
-
-  let end = effectiveOffset
-  while (end < text.length && !isWordChar(text[end])) end++
-
-  let nextEnd = end
-  while (nextEnd < text.length && isWordChar(text[nextEnd])) nextEnd++
-
-  if (nextEnd > end) {
-    return { start: end, end: nextEnd }
-  }
-
-  let start = effectiveOffset
-  while (start > 0 && !isWordChar(text[start - 1])) start--
-
-  let wordStart = start
-  while (wordStart > 0 && isWordChar(text[wordStart - 1])) wordStart--
-
-  return { start: wordStart, end: start }
-}
-
-function lowercaseWord(text: string, start: number, end: number): string {
-  return text.slice(0, start) + text.slice(start, end).toLowerCase() + text.slice(end)
-}
-
-function uppercaseWord(text: string, start: number, end: number): string {
-  return text.slice(0, start) + text.slice(start, end).toUpperCase() + text.slice(end)
-}
-
-function capitalizeWord(text: string, start: number, end: number): string {
-  const segment = text.slice(start, end)
-  const capitalized = segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase()
-  return text.slice(0, start) + capitalized + text.slice(end)
-}
 
 export function Prompt(props: PromptProps) {
   let input: TextareaRenderable
@@ -1010,7 +963,7 @@ export function Prompt(props: PromptProps) {
                 ) {
                   const text = input.plainText
                   const cursorOffset = input.cursorOffset
-                  const boundaries = getWordBoundariesForTransformation(text, cursorOffset)
+                  const boundaries = getWordBoundaries(text, cursorOffset)
                   if (boundaries) {
                     setStore("killBuffer", text.slice(boundaries.start, boundaries.end))
                   }
@@ -1041,7 +994,7 @@ export function Prompt(props: PromptProps) {
                     start = selection.start
                     end = selection.end
                   } else {
-                    const boundaries = getWordBoundariesForTransformation(text, cursorOffset)
+                    const boundaries = getWordBoundaries(text, cursorOffset)
                     if (!boundaries) {
                       e.preventDefault()
                       return

@@ -53,7 +53,8 @@ export function GifRenderer(props: { path: string; width?: number; height?: numb
   }
 
   onMount(async () => {
-    const file = Bun.file(path.resolve(import.meta.dirname, props.path))
+    const source = props.path.startsWith("file://") ? new URL(props.path) : path.resolve(import.meta.dirname, props.path)
+    const file = Bun.file(source)
     if (!(await file.exists())) return
     if (aborted) return
 

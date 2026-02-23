@@ -15,6 +15,7 @@ import { Installation } from "@/installation"
 import { useKV } from "../context/kv"
 import { useCommandDialog } from "../component/dialog-command"
 import { useLocal } from "../context/local"
+import { gifAssets } from "../assets"
 
 // TODO: what is the best way to do this?
 let once = false
@@ -111,7 +112,7 @@ export function Home() {
         <box flexGrow={1} minHeight={0} />
         <box height={4} minHeight={0} flexShrink={1} />
         <box flexShrink={0}>
-          <GifRenderer path="../../../../../../../assets/happy-cat.gif" width={60} height={30} />
+          <GifRenderer path={gifAssets["happy-cat"]} width={60} height={30} />
         </box>
         <box height={1} minHeight={0} flexShrink={1} />
         <box width="100%" maxWidth={75} zIndex={1000} paddingTop={1} flexShrink={0}>

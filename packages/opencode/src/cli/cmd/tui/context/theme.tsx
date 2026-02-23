@@ -73,6 +73,18 @@ import synthwave84Transparent from "./theme/synthwave84-transparent.json" with {
 import tokyoNightTransparent from "./theme/tokyo-night-transparent.json" with { type: "json" }
 import vesperTransparent from "./theme/vesper-transparent.json" with { type: "json" }
 import zenburnTransparent from "./theme/zenburn-transparent.json" with { type: "json" }
+import carbonfoxTransparent from "./theme/carbonfox-transparent.json" with { type: "json" }
+import catppuccinFrappeTransparent from "./theme/catppuccin-frappe-transparent.json" with { type: "json" }
+import catppuccinMacchiatoTransparent from "./theme/catppuccin-macchiato-transparent.json" with { type: "json" }
+import cobalt2Transparent from "./theme/cobalt2-transparent.json" with { type: "json" }
+import cursorTransparent from "./theme/cursor-transparent.json" with { type: "json" }
+import flexokiTransparent from "./theme/flexoki-transparent.json" with { type: "json" }
+import lucentOrngTransparent from "./theme/lucent-orng-transparent.json" with { type: "json" }
+import mercuryTransparent from "./theme/mercury-transparent.json" with { type: "json" }
+import orngTransparent from "./theme/orng-transparent.json" with { type: "json" }
+import osakaJadeTransparent from "./theme/osaka-jade-transparent.json" with { type: "json" }
+import tokyonightTransparent from "./theme/tokyonight-transparent.json" with { type: "json" }
+import vercelTransparent from "./theme/vercel-transparent.json" with { type: "json" }
 import { useKV } from "./kv"
 import { useRenderer } from "@opentui/solid"
 import { createStore, produce } from "solid-js/store"
@@ -244,6 +256,18 @@ export const DEFAULT_THEMES: Record<string, ThemeJson> = {
   ["tokyo-night-transparent"]: tokyoNightTransparent,
   ["vesper-transparent"]: vesperTransparent,
   ["zenburn-transparent"]: zenburnTransparent,
+  ["carbonfox-transparent"]: carbonfoxTransparent,
+  ["catppuccin-frappe-transparent"]: catppuccinFrappeTransparent,
+  ["catppuccin-macchiato-transparent"]: catppuccinMacchiatoTransparent,
+  ["cobalt2-transparent"]: cobalt2Transparent,
+  ["cursor-transparent"]: cursorTransparent,
+  ["flexoki-transparent"]: flexokiTransparent,
+  ["lucent-orng-transparent"]: lucentOrngTransparent,
+  ["mercury-transparent"]: mercuryTransparent,
+  ["orng-transparent"]: orngTransparent,
+  ["osaka-jade-transparent"]: osakaJadeTransparent,
+  ["tokyonight-transparent"]: tokyonightTransparent,
+  ["vercel-transparent"]: vercelTransparent,
 }
 
 function resolveTheme(theme: ThemeJson, mode: "dark" | "light") {

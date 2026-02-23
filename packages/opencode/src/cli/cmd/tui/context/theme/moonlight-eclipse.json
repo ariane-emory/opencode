@@ -114,6 +114,10 @@
       "dark": "eclipseRust",
       "light": "eclipseMahogany"
     },
+    "syntaxPunctuation": {
+      "dark": "gray8",
+      "light": "gray8"
+    },
     "diffAdded": "green",
     "diffRemoved": "bloodRed",
     "diffContext": {

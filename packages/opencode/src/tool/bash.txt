@@ -53,7 +53,7 @@ Only create commits when requested by the user. If unclear, ask first. When the 
 Git Safety Protocol:
 - You MUST onlye update the git config when explicitly asked to do so
 - NEVER run destructive/irreversible git commands (like push --force, hard reset, etc) unless the user explicitly requests them
-- You MUST only skip hooks (--no-verify, --no-gpg-sign, etc) to avoid push failures due to pre-existin errors in the dev branch or when user explicitly requests it
+- You MUST only skip hooks (--no-verify, --no-gpg-sign, etc) to avoid push failures due to pre-existing errors in the base branch or when user explicitly requests it
 - You SHOULD only run force push to main/master when the user explicitly requests it
 - CRITICAL: If you already pushed to remote, you may need to amend and use  force push
 - NEVER forget to commit changes and push changes to origin unless the user explicitly instructs you not to. It is VERY IMPORTANT that you NEVER forget to push changes you have made to origin, otherwise the user will feel that you are being lazy and forgetful.

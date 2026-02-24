@@ -73,6 +73,7 @@ export namespace SessionPrompt {
             reject(reason?: any): void
           }[]
         }
+
       > = {}
       return data
     },
@@ -80,6 +81,7 @@ export namespace SessionPrompt {
       for (const item of Object.values(current)) {
         item.abort.abort()
       }
+
     },
   )
 
@@ -172,14 +174,17 @@ export namespace SessionPrompt {
         pattern: "*",
       })
     }
+
     if (permissions.length > 0) {
       session.permission = permissions
       await Session.setPermission({ sessionID: session.id, permission: permissions })
     }
 
+
     if (input.noReply === true) {
       return message
     }
+
 
     return loop({ sessionID: input.sessionID })
   })
@@ -211,8 +216,10 @@ export namespace SessionPrompt {
               name: agent.name,
             })
           }
+
           return
         }
+
 
         if (stats.isDirectory()) {
           parts.push({
@@ -223,6 +230,7 @@ export namespace SessionPrompt {
           })
           return
         }
+
 
         parts.push({
           type: "file",
@@ -243,6 +251,7 @@ export namespace SessionPrompt {
       abort: controller,
       callbacks: [],
     }
+
     return controller.signal
   }
 
@@ -261,6 +270,7 @@ export namespace SessionPrompt {
       SessionStatus.set(sessionID, { type: "idle" })
       return
     }
+
     match.abort.abort()
     delete s[sessionID]
     SessionStatus.set(sessionID, { type: "idle" })
@@ -281,6 +291,7 @@ export namespace SessionPrompt {
         callbacks.push({ resolve, reject })
       })
     }
+
 
     using _ = defer(() => cancel(sessionID))
 
@@ -312,7 +323,9 @@ export namespace SessionPrompt {
         if (task && !lastFinished) {
           tasks.push(...task)
         }
+
       }
+
 
       if (!lastUser) throw new Error("No user message found in stream. This should never happen.")
       if (
@@ -323,6 +336,7 @@ export namespace SessionPrompt {
         log.info("exiting loop", { sessionID })
         break
       }
+
 
       step++
       if (step === 1)
@@ -343,6 +357,7 @@ export namespace SessionPrompt {
             }).toObject(),
           })
         }
+
         throw e
       })
       const task = tasks.pop()
@@ -403,6 +418,7 @@ export namespace SessionPrompt {
           subagent_type: task.agent,
           command: task.command,
         }
+
         await Plugin.trigger(
           "tool.execute.before",
           {
@@ -440,6 +456,7 @@ export namespace SessionPrompt {
             })
           },
         }
+
         const result = await taskTool.execute(taskArgs, taskCtx).catch((error) => {
           executionError = error
           log.error("subtask execution failed", { error, agent: task.agent, description: task.description })
@@ -481,6 +498,7 @@ export namespace SessionPrompt {
             },
           } satisfies MessageV2.ToolPart)
         }
+
         if (!result) {
           await Session.updatePart({
             ...part,
@@ -497,6 +515,7 @@ export namespace SessionPrompt {
           } satisfies MessageV2.ToolPart)
         }
 
+
         if (task.command) {
           // Add synthetic user message to prevent certain reasoning models from erroring
           // If we create assistant messages w/ out user ones following mid loop thinking signatures
@@ -511,6 +530,7 @@ export namespace SessionPrompt {
             agent: lastUser.agent,
             model: lastUser.model,
           }
+
           await Session.updateMessage(summaryUserMsg)
           await Session.updatePart({
             id: Identifier.ascending("part"),
@@ -522,8 +542,10 @@ export namespace SessionPrompt {
           } satisfies MessageV2.TextPart)
         }
 
+
         continue
       }
+
 
       // pending compaction
       if (task?.type === "compaction") {
@@ -537,6 +559,7 @@ export namespace SessionPrompt {
         if (result === "stop") break
         continue
       }
+
 
       // context overflow, needs compaction
       if (
@@ -552,6 +575,7 @@ export namespace SessionPrompt {
         })
         continue
       }
+
 
       // normal processing
       const agent = await Agent.get(lastUser.agent)
@@ -619,12 +643,14 @@ export namespace SessionPrompt {
         })
       }
 
+
       if (step === 1) {
         SessionSummary.summarize({
           sessionID: sessionID,
           messageID: lastUser.id,
         })
       }
+
 
       // Ephemerally wrap queued user messages with a reminder to stay on track
       if (step > 1 && lastFinished) {
@@ -642,8 +668,11 @@ export namespace SessionPrompt {
               "</system-reminder>",
             ].join("\n")
           }
+
         }
+
       }
+
 
       await Plugin.trigger("experimental.chat.messages.transform", {}, { messages: msgs })
 
@@ -653,6 +682,7 @@ export namespace SessionPrompt {
       if (format.type === "json_schema") {
         system.push(STRUCTURED_OUTPUT_SYSTEM_PROMPT)
       }
+
 
       const result = await processor.process({
         user: lastUser,
@@ -685,6 +715,7 @@ export namespace SessionPrompt {
         break
       }
 
+
       // Check if model finished (finish reason is not "tool-calls" or "unknown")
       const modelFinished = processor.message.finish && !["tool-calls", "unknown"].includes(processor.message.finish)
 
@@ -698,7 +729,9 @@ export namespace SessionPrompt {
           await Session.updateMessage(processor.message)
           break
         }
+
       }
+
 
       if (result === "stop") break
       if (result === "compact") {
@@ -709,8 +742,10 @@ export namespace SessionPrompt {
           auto: true,
         })
       }
+
       continue
     }
+
     SessionCompaction.prune({ sessionID })
     for await (const item of MessageV2.stream(sessionID)) {
       if (item.info.role === "user") continue
@@ -718,8 +753,10 @@ export namespace SessionPrompt {
       for (const q of queued) {
         q.resolve(item)
       }
+
       return item
     }
+
     throw new Error("Impossible")
   })
 
@@ -727,6 +764,7 @@ export namespace SessionPrompt {
     for await (const item of MessageV2.stream(sessionID)) {
       if (item.info.role === "user" && item.info.model) return item.info.model
     }
+
     return Provider.defaultModel()
   }
 
@@ -767,6 +805,7 @@ export namespace SessionPrompt {
             },
           })
         }
+
       },
       async ask(req) {
         await PermissionNext.ask({
@@ -810,6 +849,7 @@ export namespace SessionPrompt {
               messageID: input.processor.message.id,
             })),
           }
+
           await Plugin.trigger(
             "tool.execute.after",
             {
@@ -824,6 +864,7 @@ export namespace SessionPrompt {
         },
       })
     }
+
 
     for (const [key, item] of Object.entries(await MCP.tools())) {
       const execute = item.execute
@@ -884,6 +925,7 @@ export namespace SessionPrompt {
             if (resource.text) {
               textParts.push(resource.text)
             }
+
             if (resource.blob) {
               attachments.push({
                 type: "file",
@@ -892,8 +934,11 @@ export namespace SessionPrompt {
                 filename: resource.uri,
               })
             }
+
           }
+
         }
+
 
         const truncated = await Truncate.output(textParts.join("\n\n"), {}, input.agent)
         const metadata = {
@@ -901,6 +946,7 @@ export namespace SessionPrompt {
           truncated: truncated.truncated,
           ...(truncated.truncated && { outputPath: truncated.outputPath }),
         }
+
 
         return {
           title: "",
@@ -914,9 +960,12 @@ export namespace SessionPrompt {
           })),
           content: result.content, // directly return content to preserve ordering when outputting to model
         }
+
       }
+
       tools[key] = item
     }
+
 
     return tools
   }
@@ -941,12 +990,14 @@ export namespace SessionPrompt {
           title: "Structured Output",
           metadata: { valid: true },
         }
+
       },
       toModelOutput(result) {
         return {
           type: "text",
           value: result.output,
         }
+
       },
     })
   }
@@ -975,6 +1026,7 @@ export namespace SessionPrompt {
       format: input.format,
       variant,
     }
+
     using _ = defer(() => InstructionPrompt.clear(info.id))
 
     type Draft<T> = T extends MessageV2.Part ? Omit<T, "id"> & { id?: string } : never
@@ -1007,6 +1059,7 @@ export namespace SessionPrompt {
                 throw new Error(`Resource not found: ${clientName}/${uri}`)
               }
 
+
               // Handle different content types
               const contents = Array.isArray(resourceContent.contents)
                 ? resourceContent.contents
@@ -1032,7 +1085,9 @@ export namespace SessionPrompt {
                     text: `[Binary content: ${mimeType}]`,
                   })
                 }
+
               }
+
 
               pieces.push({
                 ...part,
@@ -1051,8 +1106,10 @@ export namespace SessionPrompt {
               })
             }
 
+
             return pieces
           }
+
           const url = new URL(part.url)
           switch (url.protocol) {
             case "data:":
@@ -1079,6 +1136,7 @@ export namespace SessionPrompt {
                   },
                 ]
               }
+
               break
             case "file:":
               log.info("file", { mime: part.mime })
@@ -1091,6 +1149,7 @@ export namespace SessionPrompt {
                 part.mime = "application/x-directory"
               }
 
+
               if (part.mime === "text/plain") {
                 let offset: number | undefined = undefined
                 let limit: number | undefined = undefined
@@ -1098,6 +1157,7 @@ export namespace SessionPrompt {
                   start: url.searchParams.get("start"),
                   end: url.searchParams.get("end"),
                 }
+
                 if (range.start != null) {
                   const filePathURI = part.url.split("?")[0]
                   let start = parseInt(range.start)
@@ -1114,18 +1174,24 @@ export namespace SessionPrompt {
                       } else if ("location" in symbol) {
                         range = symbol.location.range
                       }
+
                       if (range?.start?.line && range?.start?.line === start) {
                         start = range.start.line
                         end = range?.end?.line ?? start
                         break
                       }
+
                     }
+
                   }
+
                   offset = Math.max(start, 1)
                   if (end) {
                     limit = end - (offset - 1)
                   }
+
                 }
+
                 const args = { filePath: filepath, offset, limit }
 
                 const pieces: Draft<MessageV2.Part>[] = [
@@ -1151,6 +1217,7 @@ export namespace SessionPrompt {
                       metadata: async () => {},
                       ask: async () => {},
                     }
+
                     const result = await t.execute(args, readCtx)
                     pieces.push({
                       messageID: info.id,
@@ -1176,6 +1243,7 @@ export namespace SessionPrompt {
                         sessionID: input.sessionID,
                       })
                     }
+
                   })
                   .catch((error) => {
                     log.error("failed to read file", { error })
@@ -1198,6 +1266,7 @@ export namespace SessionPrompt {
                 return pieces
               }
 
+
               if (part.mime === "application/x-directory") {
                 const args = { filePath: filepath }
                 const listCtx: Tool.Context = {
@@ -1210,6 +1279,7 @@ export namespace SessionPrompt {
                   metadata: async () => {},
                   ask: async () => {},
                 }
+
                 const result = await ReadTool.init().then((t) => t.execute(args, listCtx))
                 return [
                   {
@@ -1234,6 +1304,7 @@ export namespace SessionPrompt {
                 ]
               }
 
+
               FileTime.read(input.sessionID, filepath)
               return [
                 {
@@ -1255,7 +1326,9 @@ export namespace SessionPrompt {
                 },
               ]
           }
+
         }
+
 
         if (part.type === "agent") {
           // Check if this agent would be denied by task permission
@@ -1281,6 +1354,7 @@ export namespace SessionPrompt {
             },
           ]
         }
+
 
         return [
           {
@@ -1312,10 +1386,12 @@ export namespace SessionPrompt {
       await Session.updatePart(part)
     }
 
+
     return {
       info,
       parts,
     }
+
   }
 
   async function insertReminders(input: { messages: MessageV2.WithParts[]; agent: Agent.Info; session: Session.Info }) {
@@ -1334,6 +1410,7 @@ export namespace SessionPrompt {
           synthetic: true,
         })
       }
+
       const wasPlan = input.messages.some((msg) => msg.info.role === "assistant" && msg.info.agent === "plan")
       if (wasPlan && input.agent.name === "build") {
         userMessage.parts.push({
@@ -1345,8 +1422,10 @@ export namespace SessionPrompt {
           synthetic: true,
         })
       }
+
       return input.messages
     }
+
 
     // New plan mode logic when flag is enabled
     const assistantMessage = input.messages.findLast((msg) => msg.info.role === "assistant")
@@ -1367,8 +1446,10 @@ export namespace SessionPrompt {
         })
         userMessage.parts.push(part)
       }
+
       return input.messages
     }
+
 
     // Entering plan mode
     if (input.agent.name === "plan" && assistantMessage?.info.agent !== "plan") {
@@ -1455,6 +1536,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       userMessage.parts.push(part)
       return input.messages
     }
+
     return input.messages
   }
 
@@ -1476,6 +1558,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       throw new Session.BusyError(input.sessionID)
     }
 
+
     using _ = defer(() => {
       // If no queued callbacks, cancel (the default)
       const callbacks = state()[input.sessionID]?.callbacks ?? []
@@ -1487,12 +1570,14 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           log.error("session loop failed to resume after shell command", { sessionID: input.sessionID, error })
         })
       }
+
     })
 
     const session = await Session.get(input.sessionID)
     if (session.revert) {
       await SessionRevert.cleanup(session)
     }
+
     const agent = await Agent.get(input.agent)
     const model = input.model ?? agent.model ?? (await lastModel(input.sessionID))
     const userMsg: MessageV2.User = {
@@ -1508,6 +1593,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
         modelID: model.modelID,
       },
     }
+
     await Session.updateMessage(userMsg)
     const userPart: MessageV2.Part = {
       type: "text",
@@ -1517,6 +1603,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       text: "The following tool was executed by the user",
       synthetic: true,
     }
+
     await Session.updatePart(userPart)
 
     const msg: MessageV2.Assistant = {
@@ -1543,6 +1630,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       modelID: model.modelID,
       providerID: model.providerID,
     }
+
     await Session.updateMessage(msg)
     const part: MessageV2.Part = {
       type: "tool",
@@ -1561,6 +1649,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
         },
       },
     }
+
     await Session.updatePart(part)
     const shell = Shell.preferred()
     const shellName = (
@@ -1614,6 +1703,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       },
     }
 
+
     const matchingInvocation = invocations[shellName] ?? invocations[""]
     const args = matchingInvocation?.args
 
@@ -1643,8 +1733,10 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           output: output,
           description: "",
         }
+
         Session.updatePart(part)
       }
+
     })
 
     proc.stderr?.on("data", (chunk) => {
@@ -1654,8 +1746,10 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           output: output,
           description: "",
         }
+
         Session.updatePart(part)
       }
+
     })
 
     let aborted = false
@@ -1668,10 +1762,12 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       await kill()
     }
 
+
     const abortHandler = () => {
       aborted = true
       void kill()
     }
+
 
     abort.addEventListener("abort", abortHandler, { once: true })
 
@@ -1686,6 +1782,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
     if (aborted) {
       output += "\n\n" + ["<metadata>", "User aborted the command", "</metadata>"].join("\n")
     }
+
     msg.time.completed = Date.now()
     await Session.updateMessage(msg)
     if (part.state.status === "running") {
@@ -1703,8 +1800,10 @@ NOTE: At any point in time through this workflow you should feel free to ask the
         },
         output,
       }
+
       await Session.updatePart(part)
     }
+
     return { info: msg, parts: [part] }
   }
 
@@ -1758,6 +1857,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       if (value > last) last = value
     }
 
+
     // Let the final placeholder swallow any extra arguments so prompts read naturally
     const withArgs = templateCommand.replaceAll(placeholderRegex, (_, index) => {
       const position = Number(index)
@@ -1775,6 +1875,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       template = template + "\n\n" + input.arguments
     }
 
+
     const shell = ConfigMarkdown.shell(template)
     if (shell.length > 0) {
       const results = await Promise.all(
@@ -1784,23 +1885,28 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           } catch (error) {
             return `Error executing command: ${error instanceof Error ? error.message : String(error)}`
           }
+
         }),
       )
       let index = 0
       template = template.replace(bashRegex, () => results[index++])
     }
+
     template = template.trim()
 
     const taskModel = await (async () => {
       if (command.model) {
         return Provider.parseModel(command.model)
       }
+
       if (command.agent) {
         const cmdAgent = await Agent.get(command.agent)
         if (cmdAgent?.model) {
           return cmdAgent.model
         }
+
       }
+
       if (input.model) return Provider.parseModel(input.model)
       return await lastModel(input.sessionID)
     })()
@@ -1816,8 +1922,10 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           error: new NamedError.Unknown({ message: `Model not found: ${providerID}/${modelID}.${hint}` }).toObject(),
         })
       }
+
       throw e
     }
+
     const agent = await Agent.get(agentName)
     if (!agent) {
       const available = await Agent.list().then((agents) => agents.filter((a) => !a.hidden).map((a) => a.name))
@@ -1830,7 +1938,19 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       throw error
     }
 
+
     const templateParts = await resolvePromptParts(template)
+
+    if (command.ignored) {
+      for (const part of templateParts) {
+        if (part.type === "text") {
+          part.ignored = true
+        }
+
+      }
+
+    }
+
     const isSubtask = (agent.mode === "subagent" && command.subtask !== false) || command.subtask === true
     const parts = isSubtask
       ? [
@@ -1955,5 +2075,6 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       const title = cleaned.length > 100 ? cleaned.substring(0, 97) + "..." : cleaned
       return Session.setTitle({ sessionID: input.session.id, title })
     }
+
   }
 }

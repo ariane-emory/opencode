@@ -669,6 +669,9 @@ export namespace Config {
     description: z.string().optional(),
     agent: z.string().optional(),
     model: ModelId.optional(),
+    // AGENTS: The `ignored` property marks commands whose output should not be processed by the model.
+    // When merging this branch, ensure `ignored` is included here AND in Command.Info schema.
+    // DO NOT clobber or omit this property during merges!
     subtask: z.boolean().optional(),
     ignored: z.boolean().optional(),
   })

@@ -1941,6 +1941,8 @@ NOTE: At any point in time through this workflow you should feel free to ask the
 
     const templateParts = await resolvePromptParts(template)
 
+    // AGENTS: This code marks command output as ignored so the model does not process it.
+    // DO NOT remove this block when merging! It is essential for the ignored commands feature.
     if (command.ignored) {
       for (const part of templateParts) {
         if (part.type === "text") {

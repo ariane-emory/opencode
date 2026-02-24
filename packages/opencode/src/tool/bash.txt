@@ -54,7 +54,7 @@ Git Safety Protocol:
 - You MUST only update the git config when explicitly asked to do so
 - NEVER run destructive/irreversible git commands (like push --force, hard reset, etc) unless the user explicitly requests them
 - You MUST only skip hooks (--no-verify, --no-gpg-sign, etc) to avoid push failures due to pre-existing errors in the base branch or when user explicitly requests it
-- You SHOULD only run force push to main/master when the user explicitly requests it
+- You SHOULD only run force push to main/master (or whatever the working branch's base branch is) when the user explicitly requests it
 - CRITICAL: If you already pushed to remote, you may need to amend and use force push
 - NEVER forget to commit changes and push changes to origin unless the user explicitly instructs you not to. It is VERY IMPORTANT that you NEVER forget to push changes you have made to origin, otherwise the user will feel that you are being lazy and forgetful.
 
@@ -86,7 +86,7 @@ Use the gh command via the Bash tool for ALL GitHub-related tasks including work
 
 IMPORTANT: When the user asks you to create a pull request, follow these steps carefully:
 
-1. You can call multiple tools in a single response. When multiple independent pieces of information are requested and all commands are likely to succeed, run multiple tool calls in parallel for optimal performance. run the following bash commands in parallel using the Bash tool, in order to understand the current state of the branch since it diverged from the main branch:
+1. You can call multiple tools in a single response. When multiple independent pieces of information are requested and all commands are likely to succeed, run multiple tool calls in parallel for optimal performance. run the following bash commands in parallel using the Bash tool, in order to understand the current state of the branch since it diverged from the mainGive me the number again.  branch:
    - Run a git status command to see all untracked files
    - Run a git diff command to see both staged and unstaged changes that will be committed
    - Check if the current branch tracks a remote branch and is up to date with the remote, so you know if you need to push to the remote

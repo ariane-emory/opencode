@@ -56,7 +56,7 @@ export namespace MarkdownExpand {
               .cwd(cwd)
               .env(env)
               .text()
-            return { match: match[0], output: output.trimEnd() }
+            return { match: match[0], output }
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error)
             return { match: match[0], output: `Error executing command: ${message}` }
@@ -71,7 +71,7 @@ export namespace MarkdownExpand {
       iteration++
     }
 
-    return result.trim()
+    return result
   }
 
   export async function expandFile(filePath: string, options: Options = {}): Promise<string> {

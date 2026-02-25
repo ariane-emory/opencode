@@ -70,9 +70,11 @@ export namespace Config {
     return merged
   }
 
-  // Load config files for a directory with brand fallback
-  // If any baseone.* file exists, load both baseone.json and baseone.jsonc
-  // Otherwise, load both opencode.json and opencode.jsonc
+  // CRITICAL: Brand fallback - prefer baseone.*, fall back to opencode.*
+  // If ANY baseone.* file exists → use baseone brand (merge both .json and .jsonc)
+  // Otherwise → use opencode brand (merge opencode files + config.json if includeConfigJson)
+  // IMPORTANT: Do NOT load BOTH brands. This is either/or fallback, not merge both.
+  // When merging from dev, preserve this exact fallback logic.
   async function loadBrandConfigs(dir: string, result: Info, includeConfigJson = false): Promise<Info> {
     const hasBaseone = existsSync(path.join(dir, "baseone.json")) || existsSync(path.join(dir, "baseone.jsonc"))
     if (hasBaseone) {
@@ -152,7 +154,8 @@ export namespace Config {
       // Only scan project directories when project discovery is enabled
       ...(!Flag.OPENCODE_DISABLE_PROJECT_CONFIG
         ? await Array.fromAsync(
-            // Prefer .baseone, fall back to .opencode
+            // CRITICAL: Directory brand fallback - prefer .baseone, fall back to .opencode
+            // Do NOT change to load both directories. Use upFirst (first match only).
             Filesystem.upFirst({
               targets: [".baseone", ".opencode"],
               start: Instance.directory,
@@ -160,7 +163,8 @@ export namespace Config {
             }),
           )
         : []),
-      // Always scan home directory - prefer .baseone, fall back to .opencode
+      // CRITICAL: Home directory brand fallback - same pattern as above
+      // Do NOT change to load both directories. Use upFirst (first match only).
       ...(await Array.fromAsync(
         Filesystem.upFirst({
           targets: [".baseone", ".opencode"],
@@ -214,6 +218,7 @@ export namespace Config {
     // Kept separate from directories array to avoid write operations when installing plugins
     // which would fail on system directories requiring elevated permissions
     // This way it only loads config file and not skills/plugins/commands
+    // CRITICAL: Uses loadBrandConfigs for brand fallback - do not change
     if (existsSync(managedConfigDir)) {
       result = await loadBrandConfigs(managedConfigDir, result)
     }
@@ -1257,8 +1262,11 @@ export namespace Config {
 
   export type Info = z.output<typeof Info>
 
+  // CRITICAL: Brand fallback - prefer baseone.*, fall back to opencode.*
+  // If any baseone.* exists → load baseone.json + baseone.jsonc
+  // Otherwise → load opencode.json + opencode.jsonc + config.json
+  // Do NOT load both brands. Preserve this when merging.
   export const global = lazy(async () => {
-    // Determine brand, then merge both .json and .jsonc
     let result: Info = {}
     const hasBaseone =
       existsSync(path.join(Global.Path.config, "baseone.json")) ||

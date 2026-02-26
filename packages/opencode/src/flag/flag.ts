@@ -86,6 +86,8 @@ export namespace Flag {
   export const OPENCODE_DISABLE_CLAUDE_CODE_PROMPT = BASEONE_DISABLE_CLAUDE_CODE_PROMPT
   export const OPENCODE_DISABLE_CLAUDE_CODE_SKILLS = BASEONE_DISABLE_CLAUDE_CODE_SKILLS
   export const OPENCODE_DISABLE_EXTERNAL_SKILLS = BASEONE_DISABLE_EXTERNAL_SKILLS
+  export declare const BASEONE_TUI_CONFIG: string | undefined
+  export declare const OPENCODE_TUI_CONFIG: string | undefined
   export declare const OPENCODE_DISABLE_PROJECT_CONFIG: boolean
   export const OPENCODE_FAKE_VCS = BASEONE_FAKE_VCS
   export const OPENCODE_CLIENT = BASEONE_CLIENT
@@ -122,6 +124,17 @@ Object.defineProperty(Flag, "BASEONE_DISABLE_PROJECT_CONFIG", {
   configurable: false,
 })
 
+// Dynamic getter for OPENCODE_DISABLE_PROJECT_CONFIG (legacy alias)
+// This must be evaluated at access time, not module load time,
+// because external tooling may set this env var at runtime
+Object.defineProperty(Flag, "OPENCODE_DISABLE_PROJECT_CONFIG", {
+  get() {
+    return Flag.BASEONE_DISABLE_PROJECT_CONFIG
+  },
+  enumerable: true,
+  configurable: false,
+})
+
 // Dynamic getter for BASEONE_CONFIG_DIR (alias for OPENCODE_CONFIG_DIR)
 // This must be evaluated at access time, not module load time,
 // because external tooling may set this env var at runtime
@@ -133,12 +146,23 @@ Object.defineProperty(Flag, "BASEONE_CONFIG_DIR", {
   configurable: false,
 })
 
-// Dynamic getter for OPENCODE_DISABLE_PROJECT_CONFIG (legacy alias)
+// Dynamic getter for BASEONE_TUI_CONFIG
 // This must be evaluated at access time, not module load time,
-// because external tooling may set this env var at runtime
-Object.defineProperty(Flag, "OPENCODE_DISABLE_PROJECT_CONFIG", {
+// because tests and external tooling may set this env var at runtime
+Object.defineProperty(Flag, "BASEONE_TUI_CONFIG", {
   get() {
-    return truthyWithFallback("OPENCODE_DISABLE_PROJECT_CONFIG", "OPENCODE_DISABLE_PROJECT_CONFIG")
+    return process.env["BASEONE_TUI_CONFIG"] ?? process.env["OPENCODE_TUI_CONFIG"]
+  },
+  enumerable: true,
+  configurable: false,
+})
+
+// Dynamic getter for OPENCODE_TUI_CONFIG (legacy alias)
+// This must be evaluated at access time, not module load time,
+// because tests and external tooling may set this env var at runtime
+Object.defineProperty(Flag, "OPENCODE_TUI_CONFIG", {
+  get() {
+    return process.env["BASEONE_TUI_CONFIG"] ?? process.env["OPENCODE_TUI_CONFIG"]
   },
   enumerable: true,
   configurable: false,
@@ -149,7 +173,7 @@ Object.defineProperty(Flag, "OPENCODE_DISABLE_PROJECT_CONFIG", {
 // because external tooling may set this env var at runtime
 Object.defineProperty(Flag, "OPENCODE_CONFIG_DIR", {
   get() {
-    return process.env["OPENCODE_CONFIG_DIR"]
+    return process.env["BASEONE_CONFIG_DIR"] ?? process.env["OPENCODE_CONFIG_DIR"]
   },
   enumerable: true,
   configurable: false,

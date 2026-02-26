@@ -61,7 +61,7 @@ export const ExpandCommand = cmd({
       const outputPath = path.resolve(baseCwd, args.output)
       await Bun.write(outputPath, result + EOL)
     } else {
-      process.stdout.write(result + EOL)
+      process.stdout.write(result)
     }
   },
 })

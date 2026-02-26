@@ -1,9 +1,10 @@
 {
   "name": "@opencode-ai/ui",
-  "version": "1.2.14",
+  "version": "1.2.15",
   "type": "module",
   "license": "MIT",
   "exports": {
+    "./package.json": "./package.json",
     "./*": "./src/components/*.tsx",
     "./constants/placeholders": "./src/constants/placeholders.ts",
     "./constants/*": "./src/constants/*.ts",

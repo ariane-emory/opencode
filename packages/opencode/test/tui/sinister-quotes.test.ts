@@ -25,8 +25,9 @@ describe("sinister-quotes placeholder format", () => {
 
     // The sinister-quotes feature removes the "Ask anything..." prefix
     // If this assertion fails, a merge clobbered the sinister-quotes formatting
-    expect(content).not.toMatch(/placeholder=.*`Ask anything/)
-    expect(content).not.toMatch(/placeholder=.*"\$\{PLACEHOLDERS/)
+    // This regex matches the actual problematic pattern: return `Ask anything...
+    // We specifically check for the return statement to avoid matching comments
+    expect(content).not.toMatch(/return `Ask anything\.\.\. "\$\{PLACEHOLDERS/)
   })
 
   test("Web app prompt should NOT contain 'Ask anything' prefix", () => {

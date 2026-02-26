@@ -767,7 +767,7 @@ export function Prompt(props: PromptProps) {
       const example = SHELL_PLACEHOLDERS[store.placeholder % SHELL_PLACEHOLDERS.length]
       return `Run a command... "${example}"`
     }
-    return `Ask anything... "${PLACEHOLDERS[store.placeholder % PLACEHOLDERS.length]}"`
+    return PLACEHOLDERS[store.placeholder % PLACEHOLDERS.length]
   })
 
   const spinnerDef = createMemo(() => {

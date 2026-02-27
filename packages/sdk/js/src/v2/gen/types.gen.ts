@@ -1291,32 +1291,6 @@ export type Config = {
    */
   $schema?: string
   logLevel?: LogLevel
-  /**
-   * TUI specific settings
-   */
-  tui?: {
-    /**
-     * TUI scroll speed
-     */
-    scroll_speed?: number
-    /**
-     * Scroll acceleration settings
-     */
-    scroll_acceleration?: {
-      /**
-       * Enable scroll acceleration
-       */
-      enabled: boolean
-    }
-    /**
-     * Control diff rendering style: 'auto' adapts to terminal width, 'stacked' always shows single column
-     */
-    diff_style?: "auto" | "stacked"
-    /**
-     * When true, 'auto' sidebar mode always shows the sidebar regardless of window width
-     */
-    no_sidebar_auto?: boolean
-  }
   server?: ServerConfig
   /**
    * Command configuration, see https://opencode.ai/docs/commands
@@ -1504,6 +1478,10 @@ export type Config = {
      * Timeout in milliseconds for model context protocol (MCP) requests
      */
     mcp_timeout?: number
+    /**
+     * When true, 'auto' sidebar mode always shows the sidebar regardless of window width
+     */
+    no_sidebar_auto?: boolean
   }
 }
 

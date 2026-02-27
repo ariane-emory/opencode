@@ -600,16 +600,6 @@ export function Session() {
       },
     },
     {
-      title: showTps() ? "Hide message TPS" : "Show message TPS",
-      value: "system.toggle.tps",
-      keybind: "tps_toggle",
-      category: "System",
-      onSelect: (dialog) => {
-        setShowTps((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
       title: showHeader() ? "Hide header" : "Show header",
       value: "session.toggle.header",
       category: "Session",

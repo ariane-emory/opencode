@@ -921,16 +921,6 @@ export namespace Config {
       .enum(["auto", "stacked"])
       .optional()
       .describe("Control diff rendering style: 'auto' adapts to terminal width, 'stacked' always shows single column"),
-    session_list_limit: z
-      .union([z.number().min(1), z.literal("none")])
-      .optional()
-      .default(150)
-      .describe("Maximum number of sessions to display in session list, or 'none' to show all sessions"),
-    messages_limit: z
-      .union([z.number().min(1), z.literal("none")])
-      .optional()
-      .default(100)
-      .describe("Maximum number of message parts to load per session when syncing, or 'none' to load all messages"),
   })
   export type TUI = z.infer<typeof TUI>
 
@@ -1189,6 +1179,14 @@ export namespace Config {
             .positive()
             .optional()
             .describe("Timeout in milliseconds for model context protocol (MCP) requests"),
+          messages_limit: z
+            .union([z.number().min(1), z.literal("none")])
+            .optional()
+            .describe("Maximum number of message parts to load per session when syncing, or 'none' to load all messages"),
+          session_list_limit: z
+            .union([z.number().min(1), z.literal("none")])
+            .optional()
+            .describe("Maximum number of sessions to display in session list, or 'none' to show all sessions"),
         })
         .optional(),
     })

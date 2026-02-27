@@ -1291,39 +1291,6 @@ export type Config = {
    */
   $schema?: string
   logLevel?: LogLevel
-  /**
-   * TUI specific settings
-   */
-  tui?: {
-    /**
-     * TUI scroll speed
-     */
-    scroll_speed?: number
-    /**
-     * Scroll acceleration settings
-     */
-    scroll_acceleration?: {
-      /**
-       * Enable scroll acceleration
-       */
-      enabled: boolean
-    }
-    /**
-     * Control diff rendering style: 'auto' adapts to terminal width, 'stacked' always shows single column
-     */
-    diff_style?: "auto" | "stacked"
-    /**
-     * Maximum number of sessions to display in session list, or 'none' to show all sessions
-     */
-    session_list_limit?: number | "none"
-    /**
-     * Maximum number of message parts to load per session when syncing, or 'none' to load all messages
-     */
-    messages_limit?: number | "none"
-  }
-  /**
-   * Server configuration for opencode serve and web commands
-   */
   server?: ServerConfig
   /**
    * Command configuration, see https://opencode.ai/docs/commands
@@ -1511,6 +1478,14 @@ export type Config = {
      * Timeout in milliseconds for model context protocol (MCP) requests
      */
     mcp_timeout?: number
+    /**
+     * Maximum number of message parts to load per session when syncing, or 'none' to load all messages
+     */
+    messages_limit?: number | "none"
+    /**
+     * Maximum number of sessions to display in session list, or 'none' to show all sessions
+     */
+    session_list_limit?: number | "none"
   }
 }
 

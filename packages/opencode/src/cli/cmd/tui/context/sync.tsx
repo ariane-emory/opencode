@@ -241,16 +241,16 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
             event.properties.info.sessionID,
             produce((draft) => {
               draft.splice(result.index, 0, event.properties.info)
-              const maxMessages = (store.config.tui as any)?.messages_limit
-              const maxMessagesCount = maxMessages === "none" ? Infinity : maxMessages || 100
+              const maxMessages = store.config.experimental?.messages_limit
+              const maxMessagesCount = maxMessages === "none" ? Infinity : maxMessages ?? 100
               if (draft.length > maxMessagesCount) {
                 draft.shift()
               }
             }),
           )
           const updated = store.message[event.properties.info.sessionID]
-          const maxMessages = (store.config.tui as any)?.messages_limit
-          const maxMessagesCount = maxMessages === "none" ? Infinity : maxMessages || 100
+          const maxMessages = store.config.experimental?.messages_limit
+          const maxMessagesCount = maxMessages === "none" ? Infinity : maxMessages ?? 100
           if (updated.length > maxMessagesCount) {
             const oldest = updated[0]
             batch(() => {
@@ -359,9 +359,9 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       // Fetch config first to get session_list_limit
       const configResponse = await sdk.client.config.get({}, { throwOnError: true })
       const config = configResponse.data!
-      const sessionsListLimit = (config.tui as any)?.session_list_limit
+      const sessionsListLimit = config.experimental?.session_list_limit
       const unlimited = sessionsListLimit === "none"
-      const sessionsLimit = unlimited ? undefined : sessionsListLimit || 150
+      const sessionsLimit = unlimited ? undefined : sessionsListLimit ?? 150
 
       const start = unlimited ? undefined : Date.now() - 30 * 24 * 60 * 60 * 1000
       const sessionListPromise = sdk.client.session
@@ -469,8 +469,8 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
         },
         async sync(sessionID: string) {
           if (fullSyncedSessions.has(sessionID)) return
-          const messagesLimit = (store.config.tui as any)?.messages_limit
-          const limit = messagesLimit === "none" ? undefined : messagesLimit || 100
+          const messagesLimit = store.config.experimental?.messages_limit
+          const limit = messagesLimit === "none" ? undefined : messagesLimit ?? 100
           const [session, messages, todo, diff] = await Promise.all([
             sdk.client.session.get({ sessionID }, { throwOnError: true }),
             sdk.client.session.messages({ sessionID, limit }),

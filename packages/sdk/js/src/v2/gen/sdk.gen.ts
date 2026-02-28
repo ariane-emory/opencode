@@ -1112,6 +1112,10 @@ export class Session2 extends HeyApiClient {
     parameters: {
       sessionID: string
       directory?: string
+      model?: {
+        providerID: string
+        modelID: string
+      }
     },
     options?: Options<never, ThrowOnError>,
   ) {
@@ -1122,6 +1126,7 @@ export class Session2 extends HeyApiClient {
           args: [
             { in: "path", key: "sessionID" },
             { in: "query", key: "directory" },
+            { in: "body", key: "model" },
           ],
         },
       ],
@@ -1130,6 +1135,11 @@ export class Session2 extends HeyApiClient {
       url: "/session/{sessionID}",
       ...options,
       ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
     })
   }
 
@@ -1862,11 +1872,17 @@ export class Session2 extends HeyApiClient {
 
   /**
    * Continue interrupted conversation
+   *
+   * Continue a conversation that was interrupted, reverting incomplete assistant messages and resuming processing.
    */
   public continue<ThrowOnError extends boolean = false>(
     parameters: {
       sessionID: string
       directory?: string
+      model?: {
+        providerID: string
+        modelID: string
+      }
     },
     options?: Options<never, ThrowOnError>,
   ) {
@@ -1877,6 +1893,7 @@ export class Session2 extends HeyApiClient {
           args: [
             { in: "path", key: "sessionID" },
             { in: "query", key: "directory" },
+            { in: "body", key: "model" },
           ],
         },
       ],
@@ -1885,6 +1902,11 @@ export class Session2 extends HeyApiClient {
       url: "/session/{sessionID}/continue",
       ...options,
       ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
     })
   }
 }

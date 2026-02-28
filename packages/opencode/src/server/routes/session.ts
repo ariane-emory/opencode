@@ -958,8 +958,18 @@ export const SessionRoutes = lazy(() =>
           sessionID: z.string().meta({ description: "Session ID" }),
         }),
       ),
+      validator(
+        "json",
+        z.object({
+          model: z.object({
+            providerID: z.string(),
+            modelID: z.string(),
+          }).optional(),
+        }),
+      ),
       async (c) => {
         const sessionID = c.req.valid("param").sessionID
+        const { model } = c.req.valid("json")
 
         // Check if session has an unfinished assistant message
         const msgs = await Session.messages({ sessionID })
@@ -974,32 +984,22 @@ export const SessionRoutes = lazy(() =>
         }
 
         // If no unfinished assistant message, return false
-        if (lastAssistant?.finish && !["tool-calls", "unknown"].includes(lastAssistant.finish)) {
+        if (lastAssistant?.finish && !["tool-calls", "unknown", "length"].includes(lastAssistant.finish)) {
           return c.json(false)
         }
 
-        // Find the last user message to revert to
-        let lastUserID: string | undefined
-        for (let i = msgs.length - 1; i >= 0; i--) {
-          const msg = msgs[i]
-          if (msg.info.role === "user") {
-            lastUserID = msg.info.id
-            break
-          }
-        }
-
-        if (!lastUserID) {
+        if (!lastAssistant) {
           return c.json(false)
         }
 
         // Revert the unfinished assistant message
         await SessionRevert.revert({
           sessionID,
-          messageID: lastUserID,
+          messageID: lastAssistant.id,
         })
 
         // Start the conversation loop to continue
-        await SessionPrompt.loop({ sessionID })
+        await SessionPrompt.loop({ sessionID, model })
 
         return c.json(true)
       },

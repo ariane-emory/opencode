@@ -270,9 +270,15 @@ export namespace SessionPrompt {
   export const LoopInput = z.object({
     sessionID: Identifier.schema("session"),
     resume_existing: z.boolean().optional(),
+    model: z
+      .object({
+        providerID: z.string(),
+        modelID: z.string(),
+      })
+      .optional(),
   })
   export const loop = fn(LoopInput, async (input) => {
-    const { sessionID, resume_existing } = input
+    const { sessionID, resume_existing, model: modelOverride } = input
 
     const abort = resume_existing ? resume(sessionID) : start(sessionID)
     if (!abort) {
@@ -333,7 +339,19 @@ export namespace SessionPrompt {
           history: msgs,
         })
 
-      const model = await Provider.getModel(lastUser.model.providerID, lastUser.model.modelID).catch((e) => {
+      // Use override model if provided, otherwise use model from last user message
+      const modelToUse = modelOverride ?? lastUser.model
+      
+      // Update user message model if override was provided (for consistency)
+      if (modelOverride) {
+        await Session.updateMessage({
+          ...lastUser,
+          model: modelToUse,
+        })
+        lastUser.model = modelToUse
+      }
+      
+      const model = await Provider.getModel(modelToUse.providerID, modelToUse.modelID).catch((e) => {
         if (Provider.ModelNotFoundError.isInstance(e)) {
           const hint = e.data.suggestions?.length ? ` Did you mean: ${e.data.suggestions.join(", ")}?` : ""
           Bus.publish(Session.Event.Error, {

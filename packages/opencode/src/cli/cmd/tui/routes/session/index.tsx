@@ -534,8 +534,13 @@ export function Session() {
         name: "continue",
       },
       onSelect: async (dialog) => {
+        const currentModel = local.model.current()
         const result = await sdk.client.session.continue({
           sessionID: route.sessionID,
+          model: currentModel ? {
+            providerID: currentModel.providerID,
+            modelID: currentModel.modelID,
+          } : undefined,
         })
         
         if (result.data) {

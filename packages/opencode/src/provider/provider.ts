@@ -496,6 +496,7 @@ export namespace Provider {
         },
         async getModel(sdk: ReturnType<typeof createGitLab>, modelID: string) {
           return sdk.agenticChat(modelID, {
+            aiGatewayHeaders,
             featureFlags: {
               duo_agent_platform_agentic_chat: true,
               duo_agent_platform: true,

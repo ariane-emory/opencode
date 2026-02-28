@@ -2697,16 +2697,8 @@ export type SessionDeleteResponses = {
 export type SessionDeleteResponse = SessionDeleteResponses[keyof SessionDeleteResponses]
 
 export type SessionGetData = {
-  body?: {
-    model?: {
-      providerID: string
-      modelID: string
-    }
-  }
+  body?: never
   path: {
-    /**
-     * Session ID
-     */
     sessionID: string
   }
   query?: {

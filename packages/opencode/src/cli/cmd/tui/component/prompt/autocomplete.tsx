@@ -1,6 +1,7 @@
 import type { BoxRenderable, TextareaRenderable, KeyEvent, ScrollBoxRenderable } from "@opentui/core"
 import { pathToFileURL } from "bun"
 import { firstBy } from "remeda"
+import { smartCompare } from "@/util/smart-sort"
 import { createMemo, createResource, createEffect, onMount, onCleanup, Index, Show, createSignal } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useSDK } from "@tui/context/sdk"
@@ -92,7 +93,7 @@ function tieredMatch(
   }
 
   const sortByDisplay = (a: AutocompleteOption, b: AutocompleteOption) =>
-    a.display.trimEnd().localeCompare(b.display.trimEnd())
+    smartCompare(a.display.trimEnd(), b.display.trimEnd())
 
   return [...tier1.sort(sortByDisplay), ...tier2.sort(sortByDisplay), ...tier3.sort(sortByDisplay)].slice(0, limit)
 }
@@ -275,7 +276,7 @@ export function Autocomplete(props: {
           const aDepth = a.split("/").length
           const bDepth = b.split("/").length
           if (aDepth !== bDepth) return aDepth - bDepth
-          return a.localeCompare(b)
+          return smartCompare(a, b)
         })
 
         const width = props.anchor().width - 4
@@ -406,7 +407,7 @@ export function Autocomplete(props: {
       })
     }
 
-    results.sort((a, b) => a.display.localeCompare(b.display))
+    results.sort((a, b) => smartCompare(a.display, b.display))
 
     const max = firstBy(results, [(x) => x.display.length, "desc"])?.display.length
     if (!max) return results

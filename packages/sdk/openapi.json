@@ -2749,6 +2749,18 @@
                   "auto": {
                     "default": false,
                     "type": "boolean"
+                  },
+                  "compactionModel": {
+                    "type": "object",
+                    "properties": {
+                      "providerID": {
+                        "type": "string"
+                      },
+                      "modelID": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["providerID", "modelID"]
                   }
                 },
                 "required": ["providerID", "modelID"]
@@ -8290,6 +8302,18 @@
           },
           "auto": {
             "type": "boolean"
+          },
+          "compactionModel": {
+            "type": "object",
+            "properties": {
+              "providerID": {
+                "type": "string"
+              },
+              "modelID": {
+                "type": "string"
+              }
+            },
+            "required": ["providerID", "modelID"]
           }
         },
         "required": ["id", "sessionID", "messageID", "type", "auto"]

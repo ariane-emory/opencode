@@ -6,7 +6,6 @@ import { DialogSelect } from "@tui/ui/dialog-select"
 import { useDialog } from "@tui/ui/dialog"
 import { createDialogProviderOptions, DialogProvider } from "./dialog-provider"
 import { useKeybind } from "../context/keybind"
-import * as fuzzysort from "fuzzysort"
 
 export function useConnected() {
   const sync = useSync()
@@ -120,9 +119,33 @@ export function DialogModel(props: { providerID?: string }) {
       : []
 
     if (needle) {
+      const lowerNeedle = needle.toLowerCase()
+
+      const tieredFilter = <T extends { title: string; category?: string }>(items: T[]) => {
+        const tier1: T[] = []
+        const tier2: T[] = []
+        const tier3: T[] = []
+
+        for (const item of items) {
+          const title = item.title.toLowerCase()
+          const category = item.category?.toLowerCase() ?? ""
+
+          if (title.startsWith(lowerNeedle)) {
+            tier1.push(item)
+          } else if (title.includes(lowerNeedle) || category.startsWith(lowerNeedle)) {
+            tier2.push(item)
+          } else if (category.includes(lowerNeedle)) {
+            tier3.push(item)
+          }
+        }
+
+        const sortByTitle = (a: T, b: T) => a.title.localeCompare(b.title)
+        return [...tier1.sort(sortByTitle), ...tier2.sort(sortByTitle), ...tier3.sort(sortByTitle)]
+      }
+
       return [
-        ...fuzzysort.go(needle, providerOptions, { keys: ["title", "category"] }).map((x) => x.obj),
-        ...fuzzysort.go(needle, popularProviders, { keys: ["title"] }).map((x) => x.obj),
+        ...tieredFilter(providerOptions),
+        ...tieredFilter(popularProviders),
       ]
     }
 

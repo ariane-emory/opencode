@@ -1,6 +1,7 @@
 import { InputRenderable, RGBA, ScrollBoxRenderable, TextAttributes } from "@opentui/core"
 import { useTheme, selectedForeground } from "@tui/context/theme"
 import { entries, filter, flatMap, groupBy, mapValues, pipe, take } from "remeda"
+import { smartCompare } from "@/util/smart-sort"
 import { batch, createEffect, createMemo, For, Show, type JSX, on } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useKeyboard, useTerminalDimensions } from "@opentui/solid"
@@ -101,7 +102,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     }
 
     const sortByTitle = (a: DialogSelectOption<T>, b: DialogSelectOption<T>) =>
-      a.title.localeCompare(b.title)
+      smartCompare(a.title, b.title)
 
     return [...tier1.sort(sortByTitle), ...tier2.sort(sortByTitle), ...tier3.sort(sortByTitle)]
   })
@@ -123,7 +124,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
       groupBy((x) => x.category ?? ""),
       (groups) => {
         if (!props.sort) return groups
-        return mapValues(groups, (x) => x.sort((a, b) => a.title.localeCompare(b.title)))
+        return mapValues(groups, (x) => x.sort((a, b) => smartCompare(a.title, b.title)))
       },
       entries(),
     )

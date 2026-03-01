@@ -2,6 +2,7 @@ import { createMemo, createSignal } from "solid-js"
 import { useLocal } from "@tui/context/local"
 import { useSync } from "@tui/context/sync"
 import { map, pipe, flatMap, entries, filter, sortBy, take } from "remeda"
+import { smartCompare } from "@/util/smart-sort"
 import { DialogSelect } from "@tui/ui/dialog-select"
 import { useDialog } from "@tui/ui/dialog"
 import { createDialogProviderOptions, DialogProvider } from "./dialog-provider"
@@ -139,7 +140,7 @@ export function DialogModel(props: { providerID?: string }) {
           }
         }
 
-        const sortByTitle = (a: T, b: T) => a.title.localeCompare(b.title)
+        const sortByTitle = (a: T, b: T) => smartCompare(a.title, b.title)
         return [...tier1.sort(sortByTitle), ...tier2.sort(sortByTitle), ...tier3.sort(sortByTitle)]
       }
 

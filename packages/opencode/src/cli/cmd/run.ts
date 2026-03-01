@@ -29,6 +29,7 @@ import { TodoWriteTool } from "../../tool/todo"
 import { Locale } from "../../util/locale"
 import { loadTheme } from "../theme-loader"
 import type { MarkdownTheme } from "../markdown-renderer"
+import { TuiConfig } from "../../config/tui"
 
 type ToolProps<T extends Tool.Info> = {
   input: Tool.InferParameters<T>
@@ -406,13 +407,7 @@ export const RunCommand = cmd({
     }
 
     async function execute(sdk: OpencodeClient) {
-      let theme: MarkdownTheme | undefined
-      try {
-        const cfg = await sdk.config.get()
-        theme = loadTheme(cfg.data?.theme)
-      } catch {
-        theme = loadTheme()
-      }
+      const theme: MarkdownTheme | undefined = await TuiConfig.get().then((c) => loadTheme(c.theme)).catch(() => loadTheme())
 
       function tool(part: ToolPart) {
         try {

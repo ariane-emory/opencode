@@ -1,6 +1,7 @@
-import path from "path"
+import happyCat from "../../../../../../assets/happy-cat.gif" with { type: "file" }
+import headEmptyCat from "../../../../../../assets/head-empty-cat.gif" with { type: "file" }
 
 export const gifAssets = {
-  "happy-cat": path.join(import.meta.dir, "../../../../../../assets/happy-cat.gif"),
-  "head-empty-cat": path.join(import.meta.dir, "../../../../../../assets/head-empty-cat.gif"),
+  "happy-cat": happyCat,
+  "head-empty-cat": headEmptyCat,
 } as const

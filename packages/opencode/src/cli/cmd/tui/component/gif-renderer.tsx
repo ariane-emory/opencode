@@ -2,7 +2,6 @@ import { FrameBufferRenderable, RGBA, type BoxRenderable } from "@opentui/core"
 import { useRenderer } from "@opentui/solid"
 import { onCleanup, onMount } from "solid-js"
 import { GifReader } from "omggif"
-import path from "path"
 
 export function GifRenderer(props: { path: string; width?: number; height?: number }) {
   const renderer = useRenderer()
@@ -53,8 +52,7 @@ export function GifRenderer(props: { path: string; width?: number; height?: numb
   }
 
   onMount(async () => {
-    const source = props.path.startsWith("file://") ? new URL(props.path) : path.resolve(import.meta.dirname, props.path)
-    const file = Bun.file(source)
+    const file = Bun.file(props.path)
     if (!(await file.exists())) return
     if (aborted) return
 

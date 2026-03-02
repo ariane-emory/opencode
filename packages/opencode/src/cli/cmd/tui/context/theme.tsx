@@ -36,6 +36,9 @@ import vercel from "./theme/vercel.json" with { type: "json" }
 import vesper from "./theme/vesper.json" with { type: "json" }
 import zenburn from "./theme/zenburn.json" with { type: "json" }
 import carbonfox from "./theme/carbonfox.json" with { type: "json" }
+import mellow from "./theme/mellow.json" with { type: "json" }
+import midnight from "./theme/midnight.json" with { type: "json" }
+import tokyoNight from "./theme/tokyo-night.json" with { type: "json" }
 import auraTransparent from "./theme/aura--transparent.json" with { type: "json" }
 import ayuTransparent from "./theme/ayu--transparent.json" with { type: "json" }
 import catppuccinTransparent from "./theme/catppuccin--transparent.json" with { type: "json" }

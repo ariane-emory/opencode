@@ -84,6 +84,10 @@ import orngTransparent from "./theme/orng-transparent.json" with { type: "json" 
 import osakaJadeTransparent from "./theme/osaka-jade-transparent.json" with { type: "json" }
 import tokyonightTransparent from "./theme/tokyonight-transparent.json" with { type: "json" }
 import vercelTransparent from "./theme/vercel-transparent.json" with { type: "json" }
+import mellow from "./theme/mellow.json" with { type: "json" }
+import midnight from "./theme/midnight.json" with { type: "json" }
+import moonlightIiBg from "./theme/moonlight-ii-bg.json" with { type: "json" }
+import tokyoNight from "./theme/tokyo-night.json" with { type: "json" }
 import { useKV } from "./kv"
 import { useRenderer } from "@opentui/solid"
 import { createStore, produce } from "solid-js/store"
@@ -233,7 +237,9 @@ export const DEFAULT_THEMES: Record<string, ThemeJson> = {
   ["kanagawa-transparent"]: kanagawaTransparent,
   ["material-transparent"]: materialTransparent,
   ["matrix-transparent"]: matrixTransparent,
+  ["mellow"]: mellow,
   ["mellow-transparent"]: mellowTransparent,
+  ["midnight"]: midnight,
   ["midnight-transparent"]: midnightTransparent,
   ["monokai-transparent"]: monokaiTransparent,
   moonlight,
@@ -242,6 +248,7 @@ export const DEFAULT_THEMES: Record<string, ThemeJson> = {
   ["moonlight-eclipse-transparent"]: moonlightEclipseTransparent,
   ["moonlight-ii"]: moonlightIi,
   ["moonlight-ii-transparent"]: moonlightIiTransparent,
+  ["moonlight-ii-bg"]: moonlightIiBg,
   ["moonlight-ii-bg-transparent"]: moonlightIiBgTransparent,
   ["moonlight-iii"]: moonlightIii,
   ["moonlight-iii-transparent"]: moonlightIiiTransparent,
@@ -253,6 +260,7 @@ export const DEFAULT_THEMES: Record<string, ThemeJson> = {
   ["rosepine-transparent"]: rosepineTransparent,
   ["solarized-transparent"]: solarizedTransparent,
   ["synthwave84-transparent"]: synthwave84Transparent,
+  ["tokyo-night"]: tokyoNight,
   ["tokyo-night-transparent"]: tokyoNightTransparent,
   ["vesper-transparent"]: vesperTransparent,
   ["zenburn-transparent"]: zenburnTransparent,

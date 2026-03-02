@@ -2,8 +2,8 @@
   "$schema": "https://opencode.ai/theme.json",
   "defs": {
     "black": "#000000",
-    "amber": "#aa7700",
-    "amber_bright": "#c90",
+    "amber": "#c90",
+    "amber_bright": "#eb0",
     "amber_light": "#bb0",
     "cyan": "#0dd",
     "cyan_bright": "#6b9",

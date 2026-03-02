@@ -33,7 +33,7 @@
     "textMuted": "gray_light",
     "background": "black",
     "backgroundPanel": "gray_dark",
-    "backgroundElement": "gray_medium",
+    "backgroundElement": "gray_dark",
     "border": "gray_medium",
     "borderActive": "amber",
     "borderSubtle": "gray_dark",

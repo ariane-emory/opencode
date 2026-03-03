@@ -64,7 +64,7 @@
     "markdownListEnumeration": "amber_bright",
     "markdownImage": "purple",
     "markdownImageText": "pink",
-    "markdownCodeBlock": "amber",
+    "markdownCodeBlock": "#680",
     "selectedListItemText": "black",
     "syntaxComment": "gray_medium",
     "syntaxKeyword": "green_muted",

@@ -58,7 +58,7 @@
     "markdownCode": "green_muted",
     "markdownBlockQuote": "gray_dark",
     "markdownEmph": "orange",
-    "markdownStrong": "orange_bright",
+    "markdownStrong": "teal_dark",
     "markdownHorizontalRule": "gray_medium",
     "markdownListItem": "cyan",
     "markdownListEnumeration": "amber_bright",

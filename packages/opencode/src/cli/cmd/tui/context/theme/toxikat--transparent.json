@@ -51,6 +51,7 @@
     "diffLineNumber": "gray_medium",
     "diffAddedLineNumberBg": "#004400",
     "diffRemovedLineNumberBg": "#440000",
+    "markdownCodeBlock": "#bb0",
     "markdownText": "amber",
     "markdownHeading": "amber_light",
     "markdownLink": "cyan",
@@ -74,6 +75,7 @@
     "syntaxNumber": "orange",
     "syntaxType": "purple",
     "syntaxOperator": "teal_dark",
-    "syntaxPunctuation": "amber"
+    "syntaxPunctuation": "amber",
+    "thinkingOpacity": 0.8
   }
 }

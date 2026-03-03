@@ -652,7 +652,7 @@ function getSyntaxRules(theme: Theme) {
     {
       scope: ["default"],
       style: {
-        foreground: theme.text,
+        foreground: theme.markdownCodeBlock,
       },
     },
     {

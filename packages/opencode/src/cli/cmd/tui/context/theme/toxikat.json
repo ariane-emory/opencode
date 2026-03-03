@@ -74,6 +74,7 @@
     "syntaxNumber": "orange",
     "syntaxType": "purple",
     "syntaxOperator": "teal_dark",
-    "syntaxPunctuation": "amber"
+    "syntaxPunctuation": "amber",
+    "thinkingOpacity": 0.8
   }
 }

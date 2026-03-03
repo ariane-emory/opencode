@@ -33,7 +33,7 @@
     "info": "cyan",
     "text": "amber",
     "textMuted": "gray_light",
-    "background": "transparent",
+    "background": "none",
     "backgroundPanel": "gray_extra_dark",
     "backgroundElement": "gray_extra_dark",
     "border": "gray_medium",

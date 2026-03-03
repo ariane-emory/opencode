@@ -29,6 +29,7 @@ import {
   TextAttributes,
   RGBA,
   StyledText,
+  SyntaxStyle,
 } from "@opentui/core"
 import { Prompt, type PromptRef } from "@tui/component/prompt"
 import type { AssistantMessage, Part, ToolPart, UserMessage, TextPart, ReasoningPart } from "@opencode-ai/sdk/v2"
@@ -1535,14 +1536,24 @@ function Prose(props: { segment: { type: "text"; content: string }; theme: any; 
 
 function CodeBlock(props: { segment: { type: "code"; content: string; language: string }; syntax: any }) {
   const ctx = use()
+  const tui = useTheme()
   const lang = () => LANGS[props.segment.language] || props.segment.language
+
+  const syntax = createMemo(() => {
+    const base = props.syntax as SyntaxStyle
+    const styles = base.getAllStyles()
+    const derived = SyntaxStyle.fromStyles(Object.fromEntries(styles))
+    derived.registerStyle("default", { fg: tui.theme.markdownCodeBlock })
+    return derived
+  })
 
   return (
     <box paddingLeft={2}>
       <code
         filetype={lang()}
         content={props.segment.content}
-        syntaxStyle={props.syntax}
+        syntaxStyle={syntax()}
+        fg={tui.theme.markdownCodeBlock}
         drawUnstyledText={true}
         streaming={false}
         conceal={ctx.conceal()}

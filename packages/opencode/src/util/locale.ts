@@ -50,7 +50,9 @@ export namespace Locale {
     } else {
       const month = MONTHS[date.getMonth()]
       const day = date.getDate()
-      return `${month} ${day} ${timeStr}`
+      // Pad day with leading space if single digit for alignment
+      const paddedDay = day < 10 ? ` ${day}` : day.toString()
+      return `${month} ${paddedDay} ${timeStr}`
     }
   }
 

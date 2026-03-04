@@ -91,7 +91,7 @@ export function DialogSessionList() {
         bg: isDeleting ? theme.error : undefined,
         value: session.id,
         category: parsed.group,
-        footer: Locale.todayTimeOrDateTime(session.time.updated),
+        footer: Locale.shortDateTime(session.time.updated),
         gutter: isWorking ? <Spinner /> : undefined,
       }
     })

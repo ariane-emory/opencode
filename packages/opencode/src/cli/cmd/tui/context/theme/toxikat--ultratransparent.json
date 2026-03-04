@@ -32,6 +32,7 @@
     "success": "green_dark",
     "info": "cyan",
     "text": "amber",
+    "sessionTitle": "green",
     "textMuted": "gray_medium",
     "background": "none",
     "backgroundPanel": "none",

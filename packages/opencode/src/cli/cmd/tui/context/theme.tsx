@@ -88,6 +88,7 @@ import tokyonightTransparent from "./theme/tokyonight--transparent.json" with { 
 import vercelTransparent from "./theme/vercel--transparent.json" with { type: "json" }
 import toxikat from "./theme/toxikat.json" with { type: "json" }
 import toxikatTransparent from "./theme/toxikat--transparent.json" with { type: "json" }
+import toxikatUltratransparent from "./theme/toxikat--ultratransparent.json" with { type: "json" }
 import { useKV } from "./kv"
 import { useRenderer } from "@opentui/solid"
 import { createStore, produce } from "solid-js/store"
@@ -276,6 +277,7 @@ export const DEFAULT_THEMES: Record<string, ThemeJson> = {
   ["vercel--transparent"]: vercelTransparent,
   ["toxikat"]: toxikat,
   ["toxikat--transparent"]: toxikatTransparent,
+  ["toxikat--ultratransparent"]: toxikatUltratransparent,
 }
 
 function resolveTheme(theme: ThemeJson, mode: "dark" | "light") {

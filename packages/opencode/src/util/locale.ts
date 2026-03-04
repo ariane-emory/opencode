@@ -13,8 +13,13 @@ export namespace Locale {
   export function datetime(input: number): string {
     const date = new Date(input)
     const localTime = time(input)
-    const localDate = date.toLocaleDateString()
-    return `${localTime} · ${localDate}`
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    const year = date.getFullYear()
+    // Pad day with leading space if single digit for alignment
+    const paddedDay = day < 10 ? ` ${day}` : day.toString()
+    const localDate = `${month}/${paddedDay}/${year}`
+    return `${localTime}  ${localDate}`
   }
 
   export function todayTimeOrDateTime(input: number): string {

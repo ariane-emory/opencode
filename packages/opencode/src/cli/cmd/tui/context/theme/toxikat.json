@@ -24,7 +24,7 @@
     "gray_light": "#888888"
   },
   "theme": {
-    "primary": "amber",
+    "primary": "green",
     "secondary": "green_dark",
     "accent": "teal_dark",
     "error": "red",

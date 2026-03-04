@@ -12,7 +12,7 @@ import { useTerminalDimensions } from "@opentui/solid"
 const Title = (props: { session: Accessor<Session> }) => {
   const { theme } = useTheme()
   return (
-    <text fg={theme.text}>
+    <text fg={theme.sessionTitle}>
       <span style={{ bold: true }}>#</span> <span style={{ bold: true }}>{props.session().title}</span>
     </text>
   )

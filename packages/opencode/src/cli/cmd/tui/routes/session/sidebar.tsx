@@ -91,7 +91,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
         >
           <box flexShrink={0} gap={1} paddingRight={1}>
             <box paddingRight={1}>
-              <text fg={theme.text}>
+              <text fg={theme.sessionTitle}>
                 <b>{session().title}</b>
               </text>
               <Show when={session().share?.url}>

@@ -55,7 +55,7 @@
 | feat/session-grouping | origin | - | ✅ Merged | 2026-03-05 |
 | feat/alphabetize-command-palette-groups | origin | - | ✅ Merged | 2026-03-05 |
 | feat/taller-dialogs | origin | - | ✅ Merged | 2026-03-05 |
-| feat/add-arianes-themes | origin | - | ✅ Merged | 2026-03-05 |
+| feat/add-arianes-themes | origin | 83e7b7f769 | ✅ Merged (Updated) | 2026-03-06 |
 | feat/aspiers--readline-additions | origin | - | ✅ Merged | 2026-03-05 |
 | feat/sidebar-clock | origin | - | ✅ Merged | 2026-03-05 |
 | feat/ignored-commands | origin | - | ✅ Merged | 2026-03-05 |

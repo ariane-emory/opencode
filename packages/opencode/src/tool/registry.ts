@@ -27,8 +27,9 @@ import { Log } from "@/util/log"
 import { LspTool } from "./lsp"
 import { Truncate } from "./truncation"
 import { SetCurrentSessionTitleTool } from "./set-current-session-title"
-import { ApplyPatchTool } from "./apply_patch"
 import { GetCurrentSessionTitleTool } from "./session-title"
+import { BookmarkCurrentSessionTool } from "./bookmark"
+import { ApplyPatchTool } from "./apply_patch"
 import { Glob } from "../util/glob"
 import { pathToFileURL } from "url"
 
@@ -118,6 +119,7 @@ export namespace ToolRegistry {
       WebSearchTool,
       CodeSearchTool,
       SkillTool,
+      BookmarkCurrentSessionTool,
       ApplyPatchTool,
       GetCurrentSessionTitleTool,
       ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),

@@ -10,6 +10,7 @@ export const { use: useKV, provider: KVProvider } = createSimpleContext({
   init: () => {
     const [ready, setReady] = createSignal(false)
     const [store, setStore] = createStore<Record<string, any>>()
+    const ephemeral: Record<string, any> = {}
     const filePath = path.join(Global.Path.state, "kv.json")
 
     Filesystem.readJson(filePath)
@@ -50,6 +51,12 @@ export const { use: useKV, provider: KVProvider } = createSimpleContext({
       set(key: string, value: any) {
         setStore(key, value)
         Filesystem.writeJson(filePath, store)
+      },
+      getEphemeral(key: string, defaultValue?: any) {
+        return ephemeral[key] ?? defaultValue
+      },
+      setEphemeral(key: string, value: any) {
+        ephemeral[key] = value
       },
     }
     return result

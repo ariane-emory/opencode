@@ -76,6 +76,7 @@ export namespace Session {
         updated: row.time_updated,
         compacting: row.time_compacting ?? undefined,
         archived: row.time_archived ?? undefined,
+        pinned: row.time_pinned ?? undefined,
       },
     }
   }
@@ -100,6 +101,7 @@ export namespace Session {
       time_updated: info.time.updated,
       time_compacting: info.time.compacting,
       time_archived: info.time.archived,
+      time_pinned: info.time.pinned ?? null,
     }
   }
 
@@ -140,6 +142,7 @@ export namespace Session {
         updated: z.number(),
         compacting: z.number().optional(),
         archived: z.number().optional(),
+        pinned: z.number().optional(),
       }),
       permission: PermissionNext.Ruleset.optional(),
       revert: z
@@ -265,6 +268,18 @@ export namespace Session {
           })
         }
       }
+
+      // Inherit bookmark status from original session
+      if (original.time.pinned !== undefined) {
+        await Session.update(
+          session.id,
+          (draft) => {
+            draft.time.pinned = original.time.pinned
+          },
+          { touch: false }
+        )
+      }
+
       return session
     },
   )
@@ -437,6 +452,36 @@ export namespace Session {
       })
     },
   )
+
+  export function update(
+    sessionID: string,
+    updateFn: (draft: Info) => void,
+    options?: { touch?: boolean },
+  ) {
+    return Database.use((db) => {
+      const existing = db.select().from(SessionTable).where(eq(SessionTable.id, sessionID)).get()
+      if (!existing) throw new NotFoundError({ message: `Session not found: ${sessionID}` })
+      
+      const info = fromRow(existing)
+      updateFn(info)
+      
+      const updates: any = toRow(info)
+      if (options?.touch !== false) {
+        updates.time_updated = Date.now()
+      }
+      
+      const row = db
+        .update(SessionTable)
+        .set(updates)
+        .where(eq(SessionTable.id, sessionID))
+        .returning()
+        .get()
+      
+      const updated = fromRow(row)
+      Database.effect(() => Bus.publish(Event.Updated, { info: updated }))
+      return updated
+    })
+  }
 
   export const setPermission = fn(
     z.object({

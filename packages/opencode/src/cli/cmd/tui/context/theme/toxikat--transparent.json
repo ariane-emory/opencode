@@ -21,7 +21,8 @@
     "gray_dark": "#111111",
     "gray_extra_dark": "#0a0a0a",
     "gray_medium": "#555555",
-    "gray_light": "#888888"
+    "gray_light": "#888888",
+    "amber_dark": "#850"
   },
   "theme": {
     "primary": "green",
@@ -32,6 +33,7 @@
     "success": "green_dark",
     "info": "cyan",
     "text": "amber",
+    "toolOutput": "amber_dark",
     "sessionTitle": "green",
     "textMuted": "gray_light",
     "background": "none",

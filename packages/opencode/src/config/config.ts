@@ -950,7 +950,7 @@ export namespace Config {
       tps_toggle: z.string().optional().default("none").describe("Toggle message TPS visibility"),
       display_thinking: z.string().optional().default("none").describe("Toggle thinking blocks visibility"),
     })
-    .strict()
+    .catchall(z.string())
     .meta({
       ref: "KeybindsConfig",
     })

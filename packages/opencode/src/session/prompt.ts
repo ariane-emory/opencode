@@ -1,4 +1,5 @@
 import path from "path"
+import { substituteArguments as _substituteArguments } from "../config/substitute"
 import os from "os"
 import fs from "fs/promises"
 import z from "zod"
@@ -1735,11 +1736,14 @@ NOTE: At any point in time through this workflow you should feel free to ask the
   // Match [Image N] as single token, quoted strings, or non-space sequences
   const argsRegex = /(?:\[Image\s+\d+\]|"[^"]*"|'[^']*'|[^\s"']+)/gi
   const quoteTrimRegex = /^["']|["']$/g
+
   /**
    * Regular expression to match @ file references in text
    * Matches @ followed by file paths, excluding commas, periods at end of sentences, and backticks
    * Does not match when preceded by word characters or backticks (to avoid email addresses and quoted references)
    */
+
+  export const substituteArguments = _substituteArguments
 
   export async function command(input: CommandInput) {
     log.info("command", input)
@@ -1751,11 +1755,14 @@ NOTE: At any point in time through this workflow you should feel free to ask the
 
     const templateCommand = await command.template
 
-    const { result: withArgs, hasPlaceholders } = substituteArguments(templateCommand, args)
+    const { result: withArgs, hasPlaceholders } = substituteArguments(
+      templateCommand,
+      args,
+    )
     const usesArgumentsPlaceholder = templateCommand.includes("$ARGUMENTS")
     let template = withArgs.replaceAll("$ARGUMENTS", input.arguments)
 
-    // If command doesn't explicitly handle arguments (no $N or $ARGUMENTS placeholders)
+    // If command doesn't explicitly handle arguments (no $N, ${...}, or $ARGUMENTS placeholders)
     // but user provided arguments, append them to the template
     if (!hasPlaceholders && !usesArgumentsPlaceholder && input.arguments.trim()) {
       template = template + "\n\n" + input.arguments

@@ -5,6 +5,7 @@ import { Identifier } from "../id/id"
 import { Instance } from "../project/instance"
 import { Provider } from "../provider/provider"
 import { MessageV2 } from "./message-v2"
+import { Config } from "../config/config"
 import z from "zod"
 import { Token } from "../util/token"
 import { Log } from "../util/log"
@@ -12,7 +13,6 @@ import { SessionProcessor } from "./processor"
 import { fn } from "@/util/fn"
 import { Agent } from "@/agent/agent"
 import { Plugin } from "@/plugin"
-import { Config } from "@/config/config"
 import { ProviderTransform } from "@/provider/transform"
 
 export namespace SessionCompaction {
@@ -44,7 +44,13 @@ export namespace SessionCompaction {
     const usable = input.model.limit.input
       ? input.model.limit.input - reserved
       : context - ProviderTransform.maxOutputTokens(input.model)
-    return count >= usable
+
+    const threshold = config.experimental?.context_compaction_threshold ?? 100
+    const thresholdMultiplier = threshold / 100
+    const thresholdedUsable = usable * thresholdMultiplier
+
+    log.debug("Checking overflow", { count, usable, thresholdedUsable, threshold })
+    return count >= thresholdedUsable
   }
 
   export const PRUNE_MINIMUM = 20_000

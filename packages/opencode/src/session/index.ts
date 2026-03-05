@@ -516,11 +516,23 @@ export namespace Session {
     }),
     async (input) => {
       const result = [] as MessageV2.WithParts[]
+      let totalParts = 0
+
       for await (const msg of MessageV2.stream(input.sessionID)) {
-        if (input.limit && result.length >= input.limit) break
+        if (input.limit && totalParts + msg.parts.length > input.limit) {
+          // If adding this message would exceed the limit, check if we can fit a partial message
+          if (totalParts < input.limit) {
+            // We have room for some parts of this message, but this would be complex to implement
+            // For now, just break to stay within the limit
+            break
+          }
+          break
+        }
         result.push(msg)
+        totalParts += msg.parts.length
       }
       result.reverse()
+
       return result
     },
   )
@@ -548,17 +560,17 @@ export namespace Session {
       conditions.push(like(SessionTable.title, `%${input.search}%`))
     }
 
-    const limit = input?.limit ?? 100
-
-    const rows = Database.use((db) =>
-      db
+    const rows = Database.use((db) => {
+      const baseQuery = db
         .select()
         .from(SessionTable)
         .where(and(...conditions))
         .orderBy(desc(SessionTable.time_updated))
-        .limit(limit)
-        .all(),
-    )
+
+      const query = input?.limit !== undefined ? baseQuery.limit(input.limit) : baseQuery
+
+      return query.all()
+    })
     for (const row of rows) {
       yield fromRow(row)
     }

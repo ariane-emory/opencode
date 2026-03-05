@@ -1874,6 +1874,10 @@ export type Config = {
      * Maximum number of sessions to display in session list, or 'none' to show all sessions
      */
     session_list_limit?: number | "none"
+    /**
+     * Enable experimental plan mode
+     */
+    plan_mode?: boolean
   }
 }
 

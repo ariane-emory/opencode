@@ -153,7 +153,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
               </Show>
             </box>
             <box>
-              <text fg={theme.text}>
+              <text fg={theme.accent}>
                 <b>Context</b>
               </text>
               <text fg={theme.textMuted}>{context()?.tokens ?? 0} tokens</text>
@@ -170,7 +170,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                   <Show when={mcpEntries().length > 2}>
                     <text fg={theme.text}>{expanded.mcp ? "▼" : "▶"}</text>
                   </Show>
-                  <text fg={theme.text}>
+                  <text fg={theme.accent}>
                     <b>MCP</b>
                     <Show when={!expanded.mcp}>
                       <span style={{ fg: theme.textMuted }}>
@@ -233,7 +233,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                 <Show when={sync.data.lsp.length > 2}>
                   <text fg={theme.text}>{expanded.lsp ? "▼" : "▶"}</text>
                 </Show>
-                <text fg={theme.text}>
+                <text fg={theme.accent}>
                   <b>LSP</b>
                 </text>
               </box>
@@ -277,7 +277,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                   <Show when={todo().length > 2}>
                     <text fg={theme.text}>{expanded.todo ? "▼" : "▶"}</text>
                   </Show>
-                  <text fg={theme.text}>
+                  <text fg={theme.accent}>
                     <b>Todo</b>
                   </text>
                 </box>
@@ -296,7 +296,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                   <Show when={diff().length > 2}>
                     <text fg={theme.text}>{expanded.diff ? "▼" : "▶"}</text>
                   </Show>
-                  <text fg={theme.text}>
+                  <text fg={theme.accent}>
                     <b>Modified Files</b>
                   </text>
                 </box>

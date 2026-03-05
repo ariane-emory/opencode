@@ -11,7 +11,7 @@ import { useKV } from "../../context/kv"
 import { TodoItem } from "../../component/todo-item"
 import { formatSessionTitle, parseSessionTitleParts } from "@tui/util/session-title"
 
-export function Sidebar(props: { sessionID: string }) {
+export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrollbar?: boolean }) {
   const sync = useSync()
   const { theme } = useTheme()
   const directory = useDirectory()
@@ -114,6 +114,7 @@ export function Sidebar(props: { sessionID: string }) {
         <scrollbox
           flexGrow={1}
           verticalScrollbarOptions={{
+            visible: props.showScrollbar,
             trackOptions: {
               backgroundColor: theme.background,
               foregroundColor: theme.borderActive,

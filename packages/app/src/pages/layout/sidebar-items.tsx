@@ -16,6 +16,7 @@ import { getFilename } from "@opencode-ai/util/path"
 import { type Message, type Session, type TextPart, type UserMessage } from "@opencode-ai/sdk/v2/client"
 import { For, Match, Show, Switch, createMemo, onCleanup, type Accessor, type JSX } from "solid-js"
 import { agentColor } from "@/utils/agent"
+import { formatSessionTitle } from "@/utils/session-title"
 
 const OPENCODE_PROJECT_ID = "4b0ea68d7af9a6031a7ffda7ad66e0cb83315750"
 
@@ -122,7 +123,7 @@ const SessionRow = (props: {
         </Switch>
       </div>
       <span class="text-14-regular text-text-strong grow-1 min-w-0 overflow-hidden text-ellipsis truncate">
-        {props.session.title}
+        {formatSessionTitle(props.session.title)}
       </span>
       <Show when={props.session.summary}>
         {(summary) => (
@@ -280,7 +281,7 @@ export const SessionItem = (props: SessionItemProps): JSX.Element => {
       <Show
         when={hoverEnabled()}
         fallback={
-          <Tooltip placement={props.mobile ? "bottom" : "right"} value={props.session.title} gutter={10}>
+          <Tooltip placement={props.mobile ? "bottom" : "right"} value={formatSessionTitle(props.session.title)} gutter={10}>
             {item}
           </Tooltip>
         }

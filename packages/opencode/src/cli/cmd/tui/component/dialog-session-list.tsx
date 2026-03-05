@@ -61,6 +61,23 @@ export function DialogSessionList() {
     return sorted[0]?.id ?? allSessions.toSorted((a, b) => b.time.updated - a.time.updated)[0]?.id
   })
 
+  function parseSessionTitle(title: string): { group?: string; displayTitle: string } {
+    const pipeIndex = title.indexOf("|")
+    if (pipeIndex === -1) {
+      return { displayTitle: title }
+    }
+
+    const group = title.slice(0, pipeIndex).trim()
+    const displayTitle = title.slice(pipeIndex + 1).trim()
+
+    if (!group) {
+      return { displayTitle }
+    }
+
+    const capitalized = group.charAt(0).toUpperCase() + group.slice(1)
+    return { group: capitalized + ":", displayTitle }
+  }
+
   const options = createMemo(() => {
     if (!sync.ready) return []
     const today = new Date().toDateString()
@@ -69,15 +86,77 @@ export function DialogSessionList() {
 
     const allSessions = sessions().filter((x) => x.parentID === undefined)
 
+    // Separate into pinned and unpinned
     const pinned = allSessions
       .filter((x) => x.time.pinned !== undefined)
       .toSorted((a, b) => (b.time.pinned ?? 0) - (a.time.pinned ?? 0))
 
     const unpinned = allSessions
       .filter((x) => x.time.pinned === undefined)
-      .toSorted((a, b) => b.time.updated - a.time.updated)
 
-    const mapSession = (session: typeof allSessions[number], category: string, showDate: boolean) => {
+    // Separate unpinned into grouped and ungrouped
+    const grouped: typeof unpinned = []
+    const ungrouped: typeof unpinned = []
+
+    for (const session of unpinned) {
+      const parsed = parseSessionTitle(session.title)
+      if (parsed.group) {
+        grouped.push(session)
+      } else {
+        ungrouped.push(session)
+      }
+    }
+
+    // Sort grouped by group name ASC, then updated DESC
+    grouped.sort((a, b) => {
+      const aParsed = parseSessionTitle(a.title)
+      const bParsed = parseSessionTitle(b.title)
+      const groupCompare = (aParsed.group ?? "").localeCompare(bParsed.group ?? "")
+      if (groupCompare !== 0) return groupCompare
+      return b.time.updated - a.time.updated
+    })
+
+    // Sort ungrouped by updated DESC
+    ungrouped.sort((a, b) => b.time.updated - a.time.updated)
+
+    // Map pinned sessions
+    const pinnedOptions = pinned.map((session) => {
+      const isDeleting = toDelete() === session.id
+      const status = sync.data.session_status?.[session.id]
+      const isWorking = status?.type === "busy"
+      return {
+        title: isDeleting ? `Press ${keybind.print("session_delete")} again to confirm` : session.title,
+        bg: isDeleting ? theme.error : undefined,
+        value: session.id,
+        category: "Bookmarks",
+        footer: Locale.shortDateTime(session.time.updated),
+        gutter: isWorking ? <Spinner /> : undefined,
+      }
+    })
+
+    // Map grouped sessions
+    const groupedOptions = grouped.map((session) => {
+      const parsed = parseSessionTitle(session.title)
+      const isDeleting = toDelete() === session.id
+      const status = sync.data.session_status?.[session.id]
+      const isWorking = status?.type === "busy"
+      return {
+        title: isDeleting ? `Press ${keybind.print("session_delete")} again to confirm` : parsed.displayTitle,
+        bg: isDeleting ? theme.error : undefined,
+        value: session.id,
+        category: parsed.group,
+        footer: Locale.shortDateTime(session.time.updated),
+        gutter: isWorking ? <Spinner /> : undefined,
+      }
+    })
+
+    // Map ungrouped sessions
+    const ungroupedOptions = ungrouped.map((session) => {
+      const date = new Date(session.time.updated)
+      let category = date.toDateString()
+      if (category === today) {
+        category = "Today"
+      }
       const isDeleting = toDelete() === session.id
       const status = sync.data.session_status?.[session.id]
       const isWorking = status?.type === "busy"
@@ -86,21 +165,17 @@ export function DialogSessionList() {
         bg: isDeleting ? theme.error : undefined,
         value: session.id,
         category,
-        footer: showDate ? Locale.shortDateTime(session.time.updated) : Locale.time(session.time.updated),
+        footer: Locale.time(session.time.updated),
         gutter: isWorking ? <Spinner /> : undefined,
       }
-    }
-
-    const pinnedOptions = pinned.map((x) => mapSession(x, "Bookmarks", true))
-
-    const unpinnedOptions = unpinned.map((x) => {
-      const date = new Date(x.time.updated)
-      const category = date.toDateString() === today ? "Today" : date.toDateString()
-      return mapSession(x, category, false)
     })
 
-    const allOptions = [...pinnedOptions, ...unpinnedOptions]
+    const allOptions = [...pinnedOptions, ...groupedOptions, ...ungroupedOptions]
     return limit ? allOptions.slice(0, limit) : allOptions
+  })
+
+    return [...groupedOptions, ...ungroupedOptions]
+>>>>>>> origin/feat/session-grouping
   })
 
   createEffect(() => {

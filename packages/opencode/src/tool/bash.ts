@@ -7,12 +7,14 @@ import { Log } from "../util/log"
 import { Instance } from "../project/instance"
 import { lazy } from "@/util/lazy"
 import { Language } from "web-tree-sitter"
+import { basename } from "path"
 
 import { $ } from "bun"
 import { Filesystem } from "@/util/filesystem"
 import { fileURLToPath } from "url"
 import { Flag } from "@/flag/flag.ts"
 import { Shell } from "@/shell/shell"
+import { iife } from "@/util/iife"
 
 import { BashArity } from "@/permission/arity"
 import { Truncate } from "./truncation"
@@ -53,11 +55,56 @@ const parser = lazy(async () => {
 
 // TODO: we may wanna rename this tool so it works better on other shells
 export const BashTool = Tool.define("bash", async () => {
-  const shell = Shell.acceptable()
-  log.info("bash tool using shell", { shell })
+  const shell = (() => {
+    const s = process.env.SHELL
+    if (s) return s
+
+    if (process.platform === "darwin") {
+      return "/bin/zsh"
+    }
+
+    if (process.platform === "win32") {
+      return process.env.COMSPEC || true
+    }
+
+    const bash = Bun.which("bash")
+    if (bash) return bash
+
+    return true
+  })()
+
+  const shellName = (() => {
+    if (typeof shell === "boolean") {
+      // When shell is true (fallback), assume appropriate default for platform
+      return process.platform === "win32" ? "cmd" : "bash"
+    }
+    if (typeof shell === "string") {
+      let name = basename(shell)
+      // Handle Windows paths (both forward and back slashes)
+      if (shell.includes("\\") || shell.includes("/")) {
+        // Extract the last part after both types of separators
+        const parts = shell.split(/[\\/]/)
+        name = parts[parts.length - 1]
+      }
+      // Handle Windows executables
+      if (name.toLowerCase().endsWith(".exe")) {
+        return name.slice(0, -4)
+      }
+      return name
+    }
+    return "bash"
+  })()
+
+  log.info("bash tool using shell", { shell, shellName })
+
+  const description = `**Shell**: You are executing commands in \`${shellName}\`. Ensure your command syntax is compatible with this shell.
+
+${DESCRIPTION.replace(/\$\{shellName\} command/g, `${shellName} command`)
+  .replace(/\$\{shellName\} commands/g, `${shellName} commands`)
+  .replaceAll("${directory}", Instance.directory)}`
 
   return {
-    description: DESCRIPTION.replaceAll("${directory}", Instance.directory)
+    description: description
       .replaceAll("${maxLines}", String(Truncate.MAX_LINES))
       .replaceAll("${maxBytes}", String(Truncate.MAX_BYTES)),
     parameters: z.object({

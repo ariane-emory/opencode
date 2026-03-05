@@ -5,13 +5,14 @@ import {
   createMemo,
   createSignal,
   For,
+  Index,
   Match,
   on,
+  onCleanup,
   Show,
   Switch,
-  useContext,
-  onCleanup,
   type Component,
+  useContext,
 } from "solid-js"
 import { Dynamic } from "solid-js/web"
 import path from "path"
@@ -19,7 +20,8 @@ import { useRoute, useRouteData } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
 import { SplitBorder } from "@tui/component/border"
 import { Spinner } from "@tui/component/spinner"
-import { selectedForeground, useTheme } from "@tui/context/theme"
+import { useTheme } from "@tui/context/theme"
+import { selectedForeground } from "@tui/context/theme"
 import {
   BoxRenderable,
   ScrollBoxRenderable,
@@ -28,6 +30,8 @@ import {
   type ScrollAcceleration,
   TextAttributes,
   RGBA,
+  StyledText,
+  SyntaxStyle,
 } from "@opentui/core"
 import { Prompt, type PromptRef } from "@tui/component/prompt"
 import type { AssistantMessage, Part, ToolPart, UserMessage, TextPart, ReasoningPart } from "@opencode-ai/sdk/v2"
@@ -50,6 +54,7 @@ import type { SkillTool } from "@/tool/skill"
 import { useKeyboard, useRenderer, useTerminalDimensions, type JSX } from "@opentui/solid"
 import { useSDK } from "@tui/context/sdk"
 import { useCommandDialog } from "@tui/component/dialog-command"
+import type { DialogContext } from "@tui/ui/dialog"
 import { useKeybind } from "@tui/context/keybind"
 import { Header } from "./header"
 import { parsePatch } from "diff"
@@ -83,6 +88,7 @@ import { DialogExportOptions } from "../../ui/dialog-export-options"
 import { formatTranscript } from "../../util/transcript"
 import { UI } from "@/cli/ui.ts"
 import { useTuiConfig } from "../../context/tui-config"
+import { renderMarkdownThemedStyled, parseMarkdownSegments } from "@/cli/markdown-renderer"
 
 addDefaultParsers(parsers.parsers)
 
@@ -108,6 +114,7 @@ const context = createContext<{
   diffWrapMode: () => "word" | "none"
   sync: ReturnType<typeof useSync>
   tui: ReturnType<typeof useTuiConfig>
+  markdownAll: () => boolean
 }>()
 
 function use() {
@@ -167,6 +174,7 @@ export function Session() {
   const [showGenericToolOutput, setShowGenericToolOutput] = kv.signal("generic_tool_output_visibility", false)
 
   const wide = createMemo(() => dimensions().width > 120)
+  const [markdownAll, setMarkdownAll] = kv.signal("markdown_all_messages", false)
   const sidebarVisible = createMemo(() => {
     if (session()?.parentID) return false
     if (sidebarOpen()) return true
@@ -242,6 +250,8 @@ export function Session() {
   let scroll: ScrollBoxRenderable
   let prompt: PromptRef
   const keybind = useKeybind()
+  const dialog = useDialog()
+  const renderer = useRenderer()
 
   // Allow exit when in child session (prompt is hidden)
   const exit = useExit()
@@ -328,16 +338,37 @@ export function Session() {
 
   const local = useLocal()
 
-  function moveChild(direction: number) {
+  function moveFirstChild() {
     if (children().length === 1) return
-    let next = children().findIndex((x) => x.id === session()?.id) + direction
-    if (next >= children().length) next = 0
-    if (next < 0) next = children().length - 1
-    if (children()[next]) {
+    const next = children().find((x) => !!x.parentID)
+    if (next) {
       navigate({
         type: "session",
-        sessionID: children()[next].id,
+        sessionID: next.id,
       })
+    }
+  }
+
+  function moveChild(direction: number) {
+    if (children().length === 1) return
+
+    const sessions = children().filter((x) => !!x.parentID)
+    let next = sessions.findIndex((x) => x.id === session()?.id) + direction
+
+    if (next >= sessions.length) next = 0
+    if (next < 0) next = sessions.length - 1
+    if (sessions[next]) {
+      navigate({
+        type: "session",
+        sessionID: sessions[next].id,
+      })
+    }
+  }
+
+  function childSessionHandler(func: (dialog: DialogContext) => void) {
+    return (dialog: DialogContext) => {
+      if (!session()?.parentID || dialog.stack.length > 0) return
+      func(dialog)
     }
   }
 
@@ -899,24 +930,13 @@ export function Session() {
       },
     },
     {
-      title: "Next child session",
-      value: "session.child.next",
-      keybind: "session_child_cycle",
+      title: "Go to child session",
+      value: "session.child.first",
+      keybind: "session_child_first",
       category: "Session",
       hidden: true,
       onSelect: (dialog) => {
-        moveChild(1)
-        dialog.clear()
-      },
-    },
-    {
-      title: "Previous child session",
-      value: "session.child.previous",
-      keybind: "session_child_cycle_reverse",
-      category: "Session",
-      hidden: true,
-      onSelect: (dialog) => {
-        moveChild(-1)
+        moveFirstChild()
         dialog.clear()
       },
     },
@@ -926,7 +946,7 @@ export function Session() {
       keybind: "session_parent",
       category: "Session",
       hidden: true,
-      onSelect: (dialog) => {
+      onSelect: childSessionHandler((dialog) => {
         const parentID = session()?.parentID
         if (parentID) {
           navigate({
@@ -935,7 +955,29 @@ export function Session() {
           })
         }
         dialog.clear()
-      },
+      }),
+    },
+    {
+      title: "Next child session",
+      value: "session.child.next",
+      keybind: "session_child_cycle",
+      category: "Session",
+      hidden: true,
+      onSelect: childSessionHandler((dialog) => {
+        moveChild(1)
+        dialog.clear()
+      }),
+    },
+    {
+      title: "Previous child session",
+      value: "session.child.previous",
+      keybind: "session_child_cycle_reverse",
+      category: "Session",
+      hidden: true,
+      onSelect: childSessionHandler((dialog) => {
+        moveChild(-1)
+        dialog.clear()
+      }),
     },
   ])
 
@@ -986,9 +1028,6 @@ export function Session() {
     }
   })
 
-  const dialog = useDialog()
-  const renderer = useRenderer()
-
   // snap to bottom when session changes
   createEffect(on(() => route.sessionID, toBottom))
 
@@ -1008,6 +1047,7 @@ export function Session() {
         diffWrapMode,
         sync,
         tui: tuiConfig,
+        markdownAll,
       }}
     >
       <box flexDirection="row">
@@ -1207,12 +1247,14 @@ function UserMessage(props: {
   const text = createMemo(() => props.parts.flatMap((x) => (x.type === "text" && !x.synthetic ? [x] : []))[0])
   const files = createMemo(() => props.parts.flatMap((x) => (x.type === "file" ? [x] : [])))
   const sync = useSync()
-  const { theme } = useTheme()
+  const tui = useTheme()
+  const theme = tui.theme
   const [hover, setHover] = createSignal(false)
   const queued = createMemo(() => props.pending && props.message.id > props.pending)
   const color = createMemo(() => local.agent.color(props.message.agent))
   const queuedFg = createMemo(() => selectedForeground(theme, color()))
   const metadataVisible = createMemo(() => queued() || ctx.showTimestamps())
+  const segments = createMemo(() => parseMarkdownSegments(text()?.text?.trim() ?? ""))
 
   const compaction = createMemo(() => props.parts.find((x) => x.type === "compaction"))
 
@@ -1240,7 +1282,32 @@ function UserMessage(props: {
             backgroundColor={hover() ? theme.backgroundElement : theme.backgroundPanel}
             flexShrink={0}
           >
-            <text fg={theme.text}>{text()?.text}</text>
+            <Show when={ctx.markdownAll()} fallback={<text fg={theme.text}>{text()?.text}</text>}>
+              <Switch>
+                <Match when={Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+                  <markdown
+                    syntaxStyle={tui.syntax()}
+                    streaming={false}
+                    content={text()?.text?.trim() ?? ""}
+                    conceal={ctx.conceal()}
+                  />
+                </Match>
+                <Match when={!Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+                  <box flexDirection="column">
+                    <Index each={segments()}>
+                      {(segment) => (
+                        <Show
+                          when={segment().type === "code"}
+                          fallback={<Prose segment={segment() as any} theme={tui.theme} width={ctx.width - 5} />}
+                        >
+                          <CodeBlock segment={segment() as any} syntax={tui.syntax()} />
+                        </Show>
+                      )}
+                    </Index>
+                  </box>
+                </Match>
+              </Switch>
+            </Show>
             <Show when={files().length}>
               <box flexDirection="row" paddingBottom={metadataVisible() ? 1 : 0} paddingTop={1} gap={1} flexWrap="wrap">
                 <For each={files()}>
@@ -1538,35 +1605,131 @@ function ReasoningPart(props: { last: boolean; part: ReasoningPart; message: Ass
   )
 }
 
+// ============================================================================
+// Markdown Rendering Components
+// ============================================================================
+
+const LANGS: Record<string, string> = {
+  js: "javascript",
+  ts: "typescript",
+  jsx: "typescript",
+  tsx: "typescript",
+  py: "python",
+  rb: "ruby",
+  sh: "shell",
+  bash: "shell",
+  zsh: "shell",
+  yml: "yaml",
+  md: "markdown",
+}
+
 function TextPart(props: { last: boolean; part: TextPart; message: AssistantMessage }) {
   const ctx = use()
-  const { theme, syntax } = useTheme()
+  const tui = useTheme()
+  const segments = createMemo(() => parseMarkdownSegments(props.part.text?.trim() ?? ""))
+
   return (
-    <Show when={props.part.text.trim()}>
+    <Show when={props.part.text?.trim()}>
       <box id={"text-" + props.part.id} paddingLeft={3} marginTop={1} flexShrink={0}>
         <Switch>
           <Match when={Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
             <markdown
-              syntaxStyle={syntax()}
+              syntaxStyle={tui.syntax()}
               streaming={true}
               content={props.part.text.trim()}
               conceal={ctx.conceal()}
             />
           </Match>
           <Match when={!Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
-            <code
-              filetype="markdown"
-              drawUnstyledText={false}
-              streaming={true}
-              syntaxStyle={syntax()}
-              content={props.part.text.trim()}
-              conceal={ctx.conceal()}
-              fg={theme.text}
-            />
+            <box flexDirection="column">
+              <Index each={segments()}>
+                {(segment) => (
+                  <Show
+                    when={segment().type === "code"}
+                    fallback={<Prose segment={segment() as any} theme={tui.theme} width={ctx.width - 3} />}
+                  >
+                    <CodeBlock segment={segment() as any} syntax={tui.syntax()} />
+                  </Show>
+                )}
+              </Index>
+            </box>
           </Match>
         </Switch>
       </box>
     </Show>
+  )
+}
+
+function Prose(props: { segment: { type: "text"; content: string }; theme: any; width: number }) {
+  let el: any
+  const styled = createMemo(() => {
+    if (!props.segment.content) return new StyledText([])
+    const result = renderMarkdownThemedStyled(props.segment.content, props.theme, { cols: props.width })
+    return new StyledText(
+      result.chunks.map((c) => ({
+        __isChunk: true as const,
+        text: c.text,
+        fg: c.fg ? RGBA.fromInts(c.fg.r, c.fg.g, c.fg.b, c.fg.a) : props.theme.text,
+        bg: c.bg ? RGBA.fromInts(c.bg.r, c.bg.g, c.bg.b, c.bg.a) : undefined,
+        attributes: c.attributes,
+      })),
+    )
+  })
+  createEffect(() => {
+    if (el) el.content = styled()
+  })
+  return <text ref={el} />
+}
+
+function CodeBlock(props: { segment: { type: "code"; content: string; language: string }; syntax: any }) {
+  const ctx = use()
+  const tui = useTheme()
+  const lang = () => LANGS[props.segment.language] || props.segment.language
+
+  const syntax = createMemo(() => {
+    const base = props.syntax as SyntaxStyle
+    const styles = base.getAllStyles()
+    const derived = SyntaxStyle.fromStyles(Object.fromEntries(styles))
+    derived.registerStyle("default", { fg: tui.theme.markdownCodeBlock })
+    return derived
+  })
+
+  return (
+    <box paddingLeft={2}>
+      <code
+        filetype={lang()}
+        content={props.segment.content}
+        syntaxStyle={syntax()}
+        fg={tui.theme.markdownCodeBlock}
+        drawUnstyledText={true}
+        streaming={false}
+        conceal={ctx.conceal()}
+      />
+    </box>
+  )
+}
+
+function MarkdownDiff(props: { content: string; theme: ReturnType<typeof useTheme>["theme"] }) {
+  let el: any
+  const styled = createMemo(() => {
+    const chunks = props.content.split("\n").map((line) => {
+      const t = line.trim()
+      const fg = t.startsWith("+")
+        ? props.theme.diffAdded
+        : t.startsWith("-")
+          ? props.theme.diffRemoved
+          : props.theme.markdownCodeBlock
+      return { __isChunk: true as const, text: "  " + line + "\n", fg }
+    })
+    return new StyledText(chunks)
+  })
+  createEffect(() => {
+    if (el) el.content = styled()
+  })
+  return (
+    <box paddingLeft={2}>
+      <text ref={el} />
+    </box>
   )
 }
 
@@ -2080,7 +2243,7 @@ function Task(props: ToolProps<typeof TaskTool>) {
           </box>
           <Show when={props.metadata.sessionId}>
             <text fg={theme.text}>
-              {keybind.print("session_child_cycle")}
+              {keybind.print("session_child_first")}
               <span style={{ fg: theme.textMuted }}> view subagents</span>
             </text>
           </Show>

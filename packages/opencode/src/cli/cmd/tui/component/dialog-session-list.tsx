@@ -174,10 +174,6 @@ export function DialogSessionList() {
     return limit ? allOptions.slice(0, limit) : allOptions
   })
 
-    return [...groupedOptions, ...ungroupedOptions]
->>>>>>> origin/feat/session-grouping
-  })
-
   createEffect(() => {
     console.log("session count", sync.data.session.length)
 

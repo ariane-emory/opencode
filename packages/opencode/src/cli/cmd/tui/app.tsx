@@ -261,6 +261,12 @@ function App() {
   const [terminalTitleEnabled, setTerminalTitleEnabled] = createSignal(kv.get("terminal_title_enabled", true))
   const [sidebarClockEnabled, setSidebarClockEnabled] = createSignal(kv.get("sidebar_clock_visible", true))
 
+  function toggleTerminalTitle() {
+    const newValue = !terminalTitleEnabled()
+    setTerminalTitleEnabled(newValue)
+    kv.set("terminal_title_enabled", newValue)
+  }
+
   createEffect(() => {
     console.log(JSON.stringify(route.data))
   })

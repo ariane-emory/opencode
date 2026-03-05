@@ -125,6 +125,7 @@ describe("tool.registry", () => {
       git: true,
       config: {
         experimental: {
+          cache_command_markdown_files: true,
           plan_mode: true,
         },
       },

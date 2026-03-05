@@ -518,6 +518,12 @@ export const SessionRoutes = lazy(() =>
           providerID: z.string(),
           modelID: z.string(),
           auto: z.boolean().optional().default(false),
+          compactionModel: z
+            .object({
+              providerID: z.string(),
+              modelID: z.string(),
+            })
+            .optional(),
         }),
       ),
       async (c) => {
@@ -542,6 +548,7 @@ export const SessionRoutes = lazy(() =>
             modelID: body.modelID,
           },
           auto: body.auto,
+          compactionModel: body.compactionModel,
         })
         await SessionPrompt.loop({ sessionID })
         return c.json(true)

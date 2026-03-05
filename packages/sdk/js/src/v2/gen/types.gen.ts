@@ -1337,6 +1337,22 @@ export type KeybindsConfig = {
    */
   input_delete_word_backward?: string
   /**
+   * Lowercase word in input
+   */
+  input_lowercase_word?: string
+  /**
+   * Uppercase word in input
+   */
+  input_uppercase_word?: string
+  /**
+   * Capitalize word in input
+   */
+  input_capitalize_word?: string
+  /**
+   * Yank (paste) last killed text
+   */
+  input_yank?: string
+  /**
    * Previous history item
    */
   history_previous?: string

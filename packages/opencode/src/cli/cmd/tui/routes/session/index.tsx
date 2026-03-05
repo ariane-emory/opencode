@@ -10,6 +10,8 @@ import {
   Show,
   Switch,
   useContext,
+  onCleanup,
+  type Component,
 } from "solid-js"
 import { Dynamic } from "solid-js/web"
 import path from "path"
@@ -1342,6 +1344,58 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
     return Number(tokensPerSecond.toFixed(2))
   })
 
+  // Elapsed time for in-progress messages
+  const [elapsedTime, setElapsedTime] = createSignal(0)
+  
+  createEffect(() => {
+    // Only run timer for the last in-progress message (not final/completed)
+    // This prevents multiple timers from running for older messages
+    if (!props.last || final()) {
+      setElapsedTime(0)
+      return
+    }
+
+    // Access parts directly from the store for proper reactivity tracking
+    // Using props.parts doesn't trigger updates when individual parts change
+    const parts = sync.data.part[props.message.id] ?? []
+
+    // Find the start time of the last active part (current action)
+    let startTime: number | undefined
+
+    // Check parts in reverse order to find the most recent one with timing
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const part = parts[i]
+
+      if (part.type === "tool") {
+        // Running tool has time.start
+        if (part.state.status === "running" && part.state.time?.start) {
+          startTime = part.state.time.start
+          break
+        }
+      } else if (part.type === "text" || part.type === "reasoning") {
+        // Text/reasoning parts have time.start if in progress (no end time)
+        if (part.time?.start && !part.time?.end) {
+          startTime = part.time.start
+          break
+        }
+      }
+    }
+
+    // No running part found - don't show elapsed time
+    if (!startTime) {
+      setElapsedTime(0)
+      return
+    }
+
+    const interval = setInterval(() => {
+      setElapsedTime(Date.now() - startTime!)
+    }, 1000)
+
+    onCleanup(() => {
+      clearInterval(interval)
+    })
+  })
+
   return (
     <>
       <For each={props.parts}>
@@ -1394,6 +1448,9 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
               </Show>
               <Show when={ctx.showTps() && TPS()}>
                 <span style={{ fg: theme.textMuted }}> · {TPS()} tps</span>
+              </Show>
+              <Show when={!final() && elapsedTime()}>
+                <span style={{ fg: theme.textMuted }}> · running {Locale.duration(elapsedTime())}</span>
               </Show>
               <Show when={props.message.error?.name === "MessageAbortedError"}>
                 <span style={{ fg: theme.textMuted }}> · interrupted</span>

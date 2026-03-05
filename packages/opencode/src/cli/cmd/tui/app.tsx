@@ -624,6 +624,7 @@ function App() {
       },
     },
     {
+<<<<<<< HEAD
       title: kv.get("tps_visibility", false) ? "Hide message TPS" : "Show message TPS",
       value: "system.toggle.tps",
       keybind: "tps_toggle",
@@ -638,13 +639,16 @@ function App() {
       value: "terminal.title.toggle",
       keybind: "terminal_title_toggle",
       category: "System",
+      onSelect: () => {
+        toggleTerminalTitle()
+      },
+    },
+    {
+      title: kv.get("sidebar_overlay", true) ? "Disable sidebar overlay" : "Enable sidebar overlay",
+      value: "sidebar_overlay",
+      category: "System",
       onSelect: (dialog) => {
-        setTerminalTitleEnabled((prev) => {
-          const next = !prev
-          kv.set("terminal_title_enabled", next)
-          if (!next) renderer.setTerminalTitle("")
-          return next
-        })
+        kv.set("sidebar_overlay", !kv.get("sidebar_overlay", true))
         dialog.clear()
       },
     },

@@ -556,11 +556,13 @@ export namespace MessageV2 {
         }
         result.push(userMessage)
         for (const part of msg.parts) {
-          if (part.type === "text" && !part.ignored)
-            userMessage.parts.push({
-              type: "text",
-              text: part.text,
-            })
+          if (part.type === "text") {
+            if (!part.ignored)
+              userMessage.parts.push({
+                type: "text",
+                text: part.text,
+              })
+          }
           // text/plain and directory files are converted into text parts, ignore them
           if (part.type === "file" && part.mime !== "text/plain" && part.mime !== "application/x-directory")
             userMessage.parts.push({

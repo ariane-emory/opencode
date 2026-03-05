@@ -1937,16 +1937,21 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       ],
     })
     const text = await result.text.catch((err) => log.error("failed to generate title", { error: err }))
-    if (text) {
-      const cleaned = text
-        .replace(/<think>[\s\S]*?<\/think>\s*/g, "")
-        .split("\n")
-        .map((line) => line.trim())
-        .find((line) => line.length > 0)
-      if (!cleaned) return
+    if (text)
+      return Session.update(
+        input.session.id,
+        (draft) => {
+          const cleaned = text
+            .replace(/<think[\s\S]*?<\/think>\s*/g, "")
+            .split("\n")
+            .map((line) => line.trim())
+            .find((line) => line.length > 0)
+          if (!cleaned) return
 
-      const title = cleaned.length > 100 ? cleaned.substring(0, 97) + "..." : cleaned
-      return Session.setTitle({ sessionID: input.session.id, title })
-    }
+          const title = cleaned.length > 100 ? cleaned.substring(0, 97) + "..." : cleaned
+          if (Session.isDefaultTitle(draft.title)) draft.title = title
+        },
+        { touch: false },
+      )
   }
 }

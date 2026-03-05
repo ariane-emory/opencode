@@ -863,7 +863,7 @@ export namespace Config {
       input_newline: z
         .string()
         .optional()
-        .default("shift+return,ctrl+return,alt+return,ctrl+j")
+        .default("shift+return,ctrl+return,alt+return,ctrl+j,linefeed")
         .describe("Insert newline in input"),
       input_move_left: z.string().optional().default("left,ctrl+b").describe("Move cursor left in input"),
       input_move_right: z.string().optional().default("right,ctrl+f").describe("Move cursor right in input"),

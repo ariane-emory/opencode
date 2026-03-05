@@ -15,6 +15,7 @@ export interface DialogSelectProps<T> {
   title: string
   placeholder?: string
   options: DialogSelectOption<T>[]
+  sort?: boolean
   flat?: boolean
   ref?: (ref: DialogSelectRef<T>) => void
   onMove?: (option: DialogSelectOption<T>) => void
@@ -105,7 +106,6 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
   const flatten = createMemo(() => props.flat && store.filter.length > 0)
 
   const grouped = createMemo<[string, DialogSelectOption<T>[]][]>(() => {
-    if (flatten()) return [["", filtered()]]
     const result = pipe(
       filtered(),
       groupBy((x) => x.category ?? ""),

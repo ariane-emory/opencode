@@ -649,7 +649,6 @@ function App() {
       },
     },
     {
-<<<<<<< HEAD
       title: kv.get("tps_visibility", false) ? "Hide message TPS" : "Show message TPS",
       value: "system.toggle.tps",
       keybind: "tps_toggle",

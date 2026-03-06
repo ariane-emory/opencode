@@ -671,7 +671,6 @@ export function Session() {
     {
       title: showScrollbar() ? "Hide session scrollbar" : "Show session scrollbar",
       value: "session.toggle.scrollbar",
-      value: "session.toggle.scrollbar",
       keybind: "scrollbar_toggle",
       category: "System",
       onSelect: (dialog) => {

@@ -1,4 +1,6 @@
 export namespace Locale {
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
   export function titlecase(str: string) {
     return str.replace(/\b\w/g, (c) => c.toUpperCase())
   }
@@ -14,8 +16,13 @@ export namespace Locale {
   export function datetime(input: number): string {
     const date = new Date(input)
     const localTime = time(input)
-    const localDate = date.toLocaleDateString()
-    return `${localTime} · ${localDate}`
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    const year = date.getFullYear()
+    // Pad day with leading space if single digit for alignment
+    const paddedDay = day < 10 ? ` ${day}` : day.toString()
+    const localDate = `${month}/${paddedDay}/${year}`
+    return `${localTime}  ${localDate}`
   }
 
   export function todayTimeOrDateTime(input: number): string {
@@ -28,6 +35,27 @@ export namespace Locale {
       return time(input)
     } else {
       return datetime(input)
+    }
+  }
+
+  export function shortDateTime(input: number): string {
+    const date = new Date(input)
+    const now = new Date()
+    const isToday =
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth() &&
+      date.getDate() === now.getDate()
+
+    const timeStr = time(input)
+
+    if (isToday) {
+      return timeStr
+    } else {
+      const month = MONTHS[date.getMonth()]
+      const day = date.getDate()
+      // Pad day with leading space if single digit for alignment
+      const paddedDay = day < 10 ? ` ${day}` : day.toString()
+      return `${month} ${paddedDay} ${timeStr}`
     }
   }
 

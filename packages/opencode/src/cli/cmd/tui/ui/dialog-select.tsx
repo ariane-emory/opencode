@@ -45,6 +45,7 @@ export interface DialogSelectOption<T = any> {
 export type DialogSelectRef<T> = {
   filter: string
   filtered: DialogSelectOption<T>[]
+  scrollToValue: (value: T) => void
 }
 
 export function DialogSelect<T>(props: DialogSelectProps<T>) {
@@ -55,20 +56,6 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     filter: "",
     input: "keyboard" as "keyboard" | "mouse",
   })
-
-  createEffect(
-    on(
-      () => props.current,
-      (current) => {
-        if (current) {
-          const currentIndex = flat().findIndex((opt) => isDeepEqual(opt.value, current))
-          if (currentIndex >= 0) {
-            setStore("selected", currentIndex)
-          }
-        }
-      },
-    ),
-  )
 
   let input: InputRenderable
 
@@ -223,6 +210,12 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     },
     get filtered() {
       return filtered()
+    },
+    scrollToValue(value: T) {
+      const index = flat().findIndex((opt) => isDeepEqual(opt.value, value))
+      if (index >= 0) {
+        moveTo(index)
+      }
     },
   }
   props.ref?.(ref)

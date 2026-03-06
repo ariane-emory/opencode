@@ -828,6 +828,7 @@ export type Session = {
     updated: number
     compacting?: number
     archived?: number
+    pinned?: number
   }
   permission?: PermissionRuleset
   revert?: {
@@ -2875,6 +2876,7 @@ export type SessionUpdateData = {
     title?: string
     time?: {
       archived?: number
+      pinned?: number | null
     }
   }
   path: {

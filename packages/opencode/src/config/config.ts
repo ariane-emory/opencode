@@ -19,6 +19,7 @@ import {
   parse as parseJsonc,
   printParseErrorCode,
 } from "jsonc-parser"
+import type { ThemeJson } from "../cli/cmd/tui/context/theme"
 import { Instance } from "../project/instance"
 import { LSPServer } from "../lsp/server"
 import { BunProc } from "@/bun"
@@ -1374,7 +1375,10 @@ export namespace Config {
     return load(text, { path: filepath })
   }
 
-  async function load(text: string, options: { path: string } | { dir: string; source: string }) {
+  async function load(
+    text: string,
+    options: { path: string; enableConfigSubstitutions?: boolean } | { dir: string; source: string; enableConfigSubstitutions?: boolean },
+  ) {
     const original = text
     const source = "path" in options ? options.path : options.source
     const isFile = "path" in options
@@ -1448,6 +1452,48 @@ export namespace Config {
     if (Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE) return true
     const config = await get()
     return config.experimental?.plan_mode === true
+  }
+
+  export async function loadThemeFile(filepath: string): Promise<ThemeJson> {
+    log.info("loading theme", { path: filepath })
+    let text = await Bun.file(filepath)
+      .text()
+      .catch((err) => {
+        if (err.code === "ENOENT") return
+        throw new JsonError({ path: filepath }, { cause: err })
+      })
+    if (!text) {
+      throw new Error("Empty theme file")
+    }
+
+    // Parse JSONC directly without special features for themes
+    const errors: JsoncParseError[] = []
+    const data = parseJsonc(text, errors, { allowTrailingComma: true })
+
+    if (errors.length) {
+      const lines = text.split("\n")
+      const errorDetails = errors
+        .map((e) => {
+          const beforeOffset = text.substring(0, e.offset).split("\n")
+          const line = beforeOffset.length
+          const column = beforeOffset[beforeOffset.length - 1].length + 1
+          const problemLine = lines[line - 1]
+
+          const error = `${printParseErrorCode(e.error)} at line ${line}, column ${column}`
+          if (!problemLine) return error
+
+          return `${error}\n   Line ${line}: ${problemLine}\n${"".padStart(column + 9)}^`
+        })
+        .join("\n")
+
+      throw new JsonError({
+        path: filepath,
+        message: `\n--- JSONC Input ---\n${text}\n--- Errors ---\n${errorDetails}\n--- End ---`,
+      })
+    }
+
+    // Return data as ThemeJson (basic validation)
+    return data as ThemeJson
   }
 
   export async function getGlobal() {

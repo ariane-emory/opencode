@@ -668,6 +668,16 @@ function App() {
       },
     },
     {
+      title: kv.get("diff_style", "auto") === "auto" ? "Use unified diff style" : "Use automatic diff style",
+      value: "tui.diff_style.toggle",
+      category: "System",
+      onSelect: (dialog) => {
+        const current = kv.get("diff_style", "auto")
+        kv.set("diff_style", current === "auto" ? "unified" : "auto")
+        dialog.clear()
+      },
+    },
+    {
       title: kv.get("diff_wrap_mode", "word") === "word" ? "Disable diff wrapping" : "Enable diff wrapping",
       value: "app.toggle.diffwrap",
       category: "System",

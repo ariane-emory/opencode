@@ -321,6 +321,41 @@ export const SessionRoutes = lazy(() =>
       },
     )
     .post(
+      "/:sessionID/rewind",
+      describeRoute({
+        summary: "Rewind session",
+        description:
+          "Rewind a session to a specific message, removing all messages from that point without reverting file changes.",
+        operationId: "session.rewind",
+        responses: {
+          200: {
+            description: "Rewound session",
+            content: {
+              "application/json": {
+                schema: resolver(Session.Info),
+              },
+            },
+          },
+          ...errors(400, 404),
+        },
+      }),
+      validator(
+        "param",
+        z.object({
+          sessionID: z.string(),
+        }),
+      ),
+      validator("json", Session.rewind.schema.omit({ sessionID: true })),
+      async (c) => {
+        const sessionID = c.req.valid("param").sessionID
+        const session = await Session.rewind({
+          sessionID,
+          ...c.req.valid("json"),
+        })
+        return c.json(session)
+      },
+    )
+    .post(
       "/:sessionID/fork",
       describeRoute({
         summary: "Fork session",

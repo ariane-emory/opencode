@@ -1636,11 +1636,6 @@ function CodeBlock(props: { segment: { type: "code"; content: string; language: 
     return derived
   })
 
-  // DEBUG: Log what color is being applied
-  console.log("[CodeBlock] markdownCodeBlock color:", tui.theme.markdownCodeBlock)
-  console.log("[CodeBlock] fg prop:", tui.theme.markdownCodeBlock)
-  console.log("[CodeBlock] syntaxStyle default:", syntax().getStyle("default"))
-
   return (
     <box paddingLeft={2}>
       <code
@@ -1648,7 +1643,6 @@ function CodeBlock(props: { segment: { type: "code"; content: string; language: 
         content={props.segment.content}
         syntaxStyle={syntax()}
         fg={tui.theme.markdownCodeBlock}
-        drawUnstyledText={true}
         streaming={false}
         conceal={ctx.conceal()}
       />

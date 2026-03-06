@@ -163,7 +163,6 @@ export function Session() {
   const [timestamps, setTimestamps] = kv.signal<"hide" | "show">("timestamps", "hide")
   const [showDetails, setShowDetails] = kv.signal("tool_details_visibility", true)
   const [showAssistantMetadata, setShowAssistantMetadata] = kv.signal("assistant_metadata_visibility", true)
-<<<<<<< HEAD
   const [showScrollbar, setShowScrollbar] = kv.signal("scrollbar_visible", true)
   const [sidebarOverlayEnabled, setSidebarOverlayEnabled] = kv.signal("sidebar_overlay", true)
   const [showHeader, setShowHeader] = kv.signal("header_visible", true)
@@ -622,7 +621,6 @@ export function Session() {
       },
     },
     {
-<<<<<<< HEAD
       title: showTimestamps() ? "Hide timestamps" : "Show timestamps",
       value: "session.toggle.timestamps",
       category: "Session",

@@ -601,7 +601,7 @@ export function Session() {
       title: sidebarVisible() ? "Hide sidebar" : "Show sidebar",
       value: "session.sidebar.toggle",
       keybind: "sidebar_toggle",
-      category: "Session",
+      category: "System",
       onSelect: (dialog) => {
         const prev = sidebar()
         let newValue: "show" | "hide" | "auto"
@@ -685,7 +685,7 @@ export function Session() {
     {
       title: showHeader() ? "Hide header" : "Show header",
       value: "session.toggle.header",
-      category: "Session",
+      category: "System",
       onSelect: (dialog) => {
         setShowHeader(!showHeader())
         dialog.clear()

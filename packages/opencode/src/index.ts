@@ -46,6 +46,11 @@ process.on("uncaughtException", (e) => {
   })
 })
 
+// Ensure the process exits on terminal hangup (eg. closing the terminal tab).
+// Without this, long-running commands like `serve` block on a never-resolving
+// promise and survive as orphaned processes.
+process.on("SIGHUP", () => process.exit())
+
 let cli = yargs(hideBin(process.argv))
   .parserConfiguration({ "populate--": true })
   .scriptName("baseone")
@@ -76,7 +81,8 @@ let cli = yargs(hideBin(process.argv))
 
     process.env.AGENT = "1"
     process.env.BASEONE = "1"
-    process.env.OPENCODE = "1" // Legacy compatibility
+    process.env.OPENCODE = "1"
+    process.env.OPENCODE_PID = String(process.pid)
 
     Log.Default.info("baseone", {
       version: Installation.VERSION,

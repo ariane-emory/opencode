@@ -634,6 +634,16 @@ function App() {
       },
     },
     {
+      title: kv.get("tps_visibility", false) ? "Hide message TPS" : "Show message TPS",
+      value: "system.toggle.tps",
+      keybind: "tps_toggle",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("tps_visibility", !kv.get("tps_visibility", false))
+        dialog.clear()
+      },
+    },
+    {
       title: terminalTitleEnabled() ? "Disable terminal title" : "Enable terminal title",
       value: "terminal.title.toggle",
       keybind: "terminal_title_toggle",

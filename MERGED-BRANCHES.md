@@ -65,7 +65,7 @@ This document records all branches merged into this integration branch.
 | 50 | feat/rewind-modal-option | origin | (multiple) | Rewind modal option |
 | 51 | feat/alphabetize-command-palette-groups | origin | ca9e17fb7 | Alphabetize command palette groups |
 | 52 | feat/taller-dialogs | origin | 0658bb37f | Taller dialog windows |
-| 53 | feat/add-arianes-themes | origin | 193cb9c99 | Additional Ariane's themes |
+| 53 | feat/add-arianes-themes | origin | 269324ddf | Additional Ariane's themes (includes toxikat diff bg fix) |
 | 54 | feat/aspiers--readline-additions | origin | 266513b47 | Readline additions |
 | 55 | feat/sidebar-clock | origin | bfba53683 | Clock display in sidebar |
 | 56 | feat/improve-bash-tool-git-advice | origin | 04d2ef34c | Improved bash tool git advice |

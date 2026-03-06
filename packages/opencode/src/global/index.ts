@@ -46,12 +46,14 @@ export namespace Global {
   }
 }
 
+// Only create directories for legacy opencode brand
+// Baseone directories must be created by user manually
 await Promise.all([
-  fs.mkdir(Global.Path.data, { recursive: true }),
-  fs.mkdir(Global.Path.config, { recursive: true }),
-  fs.mkdir(Global.Path.state, { recursive: true }),
-  fs.mkdir(Global.Path.log, { recursive: true }),
-  fs.mkdir(Global.Path.bin, { recursive: true }),
+  fs.mkdir(path.join(xdgData!, legacyApp), { recursive: true }),
+  fs.mkdir(path.join(xdgConfig!, legacyApp), { recursive: true }),
+  fs.mkdir(path.join(xdgState!, legacyApp), { recursive: true }),
+  fs.mkdir(path.join(xdgData!, legacyApp, "log"), { recursive: true }),
+  fs.mkdir(path.join(xdgData!, legacyApp, "bin"), { recursive: true }),
 ])
 
 const CACHE_VERSION = "21"

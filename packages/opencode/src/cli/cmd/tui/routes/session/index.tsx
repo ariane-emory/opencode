@@ -637,34 +637,6 @@ export function Session() {
       },
     },
     {
-      title: showScrollbar() ? "Hide session scrollbar" : "Show session scrollbar",
-      value: "session.toggle.scrollbar",
-      keybind: "scrollbar_toggle",
-      category: "System",
-      onSelect: (dialog) => {
-        setShowScrollbar(!showScrollbar())
-        dialog.clear()
-      },
-    },
-    {
-      title: showSidebarScrollbar() ? "Hide sidebar scrollbar" : "Show sidebar scrollbar",
-      value: "session.toggle.sidebar_scrollbar",
-      category: "System",
-      onSelect: (dialog) => {
-        setShowSidebarScrollbar((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
-      title: showGenericToolOutput() ? "Hide generic tool output" : "Show generic tool output",
-      value: "session.toggle.generic_tool_output",
-      category: "System",
-      onSelect: (dialog) => {
-        setShowGenericToolOutput((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
       title: "Page up",
       value: "session.page.up",
       keybind: "messages_page_up",

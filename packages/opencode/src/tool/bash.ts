@@ -121,6 +121,7 @@ ${DESCRIPTION.replace(/\$\{shellName\} command/g, `${shellName} command`)
         .describe(
           "Clear, concise description of what this command does in 5-10 words. Examples:\nInput: ls\nOutput: Lists files in current directory\n\nInput: git status\nOutput: Shows working tree status\n\nInput: npm install\nOutput: Installs package dependencies\n\nInput: mkdir foo\nOutput: Creates directory 'foo'",
         ),
+      env: z.record(z.string(), z.string()).optional().describe("Environment variables to set for the command"),
     }),
     async execute(params, ctx) {
       const cwd = params.workdir || Instance.directory
@@ -225,6 +226,7 @@ ${DESCRIPTION.replace(/\$\{shellName\} command/g, `${shellName} command`)
         env: {
           ...process.env,
           ...shellEnv.env,
+          ...params.env,
         },
         stdio: ["ignore", "pipe", "pipe"],
         detached: process.platform !== "win32",

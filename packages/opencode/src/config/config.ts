@@ -41,49 +41,6 @@ export namespace Config {
 
   const log = Log.create({ service: "config" })
 
-  function deepRemoveDefaults(schema: any): any {
-    if (schema instanceof z.ZodDefault) {
-      return deepRemoveDefaults(schema.removeDefault())
-    }
-    if (schema instanceof z.ZodObject) {
-      const newShape: Record<string, any> = {}
-      for (const [key, value] of Object.entries(schema.shape)) {
-        newShape[key] = deepRemoveDefaults(value)
-      }
-      let newObj = z.object(newShape)
-      const catchall = schema._def.catchall
-      if (catchall) {
-        newObj = newObj.catchall(catchall)
-      }
-      return newObj
-    }
-    if (schema instanceof z.ZodArray) {
-      return z.array(deepRemoveDefaults(schema.element))
-    }
-    if (schema instanceof z.ZodOptional) {
-      return z.optional(deepRemoveDefaults(schema.unwrap()))
-    }
-    if (schema instanceof z.ZodNullable) {
-      return z.nullable(deepRemoveDefaults(schema.unwrap()))
-    }
-    if (schema instanceof z.ZodUnion) {
-      return z.union(schema.options.map(deepRemoveDefaults))
-    }
-    if (schema instanceof z.ZodIntersection) {
-      return z.intersection(deepRemoveDefaults(schema._def.left), deepRemoveDefaults(schema._def.right))
-    }
-    if (schema instanceof z.ZodRecord) {
-      return z.record(z.string(), deepRemoveDefaults(schema._def.valueType))
-    }
-    if (schema instanceof z.ZodLazy) {
-      return z.lazy(() => deepRemoveDefaults(schema._def.getter()))
-    }
-    if (schema instanceof z.ZodCatch) {
-      return deepRemoveDefaults(schema._def.innerType)
-    }
-    return schema
-  }
-
   // Managed settings directory for enterprise deployments (highest priority, admin-controlled)
   // These settings override all user and project settings
   function systemManagedConfigDir(): string {
@@ -276,8 +233,6 @@ export namespace Config {
 
     result.plugin = deduplicatePlugins(result.plugin ?? [])
 
-    result = Info.parse(result)
-
     return {
       config: result,
       directories,
@@ -292,8 +247,7 @@ export namespace Config {
 
   export async function installDependencies(dir: string) {
     const pkg = path.join(dir, "package.json")
-    const isValidSemVer = /^\d+\.\d+\.\d+/.test(Installation.VERSION)
-    const targetVersion = Installation.isLocal() || !isValidSemVer ? "*" : Installation.VERSION
+    const targetVersion = Installation.isLocal() ? "*" : Installation.VERSION
 
     const json = await Filesystem.readJson<{ dependencies?: Record<string, string> }>(pkg).catch(() => ({
       dependencies: {},
@@ -386,6 +340,7 @@ export namespace Config {
     for (const item of await Glob.scan("{command,commands}/**/*.md", {
       cwd: dir,
       absolute: true,
+      dot: true,
       symlink: true,
     })) {
       const md = await ConfigMarkdown.parse(item).catch(async (err) => {
@@ -424,6 +379,7 @@ export namespace Config {
     for (const item of await Glob.scan("{agent,agents}/**/*.md", {
       cwd: dir,
       absolute: true,
+      dot: true,
       symlink: true,
     })) {
       const md = await ConfigMarkdown.parse(item).catch(async (err) => {
@@ -461,6 +417,7 @@ export namespace Config {
     for (const item of await Glob.scan("{mode,modes}/*.md", {
       cwd: dir,
       absolute: true,
+      dot: true,
       symlink: true,
     })) {
       const md = await ConfigMarkdown.parse(item).catch(async (err) => {
@@ -497,6 +454,7 @@ export namespace Config {
     for (const item of await Glob.scan("{plugin,plugins}/*.{ts,js}", {
       cwd: dir,
       absolute: true,
+      dot: true,
       symlink: true,
     })) {
       plugins.push(pathToFileURL(item).href)
@@ -946,7 +904,6 @@ export namespace Config {
       terminal_suspend: z.string().optional().default("ctrl+z").describe("Suspend terminal"),
       terminal_title_toggle: z.string().optional().default("none").describe("Toggle terminal title"),
       tips_toggle: z.string().optional().default("<leader>h").describe("Toggle tips on home screen"),
-      tps_toggle: z.string().optional().default("none").describe("Toggle message TPS visibility"),
       display_thinking: z.string().optional().default("none").describe("Toggle thinking blocks visibility"),
     })
     .strict()
@@ -962,7 +919,12 @@ export namespace Config {
       })
       .optional()
       .describe("Scroll acceleration settings"),
+    diff_style: z
+      .enum(["auto", "stacked"])
+      .optional()
+      .describe("Control diff rendering style: 'auto' adapts to terminal width, 'stacked' always shows single column"),
   })
+  export type TUI = z.infer<typeof TUI>
 
   export const Server = z
     .object({
@@ -1213,13 +1175,20 @@ export namespace Config {
             .optional()
             .describe("Tools that should only be available to primary agents."),
           continue_loop_on_deny: z.boolean().optional().describe("Continue the agent loop when a tool call is denied"),
-          context_compaction_threshold: z.number().min(10).max(100).optional().describe("Percentage of usable context space at which to trigger compaction (10-100)"),
           mcp_timeout: z
             .number()
             .int()
             .positive()
             .optional()
             .describe("Timeout in milliseconds for model context protocol (MCP) requests"),
+          messages_limit: z
+            .union([z.number().min(1), z.literal("none")])
+            .optional()
+            .describe("Maximum number of message parts to load per session when syncing, or 'none' to load all messages"),
+          session_list_limit: z
+            .union([z.number().min(1), z.literal("none")])
+            .optional()
+            .describe("Maximum number of sessions to display in session list, or 'none' to show all sessions"),
         })
         .optional(),
     })
@@ -1229,8 +1198,6 @@ export namespace Config {
     })
 
   export type Info = z.output<typeof Info>
-
-  const RawInfo = deepRemoveDefaults(Info) as z.ZodObject<any>
 
   export const global = lazy(async () => {
     let result: Info = pipe(
@@ -1406,8 +1373,8 @@ export namespace Config {
       })
     }
 
-    const parsed = RawInfo.safeParse(data)
-    if (parsed.success) return parsed.data as Info
+    const parsed = Info.safeParse(data)
+    if (parsed.success) return parsed.data
 
     throw new InvalidError({
       path: filepath,

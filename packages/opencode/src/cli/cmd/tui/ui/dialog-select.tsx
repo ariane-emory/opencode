@@ -1,6 +1,6 @@
 import { InputRenderable, RGBA, ScrollBoxRenderable, TextAttributes } from "@opentui/core"
 import { useTheme, selectedForeground } from "@tui/context/theme"
-import { entries, filter, flatMap, groupBy, pipe, take } from "remeda"
+import { entries, filter, flatMap, groupBy, mapValues, pipe, take } from "remeda"
 import { batch, createEffect, createMemo, For, Show, type JSX, on } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useKeyboard, useTerminalDimensions } from "@opentui/solid"
@@ -21,6 +21,7 @@ export interface DialogSelectProps<T> {
   onFilter?: (query: string) => void
   onSelect?: (option: DialogSelectOption<T>) => void
   skipFilter?: boolean
+  sort?: boolean
   keybind?: {
     keybind?: Keybind.Info
     title: string
@@ -95,7 +96,10 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     const result = pipe(
       filtered(),
       groupBy((x) => x.category ?? ""),
-      // mapValues((x) => x.sort((a, b) => a.title.localeCompare(b.title))),
+      (groups) => {
+        if (!props.sort) return groups
+        return mapValues(groups, (x) => x.sort((a, b) => a.title.localeCompare(b.title)))
+      },
       entries(),
     )
     return result

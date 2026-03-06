@@ -972,6 +972,7 @@ export namespace Config {
       session_child_cycle: z.string().optional().default("right").describe("Go to next child session"),
       session_child_cycle_reverse: z.string().optional().default("left").describe("Go to previous child session"),
       session_parent: z.string().optional().default("up").describe("Go to parent session"),
+      session_continue: z.string().optional().default("").describe("Continue interrupted conversation"),
       terminal_suspend: z.string().optional().default("ctrl+z").describe("Suspend terminal"),
       terminal_title_toggle: z.string().optional().default("none").describe("Toggle terminal title"),
       tips_toggle: z.string().optional().default("<leader>h").describe("Toggle tips on home screen"),

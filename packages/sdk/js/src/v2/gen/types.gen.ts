@@ -1339,7 +1339,7 @@ export type Config = {
     ignore?: Array<string>
   }
   plugin?: Array<string>
-  snapshot?: boolean | number
+  snapshot?: boolean
   /**
    * Control sharing behavior:'manual' allows manual sharing via commands, 'auto' enables automatic sharing, 'disabled' disables all sharing
    */
@@ -1489,10 +1489,6 @@ export type Config = {
      */
     primary_tools?: Array<string>
     /**
-     * Cache command markdown files on first load. Set to false to reload command files on every execution.
-     */
-    cache_command_markdown_files?: boolean
-    /**
      * Continue the agent loop when a tool call is denied
      */
     continue_loop_on_deny?: boolean
@@ -1501,13 +1497,9 @@ export type Config = {
      */
     mcp_timeout?: number
     /**
-     * Maximum number of message parts to load per session when syncing, or 'none' to load all messages
+     * Enable experimental plan mode
      */
-    messages_limit?: number | "none"
-    /**
-     * Maximum number of sessions to display in session list, or 'none' to show all sessions
-     */
-    session_list_limit?: number | "none"
+    plan_mode?: boolean
   }
 }
 
@@ -3719,47 +3711,6 @@ export type SessionUnrevertResponses = {
 }
 
 export type SessionUnrevertResponse = SessionUnrevertResponses[keyof SessionUnrevertResponses]
-
-export type SessionContinueData = {
-  body?: {
-    model?: {
-      providerID: string
-      modelID: string
-    }
-  }
-  path: {
-    /**
-     * Session ID
-     */
-    sessionID: string
-  }
-  query?: {
-    directory?: string
-  }
-  url: "/session/{sessionID}/continue"
-}
-
-export type SessionContinueErrors = {
-  /**
-   * Bad request
-   */
-  400: BadRequestError
-  /**
-   * Not found
-   */
-  404: NotFoundError
-}
-
-export type SessionContinueError = SessionContinueErrors[keyof SessionContinueErrors]
-
-export type SessionContinueResponses = {
-  /**
-   * Conversation continued
-   */
-  200: boolean
-}
-
-export type SessionContinueResponse = SessionContinueResponses[keyof SessionContinueResponses]
 
 export type PermissionRespondData = {
   body?: {

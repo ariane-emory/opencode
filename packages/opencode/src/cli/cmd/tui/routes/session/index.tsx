@@ -1628,20 +1628,12 @@ function CodeBlock(props: { segment: { type: "code"; content: string; language: 
   const tui = useTheme()
   const lang = () => LANGS[props.segment.language] || props.segment.language
 
-  const syntax = createMemo(() => {
-    const base = props.syntax as SyntaxStyle
-    const styles = base.getAllStyles()
-    const derived = SyntaxStyle.fromStyles(Object.fromEntries(styles))
-    derived.registerStyle("default", { fg: tui.theme.markdownCodeBlock })
-    return derived
-  })
-
   return (
     <box paddingLeft={2}>
       <code
         filetype={lang()}
         content={props.segment.content}
-        syntaxStyle={syntax()}
+        syntaxStyle={tui.syntax()}
         fg={tui.theme.markdownCodeBlock}
         drawUnstyledText={true}
         streaming={false}

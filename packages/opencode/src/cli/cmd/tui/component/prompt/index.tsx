@@ -33,6 +33,7 @@ import { DialogAlert } from "../../ui/dialog-alert"
 import { useToast } from "../../ui/toast"
 import { useKV } from "../../context/kv"
 import { useTextareaKeybindings } from "../textarea-keybindings"
+import { useListContinuation } from "../list-continuation"
 import { DialogSkill } from "../dialog-skill"
 
 export type PromptProps = {
@@ -90,6 +91,10 @@ export function Prompt(props: PromptProps) {
   }
 
   const textareaKeybindings = useTextareaKeybindings()
+  const listContinuation = useListContinuation()
+
+  // Filter out newline from keybindings so we can handle it in onKeyDown with list continuation
+  const promptKeybindings = createMemo(() => textareaKeybindings().filter((b) => b.action !== "newline"))
 
   const fileStyleId = syntax().getStyleId("extmark.file")!
   const agentStyleId = syntax().getStyleId("extmark.agent")!
@@ -529,7 +534,14 @@ export function Prompt(props: PromptProps) {
     if (props.disabled) return
     if (autocomplete?.visible) return
     if (!store.prompt.input) return
-    const trimmed = store.prompt.input.trim()
+    
+    // Clean up trailing empty list items before submitting
+    const cleaned = listContinuation.cleanupForSubmit(store.prompt.input)
+    if (cleaned !== store.prompt.input) {
+      setStore("prompt", "input", cleaned)
+    }
+    
+    const trimmed = cleaned.trim()
     if (trimmed === "exit" || trimmed === "quit" || trimmed === ":q") {
       exit()
       return
@@ -546,7 +558,7 @@ export function Prompt(props: PromptProps) {
           return sessionID
         })()
     const messageID = Identifier.ascending("message")
-    let inputText = store.prompt.input
+    let inputText = cleaned
 
     // Expand pasted text inline before submitting
     const allExtmarks = input.extmarks.getAllForTypeId(promptPartTypeId)
@@ -861,10 +873,40 @@ export function Prompt(props: PromptProps) {
                 autocomplete.onInput(value)
                 syncExtmarksWithPromptParts()
               }}
-              keyBindings={textareaKeybindings()}
+              keyBindings={promptKeybindings()}
               onKeyDown={async (e) => {
                 if (props.disabled) {
                   e.preventDefault()
+                  return
+                }
+                // Handle automatic list continuation on newline
+                if (keybind.match("input_newline", e)) {
+                  e.preventDefault()
+                  const action = listContinuation.handleNewline(input.plainText, input.cursorOffset)
+                  if (action) {
+                    if (action.type === "continue") {
+                      input.insertText(action.insertText)
+                      if (action.renumber) {
+                        // Adjust offsets since insertText shifted subsequent content
+                        const offset = action.insertText.length
+                        const adjustedStart = action.renumber.start + offset
+                        const adjustedEnd = action.renumber.end + offset
+                        const before = input.plainText.slice(0, adjustedStart)
+                        const after = input.plainText.slice(adjustedEnd)
+                        input.setText(before + action.renumber.newText + after)
+                        // Cursor should be after the inserted new item
+                        input.cursorOffset = adjustedStart - 1
+                      }
+                    } else if (action.type === "clear") {
+                      const before = input.plainText.slice(0, action.deleteRange.start)
+                      const after = input.plainText.slice(action.deleteRange.end)
+                      input.setText(before + after)
+                      input.cursorOffset = action.cursorPosition
+                    }
+                  } else {
+                    // No list continuation - just insert a normal newline
+                    input.insertText("\n")
+                  }
                   return
                 }
                 // Handle clipboard paste (Ctrl+V) - check for images first on Windows

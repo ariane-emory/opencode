@@ -340,7 +340,6 @@ export namespace Config {
     for (const item of await Glob.scan("{command,commands}/**/*.md", {
       cwd: dir,
       absolute: true,
-      dot: true,
       symlink: true,
     })) {
       const md = await ConfigMarkdown.parse(item).catch(async (err) => {
@@ -379,7 +378,6 @@ export namespace Config {
     for (const item of await Glob.scan("{agent,agents}/**/*.md", {
       cwd: dir,
       absolute: true,
-      dot: true,
       symlink: true,
     })) {
       const md = await ConfigMarkdown.parse(item).catch(async (err) => {
@@ -417,7 +415,6 @@ export namespace Config {
     for (const item of await Glob.scan("{mode,modes}/*.md", {
       cwd: dir,
       absolute: true,
-      dot: true,
       symlink: true,
     })) {
       const md = await ConfigMarkdown.parse(item).catch(async (err) => {
@@ -454,7 +451,6 @@ export namespace Config {
     for (const item of await Glob.scan("{plugin,plugins}/*.{ts,js}", {
       cwd: dir,
       absolute: true,
-      dot: true,
       symlink: true,
     })) {
       plugins.push(pathToFileURL(item).href)

@@ -1242,6 +1242,7 @@ export namespace Config {
             .positive()
             .optional()
             .describe("Timeout in milliseconds for model context protocol (MCP) requests"),
+          plan_mode: z.boolean().optional().describe("Enable experimental plan mode"),
         })
         .optional(),
     })
@@ -1367,6 +1368,13 @@ export namespace Config {
 
   export async function get() {
     return state().then((x) => x.config)
+  }
+
+  export async function experimentalPlanMode() {
+    // Environment variable takes precedence
+    if (Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE) return true
+    const config = await get()
+    return config.experimental?.plan_mode === true
   }
 
   export async function getGlobal() {

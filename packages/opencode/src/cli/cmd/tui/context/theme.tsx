@@ -36,6 +36,59 @@ import vercel from "./theme/vercel.json" with { type: "json" }
 import vesper from "./theme/vesper.json" with { type: "json" }
 import zenburn from "./theme/zenburn.json" with { type: "json" }
 import carbonfox from "./theme/carbonfox.json" with { type: "json" }
+import mellow from "./theme/mellow.json" with { type: "json" }
+import midnight from "./theme/midnight.json" with { type: "json" }
+import tokyoNight from "./theme/tokyo-night.json" with { type: "json" }
+import auraTransparent from "./theme/aura--transparent.json" with { type: "json" }
+import ayuTransparent from "./theme/ayu--transparent.json" with { type: "json" }
+import catppuccinTransparent from "./theme/catppuccin--transparent.json" with { type: "json" }
+import cobaltTransparent from "./theme/cobalt--transparent.json" with { type: "json" }
+import cyberpunk2077 from "./theme/cyberpunk2077.json" with { type: "json" }
+import cyberpunk2077Transparent from "./theme/cyberpunk2077--transparent.json" with { type: "json" }
+import draculaTransparent from "./theme/dracula--transparent.json" with { type: "json" }
+import everforestTransparent from "./theme/everforest--transparent.json" with { type: "json" }
+import githubTransparent from "./theme/github--transparent.json" with { type: "json" }
+import gruvboxTransparent from "./theme/gruvbox--transparent.json" with { type: "json" }
+import kanagawaTransparent from "./theme/kanagawa--transparent.json" with { type: "json" }
+import materialTransparent from "./theme/material--transparent.json" with { type: "json" }
+import matrixTransparent from "./theme/matrix--transparent.json" with { type: "json" }
+import mellowTransparent from "./theme/mellow--transparent.json" with { type: "json" }
+import midnightTransparent from "./theme/midnight--transparent.json" with { type: "json" }
+import monokaiTransparent from "./theme/monokai--transparent.json" with { type: "json" }
+import moonlight from "./theme/moonlight.json" with { type: "json" }
+import moonlightTransparent from "./theme/moonlight--transparent.json" with { type: "json" }
+import moonlightEclipse from "./theme/moonlight-eclipse.json" with { type: "json" }
+import moonlightEclipseTransparent from "./theme/moonlight-eclipse--transparent.json" with { type: "json" }
+import moonlightIi from "./theme/moonlight-ii.json" with { type: "json" }
+import moonlightIiTransparent from "./theme/moonlight-ii--transparent.json" with { type: "json" }
+import moonlightIii from "./theme/moonlight-iii.json" with { type: "json" }
+import moonlightIiiTransparent from "./theme/moonlight-iii--transparent.json" with { type: "json" }
+import nightowlTransparent from "./theme/nightowl--transparent.json" with { type: "json" }
+import nordTransparent from "./theme/nord--transparent.json" with { type: "json" }
+import onedarkTransparent from "./theme/one-dark--transparent.json" with { type: "json" }
+import opencodeTransparent from "./theme/opencode--transparent.json" with { type: "json" }
+import palenightTransparent from "./theme/palenight--transparent.json" with { type: "json" }
+import rosepineTransparent from "./theme/rosepine--transparent.json" with { type: "json" }
+import solarizedTransparent from "./theme/solarized--transparent.json" with { type: "json" }
+import synthwave84Transparent from "./theme/synthwave84--transparent.json" with { type: "json" }
+import tokyoNightTransparent from "./theme/tokyo-night--transparent.json" with { type: "json" }
+import vesperTransparent from "./theme/vesper--transparent.json" with { type: "json" }
+import zenburnTransparent from "./theme/zenburn--transparent.json" with { type: "json" }
+import carbonfoxTransparent from "./theme/carbonfox--transparent.json" with { type: "json" }
+import catppuccinFrappeTransparent from "./theme/catppuccin-frappe--transparent.json" with { type: "json" }
+import catppuccinMacchiatoTransparent from "./theme/catppuccin-macchiato--transparent.json" with { type: "json" }
+import cobalt2Transparent from "./theme/cobalt2--transparent.json" with { type: "json" }
+import cursorTransparent from "./theme/cursor--transparent.json" with { type: "json" }
+import flexokiTransparent from "./theme/flexoki--transparent.json" with { type: "json" }
+import lucentOrngTransparent from "./theme/lucent-orng--transparent.json" with { type: "json" }
+import mercuryTransparent from "./theme/mercury--transparent.json" with { type: "json" }
+import orngTransparent from "./theme/orng--transparent.json" with { type: "json" }
+import osakaJadeTransparent from "./theme/osaka-jade--transparent.json" with { type: "json" }
+import tokyonightTransparent from "./theme/tokyonight--transparent.json" with { type: "json" }
+import vercelTransparent from "./theme/vercel--transparent.json" with { type: "json" }
+import toxikat from "./theme/toxikat.json" with { type: "json" }
+import toxikatTransparent from "./theme/toxikat--transparent.json" with { type: "json" }
+import toxikatUltratransparent from "./theme/toxikat--ultratransparent.json" with { type: "json" }
 import { useKV } from "./kv"
 import { useRenderer } from "@opentui/solid"
 import { createStore, produce } from "solid-js/store"
@@ -177,6 +230,59 @@ export const DEFAULT_THEMES: Record<string, ThemeJson> = {
   vercel,
   zenburn,
   carbonfox,
+  ["aura--transparent"]: auraTransparent,
+  ["ayu--transparent"]: ayuTransparent,
+  ["catppuccin--transparent"]: catppuccinTransparent,
+  ["cobalt--transparent"]: cobaltTransparent,
+  cyberpunk2077,
+  ["cyberpunk2077--transparent"]: cyberpunk2077Transparent,
+  ["dracula--transparent"]: draculaTransparent,
+  ["everforest--transparent"]: everforestTransparent,
+  ["github--transparent"]: githubTransparent,
+  ["gruvbox--transparent"]: gruvboxTransparent,
+  ["kanagawa--transparent"]: kanagawaTransparent,
+  ["material--transparent"]: materialTransparent,
+  ["matrix--transparent"]: matrixTransparent,
+  ["mellow"]: mellow,
+  ["mellow--transparent"]: mellowTransparent,
+  ["midnight"]: midnight,
+  ["midnight--transparent"]: midnightTransparent,
+  ["monokai--transparent"]: monokaiTransparent,
+  moonlight,
+  ["moonlight--transparent"]: moonlightTransparent,
+  ["moonlight-eclipse"]: moonlightEclipse,
+  ["moonlight-eclipse--transparent"]: moonlightEclipseTransparent,
+  ["moonlight-ii"]: moonlightIi,
+  ["moonlight-ii--transparent"]: moonlightIiTransparent,
+  ["moonlight-iii"]: moonlightIii,
+  ["moonlight-iii--transparent"]: moonlightIiiTransparent,
+  ["nightowl--transparent"]: nightowlTransparent,
+  ["nord--transparent"]: nordTransparent,
+  ["one-dark--transparent"]: onedarkTransparent,
+  ["opencode--transparent"]: opencodeTransparent,
+  ["palenight--transparent"]: palenightTransparent,
+  ["rosepine--transparent"]: rosepineTransparent,
+  ["solarized--transparent"]: solarizedTransparent,
+  ["synthwave84--transparent"]: synthwave84Transparent,
+  ["tokyo-night"]: tokyoNight,
+  ["tokyo-night--transparent"]: tokyoNightTransparent,
+  ["vesper--transparent"]: vesperTransparent,
+  ["zenburn--transparent"]: zenburnTransparent,
+  ["carbonfox--transparent"]: carbonfoxTransparent,
+  ["catppuccin-frappe--transparent"]: catppuccinFrappeTransparent,
+  ["catppuccin-macchiato--transparent"]: catppuccinMacchiatoTransparent,
+  ["cobalt2--transparent"]: cobalt2Transparent,
+  ["cursor--transparent"]: cursorTransparent,
+  ["flexoki--transparent"]: flexokiTransparent,
+  ["lucent-orng--transparent"]: lucentOrngTransparent,
+  ["mercury--transparent"]: mercuryTransparent,
+  ["orng--transparent"]: orngTransparent,
+  ["osaka-jade--transparent"]: osakaJadeTransparent,
+  ["tokyonight--transparent"]: tokyonightTransparent,
+  ["vercel--transparent"]: vercelTransparent,
+  ["toxikat"]: toxikat,
+  ["toxikat--transparent"]: toxikatTransparent,
+  ["toxikat--ultratransparent"]: toxikatUltratransparent,
 }
 
 function resolveTheme(theme: ThemeJson, mode: "dark" | "light") {

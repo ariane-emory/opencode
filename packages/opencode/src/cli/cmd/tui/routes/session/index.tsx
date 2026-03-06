@@ -1628,24 +1628,25 @@ function CodeBlock(props: { segment: { type: "code"; content: string; language: 
   const tui = useTheme()
   const lang = () => LANGS[props.segment.language] || props.segment.language
 
-  const styled = createMemo(() => {
-    const lines = props.segment.content.split("\n")
-    const chunks = lines.map((line) => ({
-      __isChunk: true as const,
-      text: line + "\n",
-      fg: tui.theme.markdownCodeBlock,
-    }))
-    return new StyledText(chunks)
-  })
-
-  let el: any
-  createEffect(() => {
-    if (el) el.content = styled()
+  const syntax = createMemo(() => {
+    const base = props.syntax as SyntaxStyle
+    const styles = base.getAllStyles()
+    const derived = SyntaxStyle.fromStyles(Object.fromEntries(styles))
+    derived.registerStyle("default", { fg: tui.theme.markdownCodeBlock })
+    return derived
   })
 
   return (
     <box paddingLeft={2}>
-      <text ref={el} />
+      <code
+        filetype={lang()}
+        content={props.segment.content}
+        syntaxStyle={syntax()}
+        fg={tui.theme.markdownCodeBlock}
+        drawUnstyledText={true}
+        streaming={false}
+        conceal={ctx.conceal()}
+      />
     </box>
   )
 }

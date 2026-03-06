@@ -13,11 +13,13 @@ import { useKV } from "../../context/kv"
 import { useLocal } from "@tui/context/local"
 import { useSDK } from "@tui/context/sdk"
 import { TodoItem } from "../../component/todo-item"
+import { formatSessionTitle, parseSessionTitleParts } from "@tui/util/session-title"
 
 export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrollbar?: boolean }) {
   const sync = useSync()
   const { theme } = useTheme()
   const session = createMemo(() => sync.session.get(props.sessionID)!)
+  const titleParts = createMemo(() => parseSessionTitleParts(session().title))
   const diff = createMemo(() => sync.data.session_diff[props.sessionID] ?? [])
   const todo = createMemo(() => sync.data.todo[props.sessionID] ?? [])
   const messages = createMemo(() => sync.data.message[props.sessionID] ?? [])
@@ -126,7 +128,9 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
           <box flexShrink={0} gap={1} paddingRight={1}>
             <box paddingRight={1}>
               <text fg={theme.text}>
-                <b>{session().title}</b>
+                <Show when={titleParts().group} fallback={<b>{titleParts().rest}</b>}>
+                  <b>{titleParts().group}</b> {titleParts().rest}
+                </Show>
               </text>
               <Show when={session().share?.url}>
                 <text fg={theme.textMuted}>{session().share!.url}</text>

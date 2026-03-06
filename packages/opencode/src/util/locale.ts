@@ -51,11 +51,11 @@ export namespace Locale {
     if (isToday) {
       return timeStr
     } else {
-      const month = MONTHS[date.getMonth()]
-      const day = date.getDate()
-      // Pad day with leading space if single digit for alignment
-      const paddedDay = day < 10 ? ` ${day}` : day.toString()
-      return `${month} ${paddedDay} ${timeStr}`
+      const dateStr = date.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      })
+      return `${dateStr} · ${timeStr}`
     }
   }
 

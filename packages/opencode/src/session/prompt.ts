@@ -1834,6 +1834,13 @@ NOTE: At any point in time through this workflow you should feel free to ask the
     }
 
     const templateParts = await resolvePromptParts(template)
+    if (command.ignored) {
+      for (const part of templateParts) {
+        if (part.type === "text") {
+          part.ignored = true
+        }
+      }
+    }
     const isSubtask = (agent.mode === "subagent" && command.subtask !== false) || command.subtask === true
     const parts = isSubtask
       ? [
@@ -1876,6 +1883,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       agent: userAgent,
       parts,
       variant: input.variant,
+      noReply: command.ignored,
     })) as MessageV2.WithParts
 
     Bus.publish(Command.Event.Executed, {

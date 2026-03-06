@@ -676,7 +676,7 @@ export function Session() {
         dialog.clear()
       },
     },
-
+    {
       title: "Page up",
       value: "session.page.up",
       keybind: "messages_page_up",

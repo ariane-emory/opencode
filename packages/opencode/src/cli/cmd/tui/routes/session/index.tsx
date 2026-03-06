@@ -625,18 +625,6 @@ export function Session() {
       },
     },
     {
-      title: showAgentTimestamps() ? "Hide agent timestamps" : "Show agent timestamps",
-      value: "session.toggle.agent_timestamps_session",
-      category: "System",
-      slash: {
-        name: "agent-timestamps",
-      },
-      onSelect: (dialog) => {
-        setAgentTimestamps((prev) => (prev === "show" ? "hide" : "show"))
-        dialog.clear()
-      },
-    },
-    {
       title: "Page up",
       value: "session.page.up",
       keybind: "messages_page_up",

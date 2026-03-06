@@ -16,6 +16,7 @@ import { getAvatarColors, type LocalProject, useLayout } from "@/context/layout"
 import { useNotification } from "@/context/notification"
 import { usePermission } from "@/context/permission"
 import { agentColor } from "@/utils/agent"
+import { formatSessionTitle } from "@/utils/session-title"
 import { sessionPermissionRequest } from "../session/composer/session-request-tree"
 import { hasProjectPermissions } from "./helpers"
 
@@ -134,7 +135,7 @@ const SessionRow = (props: {
         </Switch>
       </div>
       <span class="text-14-regular text-text-strong grow-1 min-w-0 overflow-hidden text-ellipsis truncate">
-        {props.session.title}
+        {formatSessionTitle(props.session.title)}
       </span>
     </div>
   </A>
@@ -283,7 +284,7 @@ export const SessionItem = (props: SessionItemProps): JSX.Element => {
       <Show
         when={hoverEnabled()}
         fallback={
-          <Tooltip placement={props.mobile ? "bottom" : "right"} value={props.session.title} gutter={10}>
+          <Tooltip placement={props.mobile ? "bottom" : "right"} value={formatSessionTitle(props.session.title)} gutter={10}>
             {item}
           </Tooltip>
         }

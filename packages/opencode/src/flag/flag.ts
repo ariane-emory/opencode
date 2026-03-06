@@ -3,6 +3,11 @@ function truthy(key: string) {
   return value === "true" || value === "1"
 }
 
+function falsy(key: string) {
+  const value = process.env[key]?.toLowerCase()
+  return value === "false" || value === "0"
+}
+
 function envWithFallback(newName: string, legacyName: string): string | undefined {
   return process.env[newName] ?? process.env[legacyName]
 }
@@ -14,6 +19,13 @@ function truthyWithFallback(newName: string, legacyName: string): boolean {
 
 function numberWithFallback(newName: string, legacyName: string): number | undefined {
   const value = process.env[newName] ?? process.env[legacyName]
+  if (!value) return undefined
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+}
+
+function number(key: string) {
+  const value = process.env[key]
   if (!value) return undefined
   const parsed = Number(value)
   return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
@@ -66,13 +78,14 @@ export namespace Flag {
   export const BASEONE_EXPERIMENTAL_OXFMT = BASEONE_EXPERIMENTAL || truthyWithFallback("BASEONE_EXPERIMENTAL_OXFMT", "OPENCODE_EXPERIMENTAL_OXFMT")
   export const BASEONE_EXPERIMENTAL_LSP_TY = truthyWithFallback("BASEONE_EXPERIMENTAL_LSP_TY", "OPENCODE_EXPERIMENTAL_LSP_TY")
   export const BASEONE_EXPERIMENTAL_LSP_TOOL = BASEONE_EXPERIMENTAL || truthyWithFallback("BASEONE_EXPERIMENTAL_LSP_TOOL", "OPENCODE_EXPERIMENTAL_LSP_TOOL")
-  export const BASEONE_DISABLE_FILETIME_CHECK = truthy("OPENCODE_DISABLE_FILETIME_CHECK")
+  export const BASEONE_DISABLE_FILETIME_CHECK = truthyWithFallback("BASEONE_DISABLE_FILETIME_CHECK", "OPENCODE_DISABLE_FILETIME_CHECK")
   export const BASEONE_EXPERIMENTAL_PLAN_MODE = BASEONE_EXPERIMENTAL || truthyWithFallback("BASEONE_EXPERIMENTAL_PLAN_MODE", "OPENCODE_EXPERIMENTAL_PLAN_MODE")
-  export const BASEONE_EXPERIMENTAL_MARKDOWN = truthyWithFallback("BASEONE_EXPERIMENTAL_MARKDOWN", "OPENCODE_EXPERIMENTAL_MARKDOWN")
+  export const BASEONE_EXPERIMENTAL_MARKDOWN = !falsy("BASEONE_EXPERIMENTAL_MARKDOWN") && !falsy("OPENCODE_EXPERIMENTAL_MARKDOWN")
   export const BASEONE_MODELS_URL = envWithFallback("BASEONE_MODELS_URL", "OPENCODE_MODELS_URL")
   export const BASEONE_MODELS_PATH = envWithFallback("BASEONE_MODELS_PATH", "OPENCODE_MODELS_PATH")
+  export declare const BASEONE_TUI_CONFIG: string | undefined
 
-  // Legacy aliases for backwards compatibility during migration
+  // Legacy OPENCODE_* env vars - using values from BASEONE_* as source of truth
   export const OPENCODE_AUTO_SHARE = BASEONE_AUTO_SHARE
   export const OPENCODE_GIT_BASH_PATH = BASEONE_GIT_BASH_PATH
   export const OPENCODE_CONFIG = BASEONE_CONFIG
@@ -91,7 +104,6 @@ export namespace Flag {
   export const OPENCODE_DISABLE_CLAUDE_CODE_PROMPT = BASEONE_DISABLE_CLAUDE_CODE_PROMPT
   export const OPENCODE_DISABLE_CLAUDE_CODE_SKILLS = BASEONE_DISABLE_CLAUDE_CODE_SKILLS
   export const OPENCODE_DISABLE_EXTERNAL_SKILLS = BASEONE_DISABLE_EXTERNAL_SKILLS
-  export declare const BASEONE_TUI_CONFIG: string | undefined
   export declare const OPENCODE_TUI_CONFIG: string | undefined
   export declare const OPENCODE_DISABLE_PROJECT_CONFIG: boolean
   export const OPENCODE_FAKE_VCS = BASEONE_FAKE_VCS

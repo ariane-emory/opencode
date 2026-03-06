@@ -1639,7 +1639,7 @@ function CodeBlock(props: { segment: { type: "code"; content: string; language: 
   return (
     <box paddingLeft={2}>
       <code
-        filetype={lang()}
+        filetype="text"
         content={props.segment.content}
         syntaxStyle={syntax()}
         fg={tui.theme.markdownCodeBlock}

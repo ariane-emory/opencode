@@ -122,7 +122,7 @@ export function Sidebar(props: { sessionID: string }) {
         >
           <box flexShrink={0} gap={1} paddingRight={1}>
             <box paddingRight={1}>
-              <text fg={theme.text}>
+              <text fg={theme.sessionTitle}>
                 <Show when={titleParts().group} fallback={<b>{titleParts().rest}</b>}>
                   <b>{titleParts().group}</b> {titleParts().rest}
                 </Show>
@@ -132,7 +132,7 @@ export function Sidebar(props: { sessionID: string }) {
               </Show>
             </box>
             <box>
-              <text fg={theme.text}>
+              <text fg={theme.accent}>
                 <b>Context</b>
               </text>
               <text fg={theme.textMuted}>{context()?.tokens ?? 0} tokens</text>

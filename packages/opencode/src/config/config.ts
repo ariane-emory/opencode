@@ -1398,6 +1398,64 @@ export namespace Config {
     return !!value && typeof value === "object" && !Array.isArray(value)
   }
 
+  async function resolveImports(
+    text: string,
+    configFilepath: string,
+    importChain = new Set<string>(),
+  ): Promise<string> {
+    const importMatches = text.match(/\{\s*import\s*:\s*[^}]+\}/g)
+    if (!importMatches) return text
+
+    const configDir = path.dirname(configFilepath)
+    const lines = text.split("\n")
+
+    for (const match of importMatches) {
+      const lineIndex = lines.findIndex((line) => line.includes(match))
+      if (lineIndex !== -1 && lines[lineIndex].trim().startsWith("//")) {
+        continue // Skip if line is commented
+      }
+
+      let filePath = match.replace(/^\{\s*import\s*:\s*/, "").replace(/\s*\}$/, "")
+      if (filePath.startsWith("~/")) {
+        filePath = path.join(os.homedir(), filePath.slice(2))
+      }
+      const resolvedPath = path.isAbsolute(filePath) ? filePath : path.resolve(configDir, filePath)
+
+      if (importChain.has(resolvedPath)) {
+        throw new InvalidError({
+          path: configFilepath,
+          message: `circular import detected: "${match}" -> ${resolvedPath}`,
+        })
+      }
+
+      const fileContent = await Bun.file(resolvedPath)
+        .text()
+        .catch((error) => {
+          const errMsg = `bad import reference: "${match}"`
+          if (error.code === "ENOENT") {
+            throw new InvalidError(
+              {
+                path: configFilepath,
+                message: errMsg + ` ${resolvedPath} does not exist`,
+              },
+              { cause: error },
+            )
+          }
+          throw new InvalidError({ path: configFilepath, message: errMsg }, { cause: error })
+        })
+
+      // Recursively resolve imports in the imported file
+      const nestedChain = new Set(importChain)
+      nestedChain.add(resolvedPath)
+      const resolved = await resolveImports(fileContent.trim(), resolvedPath, nestedChain)
+
+      // Substitute the raw JSON content directly
+      text = text.replace(match, resolved)
+    }
+
+    return text
+  }
+
   function patchJsonc(input: string, patch: unknown, path: string[] = []): string {
     if (!isRecord(patch)) {
       const edits = modify(input, path, patch, {

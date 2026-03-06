@@ -682,7 +682,6 @@ function App() {
       },
     },
     {
-<<<<<<< HEAD
       title: kv.get("timestamps", "hide") === "show" ? "Hide timestamps" : "Show timestamps",
       value: "app.toggle.timestamps",
       category: "System",

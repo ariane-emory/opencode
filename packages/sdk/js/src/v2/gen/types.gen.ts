@@ -1320,6 +1320,7 @@ export type Config = {
       agent?: string
       model?: string
       subtask?: boolean
+      [key: string]: unknown | string | boolean | undefined
     }
   }
   /**
@@ -1339,7 +1340,7 @@ export type Config = {
     ignore?: Array<string>
   }
   plugin?: Array<string>
-  snapshot?: boolean
+  snapshot?: boolean | number
   /**
    * Control sharing behavior:'manual' allows manual sharing via commands, 'auto' enables automatic sharing, 'disabled' disables all sharing
    */
@@ -1489,6 +1490,10 @@ export type Config = {
      */
     primary_tools?: Array<string>
     /**
+     * Cache command markdown files on first load. Set to false to reload command files on every execution.
+     */
+    cache_command_markdown_files?: boolean
+    /**
      * Continue the agent loop when a tool call is denied
      */
     continue_loop_on_deny?: boolean
@@ -1496,6 +1501,18 @@ export type Config = {
      * Timeout in milliseconds for model context protocol (MCP) requests
      */
     mcp_timeout?: number
+    /**
+     * Maximum number of message parts to load per session when syncing, or 'none' to load all messages
+     */
+    messages_limit?: number | "none"
+    /**
+     * Maximum number of sessions to display in session list, or 'none' to show all sessions
+     */
+    session_list_limit?: number | "none"
+    /**
+     * Threshold percentage for context compaction (0-100)
+     */
+    context_compaction_threshold?: number
     /**
      * Enable experimental plan mode
      */
@@ -3711,6 +3728,48 @@ export type SessionUnrevertResponses = {
 }
 
 export type SessionUnrevertResponse = SessionUnrevertResponses[keyof SessionUnrevertResponses]
+
+export type SessionContinueData = {
+  body?: {
+    model?: {
+      providerID: string
+      modelID: string
+    }
+  }
+  path: {
+    /**
+     * Session ID
+     */
+    sessionID: string
+  }
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/session/{sessionID}/continue"
+}
+
+export type SessionContinueErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+  /**
+   * Not found
+   */
+  404: NotFoundError
+}
+
+export type SessionContinueError = SessionContinueErrors[keyof SessionContinueErrors]
+
+export type SessionContinueResponses = {
+  /**
+   * Conversation continued
+   */
+  200: boolean
+}
+
+export type SessionContinueResponse = SessionContinueResponses[keyof SessionContinueResponses]
 
 export type PermissionRespondData = {
   body?: {

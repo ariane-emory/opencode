@@ -1189,7 +1189,6 @@ export namespace Config {
             .positive()
             .optional()
             .describe("Timeout in milliseconds for model context protocol (MCP) requests"),
-<<<<<<< HEAD
           messages_limit: z
             .union([z.number().min(1), z.literal("none")])
             .optional()
@@ -1326,7 +1325,6 @@ export namespace Config {
     return state().then((x) => x.config)
   }
 
-<<<<<<< HEAD
   export async function loadThemeFile(filepath: string): Promise<ThemeJson> {
     log.info("loading theme", { path: filepath })
     let text = await Bun.file(filepath)

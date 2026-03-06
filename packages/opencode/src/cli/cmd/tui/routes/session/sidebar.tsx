@@ -228,34 +228,29 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                       ? "LSPs have been disabled in settings"
                       : "LSPs will activate as files are read"}
                   </text>
-                </box>
-                <Show when={sync.data.lsp.length <= 2 || expanded.lsp}>
-                  <Show when={sync.data.lsp.length === 0}>
-                    <text fg={theme.textMuted}>LSPs will activate as files are read</text>
-                  </Show>
-                  <For each={sync.data.lsp}>
-                    {(item) => (
-                      <box flexDirection="row" gap={1}>
-                        <text
-                          flexShrink={0}
-                          style={{
-                            fg: {
-                              connected: theme.success,
-                              error: theme.error,
-                            }[item.status],
-                          }}
-                        >
-                          •
-                        </text>
-                        <text fg={theme.textMuted}>
-                          {item.id} {item.root}
-                        </text>
-                      </box>
-                    )}
-                  </For>
                 </Show>
-              </box>
-            </Show>
+                <For each={sync.data.lsp}>
+                  {(item) => (
+                    <box flexDirection="row" gap={1}>
+                      <text
+                        flexShrink={0}
+                        style={{
+                          fg: {
+                            connected: theme.success,
+                            error: theme.error,
+                          }[item.status],
+                        }}
+                      >
+                        •
+                      </text>
+                      <text fg={theme.textMuted}>
+                        {item.id} {item.root}
+                      </text>
+                    </box>
+                  )}
+                </For>
+              </Show>
+            </box>
             <Show when={todo().length > 0 && todo().some((t) => t.status !== "completed")}>
               <box>
                 <box

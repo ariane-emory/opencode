@@ -458,36 +458,6 @@ export namespace Session {
     },
   )
 
-  export function update(
-    sessionID: string,
-    updateFn: (draft: Info) => void,
-    options?: { touch?: boolean },
-  ) {
-    return Database.use((db) => {
-      const existing = db.select().from(SessionTable).where(eq(SessionTable.id, sessionID)).get()
-      if (!existing) throw new NotFoundError({ message: `Session not found: ${sessionID}` })
-      
-      const info = fromRow(existing)
-      updateFn(info)
-      
-      const updates: any = toRow(info)
-      if (options?.touch !== false) {
-        updates.time_updated = Date.now()
-      }
-      
-      const row = db
-        .update(SessionTable)
-        .set(updates)
-        .where(eq(SessionTable.id, sessionID))
-        .returning()
-        .get()
-      
-      const updated = fromRow(row)
-      Database.effect(() => Bus.publish(Event.Updated, { info: updated }))
-      return updated
-    })
-  }
-
   export const setPermission = fn(
     z.object({
       sessionID: Identifier.schema("session"),

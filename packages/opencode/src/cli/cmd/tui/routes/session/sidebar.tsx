@@ -1,5 +1,5 @@
 import { useSync } from "@tui/context/sync"
-import { createMemo, For, Show, Switch, Match } from "solid-js"
+import { createMemo, createSignal, For, Show, Switch, Match } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useTheme } from "../../context/theme"
 import { Locale } from "@/util/locale"
@@ -10,6 +10,8 @@ import { Installation } from "@/installation"
 import { useKeybind } from "../../context/keybind"
 import { useDirectory } from "../../context/directory"
 import { useKV } from "../../context/kv"
+import { useLocal } from "@tui/context/local"
+import { useSDK } from "@tui/context/sdk"
 import { TodoItem } from "../../component/todo-item"
 
 export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
@@ -26,6 +28,24 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
     todo: true,
     lsp: true,
   })
+
+  const local = useLocal()
+  const sdk = useSDK()
+  const [loading, setLoading] = createSignal<string | null>(null)
+
+  async function handleToggle(name: string) {
+    if (loading() !== null) return
+    setLoading(name)
+    try {
+      await local.mcp.toggle(name)
+      const status = await sdk.client.mcp.status()
+      if (status.data) sync.set("mcp", status.data)
+    } catch (error) {
+      console.error("Failed to toggle MCP:", error)
+    } finally {
+      setLoading(null)
+    }
+  }
 
   // Sort MCP servers alphabetically for consistent display order
   const mcpEntries = createMemo(() => Object.entries(sync.data.mcp).sort(([a], [b]) => a.localeCompare(b)))
@@ -130,7 +150,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
                 <Show when={mcpEntries().length <= 2 || expanded.mcp}>
                   <For each={mcpEntries()}>
                     {([key, item]) => (
-                      <box flexDirection="row" gap={1}>
+                      <box flexDirection="row" gap={1} onMouseDown={() => handleToggle(key)}>
                         <text
                           flexShrink={0}
                           style={{
@@ -147,10 +167,13 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
                         >
                           •
                         </text>
-                        <text fg={theme.text} wrapMode="word">
+                        <text fg={loading() === key ? theme.textMuted : theme.text} wrapMode="word">
                           {key}{" "}
                           <span style={{ fg: theme.textMuted }}>
                             <Switch fallback={item.status}>
+                              <Match when={loading() === key}>
+                                <i>Loading…</i>
+                              </Match>
                               <Match when={item.status === "connected"}>Connected</Match>
                               <Match when={item.status === "failed" && item}>{(val) => <i>{val().error}</i>}</Match>
                               <Match when={item.status === "disabled"}>Disabled</Match>

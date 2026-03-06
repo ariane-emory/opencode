@@ -107,7 +107,7 @@ export namespace TuiConfig {
       }
     })()
 
-    const parsed = Info.safeParse(normalized)
+    const parsed = Info.strip().safeParse(normalized)
     if (!parsed.success) {
       log.warn("invalid tui config", { path: configFilepath, issues: parsed.error.issues })
       return {}

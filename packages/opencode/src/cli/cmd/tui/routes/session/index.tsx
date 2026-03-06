@@ -622,15 +622,6 @@ export function Session() {
       },
     },
     {
-      title: showSidebarScrollbar() ? "Hide sidebar scrollbar" : "Show sidebar scrollbar",
-      value: "session.toggle.sidebar_scrollbar",
-      category: "System",
-      onSelect: (dialog) => {
-        setShowSidebarScrollbar((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
       title: showHeader() ? "Hide header" : "Show header",
       value: "session.toggle.header",
       category: "Session",

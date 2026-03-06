@@ -154,7 +154,7 @@ export function Session() {
   })
 
   const dimensions = useTerminalDimensions()
-  const [sidebar, setSidebar] = kv.signal<"auto" | "hide">("sidebar", "auto")
+  const [sidebar, setSidebar] = kv.signal<"show" | "hide" | "auto">("sidebar", "auto")
   const [sidebarOpen, setSidebarOpen] = createSignal(false)
   const [conceal, setConceal] = createSignal(true)
   const [showThinking, setShowThinking] = kv.signal("thinking_visibility", true)
@@ -172,6 +172,7 @@ export function Session() {
   const sidebarVisible = createMemo(() => {
     if (session()?.parentID) return false
     if (sidebarOpen()) return true
+    if (sidebar() === "show") return true
     if (sidebar() === "auto" && wide()) return true
     return false
   })
@@ -588,11 +589,13 @@ export function Session() {
       keybind: "sidebar_toggle",
       category: "Session",
       onSelect: (dialog) => {
-        batch(() => {
-          const isVisible = sidebarVisible()
-          setSidebar(() => (isVisible ? "hide" : "auto"))
-          setSidebarOpen(!isVisible)
-        })
+        const prev = sidebar()
+        let newValue: "show" | "hide" | "auto"
+        if (prev === "auto") newValue = sidebarVisible() ? "hide" : "show"
+        else if (prev === "show") newValue = "hide"
+        else newValue = "show"
+        setSidebar(newValue)
+        setSidebarOpen(newValue === "show")
         dialog.clear()
       },
     },
@@ -615,7 +618,7 @@ export function Session() {
         aliases: ["toggle-timestamps"],
       },
       onSelect: (dialog) => {
-        setTimestamps((prev) => (prev === "show" ? "hide" : "show"))
+        setTimestamps(timestamps() === "show" ? "hide" : "show")
         dialog.clear()
       },
     },
@@ -629,7 +632,7 @@ export function Session() {
         aliases: ["toggle-thinking"],
       },
       onSelect: (dialog) => {
-        setShowThinking((prev) => !prev)
+        setShowThinking(!showThinking())
         dialog.clear()
       },
     },
@@ -639,7 +642,7 @@ export function Session() {
       keybind: "tool_details",
       category: "Session",
       onSelect: (dialog) => {
-        setShowDetails((prev) => !prev)
+        setShowDetails(!showDetails())
         dialog.clear()
       },
     },
@@ -649,7 +652,7 @@ export function Session() {
       keybind: "scrollbar_toggle",
       category: "Session",
       onSelect: (dialog) => {
-        setShowScrollbar((prev) => !prev)
+        setShowScrollbar(!showScrollbar())
         dialog.clear()
       },
     },
@@ -658,7 +661,7 @@ export function Session() {
       value: "session.toggle.header",
       category: "Session",
       onSelect: (dialog) => {
-        setShowHeader((prev) => !prev)
+        setShowHeader(!showHeader())
         dialog.clear()
       },
     },

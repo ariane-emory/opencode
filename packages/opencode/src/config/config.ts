@@ -1196,6 +1196,13 @@ export namespace Config {
             .union([z.number().min(1), z.literal("none")])
             .optional()
             .describe("Maximum number of sessions to display in session list, or 'none' to show all sessions"),
+          context_compaction_threshold: z
+            .number()
+            .int()
+            .min(0)
+            .max(100)
+            .optional()
+            .describe("Threshold percentage for context compaction (0-100)"),
         })
         .optional(),
     })

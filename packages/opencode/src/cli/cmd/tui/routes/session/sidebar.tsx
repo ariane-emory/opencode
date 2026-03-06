@@ -19,7 +19,8 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const diff = createMemo(() => sync.data.session_diff[props.sessionID] ?? [])
   const todo = createMemo(() => sync.data.todo[props.sessionID] ?? [])
   const messages = createMemo(() => sync.data.message[props.sessionID] ?? [])
-
+  const permissions = createMemo(() => sync.data.permission[props.sessionID] ?? [])
+  
   const [expanded, setExpanded] = createStore({
     mcp: true,
     diff: true,
@@ -302,6 +303,12 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
                 </box>
               </box>
             </box>
+          </Show>
+          <Show when={permissions().length > 0}>
+            <text fg={theme.warning}>
+              <span style={{ fg: theme.warning }}>◉</span> {permissions().length} Permission
+              {permissions().length > 1 ? "s" : ""}
+            </text>
           </Show>
           <text>
             <span style={{ fg: theme.textMuted }}>{directory().split("/").slice(0, -1).join("/")}/</span>

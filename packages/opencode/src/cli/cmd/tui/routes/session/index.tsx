@@ -587,7 +587,7 @@ export function Session() {
       title: sidebarVisible() ? "Hide sidebar" : "Show sidebar",
       value: "session.sidebar.toggle",
       keybind: "sidebar_toggle",
-      category: "Session",
+      category: "System",
       onSelect: (dialog) => {
         const prev = sidebar()
         let newValue: "show" | "hide" | "auto"
@@ -610,6 +610,7 @@ export function Session() {
       },
     },
     {
+<<<<<<< HEAD
       title: showTimestamps() ? "Hide timestamps" : "Show timestamps",
       value: "session.toggle.timestamps",
       category: "Session",
@@ -665,16 +666,7 @@ export function Session() {
         dialog.clear()
       },
     },
-    {
-      title: showGenericToolOutput() ? "Hide generic tool output" : "Show generic tool output",
-      value: "session.toggle.generic_tool_output",
-      category: "Session",
-      onSelect: (dialog) => {
-        setShowGenericToolOutput((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
+
       title: "Page up",
       value: "session.page.up",
       keybind: "messages_page_up",

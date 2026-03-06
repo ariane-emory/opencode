@@ -679,11 +679,77 @@ function App() {
       },
     },
     {
+      title: kv.get("timestamps", "hide") === "show" ? "Hide timestamps" : "Show timestamps",
+      value: "app.toggle.timestamps",
+      category: "System",
+      slash: {
+        name: "timestamps",
+        aliases: ["toggle-timestamps"],
+      },
+      onSelect: (dialog) => {
+        const current = kv.get("timestamps", "hide")
+        kv.set("timestamps", current === "show" ? "hide" : "show")
+        dialog.clear()
+      },
+    },
+    {
       title: kv.get("clear_prompt_save_history", false) ? "Don't include cleared prompts in history" : "Include cleared prompts in history",
       value: "app.toggle.clear_prompt_history",
       category: "System",
       onSelect: (dialog) => {
         kv.set("clear_prompt_save_history", !kv.get("clear_prompt_save_history", false))
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("thinking_visibility", true) ? "Hide thinking" : "Show thinking",
+      value: "app.toggle.thinking",
+      keybind: "display_thinking",
+      category: "System",
+      slash: {
+        name: "thinking",
+        aliases: ["toggle-thinking"],
+      },
+      onSelect: (dialog) => {
+        kv.set("thinking_visibility", !kv.get("thinking_visibility", true))
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("tool_details_visibility", true) ? "Hide tool details" : "Show tool details",
+      value: "app.toggle.tooldetails",
+      keybind: "tool_details",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("tool_details_visibility", !kv.get("tool_details_visibility", true))
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("header_visible", true) ? "Hide header" : "Show header",
+      value: "app.toggle.header",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("header_visible", !kv.get("header_visible", true))
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("scrollbar_visible", true) ? "Hide session scrollbar" : "Show session scrollbar",
+      value: "app.toggle.scrollbar",
+      keybind: "scrollbar_toggle",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("scrollbar_visible", !kv.get("scrollbar_visible", true))
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("generic_tool_output_visibility", false) ? "Hide generic tool output" : "Show generic tool output",
+      value: "app.toggle.generic_tool_output",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("generic_tool_output_visibility", !kv.get("generic_tool_output_visibility", false))
         dialog.clear()
       },
     },

@@ -53,7 +53,7 @@ process.on("SIGHUP", () => process.exit())
 
 let cli = yargs(hideBin(process.argv))
   .parserConfiguration({ "populate--": true })
-  .scriptName("opencode")
+  .scriptName("baseone")
   .wrap(100)
   .help("help", "show help")
   .alias("help", "h")
@@ -80,10 +80,11 @@ let cli = yargs(hideBin(process.argv))
     })
 
     process.env.AGENT = "1"
+    process.env.BASEONE = "1"
     process.env.OPENCODE = "1"
     process.env.OPENCODE_PID = String(process.pid)
 
-    Log.Default.info("opencode", {
+    Log.Default.info("baseone", {
       version: Installation.VERSION,
       args: process.argv.slice(2),
     })

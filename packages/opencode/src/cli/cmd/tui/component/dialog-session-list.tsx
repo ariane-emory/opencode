@@ -2,7 +2,7 @@ import { useDialog } from "@tui/ui/dialog"
 import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { useRoute } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
-import { createMemo, createSignal, createResource, onMount } from "solid-js"
+import { createMemo, createSignal, createResource, onMount, Show, createEffect } from "solid-js"
 import { Locale } from "@/util/locale"
 import { useKeybind } from "../context/keybind"
 import { Keybind } from "@/util/keybind"
@@ -79,7 +79,11 @@ export function DialogSessionList() {
   }
 
   const options = createMemo(() => {
+    if (!sync.ready) return []
     const today = new Date().toDateString()
+    const sessionsListLimit = sync.data.config.experimental?.session_list_limit
+    const limit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
+
     const allSessions = sessions().filter((x) => x.parentID === undefined)
 
     // Separate pinned and unpinned sessions
@@ -144,7 +148,8 @@ export function DialogSessionList() {
       return mapSession(session, category, false)
     })
 
-    return [...pinnedOptions, ...groupedOptions, ...ungroupedOptions]
+    const allOptions = [...pinnedOptions, ...groupedOptions, ...ungroupedOptions]
+    return limit ? allOptions.slice(0, limit) : allOptions
   })
 
   onMount(() => {

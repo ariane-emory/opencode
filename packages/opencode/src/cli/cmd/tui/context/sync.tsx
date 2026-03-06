@@ -241,10 +241,17 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
             event.properties.info.sessionID,
             produce((draft) => {
               draft.splice(result.index, 0, event.properties.info)
+              const maxMessages = store.config.experimental?.messages_limit
+              const maxMessagesCount = maxMessages === "none" ? Infinity : maxMessages ?? 100
+              if (draft.length > maxMessagesCount) {
+                draft.shift()
+              }
             }),
           )
           const updated = store.message[event.properties.info.sessionID]
-          if (updated.length > 100) {
+          const maxMessages = store.config.experimental?.messages_limit
+          const maxMessagesCount = maxMessages === "none" ? Infinity : maxMessages ?? 100
+          if (updated.length > maxMessagesCount) {
             const oldest = updated[0]
             batch(() => {
               setStore(
@@ -348,21 +355,27 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
 
     async function bootstrap() {
       console.log("bootstrapping")
-      const start = Date.now() - 30 * 24 * 60 * 60 * 1000
+      
+      // Fetch config first to get session_list_limit
+      const configResponse = await sdk.client.config.get({}, { throwOnError: true })
+      const config = configResponse.data!
+      const sessionsListLimit = config.experimental?.session_list_limit
+      const unlimited = sessionsListLimit === "none"
+      const sessionsLimit = unlimited ? undefined : sessionsListLimit ?? 150
+
+      const start = unlimited ? undefined : Date.now() - 30 * 24 * 60 * 60 * 1000
       const sessionListPromise = sdk.client.session
-        .list({ start: start })
+        .list({ start, limit: sessionsLimit })
         .then((x) => (x.data ?? []).toSorted((a, b) => a.id.localeCompare(b.id)))
 
       // blocking - include session.list when continuing a session
       const providersPromise = sdk.client.config.providers({}, { throwOnError: true })
       const providerListPromise = sdk.client.provider.list({}, { throwOnError: true })
       const agentsPromise = sdk.client.app.agents({}, { throwOnError: true })
-      const configPromise = sdk.client.config.get({}, { throwOnError: true })
       const blockingRequests: Promise<unknown>[] = [
         providersPromise,
         providerListPromise,
         agentsPromise,
-        configPromise,
         ...(args.continue ? [sessionListPromise] : []),
       ]
 
@@ -371,21 +384,18 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
           const providersResponse = providersPromise.then((x) => x.data!)
           const providerListResponse = providerListPromise.then((x) => x.data!)
           const agentsResponse = agentsPromise.then((x) => x.data ?? [])
-          const configResponse = configPromise.then((x) => x.data!)
           const sessionListResponse = args.continue ? sessionListPromise : undefined
 
           return Promise.all([
             providersResponse,
             providerListResponse,
             agentsResponse,
-            configResponse,
             ...(sessionListResponse ? [sessionListResponse] : []),
           ]).then((responses) => {
             const providers = responses[0]
             const providerList = responses[1]
             const agents = responses[2]
-            const config = responses[3]
-            const sessions = responses[4]
+            const sessions = responses[3]
 
             batch(() => {
               setStore("provider", reconcile(providers.providers))
@@ -459,9 +469,11 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
         },
         async sync(sessionID: string) {
           if (fullSyncedSessions.has(sessionID)) return
+          const messagesLimit = store.config.experimental?.messages_limit
+          const limit = messagesLimit === "none" ? undefined : messagesLimit ?? 100
           const [session, messages, todo, diff] = await Promise.all([
             sdk.client.session.get({ sessionID }, { throwOnError: true }),
-            sdk.client.session.messages({ sessionID, limit: 100 }),
+            sdk.client.session.messages({ sessionID, limit }),
             sdk.client.session.todo({ sessionID }),
             sdk.client.session.diff({ sessionID }),
           ])
@@ -475,6 +487,7 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
               for (const message of messages.data!) {
                 draft.part[message.info.id] = message.parts
               }
+
               draft.session_diff[sessionID] = diff.data ?? []
             }),
           )

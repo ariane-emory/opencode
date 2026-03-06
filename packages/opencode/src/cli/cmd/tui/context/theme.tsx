@@ -150,6 +150,8 @@ type ThemeColors = {
   syntaxType: RGBA
   syntaxOperator: RGBA
   syntaxPunctuation: RGBA
+  sessionTitle: RGBA
+  toolOutput: RGBA
 }
 
 type Theme = ThemeColors & {

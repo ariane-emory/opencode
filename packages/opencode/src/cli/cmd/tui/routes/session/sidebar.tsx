@@ -149,7 +149,7 @@ export function Sidebar(props: { sessionID: string }) {
                   <Show when={mcpEntries().length > 2}>
                     <text fg={theme.text}>{expanded.mcp ? "▼" : "▶"}</text>
                   </Show>
-                  <text fg={theme.text}>
+                  <text fg={theme.accent}>
                     <b>MCP</b>
                     <Show when={!expanded.mcp}>
                       <span style={{ fg: theme.textMuted }}>
@@ -210,7 +210,7 @@ export function Sidebar(props: { sessionID: string }) {
                   <Show when={sync.data.lsp.length > 2}>
                     <text fg={theme.text}>{expanded.lsp ? "▼" : "▶"}</text>
                   </Show>
-                  <text fg={theme.text}>
+                  <text fg={theme.accent}>
                     <b>LSP</b>
                   </text>
                 </box>
@@ -251,7 +251,7 @@ export function Sidebar(props: { sessionID: string }) {
                   <Show when={todo().length > 2}>
                     <text fg={theme.text}>{expanded.todo ? "▼" : "▶"}</text>
                   </Show>
-                  <text fg={theme.text}>
+                  <text fg={theme.accent}>
                     <b>Todo</b>
                   </text>
                 </box>
@@ -270,7 +270,7 @@ export function Sidebar(props: { sessionID: string }) {
                   <Show when={diff().length > 2}>
                     <text fg={theme.text}>{expanded.diff ? "▼" : "▶"}</text>
                   </Show>
-                  <text fg={theme.text}>
+                  <text fg={theme.accent}>
                     <b>Modified Files</b>
                   </text>
                 </box>

@@ -14,7 +14,7 @@ const Title = (props: { session: Accessor<Session> }) => {
   const { theme } = useTheme()
   const parts = createMemo(() => parseSessionTitleParts(props.session().title))
   return (
-    <text fg={theme.text}>
+    <text fg={theme.sessionTitle}>
       <span style={{ bold: true }}>#</span>{" "}
       <Show when={parts().group} fallback={<span style={{ bold: true }}>{parts().rest}</span>}>
         <span style={{ bold: true }}>{parts().group}</span> {parts().rest}

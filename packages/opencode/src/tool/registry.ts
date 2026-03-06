@@ -29,6 +29,7 @@ import { Truncate } from "./truncation"
 import { SetCurrentSessionTitleTool } from "./set-current-session-title"
 import { ApplyPatchTool } from "./apply_patch"
 import { BookmarkCurrentSessionTool } from "./bookmark"
+import { GetCurrentSessionTitleTool } from "./session-title"
 import { Glob } from "../util/glob"
 import { pathToFileURL } from "url"
 
@@ -120,6 +121,7 @@ export namespace ToolRegistry {
       SkillTool,
       BookmarkCurrentSessionTool,
       ApplyPatchTool,
+      GetCurrentSessionTitleTool,
       ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
       ...(config.experimental?.batch_tool === true ? [BatchTool] : []),
       ...((await Config.experimentalPlanMode()) && Flag.OPENCODE_CLIENT === "cli" ? [PlanExitTool, PlanEnterTool] : []),

@@ -52,6 +52,7 @@ type ThemeColors = {
   success: RGBA
   info: RGBA
   text: RGBA
+  sessionTitle: RGBA
   textMuted: RGBA
   toolOutput: RGBA
   selectedListItemText: RGBA
@@ -132,10 +133,11 @@ type ColorValue = HexColor | RefName | Variant | RGBA
 type ThemeJson = {
   $schema?: string
   defs?: Record<string, HexColor | RefName>
-  theme: Omit<Record<keyof ThemeColors, ColorValue>, "selectedListItemText" | "backgroundMenu" | "toolOutput"> & {
+  theme: Omit<Record<keyof ThemeColors, ColorValue>, "selectedListItemText" | "backgroundMenu" | "toolOutput" | "sessionTitle"> & {
     selectedListItemText?: ColorValue
     backgroundMenu?: ColorValue
     toolOutput?: ColorValue
+    sessionTitle?: ColorValue
     thinkingOpacity?: number
   }
 }
@@ -201,7 +203,7 @@ function resolveTheme(theme: ThemeJson, mode: "dark" | "light") {
 
   const resolved = Object.fromEntries(
     Object.entries(theme.theme)
-      .filter(([key]) => key !== "selectedListItemText" && key !== "backgroundMenu" && key !== "thinkingOpacity" && key !== "toolOutput")
+      .filter(([key]) => key !== "selectedListItemText" && key !== "backgroundMenu" && key !== "thinkingOpacity" && key !== "toolOutput" && key !== "sessionTitle")
       .map(([key, value]) => {
         return [key, resolveColor(value as ColorValue)]
       }),
@@ -229,6 +231,13 @@ function resolveTheme(theme: ThemeJson, mode: "dark" | "light") {
     resolved.toolOutput = resolveColor(theme.theme.toolOutput)
   } else {
     resolved.toolOutput = resolved.text
+  }
+
+  // Handle sessionTitle - optional with fallback to text
+  if (theme.theme.sessionTitle !== undefined) {
+    resolved.sessionTitle = resolveColor(theme.theme.sessionTitle)
+  } else {
+    resolved.sessionTitle = resolved.text
   }
 
   // Handle thinkingOpacity - optional with default of 0.6

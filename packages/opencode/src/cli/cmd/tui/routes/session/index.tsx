@@ -590,18 +590,6 @@ export function Session() {
       },
     },
     {
-      title: showAgentTimestamps() ? "Hide agent timestamps" : "Show agent timestamps",
-      value: "session.toggle.agent_timestamps_session",
-      category: "System",
-      slash: {
-        name: "agent-timestamps",
-      },
-      onSelect: (dialog) => {
-        setAgentTimestamps((prev) => (prev === "show" ? "hide" : "show"))
-        dialog.clear()
-      },
-    },
-    {
       title: showThinking() ? "Hide thinking" : "Show thinking",
       value: "session.toggle.thinking",
       keybind: "display_thinking",

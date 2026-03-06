@@ -682,6 +682,7 @@ function App() {
       },
     },
     {
+<<<<<<< HEAD
       title: kv.get("timestamps", "hide") === "show" ? "Hide timestamps" : "Show timestamps",
       value: "app.toggle.timestamps",
       category: "System",
@@ -725,6 +726,17 @@ function App() {
       category: "System",
       onSelect: (dialog) => {
         kv.set("header_visible", !kv.get("header_visible", true))
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("markdown_all_messages", false)
+        ? "Render markdown: agent messages only"
+        : "Render markdown: all messages",
+      value: "app.toggle.markdown_all",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("markdown_all_messages", !kv.get("markdown_all_messages", false))
         dialog.clear()
       },
     },

@@ -50,7 +50,7 @@
     "diffHighlightRemoved": "red",
     "diffAddedBg": "#003000",
     "diffRemovedBg": "#300000",
-    "diffContextBg": "black",
+    "diffContextBg": "none",
     "diffLineNumber": "gray_medium",
     "diffAddedLineNumberBg": "#004400",
     "diffRemovedLineNumberBg": "#440000",

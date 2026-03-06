@@ -592,7 +592,7 @@ export function Session() {
     {
       title: showAgentTimestamps() ? "Hide agent timestamps" : "Show agent timestamps",
       value: "session.toggle.agent_timestamps_session",
-      category: "Session",
+      category: "System",
       slash: {
         name: "agent-timestamps",
       },

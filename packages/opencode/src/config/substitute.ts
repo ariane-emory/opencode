@@ -38,27 +38,6 @@ export function substituteArguments(
   const defaultPlaceholders = template.match(defaultPlaceholderRegex) ?? []
   const rangeWithDefaultPlaceholders = template.match(rangeWithDefaultRegex) ?? []
 
-  // Find last position for swallowing behavior
-  let last = 0
-  for (const item of simplePlaceholders) {
-    const value = Number(item.slice(1))
-    if (value > last) last = value
-  }
-  for (const item of defaultPlaceholders) {
-    const match = item.match(/\$\{(\d+):/)
-    if (match) {
-      const value = Number(match[1])
-      if (value > last) last = value
-    }
-  }
-  for (const item of rangeWithDefaultPlaceholders) {
-    const match = item.match(/\$\{(\d*)\.\./)
-    if (match && match[1]) {
-      const value = Number(match[1])
-      if (value > last) last = value
-    }
-  }
-
   let result = template
 
   // Process range with defaults first (most specific: has both .. and :)
@@ -83,7 +62,6 @@ export function substituteArguments(
     if (argIndex < args.length) {
       const arg = args[argIndex]
       if (arg.trim() !== "") {
-        if (pos === last) return args.slice(argIndex).join(" ")
         return arg
       }
     }

@@ -13,6 +13,7 @@ import { useKV } from "../../context/kv"
 import { useLocal } from "@tui/context/local"
 import { useSDK } from "@tui/context/sdk"
 import { TodoItem } from "../../component/todo-item"
+import { Log } from "@/util/log"
 
 export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const sync = useSync()
@@ -41,7 +42,11 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
       const status = await sdk.client.mcp.status()
       if (status.data) sync.set("mcp", status.data)
     } catch (error) {
-      console.error("Failed to toggle MCP:", error)
+      Log.Default.error("Failed to toggle MCP", {
+        error: error instanceof Error ? error.message : String(error),
+        name: error instanceof Error ? error.name : undefined,
+        stack: error instanceof Error ? error.stack : undefined,
+      })
     } finally {
       setLoading(null)
     }

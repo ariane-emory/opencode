@@ -12,6 +12,7 @@ import { TodoItem } from "../../component/todo-item"
 import { formatSessionTitle, parseSessionTitleParts } from "@tui/util/session-title"
 import { useLocal } from "../../context/local"
 import { useSDK } from "../../context/sdk"
+import { Log } from "@/util/log"
 
 export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrollbar?: boolean }) {
   const sync = useSync()
@@ -38,7 +39,11 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
         sync.set("mcp", status.data)
       }
     } catch (error) {
-      console.error("Failed to toggle MCP:", error)
+      Log.Default.error("Failed to toggle MCP", {
+        error: error instanceof Error ? error.message : String(error),
+        name: error instanceof Error ? error.name : undefined,
+        stack: error instanceof Error ? error.stack : undefined,
+      })
     } finally {
       setLoadingMcp(null)
     }

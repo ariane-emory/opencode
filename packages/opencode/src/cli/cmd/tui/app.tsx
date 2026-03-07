@@ -791,6 +791,15 @@ function App() {
         dialog.clear()
       },
     },
+    {
+      title: kv.get("sidebar_scrollbar_visible", true) ? "Hide sidebar scrollbar" : "Show sidebar scrollbar",
+      value: "app.toggle.sidebar_scrollbar",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("sidebar_scrollbar_visible", !kv.get("sidebar_scrollbar_visible", true))
+        dialog.clear()
+      },
+    },
   ])
 
   // Handle custom command keybinds

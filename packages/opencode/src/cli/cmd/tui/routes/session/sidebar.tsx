@@ -209,7 +209,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                         </text>
                         <text fg={theme.text} wrapMode="word">
                           <Show when={loadingMcp() === key} fallback={key}>
-                            <span style={{ fg: theme.textMuted }}>{key} (Loading...)</span>
+                            <i>Loading…</i>
                           </Show>{" "}
                           <span style={{ fg: theme.textMuted }}>
                             <Switch fallback={item.status}>

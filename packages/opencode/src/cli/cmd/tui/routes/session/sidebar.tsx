@@ -10,6 +10,8 @@ import { useDirectory } from "../../context/directory"
 import { useKV } from "../../context/kv"
 import { TodoItem } from "../../component/todo-item"
 import { formatSessionTitle, parseSessionTitleParts } from "@tui/util/session-title"
+import { useLocal } from "../../context/local"
+import { useSDK } from "../../context/sdk"
 
 export function Sidebar(props: { sessionID: string }) {
   const sync = useSync()
@@ -22,7 +24,26 @@ export function Sidebar(props: { sessionID: string }) {
   const todo = createMemo(() => sync.data.todo[props.sessionID] ?? [])
   const messages = createMemo(() => sync.data.message[props.sessionID] ?? [])
   const permissions = createMemo(() => sync.data.permission[props.sessionID] ?? [])
-  
+  const local = useLocal()
+  const sdk = useSDK()
+  const [loadingMcp, setLoadingMcp] = createSignal<string | null>(null)
+
+  const handleToggle = async (name: string) => {
+    if (loadingMcp() !== null) return
+    setLoadingMcp(name)
+    try {
+      await local.mcp.toggle(name)
+      const status = await sdk.client.mcp.status()
+      if (status.data) {
+        sync.set("mcp", status.data)
+      }
+    } catch (error) {
+      console.error("Failed to toggle MCP:", error)
+    } finally {
+      setLoadingMcp(null)
+    }
+  }
+
   const [expanded, setExpanded] = createStore({
     mcp: true,
     diff: true,
@@ -163,7 +184,7 @@ export function Sidebar(props: { sessionID: string }) {
                 <Show when={mcpEntries().length <= 2 || expanded.mcp}>
                   <For each={mcpEntries()}>
                     {([key, item]) => (
-                      <box flexDirection="row" gap={1}>
+                      <box flexDirection="row" gap={1} onMouseDown={() => handleToggle(key)}>
                         <text
                           flexShrink={0}
                           style={{
@@ -181,7 +202,9 @@ export function Sidebar(props: { sessionID: string }) {
                           •
                         </text>
                         <text fg={theme.text} wrapMode="word">
-                          {key}{" "}
+                          <Show when={loadingMcp() === key} fallback={key}>
+                            <span style={{ fg: theme.textMuted }}>{key} (Loading...)</span>
+                          </Show>{" "}
                           <span style={{ fg: theme.textMuted }}>
                             <Switch fallback={item.status}>
                               <Match when={item.status === "connected"}>Connected</Match>

@@ -70,6 +70,8 @@ This document records all branches merged into this integration branch.
 | 55 | feat/sidebar-clock | origin | bfba53683 | Clock display in sidebar |
 | 56 | feat/improve-bash-tool-git-advice | origin | 04d2ef34c | Improved bash tool git advice |
 | 57 | feat/alphabetical-message-modal | origin | 91053763f | Alphabetical ordering in message modal |
+| 58 | feat/clickable-sidebar-mcps | origin | (manual) | Click to toggle MCP servers in sidebar |
+| 59 | feat/clickable-dialogue-mcps | origin | (manual) | Click to toggle MCP servers in dialog |
 
 ## Notable Merge Conflicts Resolved
 
@@ -85,8 +87,6 @@ This document records all branches merged into this integration branch.
 The following branches were not merged due to complex conflicts:
 - feat/toggle-sidebar-scrollbar
 - feat/full-datetimes-in-fork-and-timeline-dialogues
-- feat/clickable-sidebar-mcps
-- feat/clickable-dialogue-mcps
 - feat/ignored-commands
 - feat/sidebar-header-accent-colours
 - feat/distinct-title-colour

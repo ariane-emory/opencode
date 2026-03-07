@@ -72,6 +72,27 @@ export function DialogMcp() {
     },
   ])
 
+  const toggle = async (name: string) => {
+    // Prevent toggling while an operation is already in progress
+    if (loading() !== null) return
+
+    setLoading(name)
+    try {
+      await local.mcp.toggle(name)
+      // Refresh MCP status from server
+      const status = await sdk.client.mcp.status()
+      if (status.data) {
+        sync.set("mcp", status.data)
+      } else {
+        console.error("Failed to refresh MCP status: no data returned")
+      }
+    } catch (error) {
+      console.error("Failed to toggle MCP:", error)
+    } finally {
+      setLoading(null)
+    }
+  }
+
   return (
     <DialogSelect
       ref={setRef}
@@ -79,7 +100,8 @@ export function DialogMcp() {
       options={options()}
       keybind={keybinds()}
       onSelect={(option) => {
-        // Don't close on select, only on escape
+        // Toggle MCP when selected via click or Enter
+        toggle(option.value as string)
       }}
     />
   )

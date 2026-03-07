@@ -92,9 +92,9 @@ test("substituteArguments - mix of $1 and ${2:default}", () => {
   expect(result).toBe("first and fallback")
 })
 
-test("substituteArguments - ${2:default} last swallows remaining", () => {
+test("substituteArguments - ${2:default} does not swallow remaining", () => {
   const { result } = substituteArguments("${1:first} ${2:second}", ["a", "b", "c"])
-  expect(result).toBe("a b c")
+  expect(result).toBe("a b")
 })
 
 test("substituteArguments - ${N:default} hasPlaceholders is true", () => {

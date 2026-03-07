@@ -126,6 +126,7 @@ describe("tool.registry", () => {
       config: {
         experimental: {
           plan_mode: true,
+          cache_command_markdown_files: true,
         },
       },
     })

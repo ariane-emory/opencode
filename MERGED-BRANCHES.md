@@ -6,8 +6,9 @@ This document records all branches merged into this integration branch.
 
 - **Integration Branch**: `integration/2026-03-06-15-57`
 - **Base Branch**: `dev`
-- **Total Branches Merged**: 57+
+- **Total Branches Merged**: 61+
 - **Date**: 2026-03-06
+- **Status**: All branches merged - no branches skipped
 
 ## Branches Merged
 
@@ -72,6 +73,8 @@ This document records all branches merged into this integration branch.
 | 57 | feat/alphabetical-message-modal | origin | 91053763f | Alphabetical ordering in message modal |
 | 58 | feat/clickable-sidebar-mcps | origin | (manual) | Click to toggle MCP servers in sidebar |
 | 59 | feat/clickable-dialogue-mcps | origin | (manual) | Click to toggle MCP servers in dialog |
+| 60 | feat/toggle-sidebar-scrollbar | origin | a933046e9 | Toggle sidebar scrollbar visibility |
+| 61 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | 07f668fad | Full datetime display in dialogs |
 
 ## Notable Merge Conflicts Resolved
 
@@ -81,17 +84,7 @@ This document records all branches merged into this integration branch.
 4. **locale.ts**: Combined date/time formatting improvements
 5. **app.tsx**: Consolidated command palette menu items
 6. **sidebar.tsx**: Merged LSP visibility changes with sidebar clock
-
-## Skipped Branches
-
-The following branches were not merged due to complex conflicts:
-- feat/toggle-sidebar-scrollbar
-- feat/full-datetimes-in-fork-and-timeline-dialogues
-- feat/ignored-commands
-- feat/sidebar-header-accent-colours
-- feat/distinct-title-colour
-- feat/tool-output-colour
-- fix/restore-footer
+7. **app.tsx**: Removed duplicate menu items (command-palette-consistecy fix)
 
 ## Post-Merge Status
 

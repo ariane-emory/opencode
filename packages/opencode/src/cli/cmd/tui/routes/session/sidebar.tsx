@@ -207,12 +207,13 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                         >
                           •
                         </text>
-                        <text fg={theme.text} wrapMode="word">
-                          <Show when={loadingMcp() === key} fallback={key}>
-                            <i>Loading…</i>
-                          </Show>{" "}
+                        <text fg={loadingMcp() === key ? theme.textMuted : theme.text} wrapMode="word">
+                          {key}{" "}
                           <span style={{ fg: theme.textMuted }}>
                             <Switch fallback={item.status}>
+                              <Match when={loadingMcp() === key}>
+                                <i>Loading…</i>
+                              </Match>
                               <Match when={item.status === "connected"}>Connected</Match>
                               <Match when={item.status === "failed" && item}>{(val) => <i>{val().error}</i>}</Match>
                               <Match when={item.status === "disabled"}>Disabled</Match>

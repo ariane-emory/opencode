@@ -6,7 +6,7 @@ This document records all branches merged into this integration branch.
 
 - **Integration Branch**: `integration/2026-03-06-15-57`
 - **Base Branch**: `dev`
-- **Total Branches Merged**: 61+
+- **Total Branches Merged**: 66
 - **Date**: 2026-03-06
 - **Status**: All branches merged - no branches skipped
 
@@ -62,8 +62,8 @@ This document records all branches merged into this integration branch.
 | 46 | feat/set-session-title                             | origin   | eeb6ab223   | Set session title functionality                           |
 | 47 | feat/get-session-title                             | origin   | 9b7c42afc   | Get session title functionality                           |
 | 48 | feat/no-disabled-lsps-in-sidebar                   | origin   | ccb973832   | Hide disabled LSPs in sidebar                             |
-| 49 | feat/agent-timestamps                              | origin   | (multiple)  | Agent timestamp display                                   |
-| 50 | feat/rewind-modal-option                           | origin   | (multiple)  | Rewind modal option                                       |
+| 49 | feat/agent-timestamps                              | origin   | e7c7114fc   | Agent timestamp display                                   |
+| 50 | feat/rewind-modal-option                           | origin   | f7b57ebde   | Rewind modal option                                       |
 | 51 | feat/alphabetize-command-palette-groups            | origin   | ca9e17fb7   | Alphabetize command palette groups                        |
 | 52 | feat/taller-dialogs                                | origin   | 0658bb37f   | Taller dialog windows                                     |
 | 53 | feat/add-arianes-themes                            | origin   | 269324ddf   | Additional Ariane's themes (includes toxikat diff bg fix) |
@@ -75,6 +75,11 @@ This document records all branches merged into this integration branch.
 | 59 | feat/clickable-dialogue-mcps                       | origin   | (manual)    | Click to toggle MCP servers in dialog                     |
 | 60 | feat/toggle-sidebar-scrollbar                      | origin   | a933046e9   | Toggle sidebar scrollbar visibility                       |
 | 61 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin   | 07f668fad   | Full datetime display in dialogs                          |
+| 62 | feat/distinct-title-colour                         | origin   | (manual)    | Use distinct color for session titles                     |
+| 63 | feat/ignored-commands                              | origin   | (manual)    | Ignore commands with ignored: true in frontmatter         |
+| 64 | feat/sidebar-header-accent-colours                 | origin   | (manual)    | Use accent color for sidebar section headers              |
+| 65 | feat/tool-output-colour                            | origin   | (manual)    | Use distinct color for tool output                        |
+| 66 | fix/restore-footer                                 | origin   | (manual)    | Restore footer component when sidebar is hidden           |
 
 ## Notable Merge Conflicts Resolved
 

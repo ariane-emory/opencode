@@ -25,12 +25,12 @@ export namespace UI {
 
   export function println(...message: string[]) {
     print(...message)
-    Bun.stderr.write(EOL)
+    process.stderr.write(EOL)
   }
 
   export function print(...message: string[]) {
     blank = false
-    Bun.stderr.write(message.join(" "))
+    process.stderr.write(message.join(" "))
   }
 
   let blank = false
@@ -43,8 +43,18 @@ export namespace UI {
   export function logo(pad?: string) {
     const result: string[] = []
     const reset = "\x1b[0m"
-    const leftColor = Bun.color("gray", "ansi") ?? ""
-    const rightColor = reset
+    const left = {
+      fg: Bun.color("gray", "ansi") ?? "\x1b[90m",
+      shadow: "\x1b[38;5;235m",
+      bg: "\x1b[48;5;235m",
+    }
+    const right = {
+      fg: reset,
+      shadow: "\x1b[38;5;238m",
+      bg: "\x1b[48;5;238m",
+    }
+    const leftColor = left.fg
+    const rightColor = right.fg
     const gap = " "
 
     glyphs.left.forEach((row, index) => {

@@ -129,8 +129,6 @@ export function Prompt(props: PromptProps) {
       }, 0)
     }
   })
-
-
   const lastUserMessage = createMemo(() => {
     if (!props.sessionID) return undefined
     const messages = sync.data.message[props.sessionID]
@@ -875,7 +873,7 @@ export function Prompt(props: PromptProps) {
             flexGrow={1}
           >
             <textarea
-// **CRITICAL MERGE WARNING**: Keep this EXACT format (NO "Ask anything" prefix, NO quotes):
+              // **CRITICAL MERGE WARNING**: Keep this EXACT format (NO "Ask anything" prefix, NO quotes):
               //   CORRECT: `${PLACEHOLDERS[store.placeholder]}`
               //   WRONG:   `Ask anything... "${PLACEHOLDERS[store.placeholder]}"`
               // The sinister-quotes feature intentionally removes the prefix. A test validates this.

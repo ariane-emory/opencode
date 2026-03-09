@@ -54,13 +54,10 @@ export function substituteArguments(
   })
 
   result = result.replaceAll(defaultPlaceholderRegex, (expr, position, defaultVal) => {
-    const pos = Number(position)
-    const argIndex = pos - 1
+    const argIndex = Number(position) - 1
     if (argIndex < args.length) {
       const arg = args[argIndex]
-      if (arg.trim() !== "") {
-        return arg
-      }
+      if (arg.trim() !== "") return arg
     }
     return resolveChainedDefault(expr, defaultVal, args)
   })

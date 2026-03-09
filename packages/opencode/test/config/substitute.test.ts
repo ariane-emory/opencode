@@ -19,9 +19,9 @@ test("substituteArguments - multiple placeholders", () => {
   expect(hasPlaceholders).toBe(true)
 })
 
-test("substituteArguments - last placeholder swallows remaining", () => {
+test("substituteArguments - simple $N does not swallow", () => {
   const { result } = substituteArguments("$1 $2", ["a", "b", "c", "d"])
-  expect(result).toBe("a b c d")
+  expect(result).toBe("a b")
 })
 
 test("substituteArguments - missing argument returns empty", () => {
@@ -64,9 +64,9 @@ test("substituteArguments - mix of $1 and ${2:default}", () => {
   expect(result).toBe("first and fallback")
 })
 
-test("substituteArguments - ${2:default} last swallows remaining", () => {
+test("substituteArguments - ${2:default} does not swallow", () => {
   const { result } = substituteArguments("${1:first} ${2:second}", ["a", "b", "c"])
-  expect(result).toBe("a b c")
+  expect(result).toBe("a b")
 })
 
 test("substituteArguments - ${N:default} hasPlaceholders is true", () => {

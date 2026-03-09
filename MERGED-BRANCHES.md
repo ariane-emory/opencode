@@ -35,7 +35,7 @@
 | ☐ | 29 | fix/merging-multiple-configs | origin | TBD | |
 | ☐ | 30 | fix/markdown-codeblock-theme-property | origin | TBD | |
 | ☐ | 31 | refactor/shared-substitute | origin | TBD | |
-| ☐ | 32 | feat/command-palette-consistecy | origin | TBD | MOVE items from Session to System category, do NOT duplicate |
+| ☑ | 32 | feat/command-palette-consistecy | origin | cc5acbbcce | MOVE items from Session to System category, do NOT duplicate |
 | ☐ | 33 | feat/session-id-in-status | origin | TBD | |
 | ☐ | 34 | feat/argument-range-syntax | origin | TBD | |
 | ☐ | 35 | feat/default-arguments | origin | TBD | |
@@ -109,3 +109,4 @@
 | fix/merging-multiple-configs | 4263b5fede | ✅ Merged | Resolved config.ts conflict |
 | fix/markdown-codeblock-theme-property | d6ad731d44 | ✅ Merged | Clean merge |
 | refactor/shared-substitute | 90750a4faa | ✅ Merged | Clean merge |
+| feat/command-palette-consistecy | cc5acbbcce | ✅ Merged | Resolved conflicts in app.tsx and session/index.tsx |

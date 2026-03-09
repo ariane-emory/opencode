@@ -116,3 +116,4 @@
 | feat/edit-tool-description | a42a1489cf | ✅ Merged | Clean merge |
 | feat/opeoginni--display-message-tps | 493526c2f3 | ✅ Merged | Clean merge |
 | feat/kv-diff-style-clean | 8381302e8e | ✅ Merged | Clean merge |
+| feat/global-compaction-threshold | 70f74a2ebb | ✅ Merged | Clean merge |

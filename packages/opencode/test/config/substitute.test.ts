@@ -230,9 +230,3 @@ test("substituteArguments - $N with ${N..} does not swallow", () => {
   ])
   expect(result).toBe("Branch: feat/add-arianes-themes, Args: foo bar baz")
 })
-
-test("substituteArguments - arguments with spaces are split", () => {
-  // Spaces are ALWAYS separators in OpenCode slash commands
-  const { result } = substituteArguments("$1 $2 $3", ["hello world test"])
-  expect(result).toBe("hello world test")
-})

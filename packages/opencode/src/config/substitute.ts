@@ -27,14 +27,6 @@ export function substituteArguments(
   template: string,
   args: string[],
 ): { result: string; hasPlaceholders: boolean } {
-  // Split all arguments by whitespace - spaces are ALWAYS separators
-  const processedArgs = args.flatMap(arg =>
-    arg.split(/\s+/).filter(s => s.length > 0)
-  )
-
-  // Use processedArgs for all substitution operations
-  args = processedArgs
-
   // Find all placeholders to determine hasPlaceholders
   const simplePlaceholders = template.match(placeholderRegex) ?? []
   const extendedPlaceholders = template.match(extendedPlaceholderRegex) ?? []

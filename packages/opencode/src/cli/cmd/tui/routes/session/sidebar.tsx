@@ -11,7 +11,7 @@ import { useKV } from "../../context/kv"
 import { TodoItem } from "../../component/todo-item"
 import { formatSessionTitle, parseSessionTitleParts } from "@tui/util/session-title"
 
-export function Sidebar(props: { sessionID: string }) {
+export function Sidebar(props: { sessionID: string; showScrollbar?: boolean }) {
   const sync = useSync()
   const { theme } = useTheme()
   const directory = useDirectory()

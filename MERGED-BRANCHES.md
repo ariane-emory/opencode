@@ -13,7 +13,7 @@
 | ☑ | 7 | feat/session-grouping | origin | c3290272e6 | |
 | ☑ | 8 | feat/session-bookmarks | origin | 907ee2299b | |
 | ☑ | 9 | fix/dialog-datetime-alignment | origin | 292589d2ea | Merge immediately after feat/session-bookmarks |
-| ☐ | 10 | feat/keybindable-commands | origin | TBD | |
+| ☑ | 10 | feat/keybindable-commands | origin | d49a465e0b | |
 | ☐ | 11 | feat/opencode-expand | origin | TBD | |
 | ☐ | 12 | feat/automatic-list-continuation | origin | TBD | |
 | ☐ | 13 | feat/continue-command | origin | TBD | |
@@ -87,3 +87,4 @@
 | 7 | feat/session-grouping | c3290272e6 | ✅ Merged | Clean merge |
 | 8 | feat/session-bookmarks | 907ee2299b | ✅ Merged | Combined with session-grouping |
 | 9 | fix/dialog-datetime-alignment | 292589d2ea | ✅ Merged | Clean merge |
+| 10 | feat/keybindable-commands | d49a465e0b | ✅ Merged | Clean merge |

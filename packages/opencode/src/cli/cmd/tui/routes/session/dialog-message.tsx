@@ -72,6 +72,37 @@ export function DialogMessage(props: {
           },
         },
         {
+          title: "Rewind",
+          value: "session.rewind",
+          description: "remove selected and later messages",
+          onSelect: async (dialog) => {
+            const msg = message()
+            if (!msg) return
+
+            if (props.setPrompt) {
+              const parts = sync.data.part[msg.id]
+              const promptInfo = parts.reduce(
+                (agg, part) => {
+                  if (part.type === "text") {
+                    if (!part.synthetic) agg.input += part.text
+                  }
+                  if (part.type === "file") agg.parts.push(part)
+                  return agg
+                },
+                { input: "", parts: [] as PromptInfo["parts"] },
+              )
+              props.setPrompt(promptInfo)
+            }
+
+            await sdk.client.session.rewind({
+              sessionID: props.sessionID,
+              messageID: msg.id,
+            })
+
+            dialog.clear()
+          },
+        },
+        {
           title: "Fork",
           value: "session.fork",
           description: "create a new session",

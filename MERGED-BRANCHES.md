@@ -115,3 +115,4 @@
 | 35 | feat/default-arguments | 824ac6f373 | ✅ Merged | Combined range syntax with default arguments; implemented swallowing for default arguments |
 | feat/edit-tool-description | a42a1489cf | ✅ Merged | Clean merge |
 | feat/opeoginni--display-message-tps | 493526c2f3 | ✅ Merged | Clean merge |
+| feat/kv-diff-style-clean | 8381302e8e | ✅ Merged | Clean merge |

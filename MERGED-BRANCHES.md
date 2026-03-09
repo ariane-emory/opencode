@@ -120,3 +120,4 @@
 | 40 | feat/configurable-message-and-session-limit | fe1b41cdc8 | ✅ Merged | Resolved conflicts in dialog-session-list.tsx, config.ts, types.gen.ts |
 | feat/experimental-dont-cache-markdown | 8c1f10756b | ✅ Merged | Clean merge |
 | 42 | feat/jsonc-user-themes | a71660670b | ✅ Merged | Resolved config.ts conflict; fixed type error in registry.test.ts |
+| feat/persist-sidebar-group-folding-states | 92f262db99 | ✅ Merged | Clean merge |

@@ -35,6 +35,7 @@ import { useKV } from "../../context/kv"
 import { useTextareaKeybindings } from "../textarea-keybindings"
 import { DialogSkill } from "../dialog-skill"
 import { getWordBoundaries, lowercaseWord, uppercaseWord, capitalizeWord, isWordChar } from "./word"
+import { SINISTER_PLACEHOLDERS } from "@opencode-ai/ui/constants/placeholders"
 
 export type PromptProps = {
   sessionID?: string
@@ -56,7 +57,6 @@ export type PromptRef = {
   submit(): void
 }
 
-const PLACEHOLDERS = ["Fix a TODO in the codebase", "What is the tech stack of this project?", "Fix broken tests"]
 const SHELL_PLACEHOLDERS = ["ls -la", "git status", "pwd"]
 
 export function Prompt(props: PromptProps) {
@@ -129,7 +129,7 @@ export function Prompt(props: PromptProps) {
     placeholder: number
     killBuffer: string
   }>({
-    placeholder: Math.floor(Math.random() * PLACEHOLDERS.length),
+    placeholder: Math.floor(Math.random() * SINISTER_PLACEHOLDERS.length),
     prompt: {
       input: "",
       parts: [],
@@ -144,7 +144,7 @@ export function Prompt(props: PromptProps) {
     on(
       () => props.sessionID,
       () => {
-        setStore("placeholder", Math.floor(Math.random() * PLACEHOLDERS.length))
+        setStore("placeholder", Math.floor(Math.random() * SINISTER_PLACEHOLDERS.length))
       },
       { defer: true },
     ),
@@ -758,7 +758,7 @@ export function Prompt(props: PromptProps) {
       const example = SHELL_PLACEHOLDERS[store.placeholder % SHELL_PLACEHOLDERS.length]
       return `Run a command... "${example}"`
     }
-    return `Ask anything... "${PLACEHOLDERS[store.placeholder % PLACEHOLDERS.length]}"`
+    return `"${SINISTER_PLACEHOLDERS[store.placeholder % SINISTER_PLACEHOLDERS.length]}"`
   })
 
   const spinnerDef = createMemo(() => {

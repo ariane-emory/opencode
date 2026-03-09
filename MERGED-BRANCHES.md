@@ -93,3 +93,4 @@
 | feat/continue-command | 2068ddff5b | ✅ Merged | Clean merge |
 | feat/configurable-snapshot-lifespan | 9815bdd62f | ✅ Merged | Clean merge |
 | feat/configurable-new-plan-mode | e6fccda8d0 | ✅ Merged | Resolved import conflict |
+| feat/config-imports | 158cc8f018 | ✅ Merged | Clean merge |

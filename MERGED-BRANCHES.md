@@ -114,3 +114,4 @@
 | 34 | feat/argument-range-syntax | ca389f253b | ✅ Merged | Combined range syntax with backward compatible swallowing |
 | 35 | feat/default-arguments | 824ac6f373 | ✅ Merged | Combined range syntax with default arguments; implemented swallowing for default arguments |
 | feat/edit-tool-description | a42a1489cf | ✅ Merged | Clean merge |
+| feat/opeoginni--display-message-tps | 493526c2f3 | ✅ Merged | Clean merge |

@@ -106,3 +106,4 @@
 | fix/modal-menus-filtered-order | b7712432c0 | ✅ Merged | Resolved conflicts in 3 files |
 | fix/config-package-json-pollution | 04153c1855 | ✅ Merged | Clean merge |
 | fix/session-list-viewport-jumping | 9b383e6912 | ✅ Merged | Clean merge |
+| fix/merging-multiple-configs | 4263b5fede | ✅ Merged | Resolved config.ts conflict |

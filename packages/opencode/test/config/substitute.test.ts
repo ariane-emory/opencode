@@ -59,3 +59,19 @@ test("substituteArguments - ${..} all arguments", () => {
   const { result } = substituteArguments("all: ${..}", ["a", "b", "c"])
   expect(result).toBe("all: a b c")
 })
+
+test("substituteArguments - $N with ${N..} does not swallow", () => {
+  // Regression test for: $2 should NOT swallow args meant for ${3..}
+  // This is the use case for commands like /edit-branch-and-merge
+  // $1 = command name (edit-branch-and-merge)
+  // $2 = branch name (feat/add-arianes-themes)
+  // ${3..} = remaining args (foo bar baz)
+  const { result } = substituteArguments("Branch: $2, Args: ${3..}", [
+    "edit-branch-and-merge",
+    "feat/add-arianes-themes",
+    "foo",
+    "bar",
+    "baz",
+  ])
+  expect(result).toBe("Branch: feat/add-arianes-themes, Args: foo bar baz")
+})

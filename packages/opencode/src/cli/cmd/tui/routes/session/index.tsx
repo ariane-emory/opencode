@@ -278,10 +278,6 @@ export function Session() {
   })
 
   useKeyboard((evt) => {
-    if (keybind.match("session_child_toggle", evt)) {
-      toggleChildSession()
-      return
-    }
     if (!session()?.parentID) return
     if (keybind.match("app_exit", evt)) {
       exit()

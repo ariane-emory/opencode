@@ -107,3 +107,4 @@
 | fix/config-package-json-pollution | 04153c1855 | ✅ Merged | Clean merge |
 | fix/session-list-viewport-jumping | 9b383e6912 | ✅ Merged | Clean merge |
 | fix/merging-multiple-configs | 4263b5fede | ✅ Merged | Resolved config.ts conflict |
+| fix/markdown-codeblock-theme-property | d6ad731d44 | ✅ Merged | Clean merge |

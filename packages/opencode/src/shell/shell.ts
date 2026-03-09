@@ -36,7 +36,6 @@ export namespace Shell {
       }
     }
   }
-  const BLACKLIST = new Set(["fish", "nu"])
 
   function fallback() {
     if (process.platform === "win32") {
@@ -59,12 +58,6 @@ export namespace Shell {
   export const preferred = lazy(() => {
     const s = process.env.SHELL
     if (s) return s
-    return fallback()
-  })
-
-  export const acceptable = lazy(() => {
-    const s = process.env.SHELL
-    if (s && !BLACKLIST.has(process.platform === "win32" ? path.win32.basename(s) : path.basename(s))) return s
     return fallback()
   })
 }

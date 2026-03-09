@@ -58,7 +58,7 @@
 | ☑ | 52 | feat/alphabetize-command-palette-groups | origin | 555453d049 | |
 | ☑ | 53 | feat/taller-dialogs | origin | 1603c9bf0f | |
 | ☑ | 54 | feat/add-arianes-themes | origin | df67d8bad7 | |
-| ☐ | 55 | feat/aspiers--readline-additions | origin | TBD | |
+| ☑ | 55 | feat/aspiers--readline-additions | origin | 13bc956b3f | |
 | ☐ | 56 | feat/sidebar-clock | origin | TBD | |
 | ☐ | 57 | feat/improve-bash-tool-git-advice | origin | TBD | |
 | ☐ | 58 | feat/alphabetical-message-modal | origin | TBD | |
@@ -132,3 +132,4 @@
 | 52 | feat/alphabetize-command-palette-groups | 555453d049 | ✅ Merged | Resolved conflict in dialog-select.tsx |
 | 53 | feat/taller-dialogs | 1603c9bf0f | ✅ Merged | Clean merge |
 | 54 | feat/add-arianes-themes | df67d8bad7 | ✅ Merged | Clean merge |
+| 55 | feat/aspiers--readline-additions | 13bc956b3f | ✅ Merged | Clean merge |

@@ -55,7 +55,7 @@
 | ☑ | 49 | feat/no-disabled-lsps-in-sidebar | origin | 9d14e97b85 | |
 | ☑ | 50 | feat/agent-timestamps | origin | 0e2fe6c943 | |
 | ☑ | 51 | feat/rewind-modal-option | origin | 849db18407 | |
-| ☐ | 52 | feat/alphabetize-command-palette-groups | origin | TBD | |
+| ☑ | 52 | feat/alphabetize-command-palette-groups | origin | 555453d049 | |
 | ☐ | 53 | feat/taller-dialogs | origin | TBD | |
 | ☐ | 54 | feat/add-arianes-themes | origin | TBD | |
 | ☐ | 55 | feat/aspiers--readline-additions | origin | TBD | |
@@ -129,3 +129,4 @@
 | 49 | feat/no-disabled-lsps-in-sidebar | 9d14e97b85 | ✅ Merged | Resolved conflict in sidebar.tsx and preserved expansion persistence |
 | 50 | feat/agent-timestamps | 0e2fe6c943 | ✅ Merged | Resolved contentWidth conflict in session/index.tsx |
 | 51 | feat/rewind-modal-option | 849db18407 | ✅ Merged | Resolved openapi.json conflict by regenerating the SDK |
+| 52 | feat/alphabetize-command-palette-groups | 555453d049 | ✅ Merged | Resolved conflict in dialog-select.tsx |

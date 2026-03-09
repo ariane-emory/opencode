@@ -130,6 +130,7 @@ export function Prompt(props: PromptProps) {
     }
   })
 
+
   const lastUserMessage = createMemo(() => {
     if (!props.sessionID) return undefined
     const messages = sync.data.message[props.sessionID]
@@ -878,7 +879,7 @@ export function Prompt(props: PromptProps) {
               //   CORRECT: `${PLACEHOLDERS[store.placeholder]}`
               //   WRONG:   `Ask anything... "${PLACEHOLDERS[store.placeholder]}"`
               // The sinister-quotes feature intentionally removes the prefix. A test validates this.
-              placeholder={props.sessionID ? undefined : `${PLACEHOLDERS[store.placeholder]}`}
+              placeholder={props.sessionID ? undefined : placeholderText()}
               textColor={keybind.leader ? theme.textMuted : theme.text}
               focusedTextColor={keybind.leader ? theme.textMuted : theme.text}
               minHeight={1}

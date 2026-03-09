@@ -385,6 +385,13 @@ function App() {
         const current = promptRef.current
         // Don't require focus - if there's any text, preserve it
         const currentPrompt = current?.current?.input ? current.current : undefined
+
+        const currentSessionID = route.data.type === "session" ? route.data.sessionID : undefined
+        
+        // Store the last session ID so we can return to it easily (ephemeral, per-process)
+        if (currentSessionID) {
+          kv.setEphemeral("last_session_id", currentSessionID)
+        }
         route.navigate({
           type: "home",
           initialPrompt: currentPrompt,

@@ -924,7 +924,7 @@ export function Session() {
       }),
     },
     {
-      title: "Toggle child session",
+      title: session()?.parentID ? "Return to parent session" : "Show child sessions",
       value: "session.child.toggle",
       keybind: "session_child_toggle",
       category: "Session",

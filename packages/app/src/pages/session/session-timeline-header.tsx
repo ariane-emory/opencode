@@ -10,6 +10,7 @@ import { InlineInput } from "@opencode-ai/ui/inline-input"
 import { animate, type AnimationPlaybackControls, clearFadeStyles, FAST_SPRING } from "@opencode-ai/ui/motion"
 import { showToast } from "@opencode-ai/ui/toast"
 import { errorMessage } from "@/pages/layout/helpers"
+import { formatSessionTitle } from "@/utils/session-title"
 import { SessionContextUsage } from "@/components/session-context-usage"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { useLanguage } from "@/context/language"
@@ -427,14 +428,14 @@ export function SessionTimelineHeader(props: {
                     <h1 class="text-14-medium text-text-strong grow-1 min-w-0" onDblClick={openTitleEditor}>
                       <span class="grid min-w-0" style={{ overflow: "clip" }}>
                         <span ref={enterRef} class="col-start-1 row-start-1 min-w-0 truncate">
-                          <span classList={{ "opacity-60": headerText.muted }}>{headerText.value}</span>
+                          <span classList={{ "opacity-60": headerText.muted }}>{formatSessionTitle(headerText.value || "")}</span>
                         </span>
                         <span
                           ref={leaveRef}
                           class="col-start-1 row-start-1 min-w-0 truncate pointer-events-none"
                           style={{ opacity: "0" }}
                         >
-                          <span classList={{ "opacity-60": headerText.prevMuted }}>{headerText.prev}</span>
+                          <span classList={{ "opacity-60": headerText.prevMuted }}>{headerText.prev ? formatSessionTitle(headerText.prev) : ""}</span>
                         </span>
                       </span>
                     </h1>

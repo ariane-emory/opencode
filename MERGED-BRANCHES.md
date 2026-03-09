@@ -53,7 +53,7 @@
 | ☑ | 47 | feat/set-session-title | origin | d6bd74ee8a | |
 | ☑ | 48 | feat/get-session-title | origin | 6c19c6b7ce | |
 | ☑ | 49 | feat/no-disabled-lsps-in-sidebar | origin | 9d14e97b85 | |
-| ☐ | 50 | feat/agent-timestamps | origin | TBD | |
+| ☑ | 50 | feat/agent-timestamps | origin | 0e2fe6c943 | |
 | ☐ | 51 | feat/rewind-modal-option | origin | TBD | |
 | ☐ | 52 | feat/alphabetize-command-palette-groups | origin | TBD | |
 | ☐ | 53 | feat/taller-dialogs | origin | TBD | |
@@ -127,3 +127,4 @@
 | 47 | feat/set-session-title | d6bd74ee8a | ✅ Merged | Resolved duplicate update implementation in session/index.ts |
 | 48 | feat/get-session-title | 6c19c6b7ce | ✅ Merged | Resolved import conflict in tool/registry.ts |
 | 49 | feat/no-disabled-lsps-in-sidebar | 9d14e97b85 | ✅ Merged | Resolved conflict in sidebar.tsx and preserved expansion persistence |
+| 50 | feat/agent-timestamps | 0e2fe6c943 | ✅ Merged | Resolved contentWidth conflict in session/index.tsx |

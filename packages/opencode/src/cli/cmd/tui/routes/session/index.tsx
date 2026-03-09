@@ -928,7 +928,6 @@ export function Session() {
       value: "session.child.toggle",
       keybind: "session_child_toggle",
       category: "Session",
-      hidden: true,
       onSelect: (dialog) => {
         toggleChildSession()
         dialog.clear()

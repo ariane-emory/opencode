@@ -8,8 +8,11 @@ import type { AssistantMessage } from "@opencode-ai/sdk/v2"
 import { Installation } from "@/installation"
 import { useDirectory } from "../../context/directory"
 import { useKV } from "../../context/kv"
+import { useLocal } from "@tui/context/local"
+import { useSDK } from "@tui/context/sdk"
 import { TodoItem } from "../../component/todo-item"
 import { formatSessionTitle, parseSessionTitleParts } from "@tui/util/session-title"
+import { Log } from "@/util/log"
 
 export function Sidebar(props: { sessionID: string; showScrollbar?: boolean }) {
   const sync = useSync()
@@ -46,6 +49,28 @@ export function Sidebar(props: { sessionID: string; showScrollbar?: boolean }) {
   const setExpandedWithPersist = (key: "mcp" | "diff" | "todo" | "lsp", value: boolean) => {
     setExpanded(key, value)
     kv.set(`sidebar_expanded_${key}`, value)
+  }
+
+  const local = useLocal()
+  const sdk = useSDK()
+  const [loading, setLoading] = createSignal<string | null>(null)
+
+  async function handleToggle(name: string) {
+    if (loading() !== null) return
+    setLoading(name)
+    try {
+      await local.mcp.toggle(name)
+      const status = await sdk.client.mcp.status()
+      if (status.data) sync.set("mcp", status.data)
+    } catch (error) {
+      Log.Default.error("Failed to toggle MCP", {
+        error: error instanceof Error ? error.message : String(error),
+        name: error instanceof Error ? error.name : undefined,
+        stack: error instanceof Error ? error.stack : undefined,
+      })
+    } finally {
+      setLoading(null)
+    }
   }
 
   // Sort MCP servers alphabetically for consistent display order
@@ -163,7 +188,7 @@ export function Sidebar(props: { sessionID: string; showScrollbar?: boolean }) {
                 <Show when={mcpEntries().length <= 2 || expanded.mcp}>
                   <For each={mcpEntries()}>
                     {([key, item]) => (
-                      <box flexDirection="row" gap={1}>
+                      <box flexDirection="row" gap={1} onMouseDown={() => handleToggle(key)}>
                         <text
                           flexShrink={0}
                           style={{
@@ -180,10 +205,13 @@ export function Sidebar(props: { sessionID: string; showScrollbar?: boolean }) {
                         >
                           •
                         </text>
-                        <text fg={theme.text} wrapMode="word">
+                        <text fg={loading() === key ? theme.textMuted : theme.text} wrapMode="word">
                           {key}{" "}
                           <span style={{ fg: theme.textMuted }}>
                             <Switch fallback={item.status}>
+                              <Match when={loading() === key}>
+                                <i>Loading…</i>
+                              </Match>
                               <Match when={item.status === "connected"}>Connected</Match>
                               <Match when={item.status === "failed" && item}>{(val) => <i>{val().error}</i>}</Match>
                               <Match when={item.status === "disabled"}>Disabled</Match>
@@ -355,7 +383,8 @@ export function Sidebar(props: { sessionID: string; showScrollbar?: boolean }) {
             <Show when={showSidebarClock()}>
               <text fg={theme.accent}>{clockTime()}</text>
             </Show>
-          </box>        </box>
+          </box>
+        </box>
       </box>
     </Show>
   )

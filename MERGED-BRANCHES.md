@@ -98,3 +98,4 @@
 | feat/permission-spinner | 09be54da41 | ✅ Merged | Clean merge |
 | feat/permission-indicator-in-sidebar | 91d4278f67 | ✅ Merged | Clean merge |
 | fix/no-split-database | 2e90be3d73 | ✅ Merged | Clean merge |
+| fix/system-prompt-directories | d462563668 | ✅ Merged | Clean merge |

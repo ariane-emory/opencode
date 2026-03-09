@@ -62,7 +62,7 @@
 | ☑ | 56 | feat/sidebar-clock | origin | a6babe65da | |
 | ☑ | 57 | feat/improve-bash-tool-git-advice | origin | 8f73c45507 | |
 | ☑ | 58 | feat/alphabetical-message-modal | origin | d4963a1307 | |
-| ☐ | 59 | feat/toggle-sidebar-scrollbar | origin | TBD | |
+| ☑ | 59 | feat/toggle-sidebar-scrollbar | origin | 1e90526df8 | |
 | ☐ | 60 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | TBD | |
 | ☐ | 61 | feat/clickable-sidebar-mcps | origin | TBD | |
 | ☐ | 62 | feat/clickable-dialogue-mcps | origin | TBD | |
@@ -136,3 +136,4 @@
 | 56 | feat/sidebar-clock | a6babe65da | ✅ Merged | Resolved conflicts in app.tsx and sidebar.tsx |
 | 57 | feat/improve-bash-tool-git-advice | 8f73c45507 | ✅ Merged | Resolved conflict in bash.txt |
 | 58 | feat/alphabetical-message-modal | d4963a1307 | ✅ Merged | Resolved conflict in dialog-select.tsx |
+| 59 | feat/toggle-sidebar-scrollbar | 1e90526df8 | ✅ Merged | Resolved conflicts in app.tsx, index.tsx, sidebar.tsx |

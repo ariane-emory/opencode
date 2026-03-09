@@ -89,3 +89,4 @@
 | 9 | fix/dialog-datetime-alignment | 292589d2ea | ✅ Merged | Clean merge |
 | 10 | feat/keybindable-commands | d49a465e0b | ✅ Merged | Clean merge |
 | 11 | feat/opencode-expand | 92996787f8 | ✅ Merged | Clean merge |
+| feat/automatic-list-continuation | e7b48c0e9f | ✅ Merged | Clean merge |

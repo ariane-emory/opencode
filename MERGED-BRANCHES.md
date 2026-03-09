@@ -8,7 +8,7 @@
 | ☑ | 2 | feat/base-one-rebrand | origin | 438aa56e79 | |
 | ☑ | 3 | feat/sinister-quotes | origin | c7c6fa4a5e | Placeholders MUST be SINISTER_PLACEHOLDERS array |
 | ☑ | 4 | feat/markdown-renderer | gignit | ba49b599a4 | |
-| ☐ | 5 | feat/thinking-indicator-hidden | rcdailey | TBD | |
+| ☑ | 5 | feat/thinking-indicator-hidden | rcdailey | 2ac23aaf96 | |
 | ☐ | 6 | fix/session-new-prompt-handoff | AksharP5 | TBD | |
 | ☐ | 7 | feat/session-grouping | origin | TBD | |
 | ☐ | 8 | feat/session-bookmarks | origin | TBD | |
@@ -82,3 +82,4 @@
 | 2 | feat/base-one-rebrand | 438aa56e79 | ✅ Merged | Clean merge |
 | 3 | feat/sinister-quotes | c7c6fa4a5e | ✅ Merged | Clean merge |
 | 4 | feat/markdown-renderer | ba49b599a4 | ✅ Merged | Clean merge |
+| 5 | feat/thinking-indicator-hidden | 2ac23aaf96 | ✅ Merged | Clean merge |

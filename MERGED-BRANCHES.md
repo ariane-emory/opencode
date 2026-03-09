@@ -110,3 +110,4 @@
 | fix/markdown-codeblock-theme-property | d6ad731d44 | ✅ Merged | Clean merge |
 | refactor/shared-substitute | 90750a4faa | ✅ Merged | Clean merge |
 | feat/command-palette-consistecy | cc5acbbcce | ✅ Merged | Resolved conflicts in app.tsx and session/index.tsx |
+| feat/session-id-in-status | 603e7c0004 | ✅ Merged | Clean merge |

@@ -6,7 +6,7 @@
 |--------|---|-------------|--------|-------------|-------------|
 | ☑ | 1 | split-config-fixes | upstream | 0124f3f2e7 | MUST use only local copy, do NOT pull from upstream |
 | ☑ | 2 | feat/base-one-rebrand | origin | 438aa56e79 | |
-| ☐ | 3 | feat/sinister-quotes | origin | TBD | Placeholders MUST be SINISTER_PLACEHOLDERS array |
+| ☑ | 3 | feat/sinister-quotes | origin | c7c6fa4a5e | Placeholders MUST be SINISTER_PLACEHOLDERS array |
 | ☐ | 4 | feat/markdown-renderer | gignit | TBD | |
 | ☐ | 5 | feat/thinking-indicator-hidden | rcdailey | TBD | |
 | ☐ | 6 | fix/session-new-prompt-handoff | AksharP5 | TBD | |
@@ -80,3 +80,4 @@
 |---|--------|--------|--------------|-------|
 | 1 | split-config-fixes | 0124f3f2e7 | ✅ Merged | Resolved conflict in migrate-tui-config.ts |
 | 2 | feat/base-one-rebrand | 438aa56e79 | ✅ Merged | Clean merge |
+| 3 | feat/sinister-quotes | c7c6fa4a5e | ✅ Merged | Clean merge |

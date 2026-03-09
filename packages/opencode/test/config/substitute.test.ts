@@ -19,9 +19,9 @@ test("substituteArguments - multiple placeholders", () => {
   expect(hasPlaceholders).toBe(true)
 })
 
-test("substituteArguments - last placeholder swallows remaining", () => {
+test("substituteArguments - simple $N does not swallow", () => {
   const { result } = substituteArguments("$1 $2", ["a", "b", "c", "d"])
-  expect(result).toBe("a b c d")
+  expect(result).toBe("a b")
 })
 
 test("substituteArguments - missing argument returns empty", () => {
@@ -95,9 +95,9 @@ test("substituteArguments - mix of $1 and ${2:default}", () => {
   expect(result).toBe("first and fallback")
 })
 
-test("substituteArguments - ${2:default} last swallows remaining", () => {
+test("substituteArguments - ${2:default} does not swallow", () => {
   const { result } = substituteArguments("${1:first} ${2:second}", ["a", "b", "c"])
-  expect(result).toBe("a b c")
+  expect(result).toBe("a b")
 })
 
 test("substituteArguments - ${N:default} hasPlaceholders is true", () => {
@@ -213,4 +213,20 @@ test("substituteArguments - ${1..:$2:fallback} range with chained fallback", () 
 test("substituteArguments - ${1..:$2:fallback} range uses final fallback", () => {
   const { result } = substituteArguments("${1..:$2:fallback}", [])
   expect(result).toBe("fallback")
+})
+
+test("substituteArguments - $N with ${N..} does not swallow", () => {
+  // Regression test for: $2 should NOT swallow args meant for ${3..}
+  // This is the use case for commands like /edit-branch-and-merge
+  // $1 = command name (edit-branch-and-merge)
+  // $2 = branch name (feat/add-arianes-themes)
+  // ${3..} = remaining args (foo bar baz)
+  const { result } = substituteArguments("Branch: $2, Args: ${3..}", [
+    "edit-branch-and-merge",
+    "feat/add-arianes-themes",
+    "foo",
+    "bar",
+    "baz",
+  ])
+  expect(result).toBe("Branch: feat/add-arianes-themes, Args: foo bar baz")
 })

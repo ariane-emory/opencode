@@ -27,26 +27,11 @@ export function substituteArguments(
   template: string,
   args: string[],
 ): { result: string; hasPlaceholders: boolean } {
-  // Find all placeholders to determine hasPlaceholders and lastSimpleIndex
+  // Find all placeholders to determine hasPlaceholders
   const simplePlaceholders = template.match(placeholderRegex) ?? []
   const extendedPlaceholders = template.match(extendedPlaceholderRegex) ?? []
   const defaultPlaceholders = template.match(defaultPlaceholderRegex) ?? []
   const rangeWithDefaultPlaceholders = template.match(rangeWithDefaultRegex) ?? []
-
-  let lastSimpleIndex = 0
-  for (const item of simplePlaceholders) {
-    const value = Number(item.slice(1))
-    if (value > lastSimpleIndex) lastSimpleIndex = value
-  }
-
-  let lastDefaultIndex = 0
-  for (const item of defaultPlaceholders) {
-    const match = item.match(/\$\{(\d+):/)
-    if (match) {
-      const value = Number(match[1])
-      if (value > lastDefaultIndex) lastDefaultIndex = value
-    }
-  }
 
   // 1. Process rangeWithDefaultRegex (most specific - requires .. and :)
   let result = template.replaceAll(rangeWithDefaultRegex, (expr, start, dotsAndEnd, defaultVal) => {
@@ -65,17 +50,10 @@ export function substituteArguments(
 
   // 2. Process defaultPlaceholderRegex (has : but no ..)
   result = result.replaceAll(defaultPlaceholderRegex, (expr, position, defaultVal) => {
-    const pos = Number(position)
-    const argIndex = pos - 1
+    const argIndex = Number(position) - 1
     if (argIndex < args.length) {
-      if (pos === lastDefaultIndex) {
-        const slice = args.slice(argIndex)
-        const nonEmpty = slice.filter(arg => arg.trim() !== "")
-        if (nonEmpty.length > 0) return nonEmpty.join(" ")
-      } else {
-        const arg = args[argIndex]
-        if (arg.trim() !== "") return arg
-      }
+      const arg = args[argIndex]
+      if (arg.trim() !== "") return arg
     }
     return resolveChainedDefault(expr, defaultVal, args)
   })
@@ -99,12 +77,10 @@ export function substituteArguments(
   })
 
   // 4. Process simple $N placeholders
-  // The last placeholder swallows remaining arguments (backward compatibility)
+  // No swallowing - each $N returns only the Nth argument
   result = result.replaceAll(placeholderRegex, (_, index) => {
-    const position = Number(index)
-    const argIndex = position - 1
+    const argIndex = Number(index) - 1
     if (argIndex >= args.length) return ""
-    if (position === lastSimpleIndex) return args.slice(argIndex).join(" ")
     return args[argIndex]
   })
 

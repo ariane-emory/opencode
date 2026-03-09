@@ -1,4 +1,5 @@
 import path from "path"
+import { substituteArguments as _substituteArguments } from "../config/substitute"
 import os from "os"
 import fs from "fs/promises"
 import z from "zod"
@@ -34,6 +35,7 @@ import { Command } from "../command"
 import { $, fileURLToPath, pathToFileURL } from "bun"
 import { ConfigMarkdown } from "../config/markdown"
 import { substituteArguments } from "../config/substitute"
+import { Config } from "../config/config"
 import { SessionSummary } from "./summary"
 import { NamedError } from "@opencode-ai/util/error"
 import { fn } from "@/util/fn"
@@ -271,9 +273,15 @@ export namespace SessionPrompt {
   export const LoopInput = z.object({
     sessionID: Identifier.schema("session"),
     resume_existing: z.boolean().optional(),
+    model: z
+      .object({
+        providerID: z.string(),
+        modelID: z.string(),
+      })
+      .optional(),
   })
   export const loop = fn(LoopInput, async (input) => {
-    const { sessionID, resume_existing } = input
+    const { sessionID, resume_existing, model: modelOverride } = input
 
     const abort = resume_existing ? resume(sessionID) : start(sessionID)
     if (!abort) {
@@ -334,7 +342,19 @@ export namespace SessionPrompt {
           history: msgs,
         })
 
-      const model = await Provider.getModel(lastUser.model.providerID, lastUser.model.modelID).catch((e) => {
+      // Use override model if provided, otherwise use model from last user message
+      const modelToUse = modelOverride ?? lastUser.model
+      
+      // Update user message model if override was provided (for consistency)
+      if (modelOverride) {
+        await Session.updateMessage({
+          ...lastUser,
+          model: modelToUse,
+        })
+        lastUser.model = modelToUse
+      }
+      
+      const model = await Provider.getModel(modelToUse.providerID, modelToUse.modelID).catch((e) => {
         if (Provider.ModelNotFoundError.isInstance(e)) {
           const hint = e.data.suggestions?.length ? ` Did you mean: ${e.data.suggestions.join(", ")}?` : ""
           Bus.publish(Session.Event.Error, {
@@ -1326,7 +1346,7 @@ export namespace SessionPrompt {
     if (!userMessage) return input.messages
 
     // Original logic when experimental plan mode is disabled
-    if (!Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE) {
+    if (!(await Config.experimentalPlanMode())) {
       if (input.agent.name === "plan") {
         userMessage.parts.push({
           id: Identifier.ascending("part"),
@@ -1737,11 +1757,14 @@ NOTE: At any point in time through this workflow you should feel free to ask the
   // Match [Image N] as single token, quoted strings, or non-space sequences
   const argsRegex = /(?:\[Image\s+\d+\]|"[^"]*"|'[^']*'|[^\s"']+)/gi
   const quoteTrimRegex = /^["']|["']$/g
+
   /**
    * Regular expression to match @ file references in text
    * Matches @ followed by file paths, excluding commas, periods at end of sentences, and backticks
    * Does not match when preceded by word characters or backticks (to avoid email addresses and quoted references)
    */
+
+  export const substituteArguments = _substituteArguments
 
   export async function command(input: CommandInput) {
     log.info("command", input)
@@ -1753,11 +1776,15 @@ NOTE: At any point in time through this workflow you should feel free to ask the
 
     const templateCommand = await command.template
 
-    const { result: withArgs, hasPlaceholders } = substituteArguments(templateCommand, args)
+    const { result: withArgs, hasPlaceholders } = substituteArguments(
+      templateCommand,
+      args,
+    )
+
     const usesArgumentsPlaceholder = templateCommand.includes("$ARGUMENTS")
     let template = withArgs.replaceAll("$ARGUMENTS", input.arguments)
 
-    // If command doesn't explicitly handle arguments (no $N or $ARGUMENTS placeholders)
+    // If command doesn't explicitly handle arguments (no $N, ${...}, or $ARGUMENTS placeholders)
     // but user provided arguments, append them to the template
     if (!hasPlaceholders && !usesArgumentsPlaceholder && input.arguments.trim()) {
       template = template + "\n\n" + input.arguments

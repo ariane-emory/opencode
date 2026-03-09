@@ -295,7 +295,7 @@
       "name": "opencode",
       "version": "1.2.22",
       "bin": {
-        "opencode": "./bin/opencode",
+        "baseone": "./bin/baseone",
       },
       "dependencies": {
         "@actions/core": "1.11.1",
@@ -333,6 +333,7 @@
         "@opencode-ai/plugin": "workspace:*",
         "@opencode-ai/script": "workspace:*",
         "@opencode-ai/sdk": "workspace:*",
+        "@opencode-ai/ui": "workspace:*",
         "@opencode-ai/util": "workspace:*",
         "@openrouter/ai-sdk-provider": "1.5.4",
         "@opentui/core": "0.1.86",

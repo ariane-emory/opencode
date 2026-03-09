@@ -26,13 +26,14 @@ import { TuiEvent } from "../../event"
 import { iife } from "@/util/iife"
 import { Locale } from "@/util/locale"
 import { formatDuration } from "@/util/format"
-import { createColors, createFrames } from "../../ui/spinner.ts"
+import { createColors, createFrames, createPulseFrames, createPulseColors } from "../../ui/spinner.ts"
 import { useDialog } from "@tui/ui/dialog"
 import { DialogProvider as DialogProviderConnect } from "../dialog-provider"
 import { DialogAlert } from "../../ui/dialog-alert"
 import { useToast } from "../../ui/toast"
 import { useKV } from "../../context/kv"
 import { useTextareaKeybindings } from "../textarea-keybindings"
+import { useListContinuation } from "../list-continuation"
 import { DialogSkill } from "../dialog-skill"
 
 export type PromptProps = {
@@ -55,7 +56,7 @@ export type PromptRef = {
   submit(): void
 }
 
-const PLACEHOLDERS = ["Fix a TODO in the codebase", "What is the tech stack of this project?", "Fix broken tests"]
+import { SINISTER_PLACEHOLDERS as PLACEHOLDERS } from "@opencode-ai/ui/constants/placeholders"
 const SHELL_PLACEHOLDERS = ["ls -la", "git status", "pwd"]
 
 export function Prompt(props: PromptProps) {
@@ -90,6 +91,10 @@ export function Prompt(props: PromptProps) {
   }
 
   const textareaKeybindings = useTextareaKeybindings()
+  const listContinuation = useListContinuation()
+
+  // Filter out newline from keybindings so we can handle it in onKeyDown with list continuation
+  const promptKeybindings = createMemo(() => textareaKeybindings().filter((b) => b.action !== "newline"))
 
   const fileStyleId = syntax().getStyleId("extmark.file")!
   const agentStyleId = syntax().getStyleId("extmark.agent")!
@@ -113,6 +118,17 @@ export function Prompt(props: PromptProps) {
     if (!props.disabled) input.cursorColor = theme.text
   })
 
+  // Resize textarea when placeholder changes (e.g., when switching sessions or when placeholder index changes)
+  createEffect(() => {
+    const placeholderText = props.sessionID ? undefined : PLACEHOLDERS[store.placeholder]
+    // Track both the placeholder text and sessionID changes
+    if (input) {
+      setTimeout(() => {
+        input.getLayoutNode().markDirty()
+        renderer.requestRender()
+      }, 0)
+    }
+  })
   const lastUserMessage = createMemo(() => {
     if (!props.sessionID) return undefined
     const messages = sync.data.message[props.sessionID]
@@ -529,7 +545,14 @@ export function Prompt(props: PromptProps) {
     if (props.disabled) return
     if (autocomplete?.visible) return
     if (!store.prompt.input) return
-    const trimmed = store.prompt.input.trim()
+    
+    // Clean up trailing empty list items before submitting
+    const cleaned = listContinuation.cleanupForSubmit(store.prompt.input)
+    if (cleaned !== store.prompt.input) {
+      setStore("prompt", "input", cleaned)
+    }
+    
+    const trimmed = cleaned.trim()
     if (trimmed === "exit" || trimmed === "quit" || trimmed === ":q") {
       exit()
       return
@@ -546,7 +569,7 @@ export function Prompt(props: PromptProps) {
           return sessionID
         })()
     const messageID = Identifier.ascending("message")
-    let inputText = store.prompt.input
+    let inputText = cleaned
 
     // Expand pasted text inline before submitting
     const allExtmarks = input.extmarks.getAllForTypeId(promptPartTypeId)
@@ -755,7 +778,7 @@ export function Prompt(props: PromptProps) {
       const example = SHELL_PLACEHOLDERS[store.placeholder % SHELL_PLACEHOLDERS.length]
       return `Run a command... "${example}"`
     }
-    return `Ask anything... "${PLACEHOLDERS[store.placeholder % PLACEHOLDERS.length]}"`
+    return PLACEHOLDERS[store.placeholder % PLACEHOLDERS.length]
   })
 
   const spinnerDef = createMemo(() => {
@@ -764,6 +787,8 @@ export function Prompt(props: PromptProps) {
       frames: createFrames({
         color,
         style: "blocks",
+        width: 8,
+        trailSteps: 4,
         inactiveFactor: 0.6,
         // enableFading: false,
         minAlpha: 0.3,
@@ -771,11 +796,40 @@ export function Prompt(props: PromptProps) {
       color: createColors({
         color,
         style: "blocks",
+        trailSteps: 4,
         inactiveFactor: 0.6,
         // enableFading: false,
         minAlpha: 0.3,
       }),
     }
+  })
+
+  // Check if current session has pending permissions
+  const hasPermission = createMemo(() => {
+    const sessionID = props.sessionID
+    if (!sessionID) return false
+    const count = sync.data.permission[sessionID]?.length ?? 0
+    return count > 0
+  })
+
+  // Create pulse spinner definition for permission-awaiting state
+  const pulseSpinnerDef = createMemo(() => {
+    const color = local.agent.color(local.agent.current().name)
+    return {
+      frames: createPulseFrames({
+        color,
+        style: "blocks",
+      }),
+      color: createPulseColors({
+        color,
+        minAlpha: 0.15,
+      }),
+    }
+  })
+
+  // Select active spinner based on permission state
+  const activeSpinner = createMemo(() => {
+    return hasPermission() ? pulseSpinnerDef() : spinnerDef()
   })
 
   return (
@@ -819,7 +873,11 @@ export function Prompt(props: PromptProps) {
             flexGrow={1}
           >
             <textarea
-              placeholder={placeholderText()}
+              // **CRITICAL MERGE WARNING**: Keep this EXACT format (NO "Ask anything" prefix, NO quotes):
+              //   CORRECT: `${PLACEHOLDERS[store.placeholder]}`
+              //   WRONG:   `Ask anything... "${PLACEHOLDERS[store.placeholder]}"`
+              // The sinister-quotes feature intentionally removes the prefix. A test validates this.
+              placeholder={props.sessionID ? undefined : placeholderText()}
               textColor={keybind.leader ? theme.textMuted : theme.text}
               focusedTextColor={keybind.leader ? theme.textMuted : theme.text}
               minHeight={1}
@@ -830,10 +888,40 @@ export function Prompt(props: PromptProps) {
                 autocomplete.onInput(value)
                 syncExtmarksWithPromptParts()
               }}
-              keyBindings={textareaKeybindings()}
+              keyBindings={promptKeybindings()}
               onKeyDown={async (e) => {
                 if (props.disabled) {
                   e.preventDefault()
+                  return
+                }
+                // Handle automatic list continuation on newline
+                if (keybind.match("input_newline", e)) {
+                  e.preventDefault()
+                  const action = listContinuation.handleNewline(input.plainText, input.cursorOffset)
+                  if (action) {
+                    if (action.type === "continue") {
+                      input.insertText(action.insertText)
+                      if (action.renumber) {
+                        // Adjust offsets since insertText shifted subsequent content
+                        const offset = action.insertText.length
+                        const adjustedStart = action.renumber.start + offset
+                        const adjustedEnd = action.renumber.end + offset
+                        const before = input.plainText.slice(0, adjustedStart)
+                        const after = input.plainText.slice(adjustedEnd)
+                        input.setText(before + action.renumber.newText + after)
+                        // Cursor should be after the inserted new item
+                        input.cursorOffset = adjustedStart - 1
+                      }
+                    } else if (action.type === "clear") {
+                      const before = input.plainText.slice(0, action.deleteRange.start)
+                      const after = input.plainText.slice(action.deleteRange.end)
+                      input.setText(before + after)
+                      input.cursorOffset = action.cursorPosition
+                    }
+                  } else {
+                    // No list continuation - just insert a normal newline
+                    input.insertText("\n")
+                  }
                   return
                 }
                 // Handle clipboard paste (Ctrl+V) - check for images first on Windows
@@ -854,6 +942,12 @@ export function Prompt(props: PromptProps) {
                   // If no image, let the default paste behavior continue
                 }
                 if (keybind.match("input_clear", e) && store.prompt.input !== "") {
+                  if (kv.get("clear_prompt_save_history", false)) {
+                    history.append({
+                      ...store.prompt,
+                      mode: store.mode,
+                    })
+                  }
                   input.clear()
                   input.extmarks.clear()
                   setStore("prompt", {
@@ -1054,7 +1148,8 @@ export function Prompt(props: PromptProps) {
               <box flexShrink={0} flexDirection="row" gap={1}>
                 <box marginLeft={1}>
                   <Show when={kv.get("animations_enabled", true)} fallback={<text fg={theme.textMuted}>[⋯]</text>}>
-                    <spinner color={spinnerDef().color} frames={spinnerDef().frames} interval={40} />
+                    {/* @ts-ignore // SpinnerOptions doesn't support marginLeft */}
+                    <spinner color={activeSpinner().color} frames={activeSpinner().frames} interval={40} />
                   </Show>
                 </box>
                 <box flexDirection="row" gap={1} flexShrink={0}>

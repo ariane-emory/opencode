@@ -13,6 +13,7 @@ export interface FilteredListProps<T> {
   sortBy?: (a: T, b: T) => number
   sortGroupsBy?: (a: { category: string; items: T[] }, b: { category: string; items: T[] }) => number
   onSelect?: (value: T | undefined, index: number) => void
+
   noInitialSelection?: boolean
 }
 

@@ -268,6 +268,7 @@ export const SessionRoutes = lazy(() =>
           time: z
             .object({
               archived: z.number().optional(),
+              pinned: z.number().nullable().optional(),
             })
             .optional(),
         }),
@@ -276,15 +277,19 @@ export const SessionRoutes = lazy(() =>
         const sessionID = c.req.valid("param").sessionID
         const updates = c.req.valid("json")
 
-        let session = await Session.get(sessionID)
-        if (updates.title !== undefined) {
-          session = await Session.setTitle({ sessionID, title: updates.title })
-        }
-        if (updates.time?.archived !== undefined) {
-          session = await Session.setArchived({ sessionID, time: updates.time.archived })
-        }
+        const updatedSession = await Session.update(
+          sessionID,
+          (session) => {
+            if (updates.title !== undefined) {
+              session.title = updates.title
+            }
+            if (updates.time?.archived !== undefined) session.time.archived = updates.time.archived
+            if (updates.time?.pinned !== undefined) session.time.pinned = updates.time.pinned ?? undefined
+          },
+          { touch: false },
+        )
 
-        return c.json(session)
+        return c.json(updatedSession)
       },
     )
     .post(
@@ -931,6 +936,77 @@ export const SessionRoutes = lazy(() =>
         const sessionID = c.req.valid("param").sessionID
         const session = await SessionRevert.unrevert({ sessionID })
         return c.json(session)
+      },
+    )
+    .post(
+      "/:sessionID/continue",
+      describeRoute({
+        summary: "Continue interrupted conversation",
+        description:
+          "Continue a conversation that was interrupted, reverting incomplete assistant messages and resuming processing.",
+        operationId: "session.continue",
+        responses: {
+          200: {
+            description: "Conversation continued",
+            content: {
+              "application/json": {
+                schema: resolver(z.boolean()),
+              },
+            },
+          },
+          ...errors(400, 404),
+        },
+      }),
+      validator(
+        "param",
+        z.object({
+          sessionID: z.string().meta({ description: "Session ID" }),
+        }),
+      ),
+      validator(
+        "json",
+        z.object({
+          model: z.object({
+            providerID: z.string(),
+            modelID: z.string(),
+          }).optional(),
+        }),
+      ),
+      async (c) => {
+        const sessionID = c.req.valid("param").sessionID
+        const { model } = c.req.valid("json")
+
+        // Check if session has an unfinished assistant message
+        const msgs = await Session.messages({ sessionID })
+        let lastAssistant: MessageV2.Assistant | undefined
+
+        for (let i = msgs.length - 1; i >= 0; i--) {
+          const msg = msgs[i]
+          if (msg.info.role === "assistant") {
+            lastAssistant = msg.info as MessageV2.Assistant
+            break
+          }
+        }
+
+        // If no unfinished assistant message, return false
+        if (lastAssistant?.finish && !["tool-calls", "unknown", "length"].includes(lastAssistant.finish)) {
+          return c.json(false)
+        }
+
+        if (!lastAssistant) {
+          return c.json(false)
+        }
+
+        // Revert the unfinished assistant message
+        await SessionRevert.revert({
+          sessionID,
+          messageID: lastAssistant.id,
+        })
+
+        // Start the conversation loop to continue
+        await SessionPrompt.loop({ sessionID, model })
+
+        return c.json(true)
       },
     )
     .post(

@@ -11,6 +11,7 @@ import {
   Show,
   Switch,
   useContext,
+  Index,
 } from "solid-js"
 import { Dynamic } from "solid-js/web"
 import path from "path"
@@ -18,7 +19,8 @@ import { useRoute, useRouteData } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
 import { SplitBorder } from "@tui/component/border"
 import { Spinner } from "@tui/component/spinner"
-import { selectedForeground, useTheme } from "@tui/context/theme"
+import { useTheme } from "@tui/context/theme"
+import { selectedForeground } from "@tui/context/theme"
 import {
   BoxRenderable,
   ScrollBoxRenderable,
@@ -27,6 +29,8 @@ import {
   type ScrollAcceleration,
   TextAttributes,
   RGBA,
+  StyledText,
+  SyntaxStyle,
 } from "@opentui/core"
 import { Prompt, type PromptRef } from "@tui/component/prompt"
 import type { AssistantMessage, Part, ToolPart, UserMessage, TextPart, ReasoningPart } from "@opencode-ai/sdk/v2"
@@ -60,6 +64,7 @@ import type { PromptInfo } from "../../component/prompt/history"
 import { DialogConfirm } from "@tui/ui/dialog-confirm"
 import { DialogTimeline } from "./dialog-timeline"
 import { DialogForkFromTimeline } from "./dialog-fork-from-timeline"
+import { formatSessionTitle } from "@tui/util/session-title"
 import { DialogSessionRename } from "../../component/dialog-session-rename"
 import { Sidebar } from "./sidebar"
 import { Flag } from "@/flag/flag"
@@ -81,6 +86,7 @@ import { DialogExportOptions } from "../../ui/dialog-export-options"
 import { formatTranscript } from "../../util/transcript"
 import { UI } from "@/cli/ui.ts"
 import { useTuiConfig } from "../../context/tui-config"
+import { renderMarkdownThemedStyled, parseMarkdownSegments } from "@/cli/markdown-renderer"
 
 addDefaultParsers(parsers.parsers)
 
@@ -105,6 +111,7 @@ const context = createContext<{
   diffWrapMode: () => "word" | "none"
   sync: ReturnType<typeof useSync>
   tui: ReturnType<typeof useTuiConfig>
+  markdownAll: () => boolean
 }>()
 
 function use() {
@@ -147,7 +154,7 @@ export function Session() {
   })
 
   const dimensions = useTerminalDimensions()
-  const [sidebar, setSidebar] = kv.signal<"auto" | "hide">("sidebar", "auto")
+  const [sidebar, setSidebar] = kv.signal<"show" | "hide" | "auto">("sidebar", "auto")
   const [sidebarOpen, setSidebarOpen] = createSignal(false)
   const [conceal, setConceal] = createSignal(true)
   const [showThinking, setShowThinking] = kv.signal("thinking_visibility", true)
@@ -161,9 +168,11 @@ export function Session() {
   const [showGenericToolOutput, setShowGenericToolOutput] = kv.signal("generic_tool_output_visibility", false)
 
   const wide = createMemo(() => dimensions().width > 120)
+  const [markdownAll, setMarkdownAll] = kv.signal("markdown_all_messages", false)
   const sidebarVisible = createMemo(() => {
     if (session()?.parentID) return false
     if (sidebarOpen()) return true
+    if (sidebar() === "show") return true
     if (sidebar() === "auto" && wide()) return true
     return false
   })
@@ -235,7 +244,7 @@ export function Session() {
   const exit = useExit()
 
   createEffect(() => {
-    const title = Locale.truncate(session()?.title ?? "", 50)
+    const title = Locale.truncate(formatSessionTitle(session()?.title ?? ""), 50)
     const pad = (text: string) => text.padEnd(10, " ")
     const weak = (text: string) => UI.Style.TEXT_DIM + pad(text) + UI.Style.TEXT_NORMAL
     const logo = UI.logo("  ").split(/\r?\n/)
@@ -247,7 +256,7 @@ export function Session() {
         `${logo[3] ?? ""}`,
         ``,
         `  ${weak("Session")}${UI.Style.TEXT_NORMAL_BOLD}${title}${UI.Style.TEXT_NORMAL}`,
-        `  ${weak("Continue")}${UI.Style.TEXT_NORMAL_BOLD}opencode -s ${session()?.id}${UI.Style.TEXT_NORMAL}`,
+        `  ${weak("Continue")}${UI.Style.TEXT_NORMAL_BOLD}baseone -s ${session()?.id}${UI.Style.TEXT_NORMAL}`,
         ``,
       ].join("\n"),
     )
@@ -550,17 +559,28 @@ export function Session() {
       },
     },
     {
-      title: sidebarVisible() ? "Hide sidebar" : "Show sidebar",
-      value: "session.sidebar.toggle",
-      keybind: "sidebar_toggle",
+      title: "Continue interrupted conversation",
+      value: "session.continue",
+      keybind: "session_continue",
       category: "Session",
-      onSelect: (dialog) => {
-        batch(() => {
-          const isVisible = sidebarVisible()
-          setSidebar(() => (isVisible ? "hide" : "auto"))
-          setSidebarOpen(!isVisible)
+      slash: {
+        name: "continue",
+      },
+      onSelect: async (dialog) => {
+        const currentModel = local.model.current()
+        const result = await sdk.client.session.continue({
+          sessionID: route.sessionID,
+          model: currentModel ? {
+            providerID: currentModel.providerID,
+            modelID: currentModel.modelID,
+          } : undefined,
         })
-        dialog.clear()
+        
+        if (result.data) {
+          toBottom()
+        } else {
+          dialog.clear()
+        }
       },
     },
     {
@@ -574,71 +594,7 @@ export function Session() {
       },
     },
     {
-      title: showTimestamps() ? "Hide timestamps" : "Show timestamps",
-      value: "session.toggle.timestamps",
-      category: "Session",
-      slash: {
-        name: "timestamps",
-        aliases: ["toggle-timestamps"],
-      },
-      onSelect: (dialog) => {
-        setTimestamps((prev) => (prev === "show" ? "hide" : "show"))
-        dialog.clear()
-      },
-    },
-    {
-      title: showThinking() ? "Hide thinking" : "Show thinking",
-      value: "session.toggle.thinking",
-      keybind: "display_thinking",
-      category: "Session",
-      slash: {
-        name: "thinking",
-        aliases: ["toggle-thinking"],
-      },
-      onSelect: (dialog) => {
-        setShowThinking((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
-      title: showDetails() ? "Hide tool details" : "Show tool details",
-      value: "session.toggle.actions",
-      keybind: "tool_details",
-      category: "Session",
-      onSelect: (dialog) => {
-        setShowDetails((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
-      title: "Toggle session scrollbar",
-      value: "session.toggle.scrollbar",
-      keybind: "scrollbar_toggle",
-      category: "Session",
-      onSelect: (dialog) => {
-        setShowScrollbar((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
-      title: showHeader() ? "Hide header" : "Show header",
-      value: "session.toggle.header",
-      category: "Session",
-      onSelect: (dialog) => {
-        setShowHeader((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
-      title: showGenericToolOutput() ? "Hide generic tool output" : "Show generic tool output",
-      value: "session.toggle.generic_tool_output",
-      category: "Session",
-      onSelect: (dialog) => {
-        setShowGenericToolOutput((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
+
       title: "Page up",
       value: "session.page.up",
       keybind: "messages_page_up",
@@ -1027,6 +983,7 @@ export function Session() {
         diffWrapMode,
         sync,
         tui: tuiConfig,
+        markdownAll,
       }}
     >
       <box flexDirection="row">
@@ -1223,12 +1180,14 @@ function UserMessage(props: {
   const text = createMemo(() => props.parts.flatMap((x) => (x.type === "text" && !x.synthetic ? [x] : []))[0])
   const files = createMemo(() => props.parts.flatMap((x) => (x.type === "file" ? [x] : [])))
   const sync = useSync()
-  const { theme } = useTheme()
+  const tui = useTheme()
+  const theme = tui.theme
   const [hover, setHover] = createSignal(false)
   const queued = createMemo(() => props.pending && props.message.id > props.pending)
   const color = createMemo(() => local.agent.color(props.message.agent))
   const queuedFg = createMemo(() => selectedForeground(theme, color()))
   const metadataVisible = createMemo(() => queued() || ctx.showTimestamps())
+  const segments = createMemo(() => parseMarkdownSegments(text()?.text?.trim() ?? ""))
 
   const compaction = createMemo(() => props.parts.find((x) => x.type === "compaction"))
 
@@ -1256,7 +1215,32 @@ function UserMessage(props: {
             backgroundColor={hover() ? theme.backgroundElement : theme.backgroundPanel}
             flexShrink={0}
           >
-            <text fg={theme.text}>{text()?.text}</text>
+            <Show when={ctx.markdownAll()} fallback={<text fg={theme.text}>{text()?.text}</text>}>
+              <Switch>
+                <Match when={Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+                  <markdown
+                    syntaxStyle={tui.syntax()}
+                    streaming={false}
+                    content={text()?.text?.trim() ?? ""}
+                    conceal={ctx.conceal()}
+                  />
+                </Match>
+                <Match when={!Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+                  <box flexDirection="column">
+                    <Index each={segments()}>
+                      {(segment) => (
+                        <Show
+                          when={segment().type === "code"}
+                          fallback={<Prose segment={segment() as any} theme={tui.theme} width={ctx.width - 5} />}
+                        >
+                          <CodeBlock segment={segment() as any} syntax={tui.syntax()} />
+                        </Show>
+                      )}
+                    </Index>
+                  </box>
+                </Match>
+              </Switch>
+            </Show>
             <Show when={files().length}>
               <box flexDirection="row" paddingBottom={metadataVisible() ? 1 : 0} paddingTop={1} gap={1} flexWrap="wrap">
                 <For each={files()}>
@@ -1411,60 +1395,172 @@ function ReasoningPart(props: { last: boolean; part: ReasoningPart; message: Ass
     // OpenRouter sends encrypted reasoning data that appears as [REDACTED]
     return props.part.text.replace("[REDACTED]", "").trim()
   })
-  return (
-    <Show when={content() && ctx.showThinking()}>
-      <box
-        id={"text-" + props.part.id}
-        paddingLeft={2}
-        marginTop={1}
-        flexDirection="column"
-        border={["left"]}
-        customBorderChars={SplitBorder.customBorderChars}
-        borderColor={theme.backgroundElement}
-      >
-        <code
-          filetype="markdown"
-          drawUnstyledText={false}
-          streaming={true}
-          syntaxStyle={subtleSyntax()}
-          content={"_Thinking:_ " + content()}
-          conceal={ctx.conceal()}
-          fg={theme.textMuted}
-        />
-      </box>
-    </Show>
+  const pending = createMemo(() => !props.part.time.end && !props.message.time.completed)
+  const color = createMemo(() =>
+    RGBA.fromInts(
+      Math.round(theme.markdownEmph.r * 255),
+      Math.round(theme.markdownEmph.g * 255),
+      Math.round(theme.markdownEmph.b * 255),
+      Math.round(theme.thinkingOpacity * 255),
+    ),
   )
+  return (
+    <Switch>
+      <Match when={content() && ctx.showThinking()}>
+        <box
+          id={"text-" + props.part.id}
+          paddingLeft={2}
+          marginTop={1}
+          flexDirection="column"
+          border={["left"]}
+          customBorderChars={SplitBorder.customBorderChars}
+          borderColor={theme.backgroundElement}
+        >
+          <code
+            filetype="markdown"
+            drawUnstyledText={false}
+            streaming={true}
+            syntaxStyle={subtleSyntax()}
+            content={"_Thinking:_ " + content()}
+            conceal={ctx.conceal()}
+            fg={theme.textMuted}
+          />
+        </box>
+      </Match>
+      <Match when={!ctx.showThinking() && pending()}>
+        <box paddingLeft={3} marginTop={1}>
+          <Spinner color={color()}>Thinking...</Spinner>
+        </box>
+      </Match>
+    </Switch>
+  )
+}
+
+// ============================================================================
+// Markdown Rendering Components
+// ============================================================================
+
+const LANGS: Record<string, string> = {
+  js: "javascript",
+  ts: "typescript",
+  jsx: "typescript",
+  tsx: "typescript",
+  py: "python",
+  rb: "ruby",
+  sh: "shell",
+  bash: "shell",
+  zsh: "shell",
+  yml: "yaml",
+  md: "markdown",
 }
 
 function TextPart(props: { last: boolean; part: TextPart; message: AssistantMessage }) {
   const ctx = use()
-  const { theme, syntax } = useTheme()
+  const tui = useTheme()
+  const segments = createMemo(() => parseMarkdownSegments(props.part.text?.trim() ?? ""))
+
   return (
-    <Show when={props.part.text.trim()}>
+    <Show when={props.part.text?.trim()}>
       <box id={"text-" + props.part.id} paddingLeft={3} marginTop={1} flexShrink={0}>
         <Switch>
           <Match when={Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
             <markdown
-              syntaxStyle={syntax()}
+              syntaxStyle={tui.syntax()}
               streaming={true}
               content={props.part.text.trim()}
               conceal={ctx.conceal()}
             />
           </Match>
           <Match when={!Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
-            <code
-              filetype="markdown"
-              drawUnstyledText={false}
-              streaming={true}
-              syntaxStyle={syntax()}
-              content={props.part.text.trim()}
-              conceal={ctx.conceal()}
-              fg={theme.text}
-            />
+            <box flexDirection="column">
+              <Index each={segments()}>
+                {(segment) => (
+                  <Show
+                    when={segment().type === "code"}
+                    fallback={<Prose segment={segment() as any} theme={tui.theme} width={ctx.width - 3} />}
+                  >
+                    <CodeBlock segment={segment() as any} syntax={tui.syntax()} />
+                  </Show>
+                )}
+              </Index>
+            </box>
           </Match>
         </Switch>
       </box>
     </Show>
+  )
+}
+
+function Prose(props: { segment: { type: "text"; content: string }; theme: any; width: number }) {
+  let el: any
+  const styled = createMemo(() => {
+    if (!props.segment.content) return new StyledText([])
+    const result = renderMarkdownThemedStyled(props.segment.content, props.theme, { cols: props.width })
+    return new StyledText(
+      result.chunks.map((c) => ({
+        __isChunk: true as const,
+        text: c.text,
+        fg: c.fg ? RGBA.fromInts(c.fg.r, c.fg.g, c.fg.b, c.fg.a) : props.theme.text,
+        bg: c.bg ? RGBA.fromInts(c.bg.r, c.bg.g, c.bg.b, c.bg.a) : undefined,
+        attributes: c.attributes,
+      })),
+    )
+  })
+  createEffect(() => {
+    if (el) el.content = styled()
+  })
+  return <text ref={el} />
+}
+
+function CodeBlock(props: { segment: { type: "code"; content: string; language: string }; syntax: any }) {
+  const ctx = use()
+  const tui = useTheme()
+  const lang = () => LANGS[props.segment.language] || props.segment.language
+
+  const syntax = createMemo(() => {
+    const base = props.syntax as SyntaxStyle
+    const styles = base.getAllStyles()
+    const derived = SyntaxStyle.fromStyles(Object.fromEntries(styles))
+    derived.registerStyle("default", { fg: tui.theme.markdownCodeBlock })
+    return derived
+  })
+
+  return (
+    <box paddingLeft={2}>
+      <code
+        filetype={lang()}
+        content={props.segment.content}
+        syntaxStyle={syntax()}
+        fg={tui.theme.markdownCodeBlock}
+        drawUnstyledText={true}
+        streaming={false}
+        conceal={ctx.conceal()}
+      />
+    </box>
+  )
+}
+
+function MarkdownDiff(props: { content: string; theme: ReturnType<typeof useTheme>["theme"] }) {
+  let el: any
+  const styled = createMemo(() => {
+    const chunks = props.content.split("\n").map((line) => {
+      const t = line.trim()
+      const fg = t.startsWith("+")
+        ? props.theme.diffAdded
+        : t.startsWith("-")
+          ? props.theme.diffRemoved
+          : props.theme.markdownCodeBlock
+      return { __isChunk: true as const, text: "  " + line + "\n", fg }
+    })
+    return new StyledText(chunks)
+  })
+  createEffect(() => {
+    if (el) el.content = styled()
+  })
+  return (
+    <box paddingLeft={2}>
+      <text ref={el} />
+    </box>
   )
 }
 

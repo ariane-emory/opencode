@@ -147,21 +147,22 @@ test("loads JSONC config file", async () => {
   })
 })
 
-test("merges multiple config files with correct precedence", async () => {
+test("uses baseone brand over opencode brand (not merged)", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
       await writeConfig(
         dir,
         {
           $schema: "https://opencode.ai/config.json",
-          model: "base",
-          username: "base",
+          model: "baseone",
+          username: "baseone-user",
         },
-        "opencode.jsonc",
+        "baseone.json",
       )
       await writeConfig(dir, {
         $schema: "https://opencode.ai/config.json",
-        model: "override",
+        model: "opencode",
+        username: "opencode-user",
       })
     },
   })
@@ -169,8 +170,75 @@ test("merges multiple config files with correct precedence", async () => {
     directory: tmp.path,
     fn: async () => {
       const config = await Config.get()
-      expect(config.model).toBe("override")
-      expect(config.username).toBe("base")
+      // baseone brand should be used, not opencode (fallback, not merge)
+      expect(config.model).toBe("baseone")
+      expect(config.username).toBe("baseone-user")
+    },
+  })
+})
+
+test("merges opencode.json and opencode.jsonc together", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await writeConfig(
+        dir,
+        {
+          $schema: "https://opencode.ai/config.json",
+          model: "from-json",
+          username: "from-json",
+        },
+        "opencode.json",
+      )
+      await writeConfig(
+        dir,
+        {
+          $schema: "https://opencode.ai/config.json",
+          model: "from-jsonc",
+        },
+        "opencode.jsonc",
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      // .jsonc is loaded after .json, so it overrides
+      expect(config.model).toBe("from-jsonc")
+      expect(config.username).toBe("from-json")
+    },
+  })
+})
+
+test("merges baseone.json and baseone.jsonc together", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await writeConfig(
+        dir,
+        {
+          $schema: "https://opencode.ai/config.json",
+          model: "from-json",
+          username: "from-json",
+        },
+        "baseone.json",
+      )
+      await writeConfig(
+        dir,
+        {
+          $schema: "https://opencode.ai/config.json",
+          model: "from-jsonc",
+        },
+        "baseone.jsonc",
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      // .jsonc is loaded after .json, so it overrides
+      expect(config.model).toBe("from-jsonc")
+      expect(config.username).toBe("from-json")
     },
   })
 })
@@ -261,6 +329,38 @@ test("handles file inclusion substitution", async () => {
   })
 })
 
+test("handles import substitution with JSON objects", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(
+        path.join(dir, "providers.json"),
+        JSON.stringify({
+          openai: { options: { apiKey: "test-key" } },
+          anthropic: { options: { apiKey: "anthropic-key" } },
+        }),
+      )
+      // Use raw string for unquoted {import:...} syntax with whitespace
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        `{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": { import: ./providers.json }
+ }`,
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      expect(config.provider).toEqual({
+        openai: { options: { apiKey: "test-key" } },
+        anthropic: { options: { apiKey: "anthropic-key" } },
+      })
+    },
+  })
+})
+
 test("handles file inclusion with replacement tokens", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
@@ -276,6 +376,117 @@ test("handles file inclusion with replacement tokens", async () => {
     fn: async () => {
       const config = await Config.get()
       expect(config.username).toBe("const out = await Bun.$`echo hi`")
+    },
+  })
+})
+
+test("handles nested imports", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(
+        path.join(dir, "nested.json"),
+        JSON.stringify({ temperature: 0.7 }),
+      )
+      // Use raw string for unquoted {import:...} syntax
+      await Bun.write(
+        path.join(dir, "agent.json"),
+        `{
+  "model": "gpt-4",
+  "options": {import:./nested.json}
+ }`,
+      )
+      // Use raw string for unquoted {import:...} syntax
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        `{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "test": {import:./agent.json}
+  }
+ }`,
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await Config.get()
+      expect(config.agent?.["test"]).toMatchObject({
+        model: "gpt-4",
+        options: { temperature: 0.7 },
+      })
+    },
+  })
+})
+
+test("throws error for circular imports", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      // Use raw strings for unquoted {import:...} syntax
+      await Bun.write(
+        path.join(dir, "a.json"),
+        `{ "ref": {import:./b.json} }`,
+      )
+      await Bun.write(
+        path.join(dir, "b.json"),
+        `{ "ref": {import:./a.json} }`,
+      )
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        `{
+  "$schema": "https://opencode.ai/config.json",
+  "value": {import:./a.json}
+ }`,
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      await expect(Config.get()).rejects.toThrow(Config.InvalidError)
+    },
+  })
+})
+
+test("throws error for missing import file", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      // Use raw string for unquoted {import:...} syntax
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        `{
+  "$schema": "https://opencode.ai/config.json",
+  "value": {import:./nonexistent.json}
+ }`,
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      await expect(Config.get()).rejects.toThrow(Config.InvalidError)
+    },
+  })
+})
+
+test("throws error for import file with invalid JSON", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(path.join(dir, "invalid.json"), "{ not valid json }")
+      // Use raw string for unquoted {import:...} syntax
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        `{
+  "$schema": "https://opencode.ai/config.json",
+  "value": {import:./invalid.json}
+ }`,
+      )
+    },
+  })
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      await expect(Config.get()).rejects.toThrow()
     },
   })
 })
@@ -1349,14 +1560,14 @@ test("permission config preserves key order", async () => {
   })
 })
 
-// MCP config merging tests
+// MCP config tests - fallback behavior (only first found file is loaded)
 
-test("project config can override MCP server enabled status", async () => {
+test("project config uses baseone.json over opencode.json for MCP", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      // Simulates a base config (like from remote .well-known) with disabled MCP
+      // opencode.json with disabled MCP
       await Filesystem.write(
-        path.join(dir, "opencode.jsonc"),
+        path.join(dir, "opencode.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           mcp: {
@@ -1365,17 +1576,12 @@ test("project config can override MCP server enabled status", async () => {
               url: "https://jira.example.com/mcp",
               enabled: false,
             },
-            wiki: {
-              type: "remote",
-              url: "https://wiki.example.com/mcp",
-              enabled: false,
-            },
           },
         }),
       )
-      // Project config enables just jira
+      // baseone.json with enabled MCP - should be preferred
       await Filesystem.write(
-        path.join(dir, "opencode.json"),
+        path.join(dir, "baseone.json"),
         JSON.stringify({
           $schema: "https://opencode.ai/config.json",
           mcp: {
@@ -1393,43 +1599,20 @@ test("project config can override MCP server enabled status", async () => {
     directory: tmp.path,
     fn: async () => {
       const config = await Config.get()
-      // jira should be enabled (overridden by project config)
+      // baseone.json should be loaded, so jira should be enabled
       expect(config.mcp?.jira).toEqual({
         type: "remote",
         url: "https://jira.example.com/mcp",
         enabled: true,
       })
-      // wiki should still be disabled (not overridden)
-      expect(config.mcp?.wiki).toEqual({
-        type: "remote",
-        url: "https://wiki.example.com/mcp",
-        enabled: false,
-      })
     },
   })
 })
 
-test("MCP config deep merges preserving base config properties", async () => {
+test("project config falls back to opencode.json when no baseone.json exists", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {
-      // Base config with full MCP definition
-      await Filesystem.write(
-        path.join(dir, "opencode.jsonc"),
-        JSON.stringify({
-          $schema: "https://opencode.ai/config.json",
-          mcp: {
-            myserver: {
-              type: "remote",
-              url: "https://myserver.example.com/mcp",
-              enabled: false,
-              headers: {
-                "X-Custom-Header": "value",
-              },
-            },
-          },
-        }),
-      )
-      // Override just enables it, should preserve other properties
+      // Only opencode.json exists
       await Filesystem.write(
         path.join(dir, "opencode.json"),
         JSON.stringify({
@@ -1439,6 +1622,9 @@ test("MCP config deep merges preserving base config properties", async () => {
               type: "remote",
               url: "https://myserver.example.com/mcp",
               enabled: true,
+              headers: {
+                "X-Custom-Header": "value",
+              },
             },
           },
         }),

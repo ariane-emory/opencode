@@ -20,7 +20,7 @@ import { DialogHelp } from "./ui/dialog-help"
 import { CommandProvider, useCommandDialog } from "@tui/component/dialog-command"
 import { DialogAgent } from "@tui/component/dialog-agent"
 import { DialogSessionList } from "@tui/component/dialog-session-list"
-import { KeybindProvider } from "@tui/context/keybind"
+import { KeybindProvider, useKeybind } from "@tui/context/keybind"
 import { ThemeProvider, useTheme } from "@tui/context/theme"
 import { Home } from "@tui/routes/home"
 import { Session } from "@tui/routes/session"
@@ -38,7 +38,8 @@ import { ArgsProvider, useArgs, type Args } from "./context/args"
 import open from "open"
 import { writeHeapSnapshot } from "v8"
 import { PromptRefProvider, usePromptRef } from "./context/prompt"
-import { TuiConfigProvider } from "./context/tui-config"
+import { Keybind } from "@/util/keybind"
+import { TuiConfigProvider, useTuiConfig } from "./context/tui-config"
 import { TuiConfig } from "@/config/tui"
 
 async function getTerminalBackgroundColor(): Promise<"dark" | "light"> {
@@ -213,6 +214,8 @@ function App() {
   const sync = useSync()
   const exit = useExit()
   const promptRef = usePromptRef()
+  const keybind = useKeybind()
+  const tuiConfig = useTuiConfig()
 
   useKeyboard((evt) => {
     if (!Flag.OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT) return
@@ -264,20 +267,20 @@ function App() {
     if (!terminalTitleEnabled() || Flag.OPENCODE_DISABLE_TERMINAL_TITLE) return
 
     if (route.data.type === "home") {
-      renderer.setTerminalTitle("OpenCode")
+      renderer.setTerminalTitle("BaseOne")
       return
     }
 
     if (route.data.type === "session") {
       const session = sync.session.get(route.data.sessionID)
       if (!session || SessionApi.isDefaultTitle(session.title)) {
-        renderer.setTerminalTitle("OpenCode")
+        renderer.setTerminalTitle("BaseOne")
         return
       }
 
       // Truncate title to 40 chars max
       const title = session.title.length > 40 ? session.title.slice(0, 37) + "..." : session.title
-      renderer.setTerminalTitle(`OC | ${title}`)
+      renderer.setTerminalTitle(`BaseOne | ${title}`)
     }
   })
 
@@ -385,6 +388,13 @@ function App() {
         const current = promptRef.current
         // Don't require focus - if there's any text, preserve it
         const currentPrompt = current?.current?.input ? current.current : undefined
+
+        const currentSessionID = route.data.type === "session" ? route.data.sessionID : undefined
+        
+        // Store the last session ID so we can return to it easily (ephemeral, per-process)
+        if (currentSessionID) {
+          kv.setEphemeral("last_session_id", currentSessionID)
+        }
         route.navigate({
           type: "home",
           initialPrompt: currentPrompt,
@@ -655,7 +665,157 @@ function App() {
         dialog.clear()
       },
     },
+    {
+      title: kv.get("markdown_all_messages", false)
+        ? "Render markdown: agent messages only"
+        : "Render markdown: all messages",
+      value: "app.toggle.markdown_all",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("markdown_all_messages", !kv.get("markdown_all_messages", false))
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("clear_prompt_save_history", false)
+        ? "Don't include cleared prompts in history"
+        : "Include cleared prompts in history",
+      value: "app.toggle.clear_prompt_history",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("clear_prompt_save_history", !kv.get("clear_prompt_save_history", false))
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("timestamps", "hide") === "show" ? "Hide timestamps" : "Show timestamps",
+      value: "app.toggle.timestamps",
+      category: "System",
+      slash: {
+        name: "timestamps",
+        aliases: ["toggle-timestamps"],
+      },
+      onSelect: (dialog) => {
+        const current = kv.get("timestamps", "hide")
+        kv.set("timestamps", current === "show" ? "hide" : "show")
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("thinking_visibility", true) ? "Hide thinking" : "Show thinking",
+      value: "app.toggle.thinking",
+      keybind: "display_thinking",
+      category: "System",
+      slash: {
+        name: "thinking",
+        aliases: ["toggle-thinking"],
+      },
+      onSelect: (dialog) => {
+        kv.set("thinking_visibility", !kv.get("thinking_visibility", true))
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("tool_details_visibility", true) ? "Hide tool details" : "Show tool details",
+      value: "app.toggle.tooldetails",
+      keybind: "tool_details",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("tool_details_visibility", !kv.get("tool_details_visibility", true))
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("header_visible", true) ? "Hide header" : "Show header",
+      value: "app.toggle.header",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("header_visible", !kv.get("header_visible", true))
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("scrollbar_visible", true) ? "Hide session scrollbar" : "Show session scrollbar",
+      value: "app.toggle.scrollbar",
+      keybind: "scrollbar_toggle",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("scrollbar_visible", !kv.get("scrollbar_visible", true))
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("generic_tool_output_visibility", false) ? "Hide generic tool output" : "Show generic tool output",
+      value: "app.toggle.generic_tool_output",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("generic_tool_output_visibility", !kv.get("generic_tool_output_visibility", false))
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("sidebar", "auto") === "auto" ? "Hide sidebar" : "Show sidebar",
+      value: "app.toggle.sidebar",
+      keybind: "sidebar_toggle",
+      category: "System",
+      onSelect: (dialog) => {
+        const current = kv.get("sidebar", "auto")
+        kv.set("sidebar", current === "auto" ? "hide" : "auto")
+        dialog.clear()
+      },
+    },
   ])
+
+  // Handle custom command keybinds
+  useKeyboard((evt) => {
+    if (command.suspended()) return
+    if (dialog.stack.length > 0) return
+    if (evt.defaultPrevented) return
+
+    const keybinds = tuiConfig.keybinds ?? {}
+    for (const [key, value] of Object.entries(keybinds)) {
+      if (!key.startsWith("/")) continue
+      if (!value) continue
+      
+      const commandName = key.slice(1)
+      const commandKeybinds = Keybind.parse(value)
+      const parsed = keybind.parse(evt)
+      
+      for (const kb of commandKeybinds) {
+        if (Keybind.match(kb, parsed)) {
+          evt.preventDefault()
+          
+          // Find the command to verify it exists
+          const cmd = sync.data.command.find((c) => c.name === commandName)
+          if (!cmd) {
+            toast.show({
+              variant: "error",
+              message: `Command not found: ${commandName}`,
+              duration: 3000,
+            })
+            return
+          }
+          
+          // Preserve existing prompt text as command arguments
+          const current = promptRef.current
+          if (current) {
+            const existingInput = current.current.input.trim()
+            const commandInput = existingInput
+              ? `/${commandName} ${existingInput}`
+              : `/${commandName}`
+            
+            current.set({
+              input: commandInput,
+              parts: current.current.parts,
+            })
+            current.submit()
+          }
+          
+          return
+        }
+      }
+    }
+  })
 
   createEffect(() => {
     const currentModel = local.model.current()

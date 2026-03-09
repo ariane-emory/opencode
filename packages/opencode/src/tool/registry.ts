@@ -1,4 +1,4 @@
-import { PlanExitTool } from "./plan"
+import { PlanExitTool, PlanEnterTool } from "./plan"
 import { QuestionTool } from "./question"
 import { BashTool } from "./bash"
 import { EditTool } from "./edit"
@@ -28,6 +28,7 @@ import { LspTool } from "./lsp"
 import { Truncate } from "./truncation"
 
 import { ApplyPatchTool } from "./apply_patch"
+import { BookmarkCurrentSessionTool } from "./bookmark"
 import { Glob } from "../util/glob"
 import { pathToFileURL } from "url"
 
@@ -39,7 +40,7 @@ export namespace ToolRegistry {
 
     const matches = await Config.directories().then((dirs) =>
       dirs.flatMap((dir) =>
-        Glob.scanSync("{tool,tools}/*.{js,ts}", { cwd: dir, absolute: true, dot: true, symlink: true }),
+        Glob.scanSync("{tool,tools}/*.{js,ts}", { cwd: dir, absolute: true, symlink: true }),
       ),
     )
     if (matches.length) await Config.waitForDependencies()
@@ -116,10 +117,11 @@ export namespace ToolRegistry {
       WebSearchTool,
       CodeSearchTool,
       SkillTool,
+      BookmarkCurrentSessionTool,
       ApplyPatchTool,
       ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
       ...(config.experimental?.batch_tool === true ? [BatchTool] : []),
-      ...(Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE && Flag.OPENCODE_CLIENT === "cli" ? [PlanExitTool] : []),
+      ...((await Config.experimentalPlanMode()) && Flag.OPENCODE_CLIENT === "cli" ? [PlanExitTool, PlanEnterTool] : []),
       ...custom,
     ]
   }

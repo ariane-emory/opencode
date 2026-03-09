@@ -11,15 +11,18 @@ import { useKeybind } from "../../context/keybind"
 import { useDirectory } from "../../context/directory"
 import { useKV } from "../../context/kv"
 import { TodoItem } from "../../component/todo-item"
+import { formatSessionTitle, parseSessionTitleParts } from "@tui/util/session-title"
 
 export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const sync = useSync()
   const { theme } = useTheme()
   const session = createMemo(() => sync.session.get(props.sessionID)!)
+  const titleParts = createMemo(() => parseSessionTitleParts(session().title))
   const diff = createMemo(() => sync.data.session_diff[props.sessionID] ?? [])
   const todo = createMemo(() => sync.data.todo[props.sessionID] ?? [])
   const messages = createMemo(() => sync.data.message[props.sessionID] ?? [])
-
+  const permissions = createMemo(() => sync.data.permission[props.sessionID] ?? [])
+  
   const [expanded, setExpanded] = createStore({
     mcp: true,
     diff: true,
@@ -92,7 +95,9 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
           <box flexShrink={0} gap={1} paddingRight={1}>
             <box paddingRight={1}>
               <text fg={theme.text}>
-                <b>{session().title}</b>
+                <Show when={titleParts().group} fallback={<b>{titleParts().rest}</b>}>
+                  <b>{titleParts().group}</b> {titleParts().rest}
+                </Show>
               </text>
               <Show when={session().share?.url}>
                 <text fg={theme.textMuted}>{session().share!.url}</text>
@@ -292,7 +297,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
                     ✕
                   </text>
                 </box>
-                <text fg={theme.textMuted}>OpenCode includes free models so you can start immediately.</text>
+                <text fg={theme.textMuted}>Base One includes free models so you can start immediately.</text>
                 <text fg={theme.textMuted}>
                   Connect from 75+ providers to use other models, including Claude, GPT, Gemini etc
                 </text>
@@ -303,14 +308,20 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
               </box>
             </box>
           </Show>
+          <Show when={permissions().length > 0}>
+            <text fg={theme.warning}>
+              <span style={{ fg: theme.warning }}>◉</span> {permissions().length} Permission
+              {permissions().length > 1 ? "s" : ""}
+            </text>
+          </Show>
           <text>
             <span style={{ fg: theme.textMuted }}>{directory().split("/").slice(0, -1).join("/")}/</span>
             <span style={{ fg: theme.text }}>{directory().split("/").at(-1)}</span>
           </text>
           <text fg={theme.textMuted}>
-            <span style={{ fg: theme.success }}>•</span> <b>Open</b>
+            <span style={{ fg: theme.success }}>•</span> <b>Base</b>
             <span style={{ fg: theme.text }}>
-              <b>Code</b>
+              <b>One</b>
             </span>{" "}
             <span>{Installation.VERSION}</span>
           </text>

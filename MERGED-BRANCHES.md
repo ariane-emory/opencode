@@ -63,7 +63,7 @@
 | ☑ | 57 | feat/improve-bash-tool-git-advice | origin | 8f73c45507 | |
 | ☑ | 58 | feat/alphabetical-message-modal | origin | d4963a1307 | |
 | ☑ | 59 | feat/toggle-sidebar-scrollbar | origin | 1e90526df8 | |
-| ☐ | 60 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | TBD | |
+| ☑ | 60 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | fa8ba4d0ff | |
 | ☐ | 61 | feat/clickable-sidebar-mcps | origin | TBD | |
 | ☐ | 62 | feat/clickable-dialogue-mcps | origin | TBD | |
 | ☐ | 63 | feat/ignored-commands | origin | TBD | |
@@ -137,3 +137,4 @@
 | 57 | feat/improve-bash-tool-git-advice | 8f73c45507 | ✅ Merged | Resolved conflict in bash.txt |
 | 58 | feat/alphabetical-message-modal | d4963a1307 | ✅ Merged | Resolved conflict in dialog-select.tsx |
 | 59 | feat/toggle-sidebar-scrollbar | 1e90526df8 | ✅ Merged | Resolved conflicts in app.tsx, index.tsx, sidebar.tsx |
+| 60 | feat/full-datetimes-in-fork-and-timeline-dialogues | fa8ba4d0ff | ✅ Merged | Resolved conflict in locale.ts |

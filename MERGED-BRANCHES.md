@@ -38,7 +38,7 @@
 | ☑ | 32 | feat/command-palette-consistecy | origin | cc5acbbcce | MOVE items from Session to System category, do NOT duplicate |
 | ☐ | 33 | feat/session-id-in-status | origin | TBD | |
 | ☑ | 34 | feat/argument-range-syntax | origin | ca389f253b | |
-| ☐ | 35 | feat/default-arguments | origin | TBD | |
+| ☑ | 35 | feat/default-arguments | origin | 824ac6f373 | |
 | ☐ | 36 | feat/edit-tool-description | origin | TBD | |
 | ☐ | 37 | feat/opeoginni--display-message-tps | origin | TBD | |
 | ☐ | 38 | feat/kv-diff-style-clean | origin | TBD | |
@@ -112,3 +112,4 @@
 | feat/command-palette-consistecy | cc5acbbcce | ✅ Merged | Resolved conflicts in app.tsx and session/index.tsx |
 | feat/session-id-in-status | 603e7c0004 | ✅ Merged | Clean merge |
 | 34 | feat/argument-range-syntax | ca389f253b | ✅ Merged | Combined range syntax with backward compatible swallowing |
+| 35 | feat/default-arguments | 824ac6f373 | ✅ Merged | Combined range syntax with default arguments; implemented swallowing for default arguments |

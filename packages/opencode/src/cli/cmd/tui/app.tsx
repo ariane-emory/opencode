@@ -796,13 +796,27 @@ function App() {
       },
     },
     {
-      title: kv.get("sidebar", "auto") === "auto" ? "Hide sidebar" : "Show sidebar",
+      title: (() => {
+        const current = kv.get("sidebar", "auto")
+        if (current === "show") return "Hide sidebar"
+        return "Show sidebar"
+      })(),
       value: "app.toggle.sidebar",
       keybind: "sidebar_toggle",
       category: "System",
       onSelect: (dialog) => {
         const current = kv.get("sidebar", "auto")
-        kv.set("sidebar", current === "auto" ? "hide" : "auto")
+        let newValue: "show" | "hide" | "auto"
+
+        if (current === "auto") {
+          newValue = "show"
+        } else if (current === "show") {
+          newValue = "hide"
+        } else {
+          newValue = "show"
+        }
+
+        kv.set("sidebar", newValue)
         dialog.clear()
       },
     },

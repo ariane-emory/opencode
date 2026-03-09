@@ -43,7 +43,7 @@
 | ☐ | 37 | feat/opeoginni--display-message-tps | origin | TBD | |
 | ☐ | 38 | feat/kv-diff-style-clean | origin | TBD | |
 | ☐ | 39 | feat/global-compaction-threshold | origin | TBD | |
-| ☐ | 40 | feat/configurable-message-and-session-limit | origin | TBD | |
+| ☑ | 40 | feat/configurable-message-and-session-limit | origin | fe1b41cdc8 | |
 | ☐ | 41 | feat/experimental-dont-cache-markdown | origin | TBD | |
 | ☐ | 42 | feat/jsonc-user-themes | origin | TBD | |
 | ☐ | 43 | feat/persist-sidebar-group-folding-states | origin | TBD | |
@@ -117,3 +117,4 @@
 | feat/opeoginni--display-message-tps | 493526c2f3 | ✅ Merged | Clean merge |
 | feat/kv-diff-style-clean | 8381302e8e | ✅ Merged | Clean merge |
 | feat/global-compaction-threshold | 70f74a2ebb | ✅ Merged | Clean merge |
+| 40 | feat/configurable-message-and-session-limit | fe1b41cdc8 | ✅ Merged | Resolved conflicts in dialog-session-list.tsx, config.ts, types.gen.ts |

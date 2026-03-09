@@ -329,7 +329,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
               <span>{Installation.VERSION}</span>
             </text>
             <Show when={showSidebarClock()}>
-              <text fg={theme.accent}>{clockTime()}</text>
+              <text fg={theme.accent}>🐈 {clockTime()}</text>
             </Show>
           </box>
         </box>

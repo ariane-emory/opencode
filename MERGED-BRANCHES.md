@@ -104,3 +104,4 @@
 | fix/persist-sidebar | c0c66cd21b | ✅ Merged | Resolved multiple conflicts in prompt/index.tsx |
 | fix/autocompletion-filtered-order | 858e7274c8 | ✅ Merged | Resolved multiple conflicts in prompt/index.tsx |
 | fix/modal-menus-filtered-order | b7712432c0 | ✅ Merged | Resolved conflicts in 3 files |
+| fix/config-package-json-pollution | 04153c1855 | ✅ Merged | Clean merge |

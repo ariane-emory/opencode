@@ -51,7 +51,7 @@
 | ☑ | 45 | feat/shell-advice | origin | 2c9a233dbd | |
 | ☑ | 46 | feat/elapsed-timer | origin | 61fdaadee9 | |
 | ☑ | 47 | feat/set-session-title | origin | d6bd74ee8a | |
-| ☐ | 48 | feat/get-session-title | origin | TBD | |
+| ☑ | 48 | feat/get-session-title | origin | 6c19c6b7ce | |
 | ☐ | 49 | feat/no-disabled-lsps-in-sidebar | origin | TBD | |
 | ☐ | 50 | feat/agent-timestamps | origin | TBD | |
 | ☐ | 51 | feat/rewind-modal-option | origin | TBD | |
@@ -125,3 +125,4 @@
 | 45 | feat/shell-advice | 2c9a233dbd | ✅ Merged | Clean merge |
 | 46 | feat/elapsed-timer | 61fdaadee9 | ✅ Merged | Clean merge |
 | 47 | feat/set-session-title | d6bd74ee8a | ✅ Merged | Resolved duplicate update implementation in session/index.ts |
+| 48 | feat/get-session-title | 6c19c6b7ce | ✅ Merged | Resolved import conflict in tool/registry.ts |

@@ -13,7 +13,6 @@ import { Identifier } from "@/id/id"
 import { createStore, produce } from "solid-js/store"
 import { useKeybind } from "@tui/context/keybind"
 import { usePromptHistory, type PromptInfo } from "./history"
-import { isWordChar, getWordBoundaries, lowercaseWord, uppercaseWord, capitalizeWord } from "./word"
 import { usePromptStash } from "./stash"
 import { DialogStash } from "../dialog-stash"
 import { type AutocompleteRef, Autocomplete } from "./autocomplete"
@@ -27,14 +26,13 @@ import { TuiEvent } from "../../event"
 import { iife } from "@/util/iife"
 import { Locale } from "@/util/locale"
 import { formatDuration } from "@/util/format"
-import { createColors, createFrames, createPulseFrames, createPulseColors } from "../../ui/spinner.ts"
+import { createColors, createFrames } from "../../ui/spinner.ts"
 import { useDialog } from "@tui/ui/dialog"
 import { DialogProvider as DialogProviderConnect } from "../dialog-provider"
 import { DialogAlert } from "../../ui/dialog-alert"
 import { useToast } from "../../ui/toast"
 import { useKV } from "../../context/kv"
 import { useTextareaKeybindings } from "../textarea-keybindings"
-import { useListContinuation } from "../list-continuation"
 import { DialogSkill } from "../dialog-skill"
 
 export type PromptProps = {
@@ -57,7 +55,7 @@ export type PromptRef = {
   submit(): void
 }
 
-import { SINISTER_PLACEHOLDERS as PLACEHOLDERS } from "@opencode-ai/ui/constants/placeholders"
+const PLACEHOLDERS = ["Fix a TODO in the codebase", "What is the tech stack of this project?", "Fix broken tests"]
 const SHELL_PLACEHOLDERS = ["ls -la", "git status", "pwd"]
 
 export function Prompt(props: PromptProps) {
@@ -92,10 +90,6 @@ export function Prompt(props: PromptProps) {
   }
 
   const textareaKeybindings = useTextareaKeybindings()
-  const listContinuation = useListContinuation()
-
-  // Filter out newline from keybindings so we can handle it in onKeyDown with list continuation
-  const promptKeybindings = createMemo(() => textareaKeybindings().filter((b) => b.action !== "newline"))
 
   const fileStyleId = syntax().getStyleId("extmark.file")!
   const agentStyleId = syntax().getStyleId("extmark.agent")!
@@ -119,17 +113,6 @@ export function Prompt(props: PromptProps) {
     if (!props.disabled) input.cursorColor = theme.text
   })
 
-  // Resize textarea when placeholder changes (e.g., when switching sessions or when placeholder index changes)
-  createEffect(() => {
-    const placeholderText = props.sessionID ? undefined : PLACEHOLDERS[store.placeholder]
-    // Track both the placeholder text and sessionID changes
-    if (input) {
-      setTimeout(() => {
-        input.getLayoutNode().markDirty()
-        renderer.requestRender()
-      }, 0)
-    }
-  })
   const lastUserMessage = createMemo(() => {
     if (!props.sessionID) return undefined
     const messages = sync.data.message[props.sessionID]
@@ -143,7 +126,6 @@ export function Prompt(props: PromptProps) {
     extmarkToPartIndex: Map<number, number>
     interrupt: number
     placeholder: number
-    killBuffer: string
   }>({
     placeholder: Math.floor(Math.random() * PLACEHOLDERS.length),
     prompt: {
@@ -153,7 +135,6 @@ export function Prompt(props: PromptProps) {
     mode: "normal",
     extmarkToPartIndex: new Map(),
     interrupt: 0,
-    killBuffer: "",
   })
 
   createEffect(
@@ -548,14 +529,7 @@ export function Prompt(props: PromptProps) {
     if (props.disabled) return
     if (autocomplete?.visible) return
     if (!store.prompt.input) return
-    
-    // Clean up trailing empty list items before submitting
-    const cleaned = listContinuation.cleanupForSubmit(store.prompt.input)
-    if (cleaned !== store.prompt.input) {
-      setStore("prompt", "input", cleaned)
-    }
-    
-    const trimmed = cleaned.trim()
+    const trimmed = store.prompt.input.trim()
     if (trimmed === "exit" || trimmed === "quit" || trimmed === ":q") {
       exit()
       return
@@ -572,7 +546,7 @@ export function Prompt(props: PromptProps) {
           return sessionID
         })()
     const messageID = Identifier.ascending("message")
-    let inputText = cleaned
+    let inputText = store.prompt.input
 
     // Expand pasted text inline before submitting
     const allExtmarks = input.extmarks.getAllForTypeId(promptPartTypeId)
@@ -781,7 +755,7 @@ export function Prompt(props: PromptProps) {
       const example = SHELL_PLACEHOLDERS[store.placeholder % SHELL_PLACEHOLDERS.length]
       return `Run a command... "${example}"`
     }
-    return PLACEHOLDERS[store.placeholder % PLACEHOLDERS.length]
+    return `Ask anything... "${PLACEHOLDERS[store.placeholder % PLACEHOLDERS.length]}"`
   })
 
   const spinnerDef = createMemo(() => {
@@ -790,8 +764,6 @@ export function Prompt(props: PromptProps) {
       frames: createFrames({
         color,
         style: "blocks",
-        width: 8,
-        trailSteps: 4,
         inactiveFactor: 0.6,
         // enableFading: false,
         minAlpha: 0.3,
@@ -799,40 +771,11 @@ export function Prompt(props: PromptProps) {
       color: createColors({
         color,
         style: "blocks",
-        trailSteps: 4,
         inactiveFactor: 0.6,
         // enableFading: false,
         minAlpha: 0.3,
       }),
     }
-  })
-
-  // Check if current session has pending permissions
-  const hasPermission = createMemo(() => {
-    const sessionID = props.sessionID
-    if (!sessionID) return false
-    const count = sync.data.permission[sessionID]?.length ?? 0
-    return count > 0
-  })
-
-  // Create pulse spinner definition for permission-awaiting state
-  const pulseSpinnerDef = createMemo(() => {
-    const color = local.agent.color(local.agent.current().name)
-    return {
-      frames: createPulseFrames({
-        color,
-        style: "blocks",
-      }),
-      color: createPulseColors({
-        color,
-        minAlpha: 0.15,
-      }),
-    }
-  })
-
-  // Select active spinner based on permission state
-  const activeSpinner = createMemo(() => {
-    return hasPermission() ? pulseSpinnerDef() : spinnerDef()
   })
 
   return (
@@ -876,11 +819,7 @@ export function Prompt(props: PromptProps) {
             flexGrow={1}
           >
             <textarea
-              // **CRITICAL MERGE WARNING**: Keep this EXACT format (NO "Ask anything" prefix, NO quotes):
-              //   CORRECT: `${PLACEHOLDERS[store.placeholder]}`
-              //   WRONG:   `Ask anything... "${PLACEHOLDERS[store.placeholder]}"`
-              // The sinister-quotes feature intentionally removes the prefix. A test validates this.
-              placeholder={props.sessionID ? undefined : placeholderText()}
+              placeholder={placeholderText()}
               textColor={keybind.leader ? theme.textMuted : theme.text}
               focusedTextColor={keybind.leader ? theme.textMuted : theme.text}
               minHeight={1}
@@ -891,40 +830,10 @@ export function Prompt(props: PromptProps) {
                 autocomplete.onInput(value)
                 syncExtmarksWithPromptParts()
               }}
-              keyBindings={promptKeybindings()}
+              keyBindings={textareaKeybindings()}
               onKeyDown={async (e) => {
                 if (props.disabled) {
                   e.preventDefault()
-                  return
-                }
-                // Handle automatic list continuation on newline
-                if (keybind.match("input_newline", e)) {
-                  e.preventDefault()
-                  const action = listContinuation.handleNewline(input.plainText, input.cursorOffset)
-                  if (action) {
-                    if (action.type === "continue") {
-                      input.insertText(action.insertText)
-                      if (action.renumber) {
-                        // Adjust offsets since insertText shifted subsequent content
-                        const offset = action.insertText.length
-                        const adjustedStart = action.renumber.start + offset
-                        const adjustedEnd = action.renumber.end + offset
-                        const before = input.plainText.slice(0, adjustedStart)
-                        const after = input.plainText.slice(adjustedEnd)
-                        input.setText(before + action.renumber.newText + after)
-                        // Cursor should be after the inserted new item
-                        input.cursorOffset = adjustedStart - 1
-                      }
-                    } else if (action.type === "clear") {
-                      const before = input.plainText.slice(0, action.deleteRange.start)
-                      const after = input.plainText.slice(action.deleteRange.end)
-                      input.setText(before + after)
-                      input.cursorOffset = action.cursorPosition
-                    }
-                  } else {
-                    // No list continuation - just insert a normal newline
-                    input.insertText("\n")
-                  }
                   return
                 }
                 // Handle clipboard paste (Ctrl+V) - check for images first on Windows
@@ -945,12 +854,6 @@ export function Prompt(props: PromptProps) {
                   // If no image, let the default paste behavior continue
                 }
                 if (keybind.match("input_clear", e) && store.prompt.input !== "") {
-                  if (kv.get("clear_prompt_save_history", false)) {
-                    history.append({
-                      ...store.prompt,
-                      mode: store.mode,
-                    })
-                  }
                   input.clear()
                   input.extmarks.clear()
                   setStore("prompt", {
@@ -995,122 +898,6 @@ export function Prompt(props: PromptProps) {
                       e.preventDefault()
                       input.cursorOffset = input.plainText.length
                     }
-                    return
-                  }
-                }
-                if (
-                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_delete_to_line_end", e)
-                ) {
-                  const text = input.plainText
-                  const cursorOffset = input.cursorOffset
-                  const textToEnd = text.slice(cursorOffset)
-                  setStore("killBuffer", textToEnd)
-                }
-                if (
-                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_transpose_characters", e)
-                ) {
-                  const text = input.plainText
-                  const cursorOffset = input.cursorOffset
-
-                  let char1Pos: number, char2Pos: number, newCursorOffset: number
-
-                  if (text.length < 2) {
-                    return
-                  } else if (cursorOffset === 0) {
-                    char1Pos = 0
-                    char2Pos = 1
-                    newCursorOffset = 1
-                  } else if (cursorOffset === text.length) {
-                    char1Pos = text.length - 2
-                    char2Pos = text.length - 1
-                    newCursorOffset = cursorOffset
-                  } else {
-                    char1Pos = cursorOffset - 1
-                    char2Pos = cursorOffset
-                    newCursorOffset = cursorOffset + 1
-                  }
-
-                  const char1 = text[char1Pos]
-                  const char2 = text[char2Pos]
-                  const newText =
-                    text.slice(0, char1Pos) +
-                    char2 +
-                    text.slice(char1Pos + 1, char2Pos) +
-                    char1 +
-                    text.slice(char2Pos + 1)
-                  input.setText(newText)
-                  input.cursorOffset = newCursorOffset
-                  setStore("prompt", "input", newText)
-                  e.preventDefault()
-                  return
-                }
-                if (
-                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_delete_word_forward", e)
-                ) {
-                  const text = input.plainText
-                  const cursorOffset = input.cursorOffset
-                  const boundaries = getWordBoundaries(text, cursorOffset)
-                  if (boundaries) {
-                    setStore("killBuffer", text.slice(boundaries.start, boundaries.end))
-                  }
-                }
-                if (
-                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_delete_word_backward", e)
-                ) {
-                  const text = input.plainText
-                  const cursorOffset = input.cursorOffset
-                  let start = cursorOffset
-                  while (start > 0 && !isWordChar(text[start - 1])) start--
-                  while (start > 0 && isWordChar(text[start - 1])) start--
-                  setStore("killBuffer", text.slice(start, cursorOffset))
-                }
-                if (
-                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_lowercase_word", e) ||
-                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_uppercase_word", e) ||
-                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_capitalize_word", e)
-                ) {
-                  const text = input.plainText
-                  const cursorOffset = input.cursorOffset
-                  const selection = input.getSelection()
-                  const hasSelection = selection !== null
-
-                  let start: number, end: number
-
-                  if (hasSelection && selection) {
-                    start = selection.start
-                    end = selection.end
-                  } else {
-                    const boundaries = getWordBoundaries(text, cursorOffset)
-                    if (!boundaries) {
-                      e.preventDefault()
-                      return
-                    }
-                    start = boundaries.start
-                    end = boundaries.end
-                  }
-
-                  let newText: string
-                  if ((keybind as { match: (key: string, evt: unknown) => boolean }).match("input_lowercase_word", e)) {
-                    newText = lowercaseWord(text, start, end)
-                  } else if (
-                    (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_uppercase_word", e)
-                  ) {
-                    newText = uppercaseWord(text, start, end)
-                  } else {
-                    newText = capitalizeWord(text, start, end)
-                  }
-
-                  input.setText(newText)
-                  input.cursorOffset = end
-                  setStore("prompt", "input", newText)
-                  e.preventDefault()
-                  return
-                }
-                if ((keybind as { match: (key: string, evt: unknown) => boolean }).match("input_yank", e)) {
-                  if (store.killBuffer) {
-                    input.insertText(store.killBuffer)
-                    setStore("prompt", "input", input.plainText)
-                    e.preventDefault()
                     return
                   }
                 }
@@ -1259,8 +1046,7 @@ export function Prompt(props: PromptProps) {
               <box flexShrink={0} flexDirection="row" gap={1}>
                 <box marginLeft={1}>
                   <Show when={kv.get("animations_enabled", true)} fallback={<text fg={theme.textMuted}>[⋯]</text>}>
-                    {/* @ts-ignore // SpinnerOptions doesn't support marginLeft */}
-                    <spinner color={activeSpinner().color} frames={activeSpinner().frames} interval={40} />
+                    <spinner color={spinnerDef().color} frames={spinnerDef().frames} interval={40} />
                   </Show>
                 </box>
                 <box flexDirection="row" gap={1} flexShrink={0}>

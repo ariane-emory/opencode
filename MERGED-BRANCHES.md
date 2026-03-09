@@ -48,7 +48,7 @@
 | ☑ | 42 | feat/jsonc-user-themes | origin | a71660670b | |
 | ☐ | 43 | feat/persist-sidebar-group-folding-states | origin | TBD | |
 | ☑ | 44 | feat/persistant-sidebar-overlay-behaviour | origin | a34fb99394 | |
-| ☐ | 45 | feat/shell-advice | origin | TBD | |
+| ☑ | 45 | feat/shell-advice | origin | 2c9a233dbd | |
 | ☐ | 46 | feat/elapsed-timer | origin | TBD | |
 | ☐ | 47 | feat/set-session-title | origin | TBD | |
 | ☐ | 48 | feat/get-session-title | origin | TBD | |
@@ -122,3 +122,4 @@
 | 42 | feat/jsonc-user-themes | a71660670b | ✅ Merged | Resolved config.ts conflict; fixed type error in registry.test.ts |
 | feat/persist-sidebar-group-folding-states | 92f262db99 | ✅ Merged | Clean merge |
 | 44 | feat/persistant-sidebar-overlay-behaviour | a34fb99394 | ✅ Merged | Resolved multiple conflicts in app.tsx and index.tsx |
+| 45 | feat/shell-advice | 2c9a233dbd | ✅ Merged | Clean merge |

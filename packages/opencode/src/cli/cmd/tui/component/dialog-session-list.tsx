@@ -2,7 +2,7 @@ import { useDialog } from "@tui/ui/dialog"
 import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { useRoute } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
-import { createMemo, createSignal, createResource, onMount } from "solid-js"
+import { createMemo, createSignal, createResource, onMount, Show, createEffect } from "solid-js"
 import { Locale } from "@/util/locale"
 import { useKeybind } from "../context/keybind"
 import { Keybind } from "@/util/keybind"
@@ -79,7 +79,12 @@ export function DialogSessionList() {
   }
 
   const options = createMemo(() => {
+    if (!sync.ready) return []
     const today = new Date().toDateString()
+
+    const sessionsListLimit = sync.data.config.experimental?.session_list_limit
+    const limit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
+
     const allSessions = sessions().filter((x) => x.parentID === undefined)
 
     // Separate into pinned and unpinned
@@ -116,7 +121,7 @@ export function DialogSessionList() {
     // Sort ungrouped by updated DESC
     ungrouped.sort((a, b) => b.time.updated - a.time.updated)
 
-    const mapSession = (session: typeof allSessions[number], category: string, showDate: boolean, displayTitle?: string) => {
+    const mapSession = (session: any, category: string, showDate: boolean, displayTitle?: string) => {
       const isDeleting = toDelete() === session.id
       const status = sync.data.session_status?.[session.id]
       const isWorking = status?.type === "busy"
@@ -147,7 +152,11 @@ export function DialogSessionList() {
       return mapSession(session, category, false)
     })
 
-    return [...pinnedOptions, ...groupedOptions, ...ungroupedOptions]
+    return [...pinnedOptions, ...groupedOptions, ...ungroupedOptions].slice(0, limit)
+  })
+
+  createEffect(() => {
+    console.log("session count", sync.data.session.length)
   })
 
   onMount(() => {

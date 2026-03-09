@@ -1881,9 +1881,19 @@ export type Config = {
      */
     mcp_timeout?: number
     /**
+
      * Enable experimental plan mode
      */
     plan_mode?: boolean
+    /**
+     * Maximum number of message parts to load per session when syncing, or 'none' to load all messages
+     */
+    messages_limit?: number | "none"
+    /**
+     * Maximum number of sessions to display in session list, or 'none' to show all sessions
+     */
+    session_list_limit?: number | "none"
+
   }
 }
 

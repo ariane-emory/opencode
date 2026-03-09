@@ -170,6 +170,52 @@ export namespace Filesystem {
     }
   }
 
+  export async function* upFirst(options: { targets: string[]; start: string; stop?: string }) {
+    const { targets, start, stop } = options
+    let current = start
+    while (true) {
+      for (const target of targets) {
+        const search = join(current, target)
+        if (await exists(search)) {
+          yield search
+          break
+        }
+      }
+      if (stop === current) break
+      const parent = dirname(current)
+      if (parent === current) break
+      current = parent
+    }
+  }
+
+  export async function* findFirstUp(candidates: string[], start: string, stop?: string) {
+    let current = start
+    while (true) {
+      for (const candidate of candidates) {
+        const search = join(current, candidate)
+        if (await exists(search)) {
+          yield search
+          break
+        }
+      }
+      if (stop === current) break
+      const parent = dirname(current)
+      if (parent === current) break
+      current = parent
+    }
+  }
+
+  export async function* upDirs(start: string, stop?: string) {
+    let current = start
+    while (true) {
+      yield current
+      if (stop === current) break
+      const parent = dirname(current)
+      if (parent === current) break
+      current = parent
+    }
+  }
+
   export async function globUp(pattern: string, start: string, stop?: string) {
     let current = start
     const result = []

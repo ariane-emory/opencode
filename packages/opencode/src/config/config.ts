@@ -5,7 +5,7 @@ import { createRequire } from "module"
 import os from "os"
 import z from "zod"
 import { ModelsDev } from "../provider/models"
-import { mergeDeep, pipe, unique } from "remeda"
+import { mergeDeep, unique } from "remeda"
 import { Global } from "../global"
 import fs from "fs/promises"
 import { lazy } from "../util/lazy"
@@ -46,11 +46,11 @@ export namespace Config {
   function systemManagedConfigDir(): string {
     switch (process.platform) {
       case "darwin":
-        return "/Library/Application Support/opencode"
+        return "/Library/Application Support/baseone"
       case "win32":
-        return path.join(process.env.ProgramData || "C:\\ProgramData", "opencode")
+        return path.join(process.env.ProgramData || "C:\\ProgramData", "baseone")
       default:
-        return "/etc/opencode"
+        return "/etc/baseone"
     }
   }
 
@@ -70,6 +70,26 @@ export namespace Config {
       merged.instructions = Array.from(new Set([...target.instructions, ...source.instructions]))
     }
     return merged
+  }
+
+  // CRITICAL: Brand fallback - prefer baseone.*, fall back to opencode.*
+  // If ANY baseone.* file exists → use baseone brand (merge both .json and .jsonc)
+  // Otherwise → use opencode brand (merge opencode files + config.json if includeConfigJson)
+  // IMPORTANT: Do NOT load BOTH brands. This is either/or fallback, not merge both.
+  // When merging from dev, preserve this exact fallback logic.
+  async function loadBrandConfigs(dir: string, result: Info, includeConfigJson = false): Promise<Info> {
+    const hasBaseone = existsSync(path.join(dir, "baseone.json")) || existsSync(path.join(dir, "baseone.jsonc"))
+    if (hasBaseone) {
+      result = mergeConfigConcatArrays(result, await loadFile(path.join(dir, "baseone.json")))
+      result = mergeConfigConcatArrays(result, await loadFile(path.join(dir, "baseone.jsonc")))
+    } else {
+      result = mergeConfigConcatArrays(result, await loadFile(path.join(dir, "opencode.json")))
+      result = mergeConfigConcatArrays(result, await loadFile(path.join(dir, "opencode.jsonc")))
+      if (includeConfigJson) {
+        result = mergeConfigConcatArrays(result, await loadFile(path.join(dir, "config.json")))
+      }
+    }
+    return result
   }
 
   export const state = Instance.state(async () => {
@@ -115,16 +135,16 @@ export namespace Config {
     // Global user config overrides remote config.
     result = mergeConfigConcatArrays(result, await global())
 
-    // Custom config path overrides global config.
-    if (Flag.OPENCODE_CONFIG) {
-      result = mergeConfigConcatArrays(result, await loadFile(Flag.OPENCODE_CONFIG))
-      log.debug("loaded custom config", { path: Flag.OPENCODE_CONFIG })
+    // Override with custom config if provided
+    if (Flag.BASEONE_CONFIG) {
+      result = mergeConfigConcatArrays(result, await loadFile(Flag.BASEONE_CONFIG))
+      log.debug("loaded custom config", { path: Flag.BASEONE_CONFIG })
     }
 
     // Project config overrides global and remote config.
     if (!Flag.OPENCODE_DISABLE_PROJECT_CONFIG) {
-      for (const file of await ConfigPaths.projectFiles("opencode", Instance.directory, Instance.worktree)) {
-        result = mergeConfigConcatArrays(result, await loadFile(file))
+      for await (const dir of Filesystem.upDirs(Instance.directory, Instance.worktree)) {
+        result = await loadBrandConfigs(dir, result)
       }
     }
 
@@ -132,25 +152,44 @@ export namespace Config {
     result.mode = result.mode || {}
     result.plugin = result.plugin || []
 
-    const directories = await ConfigPaths.directories(Instance.directory, Instance.worktree)
+    const directories = [
+      Global.Path.config,
+      // Only scan project directories when project discovery is enabled
+      ...(!Flag.OPENCODE_DISABLE_PROJECT_CONFIG
+        ? await Array.fromAsync(
+            // CRITICAL: Directory brand fallback - prefer .baseone, fall back to .opencode
+            // Do NOT change to load both directories. Use upFirst (first match only).
+            Filesystem.upFirst({
+              targets: [".baseone", ".opencode"],
+              start: Instance.directory,
+              stop: Instance.worktree,
+            }),
+          )
+        : []),
+      // CRITICAL: Home directory brand fallback - same pattern as above
+      // Do NOT change to load both directories. Use upFirst (first match only).
+      ...(await Array.fromAsync(
+        Filesystem.upFirst({
+          targets: [".baseone", ".opencode"],
+          start: Global.Path.home,
+          stop: Global.Path.home,
+        }),
+      )),
+    ]
 
-    // .opencode directory config overrides (project and global) config sources.
-    if (Flag.OPENCODE_CONFIG_DIR) {
-      log.debug("loading config from OPENCODE_CONFIG_DIR", { path: Flag.OPENCODE_CONFIG_DIR })
+    if (Flag.BASEONE_CONFIG_DIR) {
+      directories.push(Flag.BASEONE_CONFIG_DIR)
+      log.debug("loading config from BASEONE_CONFIG_DIR", { path: Flag.BASEONE_CONFIG_DIR })
     }
 
     const deps = []
 
     for (const dir of unique(directories)) {
-      if (dir.endsWith(".opencode") || dir === Flag.OPENCODE_CONFIG_DIR) {
-        for (const file of ["opencode.jsonc", "opencode.json"]) {
-          log.debug(`loading config from ${path.join(dir, file)}`)
-          result = mergeConfigConcatArrays(result, await loadFile(path.join(dir, file)))
-          // to satisfy the type checker
-          result.agent ??= {}
-          result.mode ??= {}
-          result.plugin ??= []
-        }
+      if (dir.endsWith(".opencode") || dir.endsWith(".baseone") || dir === Flag.BASEONE_CONFIG_DIR) {
+        result = await loadBrandConfigs(dir, result)
+        result.agent ??= {}
+        result.mode ??= {}
+        result.plugin ??= []
       }
 
       deps.push(
@@ -182,10 +221,9 @@ export namespace Config {
     // Kept separate from directories array to avoid write operations when installing plugins
     // which would fail on system directories requiring elevated permissions
     // This way it only loads config file and not skills/plugins/commands
+    // CRITICAL: Uses loadBrandConfigs for brand fallback - do not change
     if (existsSync(managedDir)) {
-      for (const file of ["opencode.jsonc", "opencode.json"]) {
-        result = mergeConfigConcatArrays(result, await loadFile(path.join(managedDir, file)))
-      }
+      result = await loadBrandConfigs(managedDir, result)
     }
 
     // Migrate deprecated mode field to agent field
@@ -198,8 +236,8 @@ export namespace Config {
       })
     }
 
-    if (Flag.OPENCODE_PERMISSION) {
-      result.permission = mergeDeep(result.permission ?? {}, JSON.parse(Flag.OPENCODE_PERMISSION))
+    if (Flag.BASEONE_PERMISSION) {
+      result.permission = mergeDeep(result.permission ?? {}, JSON.parse(Flag.BASEONE_PERMISSION))
     }
 
     // Backwards compatibility: legacy top-level `tools` config
@@ -354,9 +392,23 @@ export namespace Config {
       })
       if (!md) continue
 
-      const patterns = ["/.opencode/command/", "/.opencode/commands/", "/command/", "/commands/"]
-      const file = rel(item, patterns) ?? path.basename(item)
-      const name = trim(file)
+      const name = (() => {
+        const patterns = [
+          "/.opencode/command/",
+          "/.opencode/commands/",
+          "/.baseone/command/",
+          "/.baseone/commands/",
+          "/command/",
+          "/commands/",
+        ]
+        const pattern = patterns.find((p) => item.includes(p))
+
+        if (pattern) {
+          const index = item.indexOf(pattern)
+          return item.slice(index + pattern.length, -3)
+        }
+        return path.basename(item, ".md")
+      })()
 
       const config = {
         name,
@@ -393,9 +445,28 @@ export namespace Config {
       })
       if (!md) continue
 
-      const patterns = ["/.opencode/agent/", "/.opencode/agents/", "/agent/", "/agents/"]
-      const file = rel(item, patterns) ?? path.basename(item)
-      const agentName = trim(file)
+      // Extract relative path from agent folder for nested agents
+      let agentName = path.basename(item, ".md")
+      const agentFolderPath = item.includes("/.opencode/agent/")
+        ? item.split("/.opencode/agent/")[1]
+        : item.includes("/.opencode/agents/")
+          ? item.split("/.opencode/agents/")[1]
+          : item.includes("/.baseone/agent/")
+            ? item.split("/.baseone/agent/")[1]
+            : item.includes("/.baseone/agents/")
+              ? item.split("/.baseone/agents/")[1]
+              : item.includes("/agent/")
+                ? item.split("/agent/")[1]
+                : item.includes("/agents/")
+                  ? item.split("/agents/")[1]
+                  : agentName + ".md"
+
+      // If agent is in a subfolder, include folder path in name
+      if (agentFolderPath.includes("/")) {
+        const relativePath = agentFolderPath.replace(".md", "")
+        const pathParts = relativePath.split("/")
+        agentName = pathParts.slice(0, -1).join("/") + "/" + pathParts[pathParts.length - 1]
+      }
 
       const config = {
         name: agentName,
@@ -1176,13 +1247,23 @@ export namespace Config {
 
   export type Info = z.output<typeof Info>
 
+  // CRITICAL: Brand fallback - prefer baseone.*, fall back to opencode.*
+  // If any baseone.* exists → load baseone.json + baseone.jsonc
+  // Otherwise → load opencode.json + opencode.jsonc + config.json
+  // Do NOT load both brands. Preserve this when merging.
   export const global = lazy(async () => {
-    let result: Info = pipe(
-      {},
-      mergeDeep(await loadFile(path.join(Global.Path.config, "config.json"))),
-      mergeDeep(await loadFile(path.join(Global.Path.config, "opencode.json"))),
-      mergeDeep(await loadFile(path.join(Global.Path.config, "opencode.jsonc"))),
-    )
+    let result: Info = {}
+    const hasBaseone =
+      existsSync(path.join(Global.Path.config, "baseone.json")) ||
+      existsSync(path.join(Global.Path.config, "baseone.jsonc"))
+    if (hasBaseone) {
+      result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "baseone.json")))
+      result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "baseone.jsonc")))
+    } else {
+      result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "opencode.json")))
+      result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "opencode.jsonc")))
+      result = mergeDeep(result, await loadFile(path.join(Global.Path.config, "config.json")))
+    }
 
     const legacy = path.join(Global.Path.config, "config")
     if (existsSync(legacy)) {

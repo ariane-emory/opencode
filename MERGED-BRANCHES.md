@@ -91,3 +91,4 @@
 | 11 | feat/opencode-expand | 92996787f8 | ✅ Merged | Clean merge |
 | feat/automatic-list-continuation | e7b48c0e9f | ✅ Merged | Clean merge |
 | feat/continue-command | 2068ddff5b | ✅ Merged | Clean merge |
+| feat/configurable-snapshot-lifespan | 9815bdd62f | ✅ Merged | Clean merge |

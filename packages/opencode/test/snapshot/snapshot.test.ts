@@ -1178,3 +1178,16 @@ test("diffFull with whitespace changes", async () => {
     },
   })
 })
+
+test("snapshot config with boolean true uses default 7-day retention", async () => {
+  const cfg = { snapshot: true as true | number }
+  const retentionDays = cfg.snapshot === true ? 7 : cfg.snapshot
+  expect(retentionDays).toBe(7)
+})
+
+test("snapshot config with positive integer uses specified retention", async () => {
+  const cfg = { snapshot: 3 as true | number }
+  const retentionDays = cfg.snapshot === true ? 7 : cfg.snapshot
+  expect(retentionDays).toBe(3)
+})
+

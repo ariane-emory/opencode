@@ -92,7 +92,6 @@ export namespace Skill {
         cwd: root,
         absolute: true,
         include: "file",
-        dot: true,
         symlink: true,
       })
         .then((matches) => Promise.all(matches.map(addSkill)))

@@ -94,3 +94,4 @@
 | feat/configurable-snapshot-lifespan | 9815bdd62f | ✅ Merged | Clean merge |
 | feat/configurable-new-plan-mode | e6fccda8d0 | ✅ Merged | Resolved import conflict |
 | feat/config-imports | 158cc8f018 | ✅ Merged | Clean merge |
+| feat/canceled-prompts-in-history | 60e9174cc9 | ✅ Merged | Resolved app.tsx conflict |

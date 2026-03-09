@@ -15,19 +15,14 @@ export namespace MarkdownExpand {
   export async function expand(content: string, options: Options = {}): Promise<string> {
     const { cwd = process.cwd(), stripFrontmatter = true, args = [] } = options
 
-    // Split all arguments by whitespace - spaces are ALWAYS separators
-    const processedArgs = args.flatMap(arg =>
-      arg.split(/\s+/).filter(s => s.length > 0)
-    )
-
     // Build environment variables for arguments
     const env: Record<string, string> = {
       ...process.env,
-      ARGUMENTS: processedArgs.join(" "),
+      ARGUMENTS: args.join(" "),
     }
 
     // Build the positional args string for shell wrapper
-    const quotedArgs = processedArgs.map((arg) => `'${arg.replace(/'/g, "'\\''")}'`).join(" ")
+    const quotedArgs = args.map((arg) => `'${arg.replace(/'/g, "'\\''")}'`).join(" ")
 
     let result = content
 
@@ -41,7 +36,7 @@ export namespace MarkdownExpand {
     }
 
     // Substitute $1, $2, ..., ${N:M}, and $ARGUMENTS using shared module
-    result = substituteArguments(result, processedArgs).result
+    result = substituteArguments(result, args).result
 
     let iteration = 0
     while (iteration < MAX_ITERATIONS) {

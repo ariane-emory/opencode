@@ -37,7 +37,7 @@
 | ☐ | 31 | refactor/shared-substitute | origin | TBD | |
 | ☑ | 32 | feat/command-palette-consistecy | origin | cc5acbbcce | MOVE items from Session to System category, do NOT duplicate |
 | ☐ | 33 | feat/session-id-in-status | origin | TBD | |
-| ☐ | 34 | feat/argument-range-syntax | origin | TBD | |
+| ☑ | 34 | feat/argument-range-syntax | origin | ca389f253b | |
 | ☐ | 35 | feat/default-arguments | origin | TBD | |
 | ☐ | 36 | feat/edit-tool-description | origin | TBD | |
 | ☐ | 37 | feat/opeoginni--display-message-tps | origin | TBD | |
@@ -111,3 +111,4 @@
 | refactor/shared-substitute | 90750a4faa | ✅ Merged | Clean merge |
 | feat/command-palette-consistecy | cc5acbbcce | ✅ Merged | Resolved conflicts in app.tsx and session/index.tsx |
 | feat/session-id-in-status | 603e7c0004 | ✅ Merged | Clean merge |
+| 34 | feat/argument-range-syntax | ca389f253b | ✅ Merged | Combined range syntax with backward compatible swallowing |

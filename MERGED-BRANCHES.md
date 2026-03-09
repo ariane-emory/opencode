@@ -4,7 +4,7 @@
 
 | Status | # | Branch Name | Remote | Commit Hash | Description |
 |--------|---|-------------|--------|-------------|-------------|
-| ☐ | 1 | split-config-fixes | upstream | TBD | MUST use only local copy, do NOT pull from upstream |
+| ☑ | 1 | split-config-fixes | upstream | 0124f3f2e7 | MUST use only local copy, do NOT pull from upstream |
 | ☐ | 2 | feat/base-one-rebrand | origin | TBD | |
 | ☐ | 3 | feat/sinister-quotes | origin | TBD | Placeholders MUST be SINISTER_PLACEHOLDERS array |
 | ☐ | 4 | feat/markdown-renderer | gignit | TBD | |
@@ -78,3 +78,4 @@
 
 | # | Branch | Commit | Merge Status | Notes |
 |---|--------|--------|--------------|-------|
+| 1 | split-config-fixes | 0124f3f2e7 | ✅ Merged | Resolved conflict in migrate-tui-config.ts |

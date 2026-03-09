@@ -56,7 +56,7 @@
 | ☑ | 50 | feat/agent-timestamps | origin | 0e2fe6c943 | |
 | ☑ | 51 | feat/rewind-modal-option | origin | 849db18407 | |
 | ☑ | 52 | feat/alphabetize-command-palette-groups | origin | 555453d049 | |
-| ☐ | 53 | feat/taller-dialogs | origin | TBD | |
+| ☑ | 53 | feat/taller-dialogs | origin | 1603c9bf0f | |
 | ☐ | 54 | feat/add-arianes-themes | origin | TBD | |
 | ☐ | 55 | feat/aspiers--readline-additions | origin | TBD | |
 | ☐ | 56 | feat/sidebar-clock | origin | TBD | |
@@ -130,3 +130,4 @@
 | 50 | feat/agent-timestamps | 0e2fe6c943 | ✅ Merged | Resolved contentWidth conflict in session/index.tsx |
 | 51 | feat/rewind-modal-option | 849db18407 | ✅ Merged | Resolved openapi.json conflict by regenerating the SDK |
 | 52 | feat/alphabetize-command-palette-groups | 555453d049 | ✅ Merged | Resolved conflict in dialog-select.tsx |
+| 53 | feat/taller-dialogs | 1603c9bf0f | ✅ Merged | Clean merge |

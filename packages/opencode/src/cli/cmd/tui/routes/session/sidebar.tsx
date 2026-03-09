@@ -11,7 +11,7 @@ import { useKV } from "../../context/kv"
 import { TodoItem } from "../../component/todo-item"
 import { formatSessionTitle, parseSessionTitleParts } from "@tui/util/session-title"
 
-export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
+export function Sidebar(props: { sessionID: string }) {
   const sync = useSync()
   const { theme } = useTheme()
   const directory = useDirectory()
@@ -96,7 +96,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
         paddingBottom={1}
         paddingLeft={2}
         paddingRight={2}
-        position={props.overlay ? "absolute" : "relative"}
+        position="relative"
       >
         <scrollbox
           flexGrow={1}

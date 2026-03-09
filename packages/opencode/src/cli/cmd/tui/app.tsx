@@ -657,6 +657,15 @@ function App() {
       },
     },
     {
+      title: kv.get("sidebar_overlay", true) ? "Disable sidebar overlay" : "Enable sidebar overlay",
+      value: "sidebar_overlay",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("sidebar_overlay", !kv.get("sidebar_overlay", true))
+        dialog.clear()
+      },
+    },
+    {
       title: kv.get("animations_enabled", true) ? "Disable animations" : "Enable animations",
       value: "app.toggle.animations",
       category: "System",

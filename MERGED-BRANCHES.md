@@ -118,3 +118,4 @@
 | feat/kv-diff-style-clean | 8381302e8e | ✅ Merged | Clean merge |
 | feat/global-compaction-threshold | 70f74a2ebb | ✅ Merged | Clean merge |
 | 40 | feat/configurable-message-and-session-limit | fe1b41cdc8 | ✅ Merged | Resolved conflicts in dialog-session-list.tsx, config.ts, types.gen.ts |
+| feat/experimental-dont-cache-markdown | 8c1f10756b | ✅ Merged | Clean merge |

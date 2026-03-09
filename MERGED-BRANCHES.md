@@ -64,15 +64,15 @@
 | ☑ | 58 | feat/alphabetical-message-modal | origin | d4963a1307 | |
 | ☑ | 59 | feat/toggle-sidebar-scrollbar | origin | 1e90526df8 | |
 | ☑ | 60 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | fa8ba4d0ff | |
-| ☐ | 61 | feat/clickable-sidebar-mcps | origin | TBD | |
-| ☐ | 62 | feat/clickable-dialogue-mcps | origin | TBD | |
-| ☐ | 63 | feat/ignored-commands | origin | TBD | |
-| ☐ | 64 | feat/sidebar-header-accent-colours | origin | TBD | |
-| ☐ | 65 | feat/distinct-title-colour | origin | TBD | |
-| ☐ | 66 | feat/tool-output-colour | origin | TBD | |
-| ☐ | 67 | feat/improve-experimental-plan-mode-prompt | origin | TBD | |
-| ☐ | 68 | feat/renaming-doesnt-close-session-list | origin | TBD | |
-| ☐ | 69 | fix/restore-footer | origin | TBD | Restores the footer that was removed, must not be clobbered |
+| ☑ | 61 | feat/clickable-sidebar-mcps | origin | 739da4ef4e | |
+| ☑ | 62 | feat/clickable-dialogue-mcps | origin | 08cbb44c23 | |
+| ☑ | 63 | feat/ignored-commands | origin | 61e79d0c69 | |
+| ☑ | 64 | feat/sidebar-header-accent-colours | origin | fbd6a06cb0 | |
+| ☑ | 65 | feat/distinct-title-colour | origin | fc46a0d0b5 | |
+| ☑ | 66 | feat/tool-output-colour | origin | 65797b99b9 | |
+| ☑ | 67 | feat/improve-experimental-plan-mode-prompt | origin | 45a62a8024 | |
+| ☑ | 68 | feat/renaming-doesnt-close-session-list | origin | 98136d65bc | |
+| ☑ | 69 | fix/restore-footer | origin | 5530b68994 | Restores the footer that was removed, must not be clobbered |
 
 ## Merge Log
 
@@ -138,3 +138,12 @@
 | 58 | feat/alphabetical-message-modal | d4963a1307 | ✅ Merged | Resolved conflict in dialog-select.tsx |
 | 59 | feat/toggle-sidebar-scrollbar | 1e90526df8 | ✅ Merged | Resolved conflicts in app.tsx, index.tsx, sidebar.tsx |
 | 60 | feat/full-datetimes-in-fork-and-timeline-dialogues | fa8ba4d0ff | ✅ Merged | Resolved conflict in locale.ts |
+| 61 | feat/clickable-sidebar-mcps | 739da4ef4e | ✅ Merged | Resolved conflicts in sidebar.tsx |
+| 62 | feat/clickable-dialogue-mcps | 08cbb44c23 | ✅ Merged | Clean merge |
+| 63 | feat/ignored-commands | 61e79d0c69 | ✅ Merged | Resolved conflicts in config.ts and types.gen.ts |
+| 64 | feat/sidebar-header-accent-colours | fbd6a06cb0 | ✅ Merged | Resolved conflict in sidebar.tsx |
+| 65 | feat/distinct-title-colour | fc46a0d0b5 | ✅ Merged | Resolved conflicts in header.tsx and sidebar.tsx |
+| 66 | feat/tool-output-colour | 65797b99b9 | ✅ Merged | Resolved conflict in theme.tsx |
+| 67 | feat/improve-experimental-plan-mode-prompt | 45a62a8024 | ✅ Merged | Clean merge |
+| 68 | feat/renaming-doesnt-close-session-list | 98136d65bc | ✅ Merged | Resolved conflict in dialog-session-list.tsx |
+| 69 | fix/restore-footer | 5530b68994 | ✅ Merged | Clean merge; restored footer in index.tsx |

@@ -19,6 +19,7 @@ import {
   parse as parseJsonc,
   printParseErrorCode,
 } from "jsonc-parser"
+import type { ThemeJson } from "../cli/cmd/tui/context/theme"
 import { Instance } from "../project/instance"
 import { LSPServer } from "../lsp/server"
 import { BunProc } from "@/bun"

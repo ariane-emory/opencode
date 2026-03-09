@@ -11,7 +11,7 @@
 | ☑ | 5 | feat/thinking-indicator-hidden | rcdailey | 2ac23aaf96 | |
 | ☑ | 6 | fix/session-new-prompt-handoff | AksharP5 | a6272a2b90 | |
 | ☑ | 7 | feat/session-grouping | origin | c3290272e6 | |
-| ☐ | 8 | feat/session-bookmarks | origin | TBD | |
+| ☑ | 8 | feat/session-bookmarks | origin | 907ee2299b | |
 | ☐ | 9 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks |
 | ☐ | 10 | feat/keybindable-commands | origin | TBD | |
 | ☐ | 11 | feat/opencode-expand | origin | TBD | |
@@ -85,3 +85,4 @@
 | 5 | feat/thinking-indicator-hidden | 2ac23aaf96 | ✅ Merged | Clean merge |
 | 6 | fix/session-new-prompt-handoff | a6272a2b90 | ✅ Merged | Clean merge |
 | 7 | feat/session-grouping | c3290272e6 | ✅ Merged | Clean merge |
+| 8 | feat/session-bookmarks | 907ee2299b | ✅ Merged | Combined with session-grouping |

@@ -33,7 +33,7 @@
     "success": "green_dark",
     "info": "cyan",
     "text": "amber",
-    "toolOutput": "#360",
+    "toolOutput": "#450",
     "sessionTitle": "green",
     "textMuted": "gray_light",
     "background": "none",

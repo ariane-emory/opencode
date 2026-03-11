@@ -32,7 +32,15 @@ const IS_PREVIEW = CHANNEL !== "latest"
 
 const VERSION = await (async () => {
   if (env.OPENCODE_VERSION) return env.OPENCODE_VERSION
-  if (IS_PREVIEW) return `0.0.0-${CHANNEL}-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "")}`
+  if (IS_PREVIEW) {
+    // Check if we're on an integration branch and extract the timestamp
+    const integrationMatch = CHANNEL.match(/^integration\/(\d{4}-\d{2}-\d{2}-\d{2}-\d{2})$/)
+    if (integrationMatch) {
+      return integrationMatch[1] // Return just the timestamp (e.g., "2026-03-08-21-02")
+    }
+    // Otherwise use the old preview format for other branches
+    return `0.0.0-${CHANNEL}-${new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "")}`
+  }
   const version = await fetch("https://registry.npmjs.org/opencode-ai/latest")
     .then((res) => {
       if (!res.ok) throw new Error(res.statusText)

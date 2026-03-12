@@ -64,10 +64,25 @@ export function useTextareaKeybindings() {
   return createMemo(() => {
     const keybinds = keybind.all
 
-    return [
-      { name: "return", action: "submit" },
-      { name: "return", meta: true, action: "newline" },
-      ...TEXTAREA_ACTIONS.flatMap((action) => mapTextareaKeybindings(keybinds, action)),
-    ] satisfies KeyBinding[]
+    // Get user-defined bindings first
+    const userBindings = TEXTAREA_ACTIONS.flatMap((action) =>
+      mapTextareaKeybindings(keybinds, action),
+    )
+
+    // Check if user has configured each action
+    const hasSubmitBinding = userBindings.some((b) => b.action === "submit")
+    const hasNewlineBinding = userBindings.some((b) => b.action === "newline")
+
+    // Build defaults array, only adding defaults for unconfigured actions
+    const defaults: KeyBinding[] = []
+    if (!hasSubmitBinding) {
+      defaults.push({ name: "return", action: "submit" })
+    }
+    if (!hasNewlineBinding) {
+      defaults.push({ name: "return", meta: true, action: "newline" })
+    }
+
+    // User bindings come first so they take precedence over defaults
+    return [...userBindings, ...defaults] satisfies KeyBinding[]
   })
 }

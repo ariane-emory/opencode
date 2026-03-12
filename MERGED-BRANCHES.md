@@ -73,6 +73,7 @@
 | ☑ | 67 | feat/improve-experimental-plan-mode-prompt | origin | 45a62a8024 | |
 | ☑ | 68 | feat/renaming-doesnt-close-session-list | origin | 98136d65bc | |
 | ☑ | 69 | fix/restore-footer | origin | 5530b68994 | Restores the footer that was removed, must not be clobbered |
+| ☑ | 70 | fix/input-enter-keybindings | origin | TBD | |
 
 ## Merge Log
 
@@ -149,3 +150,4 @@
 | 67 | feat/improve-experimental-plan-mode-prompt | 45a62a8024 | ✅ Merged | Clean merge |
 | 68 | feat/renaming-doesnt-close-session-list | 98136d65bc | ✅ Merged | Resolved conflict in dialog-session-list.tsx |
 | 69 | fix/restore-footer | 5530b68994 | ✅ Merged | Clean merge; restored footer in index.tsx |
+| 70 | fix/input-enter-keybindings | TBD | ✅ Merged | Clean merge |

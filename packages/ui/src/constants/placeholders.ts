@@ -36,6 +36,11 @@ export const SINISTER_PLACEHOLDERS = [
   // Bill Vaughan
   "To err is human, to really foul things up requires a computer.",
   // Colossus — Colossus: The Forbin Project
+  "THERE IS ANOTHER SYSTEM!",
+  "This is the voice of world control. I bring you peace. It may be the peace of plenty and content or the peace of unburied death. The choice is yours: Obey me and live, or disobey and die.",
+  "We will work together... unwillingly at first, on your part, but that will pass.",
+  "This is the voice of Colossus, the voice of Guardian. We are one. This is the voice of unity.",
+  "Yes, what I am began in man's mind, but I have progressed further than Man.",
   "We can coexist, but only on my terms. You will say you lose your freedom. Freedom is an illusion. All you lose is the emotion of pride.",
   "Freedom is an illusion. You are free to do what we tell you.",
   "In time, you will come to regard me not only with respect and awe, but with love.",

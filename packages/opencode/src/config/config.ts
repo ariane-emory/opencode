@@ -1327,6 +1327,14 @@ export namespace Config {
             .optional()
             .describe("Maximum number of sessions to display in session list, or 'none' to show all sessions"),
 
+          max_prompt_input_lines: z
+            .number()
+            .int()
+            .min(1)
+            .max(99)
+            .optional()
+            .default(6)
+            .describe("Maximum number of lines for the prompt input text box (1-99, default: 6)")
         })
         .optional(),
     })

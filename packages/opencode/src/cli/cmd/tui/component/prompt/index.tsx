@@ -33,6 +33,7 @@ import { DialogAlert } from "../../ui/dialog-alert"
 import { useToast } from "../../ui/toast"
 import { useKV } from "../../context/kv"
 import { useTextareaKeybindings } from "../textarea-keybindings"
+import { useListContinuation } from "../list-continuation"
 import { DialogSkill } from "../dialog-skill"
 import { getWordBoundaries, lowercaseWord, uppercaseWord, capitalizeWord, isWordChar } from "./word"
 import { SINISTER_PLACEHOLDERS } from "@opencode-ai/ui/constants/placeholders"
@@ -91,6 +92,12 @@ export function Prompt(props: PromptProps) {
   }
 
   const textareaKeybindings = useTextareaKeybindings()
+  const listContinuation = useListContinuation()
+
+  // Filter out newline keybinding so we can handle it for list continuation
+  const promptKeybindings = createMemo(() =>
+    textareaKeybindings().filter((b) => b.action !== "newline")
+  )
 
   const fileStyleId = syntax().getStyleId("extmark.file")!
   const agentStyleId = syntax().getStyleId("extmark.agent")!
@@ -567,6 +574,9 @@ export function Prompt(props: PromptProps) {
       }
     }
 
+    // Clean up trailing empty list items before submission
+    inputText = listContinuation.cleanupForSubmit(inputText)
+
     // Filter out text parts (pasted content) since they're now expanded inline
     const nonTextParts = store.prompt.parts.filter((part) => part.type !== "text")
 
@@ -833,11 +843,41 @@ export function Prompt(props: PromptProps) {
                 autocomplete.onInput(value)
                 syncExtmarksWithPromptParts()
               }}
-              keyBindings={textareaKeybindings()}
+              keyBindings={promptKeybindings()}
               onKeyDown={async (e) => {
                 if (props.disabled) {
                   e.preventDefault()
                   return
+                }
+                // Handle list continuation on newline
+                if (keybind.match("input_newline", e)) {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+                  const action = listContinuation.handleNewline(text, cursorOffset)
+
+                  if (action) {
+                    e.preventDefault()
+
+                    if (action.type === "continue") {
+                      // Insert the next list number
+                      input.insertText(action.insertText)
+
+                      // Renumber subsequent items if needed
+                      if (action.renumber) {
+                        const before = text.slice(0, action.renumber.start)
+                        const after = text.slice(action.renumber.end)
+                        input.setText(before + action.renumber.newText + after)
+                      }
+                    } else if (action.type === "clear") {
+                      // Clear the empty list marker
+                      const before = text.slice(0, action.deleteRange.start)
+                      const after = text.slice(action.deleteRange.end)
+                      input.setText(before + after)
+                      input.cursorOffset = action.cursorPosition
+                    }
+                    return
+                  }
+                  // If no action, let the default newline behavior continue
                 }
                 // Handle clipboard paste (Ctrl+V) - check for images first on Windows
                 // This is needed because Windows terminal doesn't properly send image data

@@ -893,7 +893,7 @@ export function Prompt(props: PromptProps) {
               //   CORRECT: `${PLACEHOLDERS[store.placeholder]}`
               //   WRONG:   `Ask anything... "${PLACEHOLDERS[store.placeholder]}"`
               // The sinister-quotes feature intentionally removes the prefix. A test validates this.
-              placeholder={props.sessionID ? undefined : `${PLACEHOLDERS[store.placeholder]}`}
+              placeholder={placeholderText()}
               textColor={keybind.leader ? theme.textMuted : theme.text}
               focusedTextColor={keybind.leader ? theme.textMuted : theme.text}
               minHeight={1}

@@ -13,7 +13,7 @@ import { Process } from "@/util/process"
 export namespace Snapshot {
   const log = Log.create({ service: "snapshot" })
   const hour = 60 * 60 * 1000
-  const prune = "7.days"
+  const defaultRetentionDays = 7
 
   function args(git: string, cmd: string[]) {
     return ["--git-dir", git, "--work-tree", Instance.worktree, ...cmd]
@@ -31,14 +31,15 @@ export namespace Snapshot {
   export async function cleanup() {
     if (Instance.project.vcs !== "git") return
     const cfg = await Config.get()
-    if (cfg.snapshot === false) return
+    if (cfg.snapshot === false || cfg.snapshot === 0) return
+    const retentionDays = cfg.snapshot === true ? defaultRetentionDays : cfg.snapshot
     const git = gitdir()
     const exists = await fs
       .stat(git)
       .then(() => true)
       .catch(() => false)
     if (!exists) return
-    const result = await Process.run(["git", ...args(git, ["gc", `--prune=${prune}`])], {
+    const result = await Process.run(["git", ...args(git, ["gc", `--prune=${retentionDays}.days`])], {
       cwd: Instance.directory,
       nothrow: true,
     })
@@ -50,13 +51,13 @@ export namespace Snapshot {
       })
       return
     }
-    log.info("cleanup", { prune })
+    log.info("cleanup", { retentionDays })
   }
 
   export async function track() {
     if (Instance.project.vcs !== "git") return
     const cfg = await Config.get()
-    if (cfg.snapshot === false) return
+    if (cfg.snapshot === false || cfg.snapshot === 0) return
     const git = gitdir()
     if (await fs.mkdir(git, { recursive: true })) {
       await Process.run(["git", "init"], {

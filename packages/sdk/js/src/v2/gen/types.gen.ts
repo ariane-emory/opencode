@@ -1884,6 +1884,10 @@ export type Config = {
      * Timeout in milliseconds for model context protocol (MCP) requests
      */
     mcp_timeout?: number
+    /**
+     * Enable experimental plan mode
+     */
+    plan_mode?: boolean
   }
 }
 

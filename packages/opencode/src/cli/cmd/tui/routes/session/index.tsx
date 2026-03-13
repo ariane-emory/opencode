@@ -183,6 +183,12 @@ export function Session() {
     return new CustomSpeedScroll(3)
   })
 
+  createEffect(() => {
+    if (session()?.workspaceID) {
+      sdk.setWorkspace(session()?.workspaceID)
+    }
+  })
+
   createEffect(async () => {
     await sync.session
       .sync(route.sessionID)
@@ -378,7 +384,12 @@ export function Session() {
             sessionID: route.sessionID,
           })
           .then((res) => copy(res.data!.share!.url))
-          .catch(() => toast.show({ message: "Failed to share session", variant: "error" }))
+          .catch((error) => {
+            toast.show({
+              message: error instanceof Error ? error.message : "Failed to share session",
+              variant: "error",
+            })
+          })
         dialog.clear()
       },
     },
@@ -481,7 +492,12 @@ export function Session() {
             sessionID: route.sessionID,
           })
           .then(() => toast.show({ message: "Session unshared successfully", variant: "success" }))
-          .catch(() => toast.show({ message: "Failed to unshare session", variant: "error" }))
+          .catch((error) => {
+            toast.show({
+              message: error instanceof Error ? error.message : "Failed to unshare session",
+              variant: "error",
+            })
+          })
         dialog.clear()
       },
     },

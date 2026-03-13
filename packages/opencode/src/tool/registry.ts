@@ -29,6 +29,7 @@ import { LspTool } from "./lsp"
 import { Truncate } from "./truncation"
 
 import { ApplyPatchTool } from "./apply_patch"
+import { BookmarkCurrentSessionTool } from "./bookmark"
 import { Glob } from "../util/glob"
 import { pathToFileURL } from "url"
 
@@ -117,6 +118,7 @@ export namespace ToolRegistry {
       WebSearchTool,
       CodeSearchTool,
       SkillTool,
+      BookmarkCurrentSessionTool,
       ApplyPatchTool,
       ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
       ...(config.experimental?.batch_tool === true ? [BatchTool] : []),

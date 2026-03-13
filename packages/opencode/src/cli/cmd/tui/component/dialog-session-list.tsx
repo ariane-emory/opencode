@@ -1,10 +1,11 @@
 import { useDialog } from "@tui/ui/dialog"
-import { DialogSelect } from "@tui/ui/dialog-select"
+import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { useRoute } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
-import { createMemo, createSignal, createResource, onMount, Show } from "solid-js"
+import { createMemo, createSignal, createResource, onMount } from "solid-js"
 import { Locale } from "@/util/locale"
 import { useKeybind } from "../context/keybind"
+import { Keybind } from "@/util/keybind"
 import { useTheme } from "../context/theme"
 import { useSDK } from "../context/sdk"
 import { DialogSessionRename } from "./dialog-session-rename"
@@ -23,6 +24,7 @@ export function DialogSessionList() {
 
   const [toDelete, setToDelete] = createSignal<string>()
   const [search, setSearch] = createDebouncedSignal("", 150)
+  const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()
 
   const [searchResults] = createResource(search, async (query) => {
     if (!query) return undefined
@@ -30,9 +32,34 @@ export function DialogSessionList() {
     return result.data ?? []
   })
 
+  const pinKeybind = "ctrl+b"
   const currentSessionID = createMemo(() => (route.data.type === "session" ? route.data.sessionID : undefined))
 
-  const sessions = createMemo(() => searchResults() ?? sync.data.session)
+  const sessions = createMemo(() => {
+    const results = searchResults()
+    if (!results) return sync.data.session
+    return results.map((result) => {
+      const live = sync.data.session.find((s) => s.id === result.id)
+      return live ?? result
+    })
+  })
+
+  const defaultSessionID = createMemo(() => {
+    const lastSessionID = kv.getEphemeral("last_session_id")
+
+    // First try last session we were in (ephemeral, per-process)
+    if (lastSessionID) {
+      const session = sessions().find((s) => s.id === lastSessionID)
+      if (session) return session.id
+    }
+
+    // Fallback to most recently updated non-bookmarked session
+    const allSessions = sessions().filter((x) => x.parentID === undefined)
+    const unpinned = allSessions.filter((x) => x.time.pinned === undefined)
+    const sorted = unpinned.toSorted((a, b) => b.time.updated - a.time.updated)
+    // Fall back to bookmarked sessions only if no non-bookmarked sessions exist
+    return sorted[0]?.id ?? allSessions.toSorted((a, b) => b.time.updated - a.time.updated)[0]?.id
+  })
 
   function parseSessionTitle(title: string): { group?: string; displayTitle: string } {
     const pipeIndex = title.indexOf("|")
@@ -55,11 +82,19 @@ export function DialogSessionList() {
     const today = new Date().toDateString()
     const allSessions = sessions().filter((x) => x.parentID === undefined)
 
-    // Separate into grouped and ungrouped
-    const grouped: typeof allSessions = []
-    const ungrouped: typeof allSessions = []
+    // Separate into pinned and unpinned
+    const pinned = allSessions
+      .filter((x) => x.time.pinned !== undefined)
+      .toSorted((a, b) => (b.time.pinned ?? 0) - (a.time.pinned ?? 0))
 
-    for (const session of allSessions) {
+    const unpinned = allSessions
+      .filter((x) => x.time.pinned === undefined)
+
+    // Separate unpinned into grouped and ungrouped
+    const grouped: typeof unpinned = []
+    const ungrouped: typeof unpinned = []
+
+    for (const session of unpinned) {
       const parsed = parseSessionTitle(session.title)
       if (parsed.group) {
         grouped.push(session)
@@ -80,43 +115,38 @@ export function DialogSessionList() {
     // Sort ungrouped by updated DESC
     ungrouped.sort((a, b) => b.time.updated - a.time.updated)
 
-    // Map grouped sessions
-    const groupedOptions = grouped.map((session) => {
+    const mapSession = (session: typeof allSessions[number], category: string, showDate: boolean, useDisplayTitle = false) => {
       const parsed = parseSessionTitle(session.title)
       const isDeleting = toDelete() === session.id
       const status = sync.data.session_status?.[session.id]
       const isWorking = status?.type === "busy"
       return {
-        title: isDeleting ? `Press ${keybind.print("session_delete")} again to confirm` : parsed.displayTitle,
+        title: isDeleting ? `Press ${keybind.print("session_delete")} again to confirm` : (useDisplayTitle ? parsed.displayTitle : session.title),
         bg: isDeleting ? theme.error : undefined,
         value: session.id,
-        category: parsed.group,
-        footer: Locale.shortDateTime(session.time.updated),
+        category,
+        footer: showDate ? Locale.shortDateTime(session.time.updated) : Locale.time(session.time.updated),
         gutter: isWorking ? <Spinner /> : undefined,
       }
+    }
+
+    // Map pinned sessions
+    const pinnedOptions = pinned.map((x) => mapSession(x, "Bookmarks", true))
+
+    // Map grouped sessions
+    const groupedOptions = grouped.map((session) => {
+      const parsed = parseSessionTitle(session.title)
+      return mapSession(session, parsed.group, false, true)
     })
 
     // Map ungrouped sessions
     const ungroupedOptions = ungrouped.map((session) => {
       const date = new Date(session.time.updated)
-      let category = date.toDateString()
-      if (category === today) {
-        category = "Today"
-      }
-      const isDeleting = toDelete() === session.id
-      const status = sync.data.session_status?.[session.id]
-      const isWorking = status?.type === "busy"
-      return {
-        title: isDeleting ? `Press ${keybind.print("session_delete")} again to confirm` : session.title,
-        bg: isDeleting ? theme.error : undefined,
-        value: session.id,
-        category,
-        footer: Locale.time(session.time.updated),
-        gutter: isWorking ? <Spinner /> : undefined,
-      }
+      const category = date.toDateString() === today ? "Today" : date.toDateString()
+      return mapSession(session, category, false)
     })
 
-    return [...groupedOptions, ...ungroupedOptions]
+    return [...pinnedOptions, ...groupedOptions, ...ungroupedOptions]
   })
 
   onMount(() => {
@@ -125,10 +155,11 @@ export function DialogSessionList() {
 
   return (
     <DialogSelect
+      ref={setSelectRef}
       title="Sessions"
       options={options()}
       skipFilter={true}
-      current={currentSessionID()}
+      current={currentSessionID() ?? defaultSessionID()}
       onFilter={setSearch}
       onMove={() => {
         setToDelete(undefined)
@@ -160,6 +191,20 @@ export function DialogSessionList() {
           title: "rename",
           onTrigger: async (option) => {
             dialog.replace(() => <DialogSessionRename session={option.value} />)
+          },
+        },
+        {
+          keybind: Keybind.parse(pinKeybind)[0],
+          title: "bookmark",
+          onTrigger: async (option) => {
+            const session = sessions().find((s) => s.id === option.value)
+            if (!session) return
+            const isPinned = session.time.pinned !== undefined
+            await sdk.client.session.update({
+              sessionID: option.value,
+              time: { pinned: isPinned ? null : Date.now() },
+            })
+            setTimeout(() => selectRef()?.scrollToValue(option.value, true), 0)
           },
         },
       ]}

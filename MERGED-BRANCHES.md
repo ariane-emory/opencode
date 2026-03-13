@@ -12,7 +12,7 @@
 | ☑ | 6 | fix/session-new-prompt-handoff | AksharP5 | c43ddee3e6 | |
 | ☑ | 7 | feat/session-grouping | origin | 5415ffcd17 | |
 | ☑ | 8 | feat/session-bookmarks | origin | 564bae0610 | Combined with feat/session-grouping |
-| ☐ | 9 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks |
+| ☑ | 9 | fix/dialog-datetime-alignment | origin | d1109e0472 | Merge immediately after feat/session-bookmarks |
 | ☐ | 10 | feat/keybindable-commands | origin | TBD | |
 | ☐ | 11 | feat/automatic-list-continuation | origin | TBD | |
 | ☐ | 12 | feat/continue-command | origin | TBD | |
@@ -93,3 +93,4 @@
 | 6 | fix/session-new-prompt-handoff | 2026-03-13 | c43ddee3e6 | Clean merge from AksharP5 |
 | 7 | feat/session-grouping | 2026-03-13 | 5415ffcd17 | Clean merge |
 | 8 | feat/session-bookmarks | 2026-03-13 | 564bae0610 | Combined session-grouping and bookmarks features |
+| 9 | fix/dialog-datetime-alignment | 2026-03-13 | d1109e0472 | Clean merge |

@@ -45,6 +45,49 @@ export namespace Config {
 
   const log = Log.create({ service: "config" })
 
+  function deepRemoveDefaults(schema: any): any {
+    if (schema instanceof z.ZodDefault) {
+      return deepRemoveDefaults(schema.removeDefault())
+    }
+    if (schema instanceof z.ZodObject) {
+      const newShape: Record<string, any> = {}
+      for (const [key, value] of Object.entries(schema.shape)) {
+        newShape[key] = deepRemoveDefaults(value)
+      }
+      let newObj = z.object(newShape)
+      const catchall = schema._def.catchall
+      if (catchall) {
+        newObj = newObj.catchall(catchall)
+      }
+      return newObj
+    }
+    if (schema instanceof z.ZodArray) {
+      return z.array(deepRemoveDefaults(schema.element))
+    }
+    if (schema instanceof z.ZodOptional) {
+      return z.optional(deepRemoveDefaults(schema.unwrap()))
+    }
+    if (schema instanceof z.ZodNullable) {
+      return z.nullable(deepRemoveDefaults(schema.unwrap()))
+    }
+    if (schema instanceof z.ZodUnion) {
+      return z.union(schema.options.map(deepRemoveDefaults))
+    }
+    if (schema instanceof z.ZodIntersection) {
+      return z.intersection(deepRemoveDefaults(schema._def.left), deepRemoveDefaults(schema._def.right))
+    }
+    if (schema instanceof z.ZodRecord) {
+      return z.record(z.string(), deepRemoveDefaults(schema._def.valueType))
+    }
+    if (schema instanceof z.ZodLazy) {
+      return z.lazy(() => deepRemoveDefaults(schema._def.getter()))
+    }
+    if (schema instanceof z.ZodCatch) {
+      return deepRemoveDefaults(schema._def.innerType)
+    }
+    return schema
+  }
+
   // Managed settings directory for enterprise deployments (highest priority, admin-controlled)
   // These settings override all user and project settings
   function systemManagedConfigDir(): string {
@@ -296,6 +339,8 @@ export namespace Config {
     }
 
     result.plugin = deduplicatePlugins(result.plugin ?? [])
+
+    result = Info.parse(result)
 
     return {
       config: result,
@@ -1331,6 +1376,7 @@ export namespace Config {
   // If any baseone.* exists → load baseone.json + baseone.jsonc
   // Otherwise → load opencode.json + opencode.jsonc + config.json
   // Do NOT load both brands. Preserve this when merging.
+  const RawInfo = deepRemoveDefaults(Info) as z.ZodObject<any>
   export const global = lazy(async () => {
     let result: Info = {}
     const hasBaseone =
@@ -1576,8 +1622,8 @@ export namespace Config {
       })
     }
 
-    const parsed = Info.safeParse(data)
-    if (parsed.success) return parsed.data
+    const parsed = RawInfo.safeParse(data)
+    if (parsed.success) return parsed.data as Info
 
     throw new InvalidError({
       path: filepath,

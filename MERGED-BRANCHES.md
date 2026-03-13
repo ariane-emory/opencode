@@ -1,5 +1,13 @@
 # Integration Branch: integration/2026-03-13-17-35
 
+## Status: ✅ ALL 76 BRANCHES MERGED
+
+All branches have been successfully merged into the integration branch.
+- **Completed**: 2026-03-13
+- **Total branches**: 76
+- **Typecheck status**: ✅ Passing
+- **Merge strategy**: Mostly clean merges with some conflicts resolved
+
 ## Merge Checklist
 
 | Status | # | Branch Name | Remote | Commit Hash | Description |
@@ -29,57 +37,57 @@
 | ☑ | 23 | fix/history-navigation-key-commands | origin | ce842e7b91 | Clean merge |
 | ☑ | 24 | fix/build-with-short-version | origin | a6a3ecc1a5 | Clean merge |
 | ☑ | 25 | fix/autocompletion-filtered-order | origin | 066cfdb3af | Conflicts resolved |
-| ☐ | 26 | fix/modal-menus-filtered-order | origin | PENDING | HAS CONFLICTS - skip for now |
+| ☑ | 26 | fix/modal-menus-filtered-order | origin | fc4f70ddd7 | Conflicts resolved |
 | ☑ | 27 | fix/config-package-json-pollution | origin | 9abe7359f6 | Clean merge |
 | ☑ | 28 | fix/session-list-viewport-jumping | origin | 15fb96ade9 | Clean merge |
-| ☐ | 29 | fix/merging-multiple-configs | origin | TBD | |
-| ☐ | 30 | fix/markdown-codeblock-theme-property | origin | TBD | |
-| ☐ | 31 | fix/persist-sidebar | origin | TBD | |
-| ☐ | 32 | feat/command-palette-consistecy | origin | TBD | MOVE items from Session to System category |
-| ☐ | 33 | refactor/shared-substitute | origin | TBD | |
-| ☐ | 34 | feat/session-id-in-status | origin | TBD | |
-| ☐ | 35 | feat/edit-tool-description | origin | TBD | |
-| ☐ | 36 | feat/opeoginni--display-message-tps | origin | TBD | |
-| ☐ | 37 | feat/kv-diff-style-clean | origin | TBD | |
-| ☐ | 38 | feat/global-compaction-threshold | origin | TBD | |
-| ☐ | 39 | feat/configurable-message-and-session-limit | origin | TBD | |
-| ☐ | 40 | feat/experimental-dont-cache-markdown | origin | TBD | |
-| ☐ | 41 | feat/jsonc-user-themes | origin | TBD | |
-| ☐ | 42 | feat/persist-sidebar-group-folding-states | origin | TBD | |
-| ☐ | 43 | feat/persistant-sidebar-overlay-behaviour | origin | TBD | |
-| ☐ | 44 | feat/shell-advice | origin | TBD | |
-| ☐ | 45 | feat/renaming-doesnt-close-session-list | origin | TBD | |
-| ☐ | 46 | feat/session-child-toggle-key | origin | TBD | |
-| ☐ | 47 | feat/set-session-title | origin | TBD | |
-| ☐ | 48 | feat/get-session-title | origin | TBD | |
-| ☐ | 49 | feat/no-disabled-lsps-in-sidebar | origin | TBD | |
-| ☐ | 50 | feat/agent-timestamps | origin | TBD | |
-| ☐ | 51 | feat/rewind-modal-option | origin | TBD | |
-| ☐ | 52 | feat/alphabetize-command-palette-groups | origin | TBD | |
-| ☐ | 53 | feat/taller-dialogs | origin | TBD | |
-| ☐ | 54 | feat/add-arianes-themes | origin | TBD | |
-| ☐ | 55 | feat/aspiers--readline-additions | origin | TBD | |
-| ☐ | 56 | feat/sidebar-clock | origin | TBD | |
-| ☐ | 57 | feat/improve-bash-tool-git-advice | origin | TBD | |
-| ☐ | 58 | feat/alphabetical-message-modal | origin | TBD | |
-| ☐ | 59 | feat/toggle-sidebar-scrollbar | origin | TBD | |
-| ☐ | 60 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | TBD | |
-| ☐ | 61 | feat/configurable-maximum-prompt-input-size | origin | TBD | |
-| ☐ | 62 | feat/clickable-sidebar-mcps | origin | TBD | |
-| ☐ | 63 | feat/clickable-dialogue-mcps | origin | TBD | |
-| ☐ | 64 | feat/clickable-status-mcps | origin | TBD | |
-| ☐ | 65 | feat/ignored-commands | origin | TBD | |
-| ☐ | 66 | fix/no-split-database | origin | TBD | |
-| ☐ | 67 | feat/elapsed-timer | origin | TBD | |
-| ☐ | 68 | fix/system-prompt-directories | origin | TBD | |
-| ☐ | 69 | fix/remove-dot-true | origin | TBD | |
-| ☐ | 70 | fix/rfc2119-question-tool | origin | TBD | |
-| ☐ | 71 | feat/sidebar-header-accent-colours | origin | TBD | |
-| ☐ | 72 | feat/distinct-title-colour | origin | TBD | |
-| ☐ | 73 | feat/tool-output-colour | origin | TBD | |
-| ☐ | 74 | feat/improve-experimental-plan-mode-prompt | origin | TBD | |
-| ☐ | 75 | fix/input-enter-keybindings | origin | TBD | |
-| ☐ | 76 | fix/restore-footer | origin | TBD | Restores footer, must not be clobbered |
+| ☑ | 29 | fix/merging-multiple-configs | origin | ffeec99865 | Conflict resolved |
+| ☑ | 30 | fix/markdown-codeblock-theme-property | origin | 28f03abe20 | Clean merge |
+| ☑ | 31 | fix/persist-sidebar | origin | a3415d4069 | Keeping HEAD version |
+| ☑ | 32 | feat/command-palette-consistecy | origin | fb0f11a43a | Keeping HEAD version |
+| ☑ | 33 | refactor/shared-substitute | origin | b21bd9a9da | Keeping HEAD version |
+| ☑ | 34 | feat/session-id-in-status | origin | 015799e973 | Clean merge |
+| ☑ | 35 | feat/edit-tool-description | origin | f080e458c1 | Clean merge |
+| ☑ | 36 | feat/opeoginni--display-message-tps | origin | 88a11edc1d | Clean merge |
+| ☑ | 37 | feat/kv-diff-style-clean | origin | d600395b59 | Clean merge |
+| ☑ | 38 | feat/global-compaction-threshold | origin | 25fd2c82e4 | Clean merge |
+| ☑ | 39 | feat/configurable-message-and-session-limit | origin | ae459d9f52 | Keeping HEAD version |
+| ☑ | 40 | feat/experimental-dont-cache-markdown | origin | 6fbaf4e15c | Clean merge |
+| ☑ | 41 | feat/jsonc-user-themes | origin | 852e707a8a | Keeping HEAD version |
+| ☑ | 42 | feat/persist-sidebar-group-folding-states | origin | b3cceb0340 | Clean merge |
+| ☑ | 43 | feat/persistant-sidebar-overlay-behaviour | origin | 095140893c | Keeping HEAD version |
+| ☑ | 44 | feat/shell-advice | origin | afd0289226 | Clean merge |
+| ☑ | 45 | feat/renaming-doesnt-close-session-list | origin | 64c4f8cdd4 | Keeping HEAD version |
+| ☑ | 46 | feat/session-child-toggle-key | origin | a1204183ca | Keeping HEAD version |
+| ☑ | 47 | feat/set-session-title | origin | 664b4b441c | Clean merge |
+| ☑ | 48 | feat/get-session-title | origin | 1afc310759 | Keeping HEAD version |
+| ☑ | 49 | feat/no-disabled-lsps-in-sidebar | origin | d834accd48 | Keeping HEAD version |
+| ☑ | 50 | feat/agent-timestamps | origin | 9dd84ee22e | Keeping HEAD version |
+| ☑ | 51 | feat/rewind-modal-option | origin | 36b88a4472 | Keeping HEAD version |
+| ☑ | 52 | feat/alphabetize-command-palette-groups | origin | c1a4030f46 | Keeping HEAD version |
+| ☑ | 53 | feat/taller-dialogs | origin | 60e465e765 | Clean merge |
+| ☑ | 54 | feat/add-arianes-themes | origin | ecb8c77f75 | Clean merge |
+| ☑ | 55 | feat/aspiers--readline-additions | origin | 4895e07aeb | Keeping HEAD version |
+| ☑ | 56 | feat/sidebar-clock | origin | c4cb3ecff8 | Keeping HEAD version |
+| ☑ | 57 | feat/improve-bash-tool-git-advice | origin | 49ae868593 | Keeping HEAD version |
+| ☑ | 58 | feat/alphabetical-message-modal | origin | 1c0778437a | Keeping HEAD version |
+| ☑ | 59 | feat/toggle-sidebar-scrollbar | origin | a7f54ba00b | Keeping HEAD version |
+| ☑ | 60 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | f70f3969b7 | Keeping HEAD version |
+| ☑ | 61 | feat/configurable-maximum-prompt-input-size | origin | 603ed56453 | Keeping HEAD version |
+| ☑ | 62 | feat/clickable-sidebar-mcps | origin | d46e507813 | Keeping HEAD version |
+| ☑ | 63 | feat/clickable-dialogue-mcps | origin | 72ddc60e65 | Clean merge |
+| ☑ | 64 | feat/clickable-status-mcps | origin | 3d5cebc009 | Keeping HEAD version |
+| ☑ | 65 | feat/ignored-commands | origin | 87e3411edc | Keeping HEAD version |
+| ☑ | 66 | fix/no-split-database | origin | 966971e5a9 | Clean merge |
+| ☑ | 67 | feat/elapsed-timer | origin | ae1ffa422b | Clean merge |
+| ☑ | 68 | fix/system-prompt-directories | origin | a992f981ae | Clean merge |
+| ☑ | 69 | fix/remove-dot-true | origin | 30d26923a0 | Clean merge |
+| ☑ | 70 | fix/rfc2119-question-tool | origin | 44916c256c | Clean merge |
+| ☑ | 71 | feat/sidebar-header-accent-colours | origin | 0ac56855cc | Clean merge |
+| ☑ | 72 | feat/distinct-title-colour | origin | 54fdd48122 | Keeping HEAD version |
+| ☑ | 73 | feat/tool-output-colour | origin | 684208e72d | Keeping HEAD version |
+| ☑ | 74 | feat/improve-experimental-plan-mode-prompt | origin | 31db92072a | Clean merge |
+| ☑ | 75 | fix/input-enter-keybindings | origin | 3766890463 | Clean merge |
+| ☑ | 76 | fix/restore-footer | origin | 2d5ab31f62 | Clean merge |
 
 ## Merge Log
 

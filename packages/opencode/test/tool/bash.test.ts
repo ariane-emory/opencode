@@ -40,6 +40,106 @@ describe("tool.bash", () => {
       },
     })
   })
+
+  test("description includes shell information", async () => {
+    await Instance.provide({
+      directory: projectRoot,
+      fn: async () => {
+        const bash = await BashTool.init()
+        expect(bash.description).toContain("**Shell**:")
+        expect(bash.description).toContain("Ensure your command syntax is compatible with this shell")
+        // Should contain a shell name (bash, zsh, fish, etc.)
+        const shellMatch = bash.description.match(/You are executing commands in `([^`]+)`/)
+        expect(shellMatch).toBeTruthy()
+        expect(shellMatch?.[1]).toBeTruthy()
+      },
+    })
+  })
+
+  test("shell name detection is platform-aware", async () => {
+    await Instance.provide({
+      directory: projectRoot,
+      fn: async () => {
+        const bash = await BashTool.init()
+        const shellMatch = bash.description.match(/You are executing commands in `([^`]+)`/)
+        const detectedShell = shellMatch?.[1]
+
+        expect(detectedShell).toBeTruthy()
+
+        // Verify detected shell is appropriate for the platform
+        if (process.platform === "win32") {
+          expect(["cmd", "powershell"]).toContain(detectedShell!)
+        } else {
+          expect(["bash", "zsh", "fish", "ksh", "csh", "tcsh", "dash"]).toContain(detectedShell!)
+        }
+      },
+    })
+  })
+
+  test("description uses dynamic shell-specific language", async () => {
+    await Instance.provide({
+      directory: projectRoot,
+      fn: async () => {
+        const bash = await BashTool.init()
+        const shellMatch = bash.description.match(/You are executing commands in `([^`]+)`/)
+        const detectedShell = shellMatch?.[1]
+
+        expect(detectedShell).toBeTruthy()
+
+        // Should contain shell-specific command references
+        if (detectedShell) {
+          expect(bash.description).toContain(`${detectedShell} command`)
+          expect(bash.description).toContain(`${detectedShell} commands`)
+        }
+
+        // Should still contain "Bash tool" references (tool name)
+        expect(bash.description).toContain("Bash tool")
+      },
+    })
+  })
+
+  test("shell-specific language works for different shell types", async () => {
+    // Test with different shell environments
+    const originalShell = process.env.SHELL
+
+    await Instance.provide({
+      directory: projectRoot,
+      fn: async () => {
+        try {
+          // Mock zsh shell environment
+          process.env.SHELL = "/bin/zsh"
+          const bashZsh = await BashTool.init()
+          expect(bashZsh.description).toContain("zsh command")
+          expect(bashZsh.description).toContain("zsh commands")
+
+          // Mock bash shell environment
+          process.env.SHELL = "/bin/bash"
+          const bashBash = await BashTool.init()
+          expect(bashBash.description).toContain("bash command")
+          expect(bashBash.description).toContain("bash commands")
+
+          // Mock ksh shell environment
+          process.env.SHELL = "/bin/ksh"
+          const bashKsh = await BashTool.init()
+          expect(bashKsh.description).toContain("ksh command")
+          expect(bashKsh.description).toContain("ksh commands")
+
+          // Mock fish shell environment (fish is now supported, not blacklisted)
+          process.env.SHELL = "/usr/bin/fish"
+          const bashFish = await BashTool.init()
+          expect(bashFish.description).toContain("fish command")
+          expect(bashFish.description).toContain("fish commands")
+        } finally {
+          // Restore original shell
+          if (originalShell) {
+            process.env.SHELL = originalShell
+          } else {
+            delete process.env.SHELL
+          }
+        }
+      },
+    })
+  })
 })
 
 describe("tool.bash permissions", () => {

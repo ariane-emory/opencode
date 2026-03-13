@@ -9,7 +9,7 @@
 | ☑ | 3 | feat/sinister-quotes | origin | c60037c16f | Placeholders MUST be SINISTER_PLACEHOLDERS array |
 | ☑ | 4 | feat/markdown-renderer | gignit | d0127e9d23 | |
 | ☑ | 5 | feat/thinking-indicator-hidden | rcdailey | 6467fe92a4 | |
-| ☐ | 6 | fix/session-new-prompt-handoff | AksharP5 | TBD | |
+| ☑ | 6 | fix/session-new-prompt-handoff | AksharP5 | c43ddee3e6 | |
 | ☐ | 7 | feat/session-grouping | origin | TBD | |
 | ☐ | 8 | feat/session-bookmarks | origin | TBD | |
 | ☐ | 9 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks |
@@ -90,3 +90,4 @@
 | 3 | feat/sinister-quotes | 2026-03-13 | c60037c16f | Clean merge, verified SINISTER_PLACEHOLDERS array |
 | 4 | feat/markdown-renderer | 2026-03-13 | d0127e9d23 | Clean merge from gignit |
 | 5 | feat/thinking-indicator-hidden | 2026-03-13 | 6467fe92a4 | Clean merge from rcdailey |
+| 6 | fix/session-new-prompt-handoff | 2026-03-13 | c43ddee3e6 | Clean merge from AksharP5 |

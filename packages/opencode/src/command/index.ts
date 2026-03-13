@@ -48,6 +48,12 @@ export namespace Command {
     if (numbered) {
       for (const match of [...new Set(numbered)].sort()) result.push(match)
     }
+    const extended = template.match(/\$\{(\d+|\d*\.\.\d*)\}/g)
+    if (extended) {
+      for (const match of [...new Set(extended)].sort()) {
+        if (!result.includes(match)) result.push(match)
+      }
+    }
     if (template.includes("$ARGUMENTS")) result.push("$ARGUMENTS")
     return result
   }

@@ -368,13 +368,9 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       // Fetch config first to get session_list_limit
       const configResponse = await sdk.client.config.get({}, { throwOnError: true })
       const config = configResponse.data!
-      const sessionsListLimit = config.experimental?.session_list_limit
-      const unlimited = sessionsListLimit === "none"
-      const sessionsLimit = unlimited ? undefined : sessionsListLimit ?? 150
-
-      const start = unlimited ? undefined : Date.now() - 30 * 24 * 60 * 60 * 1000
+      const sessionsLimit = config.experimental?.session_list_limit ?? 150
       const sessionListPromise = sdk.client.session
-        .list({ start, limit: sessionsLimit })
+        .list({ limit: sessionsLimit })
         .then((x) => (x.data ?? []).toSorted((a, b) => a.id.localeCompare(b.id)))
 
       // blocking - include session.list when continuing a session

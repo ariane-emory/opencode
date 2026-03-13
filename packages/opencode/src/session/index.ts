@@ -441,7 +441,8 @@ export namespace Session {
     options?: { touch?: boolean },
   ) {
     return Database.use((db) => {
-      const existing = db.select().from(SessionTable).where(eq(SessionTable.id, sessionID)).get()
+      const id = SessionID.make(sessionID)
+      const existing = db.select().from(SessionTable).where(eq(SessionTable.id, id)).get()
       if (!existing) throw new NotFoundError({ message: `Session not found: ${sessionID}` })
       
       const info = fromRow(existing)
@@ -455,7 +456,7 @@ export namespace Session {
       const row = db
         .update(SessionTable)
         .set(updates)
-        .where(eq(SessionTable.id, sessionID))
+        .where(eq(SessionTable.id, id))
         .returning()
         .get()
       

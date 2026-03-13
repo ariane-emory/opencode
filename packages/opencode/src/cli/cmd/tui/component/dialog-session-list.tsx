@@ -136,7 +136,7 @@ export function DialogSessionList() {
     // Map grouped sessions
     const groupedOptions = grouped.map((session) => {
       const parsed = parseSessionTitle(session.title)
-      return mapSession(session, parsed.group, false, true)
+      return mapSession(session, parsed.group ?? "", false, true)
     })
 
     // Map ungrouped sessions

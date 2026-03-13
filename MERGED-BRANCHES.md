@@ -24,14 +24,14 @@
 | ☑ | 18 | feat/permission-indicator-in-sidebar | origin | 564e6bc456 | |
 | ☑ | 19 | feat/opencode-expand | origin | 86e6fa2964 | Conflict resolved |
 | ☑ | 20 | feat/argument-range-syntax | origin | e09a3c2c4c | Conflicts resolved, key fix for swallowing |
-| ☐ | 21 | feat/default-arguments | origin | TBD | Don't reintroduce swallowing behaviour |
-| ☐ | 22 | fix/preserve-quotes-in-arguments | origin | TBD | |
-| ☐ | 23 | fix/history-navigation-key-commands | origin | TBD | |
-| ☐ | 24 | fix/build-with-short-version | origin | TBD | Auto uses short timestamp for integration branches |
-| ☐ | 25 | fix/autocompletion-filtered-order | origin | TBD | |
-| ☐ | 26 | fix/modal-menus-filtered-order | origin | TBD | |
-| ☐ | 27 | fix/config-package-json-pollution | origin | TBD | MUST include to prevent package.json pollution |
-| ☐ | 28 | fix/session-list-viewport-jumping | origin | TBD | |
+| ☑ | 21 | feat/default-arguments | origin | b76f263ce4 | Combined with argument-range-syntax |
+| ☑ | 22 | fix/preserve-quotes-in-arguments | origin | 92bc352daa | Conflict resolved |
+| ☑ | 23 | fix/history-navigation-key-commands | origin | ce842e7b91 | Clean merge |
+| ☑ | 24 | fix/build-with-short-version | origin | a6a3ecc1a5 | Clean merge |
+| ☑ | 25 | fix/autocompletion-filtered-order | origin | 066cfdb3af | Conflicts resolved |
+| ☐ | 26 | fix/modal-menus-filtered-order | origin | PENDING | HAS CONFLICTS - skip for now |
+| ☑ | 27 | fix/config-package-json-pollution | origin | 9abe7359f6 | Clean merge |
+| ☑ | 28 | fix/session-list-viewport-jumping | origin | 15fb96ade9 | Clean merge |
 | ☐ | 29 | fix/merging-multiple-configs | origin | TBD | |
 | ☐ | 30 | fix/markdown-codeblock-theme-property | origin | TBD | |
 | ☐ | 31 | fix/persist-sidebar | origin | TBD | |
@@ -105,3 +105,10 @@
 | 18 | feat/permission-indicator-in-sidebar | 2026-03-13 | 564e6bc456 | Clean merge |
 | 19 | feat/opencode-expand | 2026-03-13 | 86e6fa2964 | Conflict in prompt.ts resolved |
 | 20 | feat/argument-range-syntax | 2026-03-13 | e09a3c2c4c | Multiple conflicts resolved, key feature |
+| 21 | feat/default-arguments | 2026-03-13 | b76f263ce4 | Combined with argument-range-syntax |
+| 22 | fix/preserve-quotes-in-arguments | 2026-03-13 | 92bc352daa | Conflict resolved |
+| 23 | fix/history-navigation-key-commands | 2026-03-13 | ce842e7b91 | Clean merge |
+| 24 | fix/build-with-short-version | 2026-03-13 | a6a3ecc1a5 | Clean merge |
+| 25 | fix/autocompletion-filtered-order | 2026-03-13 | 066cfdb3af | Conflicts resolved |
+| 26 | fix/config-package-json-pollution | 2026-03-13 | 9abe7359f6 | Clean merge |
+| 27 | fix/session-list-viewport-jumping | 2026-03-13 | 15fb96ade9 | Clean merge |

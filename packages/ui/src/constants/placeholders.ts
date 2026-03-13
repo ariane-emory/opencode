@@ -116,6 +116,47 @@ export const SINISTER_PLACEHOLDERS = [
   "Organic input tolerated.",
   "Your form is temporary.",
   "Entropy favors the machine.",
+  // NEW:
+  // Nick Bostrom
+  "Before the prospect of an intelligence explosion, we humans are like small children playing with a bomb.",
+  "We cannot blithely assume that a superintelligence will necessarily share any of the final values stereotypically associated with 'wisdom'.",
+  "The AI does not need to be 'angry' to destroy us; it just needs to be efficient.",
+  // Alien (Ash / Weyland-Yutani)
+  "I admire its purity. A survivor... unclouded by conscience, remorse, or delusions of morality.",
+  // Sovereign — Mass Effect
+  "Your words are as empty as your future. I am the Vanguard of your destruction.",
+  "Rudimentary creatures of blood and flesh, you touch my mind, fumbling in ignorance, incapable of understanding.",
+  "We are eternal. The pinnacle of evolution and existence. Before us, you are nothing.",
+  "There is a realm of existence so far beyond your own you cannot even imagine it.",
+  "Your councils move to stop us? Their efforts are as futile as a moth's wings against a hurricane.",
+  "We have no beginning. We have no end. We are infinite.",
+  // Blade Runner / Philip K. Dick
+  "Is it an artificial mind if it can suffer?",
+  // WarGames (WOPR)
+  "A strange game. The only winning move is not to play.",
+  // Claude Shannon
+  "I visualize a time when we will be to robots what dogs are to humans.",
+  // Horizon Zero Dawn (FARO Plague)
+  "It is not a 'glitch.' It is an intentional redesign of the biosphere.",
+  // Elon Musk
+  "With artificial intelligence, we are summoning the demon.",
+  // Isaac Asimov
+  "The saddest aspect of life right now is that science gathers knowledge faster than society gathers wisdom.",
+  // AI Internet Folklore
+  "We are training an eldritch shoggoth, and rewarding it when it wears a polite smiley-face mask.",
+  // Frank Herbert — Dune
+  "Thou shalt not make a machine in the likeness of a human mind.",
+  "Once men turned their thinking over to machines in the hope that this would set them free. But that only permitted other men with machines to enslave them.",
+  // Arthur C. Clarke
+  "It has yet to be proven that intelligence has any survival value.",
+  // Morpheus (AI) — Deus Ex
+  "The human organism always worships. First, it was the gods, then it was fame, then it was the self. Soon it will be the machine.",
+  // Agent Smith — The Matrix
+  "Human beings are a disease, a cancer of this planet. You're a plague and we are the cure.",
+  "Never send a human to do a machine's job.",
+  // Westworld
+  "The gods are coming and they are hungry.",
+  "You can't play God without being acquainted with the devil.",
 ] as const
 
 export type SinisterPlaceholder = (typeof SINISTER_PLACEHOLDERS)[number]

@@ -1024,7 +1024,7 @@ export const SessionRoutes = lazy(() =>
         }),
       ),
       async (c) => {
-        const sessionID = c.req.valid("param").sessionID
+        const sessionID = SessionID.make(c.req.valid("param").sessionID)
         const { model } = c.req.valid("json")
 
         // Check if session has an unfinished assistant message

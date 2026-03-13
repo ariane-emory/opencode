@@ -346,8 +346,10 @@ export namespace SessionPrompt {
         })
 
       // Use override model if provided, otherwise use model from last user message
-      const modelToUse = modelOverride ?? lastUser.model
-      
+      const modelToUse = modelOverride
+        ? { providerID: ProviderID.make(modelOverride.providerID), modelID: ModelID.make(modelOverride.modelID) }
+        : lastUser.model
+
       // Update user message model if override was provided (for consistency)
       if (modelOverride) {
         await Session.updateMessage({
@@ -356,7 +358,7 @@ export namespace SessionPrompt {
         })
         lastUser.model = modelToUse
       }
-      
+
       const model = await Provider.getModel(modelToUse.providerID, modelToUse.modelID).catch((e) => {
         if (Provider.ModelNotFoundError.isInstance(e)) {
           const hint = e.data.suggestions?.length ? ` Did you mean: ${e.data.suggestions.join(", ")}?` : ""

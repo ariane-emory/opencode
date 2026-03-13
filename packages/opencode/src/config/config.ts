@@ -1360,7 +1360,7 @@ export namespace Config {
             .describe("Timeout in milliseconds for model context protocol (MCP) requests"),
           plan_mode: z.boolean().optional().describe("Enable experimental plan mode"),
           messages_limit: z.union([z.number().int().positive(), z.literal("none")]).optional().describe("Maximum number of messages to keep in session (or 'none' for unlimited)"),
-          session_list_limit: z.number().int().positive().optional().describe("Maximum number of sessions to show in session list"),
+          session_list_limit: z.union([z.number().int().positive(), z.literal("none")]).optional().describe("Maximum number of sessions to show in session list (or 'none' for unlimited)"),
           max_prompt_input_lines: z.number().int().positive().optional().describe("Maximum number of lines for prompt input textarea"),
         })
         .optional(),

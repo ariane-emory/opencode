@@ -1519,9 +1519,9 @@ export type Config = {
      */
     messages_limit?: number | "none"
     /**
-     * Maximum number of sessions to show in session list
+     * Maximum number of sessions to show in session list (or 'none' for unlimited)
      */
-    session_list_limit?: number
+    session_list_limit?: number | "none"
     /**
      * Maximum number of lines for prompt input textarea
      */

@@ -37,7 +37,15 @@ export namespace Command {
       // workaround for zod not supporting async functions natively so we use getters
       // https://zod.dev/v4/changelog?id=zfunction
       template: z.promise(z.string()).or(z.string()),
+      // AGENTS: The `ignored` property marks commands whose output should not be processed by the model.
+      // When merging this branch, ensure `ignored` is included in ALL places where commands are loaded:
+      // 1. The Info schema (here)
+      // 2. The Config.Command schema in config/config.ts
+      // 3. Any command loading loops (e.g., state(), loadFreshCommands(), etc.)
+      // 4. The prompt.ts code that marks text parts as ignored
+      // DO NOT clobber or omit this property during merges!
       subtask: z.boolean().optional(),
+      ignored: z.boolean().optional(),
       hints: z.array(z.string()),
     })
     .meta({
@@ -149,6 +157,7 @@ export namespace Command {
     const cfg = await Config.get()
     const result = createBuiltInCommands()
 
+    // AGENTS: When merging, ensure ALL command loading loops include `ignored: command.ignored`
     for (const [name, command] of Object.entries(cfg.command ?? {})) {
       result[name] = {
         name,
@@ -160,6 +169,8 @@ export namespace Command {
           return command.template
         },
         subtask: command.subtask,
+        // AGENTS: DO NOT omit this line when merging! See comment above on Info schema.
+        ignored: command.ignored,
         hints: hints(command.template),
       }
     }

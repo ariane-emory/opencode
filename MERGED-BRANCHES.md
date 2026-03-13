@@ -14,16 +14,16 @@
 | ☑ | 8 | feat/session-bookmarks | origin | 564bae0610 | Combined with feat/session-grouping |
 | ☑ | 9 | fix/dialog-datetime-alignment | origin | d1109e0472 | Merge immediately after feat/session-bookmarks |
 | ☑ | 10 | feat/keybindable-commands | origin | f99a25f078 | Fixed merge conflict marker |
-| ☐ | 11 | feat/automatic-list-continuation | origin | TBD | |
-| ☐ | 12 | feat/continue-command | origin | TBD | |
-| ☐ | 13 | feat/configurable-snapshot-lifespan | origin | TBD | |
-| ☐ | 14 | feat/configurable-new-plan-mode | origin | TBD | |
-| ☐ | 15 | feat/config-imports | origin | TBD | |
-| ☐ | 16 | feat/canceled-prompts-in-history | origin | TBD | |
-| ☐ | 17 | feat/permission-spinner | origin | TBD | |
-| ☐ | 18 | feat/permission-indicator-in-sidebar | origin | TBD | |
-| ☐ | 19 | feat/opencode-expand | origin | TBD | |
-| ☐ | 20 | feat/argument-range-syntax | origin | TBD | |
+| ☑ | 11 | feat/automatic-list-continuation | origin | 9a95e4092f | |
+| ☑ | 12 | feat/continue-command | origin | 74b4b0a200 | |
+| ☑ | 13 | feat/configurable-snapshot-lifespan | origin | 3a20a27e3d | |
+| ☑ | 14 | feat/configurable-new-plan-mode | origin | 70981be8a4 | |
+| ☑ | 15 | feat/config-imports | origin | af377a4012 | |
+| ☑ | 16 | feat/canceled-prompts-in-history | origin | f75ea0d06a | Conflict resolved |
+| ☑ | 17 | feat/permission-spinner | origin | 0a8f76bbb2 | |
+| ☑ | 18 | feat/permission-indicator-in-sidebar | origin | 564e6bc456 | |
+| ☑ | 19 | feat/opencode-expand | origin | 86e6fa2964 | Conflict resolved |
+| ☑ | 20 | feat/argument-range-syntax | origin | e09a3c2c4c | Conflicts resolved, key fix for swallowing |
 | ☐ | 21 | feat/default-arguments | origin | TBD | Don't reintroduce swallowing behaviour |
 | ☐ | 22 | fix/preserve-quotes-in-arguments | origin | TBD | |
 | ☐ | 23 | fix/history-navigation-key-commands | origin | TBD | |
@@ -95,3 +95,13 @@
 | 8 | feat/session-bookmarks | 2026-03-13 | 564bae0610 | Combined session-grouping and bookmarks features |
 | 9 | fix/dialog-datetime-alignment | 2026-03-13 | d1109e0472 | Clean merge |
 | 10 | feat/keybindable-commands | 2026-03-13 | f99a25f078 | Fixed merge conflict marker |
+| 11 | feat/automatic-list-continuation | 2026-03-13 | 9a95e4092f | Clean merge |
+| 12 | feat/continue-command | 2026-03-13 | 74b4b0a200 | Clean merge |
+| 13 | feat/configurable-snapshot-lifespan | 2026-03-13 | 3a20a27e3d | Clean merge |
+| 14 | feat/configurable-new-plan-mode | 2026-03-13 | 70981be8a4 | Clean merge |
+| 15 | feat/config-imports | 2026-03-13 | af377a4012 | Clean merge |
+| 16 | feat/canceled-prompts-in-history | 2026-03-13 | f75ea0d06a | Conflict in app.tsx resolved |
+| 17 | feat/permission-spinner | 2026-03-13 | 0a8f76bbb2 | Clean merge |
+| 18 | feat/permission-indicator-in-sidebar | 2026-03-13 | 564e6bc456 | Clean merge |
+| 19 | feat/opencode-expand | 2026-03-13 | 86e6fa2964 | Conflict in prompt.ts resolved |
+| 20 | feat/argument-range-syntax | 2026-03-13 | e09a3c2c4c | Multiple conflicts resolved, key feature |

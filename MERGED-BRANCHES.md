@@ -13,7 +13,7 @@
 | ☑ | 7 | feat/session-grouping | origin | 5415ffcd17 | |
 | ☑ | 8 | feat/session-bookmarks | origin | 564bae0610 | Combined with feat/session-grouping |
 | ☑ | 9 | fix/dialog-datetime-alignment | origin | d1109e0472 | Merge immediately after feat/session-bookmarks |
-| ☐ | 10 | feat/keybindable-commands | origin | TBD | |
+| ☑ | 10 | feat/keybindable-commands | origin | f99a25f078 | Fixed merge conflict marker |
 | ☐ | 11 | feat/automatic-list-continuation | origin | TBD | |
 | ☐ | 12 | feat/continue-command | origin | TBD | |
 | ☐ | 13 | feat/configurable-snapshot-lifespan | origin | TBD | |
@@ -94,3 +94,4 @@
 | 7 | feat/session-grouping | 2026-03-13 | 5415ffcd17 | Clean merge |
 | 8 | feat/session-bookmarks | 2026-03-13 | 564bae0610 | Combined session-grouping and bookmarks features |
 | 9 | fix/dialog-datetime-alignment | 2026-03-13 | d1109e0472 | Clean merge |
+| 10 | feat/keybindable-commands | 2026-03-13 | f99a25f078 | Fixed merge conflict marker |

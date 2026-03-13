@@ -38,6 +38,7 @@ import { ConfigPaths } from "./paths"
 import { Filesystem } from "@/util/filesystem"
 import { Process } from "@/util/process"
 import { Lock } from "@/util/lock"
+import type { ThemeJson } from "../cli/cmd/tui/context/theme"
 
 export namespace Config {
   const ModelId = z.string().meta({ $ref: "https://models.dev/model-schema.json#/$defs/Model" })
@@ -1313,6 +1314,9 @@ export namespace Config {
             .optional()
             .describe("Timeout in milliseconds for model context protocol (MCP) requests"),
           plan_mode: z.boolean().optional().describe("Enable experimental plan mode"),
+          messages_limit: z.union([z.number().int().positive(), z.literal("none")]).optional().describe("Maximum number of messages to keep in session (or 'none' for unlimited)"),
+          session_list_limit: z.number().int().positive().optional().describe("Maximum number of sessions to show in session list"),
+          max_prompt_input_lines: z.number().int().positive().optional().describe("Maximum number of lines for prompt input textarea"),
         })
         .optional(),
     })
@@ -1625,6 +1629,14 @@ export namespace Config {
 
   // Re-export loadCommand for use when cache_command_markdown_files is false
   export const reloadCommands = loadCommand
+
+  // Load a theme file with JSONC support (allows comments)
+  export async function loadThemeFile(path: string): Promise<ThemeJson> {
+    const content = await fs.readFile(path, "utf-8")
+    // Remove comments from JSONC
+    const jsonContent = content.replace(/\/\/.*/g, "").replace(/\/\*[\s\S]*?\*\//g, "")
+    return JSON.parse(jsonContent)
+  }
 }
 Filesystem.write
 Filesystem.write

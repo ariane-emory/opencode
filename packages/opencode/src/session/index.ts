@@ -25,6 +25,7 @@ import { WorkspaceContext } from "../control-plane/workspace-context"
 import { ProjectID } from "../project/schema"
 import { WorkspaceID } from "../control-plane/schema"
 import { SessionID, MessageID, PartID } from "./schema"
+import { Identifier } from "@/id/id"
 
 import type { Provider } from "@/provider/provider"
 import { ModelID, ProviderID } from "@/provider/schema"
@@ -241,8 +242,8 @@ export namespace Session {
 
   export const rewind = fn(
     z.object({
-      sessionID: Identifier.schema("session"),
-      messageID: Identifier.schema("message"),
+      sessionID: SessionID.zod,
+      messageID: MessageID.zod,
     }),
     async (input) => {
       SessionPrompt.assertNotBusy(input.sessionID)
@@ -434,36 +435,6 @@ export namespace Session {
       })
     },
   )
-
-  export async function update(
-    sessionID: string,
-    callback: (draft: Info) => void,
-    options?: { touch?: boolean },
-  ): Promise<Info> {
-    return Database.use((db) => {
-      const existing = db
-        .select()
-        .from(SessionTable)
-        .where(eq(SessionTable.id, sessionID))
-        .get()
-      if (!existing) throw new NotFoundError({ message: `Session not found: ${sessionID}` })
-      const draft = fromRow(existing)
-      callback(draft)
-      const row = db
-        .update(SessionTable)
-        .set({
-          ...toRow(draft),
-          time_updated: options?.touch === false ? existing.time_updated : Date.now(),
-        })
-        .where(eq(SessionTable.id, sessionID))
-        .returning()
-        .get()
-      if (!row) throw new NotFoundError({ message: `Session not found: ${sessionID}` })
-      const info = fromRow(row)
-      Database.effect(() => Bus.publish(Event.Updated, { info }))
-      return info
-    })
-  }
 
   export const setArchived = fn(
     z.object({

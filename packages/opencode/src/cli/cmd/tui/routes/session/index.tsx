@@ -163,7 +163,6 @@ export function Session() {
   const [timestamps, setTimestamps] = kv.signal<"hide" | "show">("timestamps", "hide")
   const [showDetails, setShowDetails] = kv.signal("tool_details_visibility", true)
   const [showAssistantMetadata, setShowAssistantMetadata] = kv.signal("assistant_metadata_visibility", true)
-<<<<<<< HEAD
   const [showScrollbar, setShowScrollbar] = kv.signal("scrollbar_visible", true)
   const [sidebarOverlayEnabled, setSidebarOverlayEnabled] = kv.signal("sidebar_overlay", true)
   const [showHeader, setShowHeader] = kv.signal("header_visible", true)
@@ -1894,7 +1893,7 @@ function GenericTool(props: ToolProps<any>) {
         onClick={overflow() ? () => setExpanded((prev) => !prev) : undefined}
       >
         <box gap={1}>
-          <text fg={theme.toolOutput}>{limited()}</text>
+          <text fg={theme.text}>{limited()}</text>
           <Show when={overflow()}>
             <text fg={theme.textMuted}>{expanded() ? "Click to collapse" : "Click to expand"}</text>
           </Show>
@@ -2103,7 +2102,7 @@ function Bash(props: ToolProps<typeof BashTool>) {
           <box gap={1}>
             <text fg={theme.text}>$ {props.input.command}</text>
             <Show when={output()}>
-          <text fg={theme.toolOutput}>{limited()}</text>
+          <text fg={theme.text}>{limited()}</text>
             </Show>
             <Show when={overflow()}>
               <text fg={theme.textMuted}>{expanded() ? "Click to collapse" : "Click to expand"}</text>

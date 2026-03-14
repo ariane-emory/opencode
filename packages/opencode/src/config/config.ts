@@ -1677,11 +1677,45 @@ export namespace Config {
   export const reloadCommands = loadCommand
 
   // Load a theme file with JSONC support (allows comments)
-  export async function loadThemeFile(path: string): Promise<ThemeJson> {
-    const content = await fs.readFile(path, "utf-8")
-    // Remove comments from JSONC
-    const jsonContent = content.replace(/\/\/.*/g, "").replace(/\/\*[\s\S]*?\*\//g, "")
-    return JSON.parse(jsonContent)
+  export async function loadThemeFile(filepath: string): Promise<ThemeJson> {
+    log.info("loading theme", { path: filepath })
+    let text = await Bun.file(filepath)
+      .text()
+      .catch((err) => {
+        if (err.code === "ENOENT") return
+        throw new JsonError({ path: filepath }, { cause: err })
+      })
+    if (!text) {
+      throw new Error("Empty theme file")
+    }
+
+    // Parse JSONC directly without special features for themes
+    const errors: JsoncParseError[] = []
+    const data = parseJsonc(text, errors, { allowTrailingComma: true })
+
+    if (errors.length) {
+      const lines = text.split("\n")
+      const errorDetails = errors
+        .map((e) => {
+          const beforeOffset = text.substring(0, e.offset).split("\n")
+          const line = beforeOffset.length
+          const column = beforeOffset[beforeOffset.length - 1].length + 1
+          const problemLine = lines[line - 1]
+
+          const error = `${printParseErrorCode(e.error)} at line ${line}, column ${column}`
+          if (!problemLine) return error
+
+          return `${error}\n   Line ${line}: ${problemLine}\n${"".padStart(column + 9)}^`
+        })
+        .join("\n")
+
+      throw new JsonError({
+        path: filepath,
+        message: `\n--- JSONC Input ---\n${text}\n--- Errors ---\n${errorDetails}\n--- End ---`,
+      })
+    }
+
+    return data as ThemeJson
   }
 }
 Filesystem.write

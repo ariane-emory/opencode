@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test"
 import { SetCurrentSessionTitleTool } from "../../src/tool/set-current-session-title"
 import { Instance } from "../../src/project/instance"
 import { Session } from "../../src/session"
+import { MessageID } from "../../src/session/schema"
 import { tmpdir } from "../fixture/fixture"
 
 describe("tool.set_current_session_title", () => {
@@ -14,7 +15,7 @@ describe("tool.set_current_session_title", () => {
         const tool = await SetCurrentSessionTitleTool.init()
         const ctx = {
           sessionID: session.id,
-          messageID: "",
+          messageID: MessageID.make(""),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
@@ -43,7 +44,7 @@ describe("tool.set_current_session_title", () => {
         const tool = await SetCurrentSessionTitleTool.init()
         const ctx = {
           sessionID: session.id,
-          messageID: "",
+          messageID: MessageID.make(""),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
@@ -66,7 +67,7 @@ describe("tool.set_current_session_title", () => {
         const tool = await SetCurrentSessionTitleTool.init()
         const ctx = {
           sessionID: session.id,
-          messageID: "",
+          messageID: MessageID.make(""),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
@@ -90,7 +91,7 @@ describe("tool.set_current_session_title", () => {
         const tool = await SetCurrentSessionTitleTool.init()
         const ctx = {
           sessionID: session.id,
-          messageID: "",
+          messageID: MessageID.make(""),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
@@ -118,7 +119,7 @@ describe("tool.set_current_session_title", () => {
         const tool = await SetCurrentSessionTitleTool.init()
         const ctx = {
           sessionID: session.id,
-          messageID: "",
+          messageID: MessageID.make(""),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
@@ -146,7 +147,7 @@ describe("tool.set_current_session_title", () => {
         const requests: Array<{ permission: string }> = []
         const ctx = {
           sessionID: session.id,
-          messageID: "",
+          messageID: MessageID.make(""),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),

@@ -1,4 +1,5 @@
 import { TextAttributes } from "@opentui/core"
+import { useKeyboard } from "@opentui/solid"
 import { fileURLToPath } from "bun"
 import { useTheme } from "../context/theme"
 import { useDialog } from "@tui/ui/dialog"
@@ -11,6 +12,14 @@ export function DialogStatus() {
   const sync = useSync()
   const { theme } = useTheme()
   const dialog = useDialog()
+
+  // Handle escape key to close dialog
+  useKeyboard((evt) => {
+    if (evt.name === "escape") {
+      dialog.clear()
+      evt.preventDefault()
+    }
+  })
 
   const enabledFormatters = createMemo(() => sync.data.formatter.filter((f) => f.enabled))
 

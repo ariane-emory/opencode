@@ -68,6 +68,8 @@ export namespace TuiConfig {
 
     result.keybinds = Config.Keybinds.parse(result.keybinds ?? {})
 
+    log.info("TUI config loaded", { theme: result.theme, hasKeybinds: !!result.keybinds })
+
     return {
       config: result,
     }

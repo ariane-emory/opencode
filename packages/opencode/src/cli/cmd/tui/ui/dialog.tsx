@@ -20,7 +20,7 @@ export function Dialog(
   const sync = useSync()
 
   const overlayMode = () => sync.data.config.experimental?.dialog_background_overlay ?? "full"
-  const showFullOverlay = () => overlayMode() === "full"
+  const showOverlay = () => overlayMode() === "full"
 
   let dismiss = false
 
@@ -36,14 +36,14 @@ export function Dialog(
         }
         props.onClose?.()
       }}
-      width={showFullOverlay() ? dimensions().width : props.size === "large" ? 80 : 60}
-      height={showFullOverlay() ? dimensions().height : undefined}
+      width={dimensions().width}
+      height={dimensions().height}
       alignItems="center"
       position="absolute"
-      paddingTop={showFullOverlay() ? dimensions().height * 0.07 : undefined}
-      left={showFullOverlay() ? 0 : undefined}
-      top={showFullOverlay() ? 0 : undefined}
-      backgroundColor={showFullOverlay() ? RGBA.fromInts(0, 0, 0, 150) : undefined}
+      paddingTop={dimensions().height * 0.07}
+      left={0}
+      top={0}
+      backgroundColor={showOverlay() ? RGBA.fromInts(0, 0, 0, 150) : undefined}
     >
       <box
         onMouseUp={(e) => {

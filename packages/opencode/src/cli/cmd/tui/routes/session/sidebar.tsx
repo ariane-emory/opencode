@@ -135,12 +135,12 @@ export function Sidebar(props: { sessionID: string }) {
       >
         <scrollbox
           flexGrow={1}
-          verticalScrollbarOptions={{
+          verticalScrollbarOptions={kv.get("sidebar_scrollbar_visible", true) ? {
             trackOptions: {
               backgroundColor: theme.background,
               foregroundColor: theme.borderActive,
             },
-          }}
+          } : undefined}
         >
           <box flexShrink={0} gap={1} paddingRight={1}>
             <box paddingRight={1}>

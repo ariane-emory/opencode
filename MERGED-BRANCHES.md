@@ -43,7 +43,7 @@ All branches have been successfully merged into the integration branch.
 | ☑ | 29 | fix/merging-multiple-configs | origin | ffeec99865 | Conflict resolved |
 | ☑ | 30 | fix/markdown-codeblock-theme-property | origin | 28f03abe20 | Clean merge |
 | ☑ | 31 | fix/persist-sidebar | origin | a3415d4069 | Keeping HEAD version |
-| ☑ | 32 | feat/command-palette-consistecy | origin | fb0f11a43a | Keeping HEAD version |
+| ☑ | 32 | feat/command-palette-consistecy | origin | fb0f11a43a | ✅ RESTORED - Moved 7 command palette items from Session to System category |
 | ☑ | 33 | refactor/shared-substitute | origin | b21bd9a9da | Keeping HEAD version |
 | ☑ | 34 | feat/session-id-in-status | origin | 015799e973 | Clean merge |
 | ☑ | 35 | feat/edit-tool-description | origin | f080e458c1 | Clean merge |
@@ -70,7 +70,7 @@ All branches have been successfully merged into the integration branch.
 | ☑ | 56 | feat/sidebar-clock | origin | c4cb3ecff8 | ✅ RESTORED - Sidebar clock with toggle command |
 | ☑ | 57 | feat/improve-bash-tool-git-advice | origin | 49ae868593 | Keeping HEAD version |
 | ☑ | 58 | feat/alphabetical-message-modal | origin | 1c0778437a | Keeping HEAD version |
-| ☑ | 59 | feat/toggle-sidebar-scrollbar | origin | a7f54ba00b | Keeping HEAD version |
+| ☑ | 59 | feat/toggle-sidebar-scrollbar | origin | a7f54ba00b | ✅ RESTORED - Added sidebar scrollbar toggle command |
 | ☑ | 60 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | f70f3969b7 | Keeping HEAD version |
 | ☑ | 61 | feat/configurable-maximum-prompt-input-size | origin | 603ed56453 | Keeping HEAD version |
 | ☑ | 62 | feat/clickable-sidebar-mcps | origin | d46e507813 | Keeping HEAD version |

@@ -6,6 +6,7 @@ import { createStore } from "solid-js/store"
 import { useToast } from "./toast"
 import { Flag } from "@/flag/flag"
 import { Selection } from "@tui/util/selection"
+import { useSync } from "@tui/context/sync"
 
 export function Dialog(
   props: ParentProps<{
@@ -16,6 +17,10 @@ export function Dialog(
   const dimensions = useTerminalDimensions()
   const { theme } = useTheme()
   const renderer = useRenderer()
+  const sync = useSync()
+
+  const overlayMode = () => sync.data.config.experimental?.dialog_background_overlay ?? "full"
+  const showFullOverlay = () => overlayMode() === "full"
 
   let dismiss = false
 
@@ -31,14 +36,14 @@ export function Dialog(
         }
         props.onClose?.()
       }}
-      width={dimensions().width}
-      height={dimensions().height}
+      width={showFullOverlay() ? dimensions().width : props.size === "large" ? 80 : 60}
+      height={showFullOverlay() ? dimensions().height : undefined}
       alignItems="center"
       position="absolute"
-      paddingTop={dimensions().height / 4}
-      left={0}
-      top={0}
-      backgroundColor={RGBA.fromInts(0, 0, 0, 150)}
+      paddingTop={showFullOverlay() ? dimensions().height / 4 : undefined}
+      left={showFullOverlay() ? 0 : undefined}
+      top={showFullOverlay() ? 0 : undefined}
+      backgroundColor={showFullOverlay() ? RGBA.fromInts(0, 0, 0, 150) : undefined}
     >
       <box
         onMouseUp={(e) => {

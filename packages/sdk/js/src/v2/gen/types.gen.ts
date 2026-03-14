@@ -1500,6 +1500,10 @@ export type Config = {
      * Timeout in milliseconds for model context protocol (MCP) requests
      */
     mcp_timeout?: number
+    /**
+     * Control dialog background overlay: 'full' = semi-transparent overlay (default), 'limited' = overlay only within dialog bounds, 'none' = no overlay
+     */
+    dialog_background_overlay?: 'full' | 'limited' | 'none'
   }
 }
 

@@ -1220,6 +1220,10 @@ export namespace Config {
             .positive()
             .optional()
             .describe("Timeout in milliseconds for model context protocol (MCP) requests"),
+          dialog_background_overlay: z
+            .enum(["full", "limited", "none"])
+            .optional()
+            .describe("Control dialog background overlay: 'full' = semi-transparent overlay (default), 'limited' = overlay only within dialog bounds, 'none' = no overlay"),
         })
         .optional(),
     })

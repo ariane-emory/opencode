@@ -1363,6 +1363,10 @@ export namespace Config {
           messages_limit: z.union([z.number().int().positive(), z.literal("none")]).optional().describe("Maximum number of messages to keep in session (or 'none' for unlimited)"),
           session_list_limit: z.union([z.number().int().positive(), z.literal("none")]).optional().describe("Maximum number of sessions to show in session list (or 'none' for unlimited)"),
           max_prompt_input_lines: z.number().int().positive().optional().describe("Maximum number of lines for prompt input textarea"),
+          dialog_background_overlay: z
+            .enum(["full", "limited", "none"])
+            .optional()
+            .describe("Control dialog background overlay: 'full' = semi-transparent overlay (default), 'limited' = overlay only within dialog bounds, 'none' = no overlay"),
         })
         .optional(),
     })

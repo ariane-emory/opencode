@@ -1,4 +1,5 @@
 import { TextAttributes } from "@opentui/core"
+import { useKeyboard } from "@opentui/solid"
 import { fileURLToPath } from "bun"
 import { useTheme } from "../context/theme"
 import { useDialog } from "@tui/ui/dialog"
@@ -37,6 +38,14 @@ export function DialogStatus() {
       setLoading(null)
     }
   }
+
+  // Handle escape key to close dialog
+  useKeyboard((evt) => {
+    if (evt.name === "escape") {
+      dialog.clear()
+      evt.preventDefault()
+    }
+  })
 
   const sessionID = createMemo(() => {
     if (route.data.type === "session") return route.data.sessionID

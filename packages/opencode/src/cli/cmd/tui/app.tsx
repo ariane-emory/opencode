@@ -693,6 +693,15 @@ function App() {
       },
     },
     {
+      title: kv.get("sidebar_overlay", true) ? "Disable sidebar overlay" : "Enable sidebar overlay",
+      value: "app.toggle.sidebar_overlay",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("sidebar_overlay", !kv.get("sidebar_overlay", true))
+        dialog.clear()
+      },
+    },
+    {
       title: sidebarClockEnabled() ? "Hide sidebar clock" : "Show sidebar clock",
       value: "system.toggle.sidebar_clock",
       category: "System",

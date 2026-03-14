@@ -13,7 +13,7 @@ import { createDebouncedSignal } from "../../util/signal"
 import { Spinner } from "../spinner"
 import { useToast } from "../../ui/toast"
 
-export function DialogSessionList(props: { workspaceID?: string; localOnly?: boolean } = {}) {
+export function DialogSessionList(props: { workspaceID?: string; localOnly?: boolean; initialSessionID?: string } = {}) {
   const dialog = useDialog()
   const route = useRoute()
   const sync = useSync()
@@ -44,7 +44,7 @@ export function DialogSessionList(props: { workspaceID?: string; localOnly?: boo
     return result.data ?? []
   })
 
-  const currentSessionID = createMemo(() => (route.data.type === "session" ? route.data.sessionID : undefined))
+  const currentSessionID = createMemo(() => props.initialSessionID ?? (route.data.type === "session" ? route.data.sessionID : undefined))
 
   const sessions = createMemo(() => {
     if (searchResults()) return searchResults()!
@@ -142,7 +142,8 @@ export function DialogSessionList(props: { workspaceID?: string; localOnly?: boo
           keybind: keybind.all.session_rename?.[0],
           title: "rename",
           onTrigger: async (option) => {
-            dialog.replace(() => <DialogSessionRename session={option.value} />)
+            const back = () => dialog.replace(() => <DialogSessionList {...props} initialSessionID={option.value} />)
+            dialog.replace(() => <DialogSessionRename session={option.value} onSuccess={back} onCancel={back} />)
           },
         },
       ]}

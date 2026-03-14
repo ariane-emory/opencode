@@ -114,7 +114,6 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
         return mapValues(groups, (x) => x.sort((a, b) => smartCompare(a.title, b.title)))
       },
       entries(),
-      (entries) => props.sort ? entries.sort(([a], [b]) => a.localeCompare(b)) : entries,
     )
     return result
   })

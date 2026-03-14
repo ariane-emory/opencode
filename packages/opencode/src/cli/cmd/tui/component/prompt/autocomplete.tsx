@@ -51,6 +51,7 @@ export type AutocompleteRef = {
   onInput: (value: string) => void
   onKeyDown: (e: KeyEvent) => void
   visible: false | "@" | "/"
+  select: () => void
 }
 
 export type AutocompleteOption = {
@@ -618,6 +619,7 @@ export function Autocomplete(props: {
           }
         }
       },
+      select,
     })
   })
 

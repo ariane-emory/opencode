@@ -548,7 +548,14 @@ export function Prompt(props: PromptProps) {
 
   async function submit() {
     if (props.disabled) return
-    if (autocomplete?.visible) return
+    
+    // If autocomplete is visible, select the current option first
+    // This allows user to type arguments before submitting
+    if (autocomplete?.visible) {
+      autocomplete.select()
+      return
+    }
+    
     if (!store.prompt.input) return
     
     // Clean up trailing empty list items before submitting

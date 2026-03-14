@@ -1767,7 +1767,6 @@ NOTE: At any point in time through this workflow you SHOULD feel free to ask the
   const bashRegex = /!`([^`]+)`/g
   // Match [Image N] as single token, quoted strings, or non-space sequences
   const argsRegex = /(?:\[Image\s+\d+\]|"[^"]*"|'[^']*'|[^\s"']+)/gi
-  const quoteTrimRegex = /^["']|["']$/g
   const placeholderRegex = /\$(\d+)/g
   /**
    * Regular expression to match @ file references in text

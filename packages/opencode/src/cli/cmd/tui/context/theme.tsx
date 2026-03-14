@@ -420,8 +420,8 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
             }),
           )
         })
-        .catch(() => {
-          setStore("active", "opencode")
+        .catch((error) => {
+          console.error("Failed to load custom themes:", error)
         })
         .finally(() => {
           if (store.active !== "system") {

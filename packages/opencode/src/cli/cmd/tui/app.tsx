@@ -693,6 +693,15 @@ function App() {
       },
     },
     {
+      title: kv.get("clear_prompt_save_history", false) ? "Don't include cleared prompts in history" : "Include cleared prompts in history",
+      value: "app.toggle.clear_prompt_history",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("clear_prompt_save_history", !kv.get("clear_prompt_save_history", false))
+        dialog.clear()
+      },
+    },
+    {
       title: kv.get("sidebar_overlay", true) ? "Disable sidebar overlay" : "Enable sidebar overlay",
       value: "app.toggle.sidebar_overlay",
       category: "System",

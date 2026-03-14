@@ -380,7 +380,7 @@ export function Sidebar(props: { sessionID: string }) {
               <span>{Installation.VERSION}</span>
             </text>
             <Show when={showSidebarClock()}>
-              <text fg={theme.accent}>🐈 {clockTime()}</text>
+              <text flexShrink={0} fg={theme.accent}>🐈 {clockTime()}</text>
             </Show>
           </box>
         </box>

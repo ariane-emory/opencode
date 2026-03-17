@@ -144,7 +144,7 @@ export function Sidebar(props: { sessionID: string }) {
         >
           <box flexShrink={0} gap={1} paddingRight={1}>
             <box paddingRight={1}>
-              <text fg={theme.text}>
+              <text fg={theme.sessionTitle}>
                 <Show when={titleParts().group} fallback={<b>{titleParts().rest}</b>}>
                   <b>{titleParts().group}</b> {titleParts().rest}
                 </Show>

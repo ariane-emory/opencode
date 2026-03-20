@@ -1588,6 +1588,7 @@ function InlineTool(props: {
 
   const denied = createMemo(
     () =>
+      error()?.includes("QuestionRejectedError") ||
       error()?.includes("rejected permission") ||
       error()?.includes("specified a rule") ||
       error()?.includes("user dismissed"),

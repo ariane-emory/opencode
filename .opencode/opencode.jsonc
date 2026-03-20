@@ -2,17 +2,17 @@
   "$schema": "https://opencode.ai/config.json",
   "provider": {
     "opencode": {
-      "options": {},
-    },
+      "options": {}
+    }
   },
   "permission": {
     "edit": {
-      "packages/opencode/migration/*": "deny",
-    },
+      "packages/opencode/migration/*": "deny"
+    }
   },
   "mcp": {},
   "tools": {
     "github-triage": false,
-    "github-pr-search": false,
-  },
+    "github-pr-search": false
+  }
 }

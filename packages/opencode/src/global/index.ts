@@ -23,7 +23,7 @@ async function resolveWithFallback(baseDir: string): Promise<string> {
   const legacyPath = path.join(baseDir, legacyApp)
   if (await dirExists(newPath)) return newPath
   if (await dirExists(legacyPath)) return legacyPath
-  return newPath // Default to new path if neither exists
+  return legacyPath // Default to legacy path if neither exists
 }
 
 const data = await resolveWithFallback(xdgData!)

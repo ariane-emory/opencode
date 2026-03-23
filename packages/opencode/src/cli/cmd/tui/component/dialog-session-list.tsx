@@ -87,7 +87,7 @@ export function DialogSessionList() {
       }
     }
 
-    const pinnedOptions = pinned.map((x) => mapSession(x, "Bookmarks", true))
+    const pinnedOptions = pinned.map((x) => mapSession(x, "Bookmarks:", true))
 
     const unpinnedOptions = unpinned.map((x) => {
       const date = new Date(x.time.updated)

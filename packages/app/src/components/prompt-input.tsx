@@ -1498,7 +1498,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                         >
                           <Show when={local.model.current()?.provider?.id}>
                             <ProviderIcon
-                              id={local.model.current()!.provider.id}
+                              id={local.model.current()?.provider?.id ?? ""}
                               class="size-4 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity duration-150"
                               style={{ "will-change": "opacity", transform: "translateZ(0)" }}
                             />
@@ -1530,7 +1530,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                       >
                         <Show when={local.model.current()?.provider?.id}>
                           <ProviderIcon
-                            id={local.model.current()!.provider.id}
+                            id={local.model.current()?.provider?.id ?? ""}
                             class="size-4 shrink-0 opacity-40 group-hover:opacity-100 transition-opacity duration-150"
                             style={{ "will-change": "opacity", transform: "translateZ(0)" }}
                           />

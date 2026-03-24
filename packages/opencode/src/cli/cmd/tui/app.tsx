@@ -681,12 +681,16 @@ function App() {
       keybind: "terminal_title_toggle",
       category: "System",
       onSelect: (dialog) => {
-        setTerminalTitleEnabled((prev) => {
-          const next = !prev
-          kv.set("terminal_title_enabled", next)
-          if (!next) renderer.setTerminalTitle("")
-          return next
-        })
+        kv.set("terminal_title_enabled", !terminalTitleEnabled())
+        dialog.clear()
+      },
+    },
+    {
+      title: kv.get("sidebar_overlay", true) ? "Disable sidebar overlay" : "Enable sidebar overlay",
+      value: "sidebar_overlay",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("sidebar_overlay", !kv.get("sidebar_overlay", true))
         dialog.clear()
       },
     },

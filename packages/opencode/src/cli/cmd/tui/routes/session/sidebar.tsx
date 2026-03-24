@@ -111,11 +111,9 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
                 <box
                   flexDirection="row"
                   gap={1}
-                  onMouseDown={() => mcpEntries().length > 2 && setExpanded("mcp", !expanded.mcp)}
+                  onMouseDown={() => setExpanded("mcp", !expanded.mcp)}
                 >
-                  <Show when={mcpEntries().length > 2}>
-                    <text fg={theme.text}>{expanded.mcp ? "▼" : "▶"}</text>
-                  </Show>
+                  <text fg={theme.text}>{expanded.mcp ? "▼" : "▶"}</text>
                   <text fg={theme.text}>
                     <b>MCP</b>
                     <Show when={!expanded.mcp}>
@@ -127,7 +125,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
                     </Show>
                   </text>
                 </box>
-                <Show when={mcpEntries().length <= 2 || expanded.mcp}>
+                <Show when={expanded.mcp}>
                   <For each={mcpEntries()}>
                     {([key, item]) => (
                       <box flexDirection="row" gap={1}>

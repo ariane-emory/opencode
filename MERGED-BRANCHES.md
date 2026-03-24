@@ -9,7 +9,7 @@
 | ☑ | 3 | feat/sinister-quotes | origin | 7f10644aa5 | Placeholders MUST be SINISTER_PLACEHOLDERS array - Verified SINISTER_PLACEHOLDERS array exists |
 | ☑ | 4 | feat/markdown-renderer | gignit | 6a861ff48e | Fixed type error: changed theme.markdownText to tui.theme.markdownText |
 | ☑ | 5 | feat/thinking-indicator-hidden | rcdailey | 6b9b2c579f | Merged cleanly, no conflicts |
-| ☐ | 6 | fix/session-new-prompt-handoff | AksharP5 | TBD | |
+| ☑ | 6 | fix/session-new-prompt-handoff | AksharP5 | 9cb547ed48 | Merged cleanly, no conflicts |
 | ☐ | 7 | feat/session-grouping | origin | TBD | |
 | ☐ | 8 | feat/session-bookmarks | origin | TBD | |
 | ☐ | 9 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks; MUST not be clobbered |
@@ -111,5 +111,9 @@
 
 ### Branch 5: feat/thinking-indicator-hidden
 - Commit: 6b9b2c579f
+- Merged cleanly, no conflicts
+
+### Branch 6: fix/session-new-prompt-handoff
+- Commit: 9cb547ed48
 - Merged cleanly, no conflicts
 

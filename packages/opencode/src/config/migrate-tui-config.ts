@@ -1,9 +1,9 @@
 import path from "path"
 import { type ParseError as JsoncParseError, applyEdits, modify, parse as parseJsonc } from "jsonc-parser"
-import { unique } from "remeda"
+import { mergeDeep, unique } from "remeda"
 import z from "zod"
 import { ConfigPaths } from "./paths"
-import { TuiInfo, TuiOptions } from "./tui-schema"
+import { TuiInfo } from "./tui-schema"
 import { Instance } from "@/project/instance"
 import { Flag } from "@/flag/flag"
 import { Log } from "@/util/log"
@@ -17,86 +17,96 @@ const TUI_SCHEMA_URL = "https://opencode.ai/tui.json"
 const LegacyTheme = TuiInfo.shape.theme.optional()
 const LegacyRecord = z.record(z.string(), z.unknown()).optional()
 
-const TuiLegacy = z
-  .object({
-    scroll_speed: TuiOptions.shape.scroll_speed.catch(undefined),
-    scroll_acceleration: TuiOptions.shape.scroll_acceleration.catch(undefined),
-    diff_style: TuiOptions.shape.diff_style.catch(undefined),
-  })
-  .strip()
-
 interface MigrateInput {
   directories: string[]
   custom?: string
   managed: string
 }
 
+interface SourceGroup {
+  target: string
+  files: string[]
+}
+
+interface LegacyFile {
+  file: string
+  source: string
+  legacy: Record<string, unknown>
+}
+
 /**
- * Migrates tui-specific keys (theme, keybinds, tui) from opencode.json files
- * into dedicated tui.json files. Migration is performed per-directory and
- * skips only locations where a tui.json already exists.
+ * Migrates tui-specific keys (theme, keybinds, tui) from server config files
+ * into dedicated tui.json files. Source files are merged in server precedence
+ * order before writing each target tui.json.
  */
 export async function migrateTuiConfig(input: MigrateInput) {
-  const opencode = await opencodeFiles(input)
-  for (const file of opencode) {
-    const source = await Filesystem.readText(file).catch((error) => {
-      log.warn("failed to read config for tui migration", { path: file, error })
-      return undefined
-    })
-    if (!source) continue
-    const errors: JsoncParseError[] = []
-    const data = parseJsonc(source, errors, { allowTrailingComma: true })
-    if (errors.length || !data || typeof data !== "object" || Array.isArray(data)) continue
-
-    const theme = LegacyTheme.safeParse("theme" in data ? data.theme : undefined)
-    const keybinds = LegacyRecord.safeParse("keybinds" in data ? data.keybinds : undefined)
-    const legacyTui = LegacyRecord.safeParse("tui" in data ? data.tui : undefined)
-    const extracted = {
-      theme: theme.success ? theme.data : undefined,
-      keybinds: keybinds.success ? keybinds.data : undefined,
-      tui: legacyTui.success ? legacyTui.data : undefined,
-    }
-    const tui = extracted.tui ? normalizeTui(extracted.tui) : undefined
-    if (extracted.theme === undefined && extracted.keybinds === undefined && !tui) continue
-
-    const target = path.join(path.dirname(file), "tui.json")
-    const targetExists = await Filesystem.exists(target)
+  const groups = await sourceGroups(input)
+  for (const group of groups) {
+    const targetExists = await Filesystem.exists(group.target)
     if (targetExists) continue
 
-    const payload: Record<string, unknown> = {
-      $schema: TUI_SCHEMA_URL,
-    }
-    if (extracted.theme !== undefined) payload.theme = extracted.theme
-    if (extracted.keybinds !== undefined) payload.keybinds = extracted.keybinds
-    if (tui) Object.assign(payload, tui)
+    const parsed = (await Promise.all(group.files.map(parseLegacyFile))).filter((item): item is LegacyFile => !!item)
+    if (!parsed.length) continue
 
-    const wrote = await Filesystem.write(target, JSON.stringify(payload, null, 2))
+    const payload = parsed.reduce((acc, item) => mergeDeep(acc, item.legacy), { $schema: TUI_SCHEMA_URL } as Record<
+      string,
+      unknown
+    >)
+
+    const wrote = await Filesystem.write(group.target, JSON.stringify(payload, null, 2))
       .then(() => true)
       .catch((error) => {
-        log.warn("failed to write tui migration target", { from: file, to: target, error })
+        log.warn("failed to write tui migration target", {
+          from: parsed.map((item) => item.file),
+          to: group.target,
+          error,
+        })
         return false
       })
     if (!wrote) continue
 
-    const stripped = await backupAndStripLegacy(file, source)
-    if (!stripped) {
-      log.warn("tui config migrated but source file was not stripped", { from: file, to: target })
+    const stripped = await Promise.all(parsed.map((item) => backupAndStripLegacy(item.file, item.source)))
+    if (stripped.some((ok) => !ok)) {
+      log.warn("tui config migrated but some source files were not stripped", {
+        from: parsed.map((item) => item.file),
+        to: group.target,
+      })
       continue
     }
-    log.info("migrated tui config", { from: file, to: target })
+
+    log.info("migrated tui config", {
+      from: parsed.map((item) => item.file),
+      to: group.target,
+    })
   }
 }
 
-function normalizeTui(data: Record<string, unknown>) {
-  const parsed = TuiLegacy.parse(data)
-  if (
-    parsed.scroll_speed === undefined &&
-    parsed.diff_style === undefined &&
-    parsed.scroll_acceleration === undefined
-  ) {
-    return
+async function parseLegacyFile(file: string) {
+  const source = await Filesystem.readText(file).catch((error) => {
+    log.warn("failed to read config for tui migration", { path: file, error })
+    return undefined
+  })
+  if (!source) return
+
+  const errors: JsoncParseError[] = []
+  const data = parseJsonc(source, errors, { allowTrailingComma: true })
+  if (errors.length || !data || typeof data !== "object" || Array.isArray(data)) return
+
+  const theme = LegacyTheme.safeParse("theme" in data ? data.theme : undefined)
+  const keybinds = LegacyRecord.safeParse("keybinds" in data ? data.keybinds : undefined)
+  const legacyTui = LegacyRecord.safeParse("tui" in data ? data.tui : undefined)
+
+  const legacy: Record<string, unknown> = {}
+  if (theme.success && theme.data !== undefined) legacy.theme = theme.data
+  if (keybinds.success && keybinds.data !== undefined) legacy.keybinds = keybinds.data
+  if (legacyTui.success && legacyTui.data) Object.assign(legacy, legacyTui.data)
+  if (!Object.keys(legacy).length) return
+
+  return {
+    file,
+    source,
+    legacy,
   }
-  return parsed
 }
 
 async function backupAndStripLegacy(file: string, source: string) {
@@ -134,15 +144,24 @@ async function backupAndStripLegacy(file: string, source: string) {
     })
 }
 
-async function opencodeFiles(input: { directories: string[]; managed: string }) {
-  const project = Flag.OPENCODE_DISABLE_PROJECT_CONFIG
-    ? []
-    : await ConfigPaths.projectFiles("opencode", Instance.directory, Instance.worktree)
-  const files = [...project, ...ConfigPaths.fileInDirectory(Global.Path.config, "opencode")]
+async function sourceGroups(input: MigrateInput): Promise<SourceGroup[]> {
+  const files = [
+    path.join(Global.Path.config, "config.json"),
+    path.join(Global.Path.config, "opencode.json"),
+    path.join(Global.Path.config, "opencode.jsonc"),
+  ]
+
+  if (input.custom) files.push(input.custom)
+
+  if (!Flag.OPENCODE_DISABLE_PROJECT_CONFIG) {
+    files.push(...(await ConfigPaths.projectFiles("opencode", Instance.directory, Instance.worktree)))
+  }
+
   for (const dir of unique(input.directories)) {
+    if (!dir.endsWith(".opencode") && dir !== Flag.OPENCODE_CONFIG_DIR) continue
     files.push(...ConfigPaths.fileInDirectory(dir, "opencode"))
   }
-  if (Flag.OPENCODE_CONFIG) files.push(Flag.OPENCODE_CONFIG)
+
   files.push(...ConfigPaths.fileInDirectory(input.managed, "opencode"))
 
   const existing = await Promise.all(
@@ -151,5 +170,16 @@ async function opencodeFiles(input: { directories: string[]; managed: string }) 
       return ok ? file : undefined
     }),
   )
-  return existing.filter((file): file is string => !!file)
+
+  const result = new Map<string, string[]>()
+  for (const file of existing) {
+    if (!file) continue
+    const target = path.join(path.dirname(file), "tui.json")
+    result.set(target, [...(result.get(target) ?? []), file])
+  }
+
+  return Array.from(result.entries()).map(([target, groupFiles]) => ({
+    target,
+    files: groupFiles,
+  }))
 }

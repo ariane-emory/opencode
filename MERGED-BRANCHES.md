@@ -43,7 +43,7 @@
 | ☑ | 37 | feat/global-compaction-threshold | origin | TBD | Merged cleanly, adds configurable compaction threshold |
 | ☑ | 38 | feat/configurable-message-and-session-limit | origin | TBD | Conflict: Combined session grouping/bookmarks with session list limit; kept plan_mode from HEAD + messages_limit/session_list_limit from branch |
 | ☑ | 39 | feat/experimental-dont-cache-markdown | origin | TBD | Merged cleanly; Fixed test to include cache_command_markdown_files property |
-| ☐ | 40 | feat/jsonc-user-themes | origin | TBD | |
+| ☑ | 40 | feat/jsonc-user-themes | origin | TBD | Conflict: Combined experimentalPlanMode() from HEAD with loadThemeFile() from branch |
 | ☐ | 41 | feat/persist-sidebar-group-folding-states | origin | TBD | |
 | ☐ | 42 | feat/persistant-sidebar-overlay-behaviour | origin | TBD | |
 | ☐ | 43 | feat/shell-advice | origin | TBD | Combine with feat/improve-bash-tool-git-advice |

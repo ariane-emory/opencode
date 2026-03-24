@@ -5,7 +5,7 @@
 | Status | # | Branch Name | Remote | Commit Hash | Description |
 |--------|---|-------------|--------|-------------|-------------|
 | ☑ | 1 | split-config-fixes | upstream | b8ce3795cd | MUST use only local copy, do NOT pull from upstream - Conflict resolved: combined payload variable with Filesystem.write |
-| ☐ | 2 | feat/base-one-rebrand | origin | TBD | |
+| ☑ | 2 | feat/base-one-rebrand | origin | b75c1f76ed | Merged cleanly, no conflicts |
 | ☐ | 3 | feat/sinister-quotes | origin | TBD | Placeholders MUST be SINISTER_PLACEHOLDERS array |
 | ☐ | 4 | feat/markdown-renderer | gignit | TBD | |
 | ☐ | 5 | feat/thinking-indicator-hidden | rcdailey | TBD | |
@@ -94,4 +94,8 @@
 - Commit: b8ce3795cd
 - Conflict in packages/opencode/src/config/migrate-tui-config.ts
 - Resolution: Combined payload variable definition from split-config-fixes with Filesystem.write from HEAD
+
+### Branch 2: feat/base-one-rebrand
+- Commit: b75c1f76ed
+- Merged cleanly, no conflicts
 

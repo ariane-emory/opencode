@@ -36,7 +36,7 @@
 | ☑ | 30 | fix/persist-sidebar | origin | TBD | Conflict: Resolved conflicts in prompt/index.tsx; MUST NOT return to auto state after show/hide |
 | ☑ | 31 | feat/command-palette-consistency | origin | TBD | Conflict: Moved items from Session to System category; Resolved app.tsx and session/index.tsx conflicts; Preserved markdown_all_messages and clear_prompt_save_history toggles |
 | ☑ | 32 | refactor/shared-substitute | origin | TBD | Merged cleanly (already integrated), resolved leftover merge conflicts from branch 31 |
-| ☐ | 33 | feat/session-id-in-status | origin | TBD | |
+| ☑ | 33 | feat/session-id-in-status | origin | TBD | Merged cleanly, no conflicts |
 | ☐ | 34 | feat/edit-tool-description | origin | TBD | |
 | ☐ | 35 | feat/opeoginni--display-message-tps | origin | TBD | |
 | ☐ | 36 | feat/kv-diff-style-clean | origin | TBD | |

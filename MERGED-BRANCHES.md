@@ -10,12 +10,12 @@
 | ☑ | 4 | feat/markdown-renderer | gignit | 6a861ff48e | Fixed type error: changed theme.markdownText to tui.theme.markdownText |
 | ☑ | 5 | feat/thinking-indicator-hidden | rcdailey | 6b9b2c579f | Merged cleanly, no conflicts |
 | ☑ | 6 | fix/session-new-prompt-handoff | AksharP5 | 9cb547ed48 | Merged cleanly, no conflicts |
-| ☐ | 7 | feat/session-grouping | origin | TBD | |
-| ☐ | 8 | feat/session-bookmarks | origin | TBD | |
-| ☐ | 9 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks; MUST not be clobbered |
-| ☐ | 10 | feat/keybindable-commands | origin | TBD | |
-| ☐ | 11 | feat/automatic-list-continuation | origin | TBD | |
-| ☐ | 12 | feat/continue-command | origin | TBD | |
+| ☑ | 7 | feat/session-grouping | origin | TBD | Merged cleanly, no conflicts |
+| ☑ | 8 | feat/session-bookmarks | origin | TBD | Conflict: Combined with session-grouping - bookmarks show first, then grouped sessions, then ungrouped |
+| ☑ | 9 | fix/dialog-datetime-alignment | origin | TBD | Merged cleanly after session-bookmarks |
+| ☑ | 10 | feat/keybindable-commands | origin | TBD | Merged cleanly, no conflicts |
+| ☑ | 11 | feat/automatic-list-continuation | origin | TBD | Merged cleanly, no conflicts |
+| ☑ | 12 | feat/continue-command | origin | TBD | Merged cleanly but had type errors - Fixed: Use branded types for SessionID, ProviderID, ModelID |
 | ☐ | 13 | feat/configurable-snapshot-lifespan | origin | TBD | |
 | ☐ | 14 | feat/configurable-new-plan-mode | origin | TBD | |
 | ☐ | 15 | feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber; MUST add new item to command palette |
@@ -116,4 +116,32 @@
 ### Branch 6: fix/session-new-prompt-handoff
 - Commit: 9cb547ed48
 - Merged cleanly, no conflicts
+
+### Branch 7: feat/session-grouping
+- Merged cleanly, no conflicts
+
+### Branch 8: feat/session-bookmarks
+- Conflict in packages/opencode/src/cli/cmd/tui/component/dialog-session-list.tsx
+- Conflict in packages/opencode/src/util/locale.ts
+- Resolution: Combined session-grouping and session-bookmarks features:
+  - Bookmarks show first in the list with "Bookmarks:" category
+  - Then grouped sessions (with "|" in title) sorted by group name
+  - Then ungrouped sessions sorted by date
+  - Used bookmark version of shortDateTime format
+
+### Branch 9: fix/dialog-datetime-alignment
+- Merged cleanly after session-bookmarks
+
+### Branch 10: feat/keybindable-commands
+- Merged cleanly, no conflicts
+
+### Branch 11: feat/automatic-list-continuation
+- Merged cleanly, no conflicts
+
+### Branch 12: feat/continue-command
+- Merged cleanly but had type errors
+- Fixed type errors:
+  - src/server/routes/session.ts: Use SessionID.make() to convert string param to branded type
+  - src/server/routes/session.ts: Use ProviderID.zod and ModelID.zod in route validator
+  - src/session/prompt.ts: Use ProviderID.zod and ModelID.zod in LoopInput schema
 

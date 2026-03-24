@@ -712,7 +712,6 @@ function App() {
     },
   ])
 
-<<<<<<< HEAD
   // Handle custom command keybinds
   useKeyboard((evt) => {
     if (command.suspended()) return

@@ -276,8 +276,8 @@ export namespace SessionPrompt {
     resume_existing: z.boolean().optional(),
     model: z
       .object({
-        providerID: z.string(),
-        modelID: z.string(),
+        providerID: ProviderID.zod,
+        modelID: ModelID.zod,
       })
       .optional(),
   })

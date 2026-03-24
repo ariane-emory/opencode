@@ -79,7 +79,11 @@ export function DialogSessionList() {
   }
 
   const options = createMemo(() => {
+    if (!sync.ready) return []
     const today = new Date().toDateString()
+    const sessionsListLimit = sync.data.config.experimental?.session_list_limit
+    const limit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
+
     const allSessions = sessions().filter((x) => x.parentID === undefined)
 
     // Separate bookmarks and non-bookmarks first
@@ -143,7 +147,7 @@ export function DialogSessionList() {
       return mapSession(x, category, false)
     })
 
-    return [...pinnedOptions, ...groupedOptions, ...ungroupedOptions]
+    return [...pinnedOptions, ...groupedOptions, ...ungroupedOptions].slice(0, limit)
   })
 
   onMount(() => {

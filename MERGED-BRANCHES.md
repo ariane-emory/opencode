@@ -41,7 +41,7 @@
 | ☑ | 35 | feat/opeoginni--display-message-tps | origin | TBD | Merged cleanly, adds message TPS display to status |
 | ☑ | 36 | feat/kv-diff-style-clean | origin | TBD | Merged cleanly, fixed duplicate useKV import |
 | ☑ | 37 | feat/global-compaction-threshold | origin | TBD | Merged cleanly, adds configurable compaction threshold |
-| ☐ | 38 | feat/configurable-message-and-session-limit | origin | TBD | experimental._message_limit and experimental.session_list_limit accept "none" or positive integers |
+| ☑ | 38 | feat/configurable-message-and-session-limit | origin | TBD | Conflict: Combined session grouping/bookmarks with session list limit; kept plan_mode from HEAD + messages_limit/session_list_limit from branch |
 | ☐ | 39 | feat/experimental-dont-cache-markdown | origin | TBD | |
 | ☐ | 40 | feat/jsonc-user-themes | origin | TBD | |
 | ☐ | 41 | feat/persist-sidebar-group-folding-states | origin | TBD | |

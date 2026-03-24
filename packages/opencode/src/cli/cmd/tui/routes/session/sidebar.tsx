@@ -14,6 +14,7 @@ import { useLocal } from "@tui/context/local"
 import { useSDK } from "@tui/context/sdk"
 import { TodoItem } from "../../component/todo-item"
 import { Log } from "@/util/log"
+import { parseSessionTitleParts } from "@tui/util/session-title"
 
 export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrollbar?: boolean }) {
   const sync = useSync()
@@ -130,7 +131,17 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
           <box flexShrink={0} gap={1} paddingRight={1}>
             <box paddingRight={1}>
               <text fg={theme.sessionTitle}>
-                <b>{session().title}</b>
+                {(() => {
+                  const parts = parseSessionTitleParts(session().title)
+                  if (parts.group) {
+                    return (
+                      <>
+                        <b>{parts.group}</b> {parts.rest}
+                      </>
+                    )
+                  }
+                  return <b>{parts.rest}</b>
+                })()}
               </text>
               <Show when={session().share?.url}>
                 <text fg={theme.textMuted}>{session().share!.url}</text>

@@ -71,7 +71,7 @@
 | ☐ | 65 | feat/dialogue-background-overlay-setting | origin | TBD | |
 | ☐ | 66 | fix/no-split-database | origin | TBD | |
 | ☐ | 67 | feat/elapsed-timer | origin | TBD | |
-| ☐ | 68 | fix/system-prompt-directories | origin | TBD | |
+| ☑ | 68 | fix/system-prompt-directories | origin | TBD | Merged cleanly |
 | ☐ | 69 | fix/rfc2119-question-tool | origin | TBD | |
 | ☐ | 70 | feat/sidebar-header-accent-colours | origin | TBD | |
 | ☐ | 71 | feat/distinct-title-colour | origin | TBD | Make compatible with feat/session-grouping title formatting |

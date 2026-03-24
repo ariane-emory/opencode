@@ -575,43 +575,12 @@ export function Session() {
       },
     },
     {
-      title: "Continue interrupted conversation",
-      value: "session.continue",
-      keybind: "session_continue",
-      category: "Session",
-      slash: {
-        name: "continue",
-      },
-      onSelect: async (dialog) => {
-        const currentModel = local.model.current()
-        const result = await sdk.client.session.continue({
-          sessionID: route.sessionID,
-          model: currentModel ? {
-            providerID: currentModel.providerID,
-            modelID: currentModel.modelID,
-          } : undefined,
-        })
-        
-        if (result.data) {
-          toBottom()
-        } else {
-          dialog.clear()
-        }
-      },
-    },
-    {
-      title: sidebarVisible() ? "Hide sidebar" : "Show sidebar",
-      value: "session.sidebar.toggle",
-      keybind: "sidebar_toggle",
+      title: conceal() ? "Disable code concealment" : "Enable code concealment",
+      value: "session.toggle.conceal",
+      keybind: "messages_toggle_conceal" as any,
       category: "Session",
       onSelect: (dialog) => {
-        const prev = sidebar()
-        let newValue: "show" | "hide" | "auto"
-        if (prev === "auto") newValue = sidebarVisible() ? "hide" : "show"
-        else if (prev === "show") newValue = "hide"
-        else newValue = "show"
-        setSidebar(newValue)
-        setSidebarOpen(newValue === "show")
+        setConceal((prev) => !prev)
         dialog.clear()
       },
     },
@@ -626,6 +595,7 @@ export function Session() {
       },
     },
     {
+<<<<<<< HEAD
       title: showTimestamps() ? "Hide timestamps" : "Show timestamps",
       value: "session.toggle.timestamps",
       category: "Session",
@@ -691,6 +661,8 @@ export function Session() {
       },
     },
     {
+=======
+>>>>>>> origin/feat/command-palette-consistency
       title: "Page up",
       value: "session.page.up",
       keybind: "messages_page_up",

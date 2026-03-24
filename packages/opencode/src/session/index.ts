@@ -241,8 +241,8 @@ export namespace Session {
 
   export const rewind = fn(
     z.object({
-      sessionID: Identifier.schema("session"),
-      messageID: Identifier.schema("message"),
+      sessionID: SessionID.zod,
+      messageID: MessageID.zod,
     }),
     async (input) => {
       SessionPrompt.assertNotBusy(input.sessionID)

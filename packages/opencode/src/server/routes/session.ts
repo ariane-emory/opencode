@@ -355,10 +355,10 @@ export const SessionRoutes = lazy(() =>
       ),
       validator("json", Session.rewind.schema.omit({ sessionID: true })),
       async (c) => {
-        const sessionID = c.req.valid("param").sessionID
+        const sessionID = SessionID.make(c.req.valid("param").sessionID)
         const session = await Session.rewind({
           sessionID,
-          ...c.req.valid("json"),
+          messageID: MessageID.make(c.req.valid("json").messageID),
         })
         return c.json(session)
       },

@@ -828,6 +828,7 @@ export type Session = {
     updated: number
     compacting?: number
     archived?: number
+    pinned?: number
   }
   permission?: PermissionRuleset
   revert?: {
@@ -1324,6 +1325,7 @@ export type Config = {
       agent?: string
       model?: string
       subtask?: boolean
+      [key: string]: unknown | string | boolean | undefined
     }
   }
   /**
@@ -1344,9 +1346,9 @@ export type Config = {
   }
   plugin?: Array<string>
   /**
-   * Enable or disable snapshot tracking. When false, filesystem snapshots are not recorded and undoing or reverting will not undo/redo file changes. Defaults to true.
+   * Enable or disable snapshot tracking. When false, filesystem snapshots are not recorded and undoing or reverting will not undo/redo file changes. Defaults to true. Can also be set to a number to specify the maximum number of snapshots to keep.
    */
-  snapshot?: boolean
+  snapshot?: boolean | number
   /**
    * Control sharing behavior:'manual' allows manual sharing via commands, 'auto' enables automatic sharing, 'disabled' disables all sharing
    */
@@ -1496,13 +1498,33 @@ export type Config = {
      */
     primary_tools?: Array<string>
     /**
+     * Cache command markdown files on first load. Set to false to reload command files on every execution.
+     */
+    cache_command_markdown_files?: boolean
+    /**
      * Continue the agent loop when a tool call is denied
      */
     continue_loop_on_deny?: boolean
     /**
+     * Percentage of usable context space at which to trigger compaction (10-100)
+     */
+    context_compaction_threshold?: number
+    /**
      * Timeout in milliseconds for model context protocol (MCP) requests
      */
     mcp_timeout?: number
+    /**
+     * Enable experimental plan mode
+     */
+    plan_mode?: boolean
+    /**
+     * Maximum number of message parts to load per session when syncing, or 'none' to load all messages
+     */
+    messages_limit?: number | "none"
+    /**
+     * Maximum number of sessions to display in session list, or 'none' to show all sessions
+     */
+    session_list_limit?: number | "none"
   }
 }
 
@@ -1699,6 +1721,7 @@ export type GlobalSession = {
     updated: number
     compacting?: number
     archived?: number
+    pinned?: number
   }
   permission?: PermissionRuleset
   revert?: {
@@ -2965,6 +2988,7 @@ export type SessionUpdateData = {
     title?: string
     time?: {
       archived?: number
+      pinned?: number | null
     }
   }
   path: {
@@ -3114,6 +3138,7 @@ export type SessionRewindData = {
   }
   query?: {
     directory?: string
+    workspace?: string
   }
   url: "/session/{sessionID}/rewind"
 }
@@ -3782,6 +3807,48 @@ export type SessionUnrevertResponses = {
 }
 
 export type SessionUnrevertResponse = SessionUnrevertResponses[keyof SessionUnrevertResponses]
+
+export type SessionContinueData = {
+  body?: {
+    model?: {
+      providerID: string
+      modelID: string
+    }
+  }
+  path: {
+    /**
+     * Session ID
+     */
+    sessionID: string
+  }
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/session/{sessionID}/continue"
+}
+
+export type SessionContinueErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+  /**
+   * Not found
+   */
+  404: NotFoundError
+}
+
+export type SessionContinueError = SessionContinueErrors[keyof SessionContinueErrors]
+
+export type SessionContinueResponses = {
+  /**
+   * Conversation continued
+   */
+  200: boolean
+}
+
+export type SessionContinueResponse = SessionContinueResponses[keyof SessionContinueResponses]
 
 export type PermissionRespondData = {
   body?: {

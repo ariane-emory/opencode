@@ -1,7 +1,7 @@
 import { InputRenderable, RGBA, ScrollBoxRenderable, TextAttributes } from "@opentui/core"
 import { useTheme, selectedForeground } from "@tui/context/theme"
 import { entries, filter, flatMap, groupBy, mapValues, pipe, take } from "remeda"
-import { smartCompare } from "@/util/smart-sort"
+
 import { batch, createEffect, createMemo, For, Show, type JSX, on } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useKeyboard, useTerminalDimensions } from "@opentui/solid"
@@ -15,13 +15,13 @@ export interface DialogSelectProps<T> {
   title: string
   placeholder?: string
   options: DialogSelectOption<T>[]
+  sort?: boolean
   flat?: boolean
   ref?: (ref: DialogSelectRef<T>) => void
   onMove?: (option: DialogSelectOption<T>) => void
   onFilter?: (query: string) => void
   onSelect?: (option: DialogSelectOption<T>) => void
   skipFilter?: boolean
-  sort?: boolean
   keybind?: {
     keybind?: Keybind.Info
     title: string
@@ -89,7 +89,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     }
 
     const sortByTitle = (a: DialogSelectOption<T>, b: DialogSelectOption<T>) =>
-      smartCompare(a.title, b.title)
+      a.title.localeCompare(b.title)
 
     return [...tier1.sort(sortByTitle), ...tier2.sort(sortByTitle), ...tier3.sort(sortByTitle)]
   })
@@ -109,10 +109,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     const result = pipe(
       filtered(),
       groupBy((x) => x.category ?? ""),
-      (groups) => {
-        if (!props.sort) return groups
-        return mapValues(groups, (x) => x.sort((a, b) => smartCompare(a.title, b.title)))
-      },
+      mapValues((x) => (props.sort ? x.sort((a, b) => a.title.localeCompare(b.title)) : x)),
       entries(),
     )
     return result

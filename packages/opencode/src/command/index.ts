@@ -168,98 +168,12 @@ export namespace Command {
 
       const cache = yield* InstanceState.make<State>((ctx) => init(ctx))
 
-      // Load fresh commands from disk when cache_command_markdown_files is false
-      const loadFreshCommands = Effect.fn("Command.loadFresh")(function* (ctx) {
-        const commands: Record<string, Info> = {}
-
-        // Always include built-in commands
-        commands[Default.INIT] = {
-          name: Default.INIT,
-          description: "create/update AGENTS.md",
-          source: "command",
-          get template() {
-            return PROMPT_INITIALIZE.replace("${path}", ctx.worktree)
-          },
-          hints: hints(PROMPT_INITIALIZE),
-        }
-        commands[Default.REVIEW] = {
-          name: Default.REVIEW,
-          description: "review changes [commit|branch|pr], defaults to uncommitted",
-          source: "command",
-          get template() {
-            return PROMPT_REVIEW.replace("${path}", ctx.worktree)
-          },
-          subtask: true,
-          hints: hints(PROMPT_REVIEW),
-        }
-
-        // Reload command markdown files from disk
-        const freshCommands = yield* Effect.promise(() => Config.reloadCommands(ctx.directory))
-        for (const [name, command] of Object.entries(freshCommands ?? {})) {
-          commands[name] = {
-            name,
-            agent: command.agent,
-            model: command.model,
-            description: command.description,
-            source: "command",
-            get template() {
-              return command.template
-            },
-            subtask: command.subtask,
-            ignored: command.ignored,
-            hints: hints(command.template),
-          }
-        }
-
-        // Include MCP prompts (these are dynamic, not from markdown files)
-        for (const [name, prompt] of Object.entries(yield* Effect.promise(() => MCP.prompts()))) {
-          commands[name] = {
-            name,
-            source: "mcp",
-            description: prompt.description,
-            get template() {
-              return new Promise<string>(async (resolve, reject) => {
-                const template = await MCP.getPrompt(
-                  prompt.client,
-                  prompt.name,
-                  prompt.arguments
-                    ? Object.fromEntries(prompt.arguments.map((argument, i) => [argument.name, `$${i + 1}`]))
-                    : {},
-                ).catch(reject)
-                resolve(
-                  template?.messages
-                    .map((message) => (message.content.type === "text" ? message.content.text : ""))
-                    .join("\n") || "",
-                )
-              })
-            },
-            hints: prompt.arguments?.map((_, i) => `$${i + 1}`) ?? [],
-          }
-        }
-
-        // Include skills
-        for (const skill of yield* Effect.promise(() => Skill.all())) {
-          if (commands[skill.name]) continue
-          commands[skill.name] = {
-            name: skill.name,
-            description: skill.description,
-            source: "skill",
-            get template() {
-              return skill.content
-            },
-            hints: [],
-          }
-        }
-
-        return { commands }
-      })
-
       const get = Effect.fn("Command.get")(function* (name: string) {
         const cfg = yield* Effect.promise(() => Config.get())
         // When experimental.cache_command_markdown_files is explicitly false,
-        // reload commands from disk on each call
+        // bypass the cache and load fresh commands
         if (cfg.experimental?.cache_command_markdown_files === false) {
-          const state = yield* loadFreshCommands(Instance.current)
+          const state = yield* init(Instance.current)
           return state.commands[name]
         }
         const state = yield* InstanceState.get(cache)
@@ -269,9 +183,9 @@ export namespace Command {
       const list = Effect.fn("Command.list")(function* () {
         const cfg = yield* Effect.promise(() => Config.get())
         // When experimental.cache_command_markdown_files is explicitly false,
-        // reload commands from disk on each call
+        // bypass the cache and load fresh commands
         if (cfg.experimental?.cache_command_markdown_files === false) {
-          const state = yield* loadFreshCommands(Instance.current)
+          const state = yield* init(Instance.current)
           return Object.values(state.commands)
         }
         const state = yield* InstanceState.get(cache)

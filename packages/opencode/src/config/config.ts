@@ -1076,6 +1076,16 @@ export namespace Config {
       ref: "KeybindsConfig",
     })
 
+  export const TUI = z.object({
+    scroll_speed: z.number().min(0.001).optional().describe("TUI scroll speed"),
+    scroll_acceleration: z
+      .object({
+        enabled: z.boolean().describe("Enable scroll acceleration"),
+      })
+      .optional()
+      .describe("Scroll acceleration settings"),
+  })
+
   export const Server = z
     .object({
       port: z.number().int().positive().optional().describe("Port to listen on"),

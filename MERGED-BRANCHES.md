@@ -22,19 +22,19 @@
 | ☑ | 16 | feat/permission-spinner | origin | TBD | Merged cleanly, no conflicts |
 | ☑ | 17 | feat/permission-indicator-in-sidebar | origin | TBD | Merged cleanly, no conflicts |
 | ☑ | 18 | feat/opencode-expand | origin | TBD | Conflict: Kept both imports (Config + substituteArguments); Fixed leftover conflict marker in bash.ts |
-| ☐ | 19 | feat/argument-range-syntax | origin | TBD | |
-| ☐ | 20 | feat/default-arguments | origin | TBD | Don't reintroduce swallowing behaviour from feat/argument-range-syntax |
-| ☐ | 21 | fix/preserve-quotes-in-arguments | origin | TBD | |
-| ☐ | 22 | fix/history-navigation-key-commands | origin | TBD | |
-| ☐ | 23 | fix/build-with-short-version | origin | TBD | Auto uses short timestamp for integration branches |
-| ☐ | 24 | fix/autocompletion-filtered-order | origin | TBD | |
-| ☐ | 25 | fix/modal-menus-filtered-order | origin | TBD | |
-| ☐ | 26 | fix/config-package-json-pollution | origin | TBD | MUST be included to prevent package.json pollution |
-| ☐ | 27 | fix/session-list-viewport-jumping | origin | TBD | |
-| ☐ | 28 | fix/merging-multiple-configs | origin | TBD | |
-| ☐ | 29 | fix/markdown-codeblock-theme-property | origin | TBD | |
-| ☐ | 30 | fix/persist-sidebar | origin | TBD | MUST NOT return to auto state after show/hide; MUST NOT be clobbered |
-| ☐ | 31 | feat/command-palette-consistency | origin | TBD | MOVE items from Session to System; NO duplication; handle fix/persist-sidebar logic |
+| ☑ | 19 | feat/argument-range-syntax | origin | TBD | Conflict: Extended placeholder support with ${N}, ${N..M}, ${N..}, ${..M}, ${..} syntax |
+| ☑ | 20 | feat/default-arguments | origin | TBD | Merged cleanly as part of batch |
+| ☑ | 21 | fix/preserve-quotes-in-arguments | origin | TBD | Merged cleanly as part of batch |
+| ☑ | 22 | fix/history-navigation-key-commands | origin | TBD | Merged cleanly as part of batch |
+| ☑ | 23 | fix/build-with-short-version | origin | TBD | Merged cleanly as part of batch |
+| ☑ | 24 | fix/autocompletion-filtered-order | origin | TBD | Merged cleanly as part of batch |
+| ☑ | 25 | fix/modal-menus-filtered-order | origin | TBD | Conflict: Resolved 3-way conflicts in prompt/index.tsx - kept SINISTER_PLACEHOLDERS import, listContinuation code, and placeholder resize effect |
+| ☑ | 26 | fix/config-package-json-pollution | origin | TBD | Merged cleanly, no conflicts |
+| ☑ | 27 | fix/session-list-viewport-jumping | origin | TBD | Merged cleanly, no conflicts |
+| ☑ | 28 | fix/merging-multiple-configs | origin | TBD | Conflict: Combined brand fallback comment with RawInfo variable declaration |
+| ☑ | 29 | fix/markdown-codeblock-theme-property | origin | TBD | Merged cleanly, no conflicts |
+| ☑ | 30 | fix/persist-sidebar | origin | TBD | Conflict: Resolved conflicts in prompt/index.tsx; MUST NOT return to auto state after show/hide |
+| ☑ | 31 | feat/command-palette-consistency | origin | TBD | Conflict: Moved items from Session to System category; Resolved app.tsx and session/index.tsx conflicts; Preserved markdown_all_messages and clear_prompt_save_history toggles |
 | ☐ | 32 | refactor/shared-substitute | origin | TBD | |
 | ☐ | 33 | feat/session-id-in-status | origin | TBD | |
 | ☐ | 34 | feat/edit-tool-description | origin | TBD | |

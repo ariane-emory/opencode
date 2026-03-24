@@ -345,7 +345,7 @@ export const SessionRoutes = lazy(() =>
       validator(
         "param",
         z.object({
-          sessionID: z.string(),
+          sessionID: SessionID.zod,
         }),
       ),
       validator("json", Session.rewind.schema.omit({ sessionID: true })),

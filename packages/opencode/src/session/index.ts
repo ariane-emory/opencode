@@ -25,7 +25,7 @@ import { WorkspaceContext } from "../control-plane/workspace-context"
 import { ProjectID } from "../project/schema"
 import { WorkspaceID } from "../control-plane/schema"
 import { SessionID, MessageID, PartID } from "./schema"
-import { Identifier } from "@/identifier"
+import { Identifier } from "@opencode-ai/util/identifier"
 
 import type { Provider } from "@/provider/provider"
 import { ModelID, ProviderID } from "@/provider/schema"

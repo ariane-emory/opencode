@@ -1997,7 +1997,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
     const text = await result.text.catch((err) => log.error("failed to generate title", { error: err }))
     if (text) {
       const cleaned = text
-        .replace(/<think>[\s\S]*?<\/think>\s*/g, "")
+        .replace(/<think[\s\S]*?<\/think>\s*/g, "")
         .split("\n")
         .map((line) => line.trim())
         .find((line) => line.length > 0)

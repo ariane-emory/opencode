@@ -793,6 +793,9 @@ function App() {
       onSelect: (dialog) => {
         const current = kv.get("sidebar", "auto")
         kv.set("sidebar", current === "auto" ? "hide" : "auto")
+        dialog.clear()
+      },
+    },
   ])
 
   // Handle custom command keybinds

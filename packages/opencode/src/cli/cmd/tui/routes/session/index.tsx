@@ -595,7 +595,6 @@ export function Session() {
       },
     },
     {
-<<<<<<< HEAD
       title: showTimestamps() ? "Hide timestamps" : "Show timestamps",
       value: "session.toggle.timestamps",
       category: "Session",
@@ -661,8 +660,6 @@ export function Session() {
       },
     },
     {
-=======
->>>>>>> origin/feat/command-palette-consistency
       title: "Page up",
       value: "session.page.up",
       keybind: "messages_page_up",

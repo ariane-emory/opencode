@@ -63,6 +63,41 @@ export type AutocompleteOption = {
   path?: string
 }
 
+function tieredMatch(
+  items: AutocompleteOption[],
+  needle: string,
+  prefix: string,
+  limit: number = 100,
+): AutocompleteOption[] {
+  const lowerNeedle = needle.toLowerCase()
+  const fullNeedle = (prefix + needle).toLowerCase()
+
+  const tier1: AutocompleteOption[] = []
+  const tier2: AutocompleteOption[] = []
+  const tier3: AutocompleteOption[] = []
+
+  for (const item of items) {
+    const display = item.display.trimEnd().toLowerCase()
+
+    if (display.startsWith(fullNeedle)) {
+      tier1.push(item)
+    } else if (display.includes(lowerNeedle)) {
+      tier2.push(item)
+    } else {
+      const descMatch = item.description?.toLowerCase().includes(lowerNeedle)
+      const aliasMatch = item.aliases?.some((a) => a.toLowerCase().includes(lowerNeedle))
+      if (descMatch || aliasMatch) {
+        tier3.push(item)
+      }
+    }
+  }
+
+  const sortByDisplay = (a: AutocompleteOption, b: AutocompleteOption) =>
+    a.display.trimEnd().localeCompare(b.display.trimEnd())
+
+  return [...tier1.sort(sortByDisplay), ...tier2.sort(sortByDisplay), ...tier3.sort(sortByDisplay)].slice(0, limit)
+}
+
 export function Autocomplete(props: {
   value: string
   sessionID?: string
@@ -400,25 +435,7 @@ export function Autocomplete(props: {
       return prev
     }
 
-    const result = fuzzysort.go(removeLineRange(searchValue), mixed, {
-      keys: [
-        (obj) => removeLineRange((obj.value ?? obj.display).trimEnd()),
-        "description",
-        (obj) => obj.aliases?.join(" ") ?? "",
-      ],
-      limit: 10,
-      scoreFn: (objResults) => {
-        const displayResult = objResults[0]
-        let score = objResults.score
-        if (displayResult && displayResult.target.startsWith(store.visible + searchValue)) {
-          score *= 2
-        }
-        const frecencyScore = objResults.obj.path ? frecency.getFrecency(objResults.obj.path) : 0
-        return score * (1 + frecencyScore)
-      },
-    })
-
-    return result.map((arr) => arr.obj)
+    return tieredMatch(mixed, searchValue, store.visible || "/", 100)
   })
 
   createEffect(() => {

@@ -887,11 +887,7 @@ export function Prompt(props: PromptProps) {
             flexGrow={1}
           >
             <textarea
-// **CRITICAL MERGE WARNING**: Keep this EXACT format (NO "Ask anything" prefix, NO quotes):
-              //   CORRECT: `${PLACEHOLDERS[store.placeholder]}`
-              //   WRONG:   `Ask anything... "${PLACEHOLDERS[store.placeholder]}"`
-              // The sinister-quotes feature intentionally removes the prefix. A test validates this.
-              placeholder={props.sessionID ? undefined : `${PLACEHOLDERS[store.placeholder]}`}
+              placeholder={placeholderText()}
               textColor={keybind.leader ? theme.textMuted : theme.text}
               focusedTextColor={keybind.leader ? theme.textMuted : theme.text}
               minHeight={1}

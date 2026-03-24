@@ -218,6 +218,9 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                           {key}{" "}
                           <span style={{ fg: theme.textMuted }}>
                             <Switch fallback={item.status}>
+                              <Match when={loading() === key}>
+                                <i>Loading...</i>
+                              </Match>
                               <Match when={item.status === "connected"}>Connected</Match>
                               <Match when={item.status === "failed" && item}>{(val) => <i>{val().error}</i>}</Match>
                               <Match when={item.status === "disabled"}>Disabled</Match>

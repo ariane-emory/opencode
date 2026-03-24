@@ -310,7 +310,8 @@ export namespace Config {
 
   export async function installDependencies(dir: string) {
     const pkg = path.join(dir, "package.json")
-    const targetVersion = Installation.isLocal() ? "*" : Installation.VERSION
+    const isValidSemVer = /^\d+\.\d+\.\d+/.test(Installation.VERSION)
+    const targetVersion = Installation.isLocal() || !isValidSemVer ? "*" : Installation.VERSION
 
     const json = await Filesystem.readJson<{ dependencies?: Record<string, string> }>(pkg).catch(() => ({
       dependencies: {},

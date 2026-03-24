@@ -420,10 +420,11 @@ export namespace Session {
     options?: { touch?: boolean },
   ): Promise<Info> {
     return Database.use((db) => {
+      const id = SessionID.make(sessionID)
       const existing = db
         .select()
         .from(SessionTable)
-        .where(eq(SessionTable.id, sessionID))
+        .where(eq(SessionTable.id, id))
         .get()
       if (!existing) throw new NotFoundError({ message: `Session not found: ${sessionID}` })
       const draft = fromRow(existing)
@@ -434,7 +435,7 @@ export namespace Session {
           ...toRow(draft),
           time_updated: options?.touch === false ? existing.time_updated : Date.now(),
         })
-        .where(eq(SessionTable.id, sessionID))
+        .where(eq(SessionTable.id, id))
         .returning()
         .get()
       if (!row) throw new NotFoundError({ message: `Session not found: ${sessionID}` })
@@ -464,37 +465,6 @@ export namespace Session {
       })
     },
   )
-
-  export function update(
-    sessionID: string,
-    updateFn: (draft: Info) => void,
-    options?: { touch?: boolean },
-  ) {
-    return Database.use((db) => {
-      const id = SessionID.make(sessionID)
-      const existing = db.select().from(SessionTable).where(eq(SessionTable.id, id)).get()
-      if (!existing) throw new NotFoundError({ message: `Session not found: ${sessionID}` })
-      
-      const info = fromRow(existing)
-      updateFn(info)
-      
-      const updates: any = toRow(info)
-      if (options?.touch !== false) {
-        updates.time_updated = Date.now()
-      }
-      
-      const row = db
-        .update(SessionTable)
-        .set(updates)
-        .where(eq(SessionTable.id, id))
-        .returning()
-        .get()
-      
-      const updated = fromRow(row)
-      Database.effect(() => Bus.publish(Event.Updated, { info: updated }))
-      return updated
-    })
-  }
 
   export const setPermission = fn(
     z.object({

@@ -1390,6 +1390,10 @@ export namespace Config {
             .optional()
             .default(6)
             .describe("Maximum number of lines for the prompt input text box (1-99, default: 6)"),
+          dialog_background_overlay: z
+            .enum(["full", "limited", "none"])
+            .optional()
+            .describe("Control dialog background overlay: 'full' = semi-transparent overlay (default), 'limited' = overlay only within dialog bounds, 'none' = no overlay"),
         })
         .optional(),
     })

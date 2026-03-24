@@ -1044,7 +1044,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     return true
   }
 
-  const { addAttachment, removeAttachment, handlePaste } = createPromptAttachments({
+  const { addAttachments, removeAttachment, handlePaste } = createPromptAttachments({
     editor: () => editorRef,
     isDialogActive: () => !!dialog.active,
     setDraggingType: (type) => setStore("draggingType", type),
@@ -1389,11 +1389,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
               class="hidden"
               onChange={(e) => {
                 const list = e.currentTarget.files
-                if (list) {
-                  for (const file of Array.from(list)) {
-                    void addAttachment(file)
-                  }
-                }
+                if (list) void addAttachments(Array.from(list))
                 e.currentTarget.value = ""
               }}
             />

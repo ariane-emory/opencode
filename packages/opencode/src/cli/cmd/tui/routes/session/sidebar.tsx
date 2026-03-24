@@ -1,77 +1,31 @@
 import { useSync } from "@tui/context/sync"
-import { createEffect, createMemo, For, Show, Switch, Match, createSignal, onMount, onCleanup } from "solid-js"
+import { createMemo, For, Show, Switch, Match } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useTheme } from "../../context/theme"
 import { Locale } from "@/util/locale"
 import path from "path"
 import type { AssistantMessage } from "@opencode-ai/sdk/v2"
+import { Global } from "@/global"
 import { Installation } from "@/installation"
+import { useKeybind } from "../../context/keybind"
 import { useDirectory } from "../../context/directory"
 import { useKV } from "../../context/kv"
-import { useLocal } from "@tui/context/local"
-import { useSDK } from "@tui/context/sdk"
 import { TodoItem } from "../../component/todo-item"
-import { formatSessionTitle, parseSessionTitleParts } from "@tui/util/session-title"
-import { Log } from "@/util/log"
 
-export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrollbar?: boolean }) {
+export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const sync = useSync()
   const { theme } = useTheme()
-  const directory = useDirectory()
-  const kv = useKV()
   const session = createMemo(() => sync.session.get(props.sessionID)!)
-  const titleParts = createMemo(() => parseSessionTitleParts(session().title))
   const diff = createMemo(() => sync.data.session_diff[props.sessionID] ?? [])
   const todo = createMemo(() => sync.data.todo[props.sessionID] ?? [])
   const messages = createMemo(() => sync.data.message[props.sessionID] ?? [])
-  const permissions = createMemo(() => sync.data.permission[props.sessionID] ?? [])
-  
+
   const [expanded, setExpanded] = createStore({
     mcp: true,
     diff: true,
     todo: true,
     lsp: true,
   })
-
-  // Load saved sidebar expansion states from KV store when ready
-  createEffect(() => {
-    if (kv.ready) {
-      setExpanded({
-        mcp: kv.get("sidebar_expanded_mcp", true),
-        diff: kv.get("sidebar_expanded_diff", true),
-        todo: kv.get("sidebar_expanded_todo", true),
-        lsp: kv.get("sidebar_expanded_lsp", true),
-      })
-    }
-  })
-
-  // Wrapper that persists expansion state to KV store
-  const setExpandedWithPersist = (key: "mcp" | "diff" | "todo" | "lsp", value: boolean) => {
-    setExpanded(key, value)
-    kv.set(`sidebar_expanded_${key}`, value)
-  }
-
-  const local = useLocal()
-  const sdk = useSDK()
-  const [loading, setLoading] = createSignal<string | null>(null)
-
-  async function handleToggle(name: string) {
-    if (loading() !== null) return
-    setLoading(name)
-    try {
-      await local.mcp.toggle(name)
-      const status = await sdk.client.mcp.status()
-      if (status.data) sync.set("mcp", status.data)
-    } catch (error) {
-      Log.Default.error("Failed to toggle MCP", {
-        error: error instanceof Error ? error.message : String(error),
-        name: error instanceof Error ? error.name : undefined,
-        stack: error instanceof Error ? error.stack : undefined,
-      })
-    } finally {
-      setLoading(null)
-    }
-  }
 
   // Sort MCP servers alphabetically for consistent display order
   const mcpEntries = createMemo(() => Object.entries(sync.data.mcp).sort(([a], [b]) => a.localeCompare(b)))
@@ -106,23 +60,13 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
     }
   })
 
+  const directory = useDirectory()
+  const kv = useKV()
+
   const hasProviders = createMemo(() =>
     sync.data.provider.some((x) => x.id !== "opencode" || Object.values(x.models).some((y) => y.cost?.input !== 0)),
   )
   const gettingStartedDismissed = createMemo(() => kv.get("dismissed_getting_started", false))
-  const showSidebarClock = createMemo(() => kv.get("sidebar_clock_visible", true))
-
-  const formatTime = () => {
-    const now = new Date()
-    return now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false })
-  }
-
-  const [clockTime, setClockTime] = createSignal(formatTime())
-
-  onMount(() => {
-    const interval = setInterval(() => setClockTime(formatTime()), 10000)
-    onCleanup(() => clearInterval(interval))
-  })
 
   return (
     <Show when={session()}>
@@ -134,12 +78,11 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
         paddingBottom={1}
         paddingLeft={2}
         paddingRight={2}
-        position="relative"
+        position={props.overlay ? "absolute" : "relative"}
       >
         <scrollbox
           flexGrow={1}
           verticalScrollbarOptions={{
-            visible: props.showScrollbar,
             trackOptions: {
               backgroundColor: theme.background,
               foregroundColor: theme.borderActive,
@@ -149,16 +92,14 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
           <box flexShrink={0} gap={1} paddingRight={1}>
             <box paddingRight={1}>
               <text fg={theme.text}>
-                <Show when={titleParts().group} fallback={<b>{titleParts().rest}</b>}>
-                  <b>{titleParts().group}</b> {titleParts().rest}
-                </Show>
+                <b>{session().title}</b>
               </text>
               <Show when={session().share?.url}>
                 <text fg={theme.textMuted}>{session().share!.url}</text>
               </Show>
             </box>
             <box>
-              <text fg={theme.text}>
+              <text fg={theme.accent}>
                 <b>Context</b>
               </text>
               <text fg={theme.textMuted}>{context()?.tokens ?? 0} tokens</text>
@@ -170,12 +111,12 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                 <box
                   flexDirection="row"
                   gap={1}
-                  onMouseDown={() => mcpEntries().length > 2 && setExpandedWithPersist("mcp", !expanded.mcp)}
+                  onMouseDown={() => mcpEntries().length > 2 && setExpanded("mcp", !expanded.mcp)}
                 >
                   <Show when={mcpEntries().length > 2}>
                     <text fg={theme.text}>{expanded.mcp ? "▼" : "▶"}</text>
                   </Show>
-                  <text fg={theme.text}>
+                  <text fg={theme.accent}>
                     <b>MCP</b>
                     <Show when={!expanded.mcp}>
                       <span style={{ fg: theme.textMuted }}>
@@ -189,7 +130,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                 <Show when={mcpEntries().length <= 2 || expanded.mcp}>
                   <For each={mcpEntries()}>
                     {([key, item]) => (
-                      <box flexDirection="row" gap={1} onMouseDown={() => handleToggle(key)}>
+                      <box flexDirection="row" gap={1}>
                         <text
                           flexShrink={0}
                           style={{
@@ -206,13 +147,10 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                         >
                           •
                         </text>
-                        <text fg={loading() === key ? theme.textMuted : theme.text} wrapMode="word">
+                        <text fg={theme.text} wrapMode="word">
                           {key}{" "}
                           <span style={{ fg: theme.textMuted }}>
                             <Switch fallback={item.status}>
-                              <Match when={loading() === key}>
-                                <i>Loading…</i>
-                              </Match>
                               <Match when={item.status === "connected"}>Connected</Match>
                               <Match when={item.status === "failed" && item}>{(val) => <i>{val().error}</i>}</Match>
                               <Match when={item.status === "disabled"}>Disabled</Match>
@@ -229,58 +167,60 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                 </Show>
               </box>
             </Show>
-            <Show when={sync.data.config.lsp !== false}>
-              <box>
-                <box
-                  flexDirection="row"
-                  gap={1}
-                  onMouseDown={() => sync.data.lsp.length > 2 && setExpandedWithPersist("lsp", !expanded.lsp)}
-                >
-                  <Show when={sync.data.lsp.length > 2}>
-                    <text fg={theme.text}>{expanded.lsp ? "▼" : "▶"}</text>
-                  </Show>
-                  <text fg={theme.text}>
-                    <b>LSP</b>
-                  </text>
-                </box>
-                <Show when={sync.data.lsp.length <= 2 || expanded.lsp}>
-                  <Show when={sync.data.lsp.length === 0}>
-                    <text fg={theme.textMuted}>LSPs will activate as files are read</text>
-                  </Show>
-                  <For each={sync.data.lsp}>
-                    {(item) => (
-                      <box flexDirection="row" gap={1}>
-                        <text
-                          flexShrink={0}
-                          style={{
-                            fg: {
-                              connected: theme.success,
-                              error: theme.error,
-                            }[item.status],
-                          }}
-                        >
-                          •
-                        </text>
-                        <text fg={theme.textMuted}>
-                          {item.id} {item.root}
-                        </text>
-                      </box>
-                    )}
-                  </For>
+            <box>
+              <box
+                flexDirection="row"
+                gap={1}
+                onMouseDown={() => sync.data.lsp.length > 2 && setExpanded("lsp", !expanded.lsp)}
+              >
+                <Show when={sync.data.lsp.length > 2}>
+                  <text fg={theme.text}>{expanded.lsp ? "▼" : "▶"}</text>
                 </Show>
+                <text fg={theme.accent}>
+                  <b>LSP</b>
+                </text>
               </box>
-            </Show>
+              <Show when={sync.data.lsp.length <= 2 || expanded.lsp}>
+                <Show when={sync.data.lsp.length === 0}>
+                  <text fg={theme.textMuted}>
+                    {sync.data.config.lsp === false
+                      ? "LSPs have been disabled in settings"
+                      : "LSPs will activate as files are read"}
+                  </text>
+                </Show>
+                <For each={sync.data.lsp}>
+                  {(item) => (
+                    <box flexDirection="row" gap={1}>
+                      <text
+                        flexShrink={0}
+                        style={{
+                          fg: {
+                            connected: theme.success,
+                            error: theme.error,
+                          }[item.status],
+                        }}
+                      >
+                        •
+                      </text>
+                      <text fg={theme.textMuted}>
+                        {item.id} {item.root}
+                      </text>
+                    </box>
+                  )}
+                </For>
+              </Show>
+            </box>
             <Show when={todo().length > 0 && todo().some((t) => t.status !== "completed")}>
               <box>
                 <box
                   flexDirection="row"
                   gap={1}
-                  onMouseDown={() => todo().length > 2 && setExpandedWithPersist("todo", !expanded.todo)}
+                  onMouseDown={() => todo().length > 2 && setExpanded("todo", !expanded.todo)}
                 >
                   <Show when={todo().length > 2}>
                     <text fg={theme.text}>{expanded.todo ? "▼" : "▶"}</text>
                   </Show>
-                  <text fg={theme.text}>
+                  <text fg={theme.accent}>
                     <b>Todo</b>
                   </text>
                 </box>
@@ -294,12 +234,12 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                 <box
                   flexDirection="row"
                   gap={1}
-                  onMouseDown={() => diff().length > 2 && setExpandedWithPersist("diff", !expanded.diff)}
+                  onMouseDown={() => diff().length > 2 && setExpanded("diff", !expanded.diff)}
                 >
                   <Show when={diff().length > 2}>
                     <text fg={theme.text}>{expanded.diff ? "▼" : "▶"}</text>
                   </Show>
-                  <text fg={theme.text}>
+                  <text fg={theme.accent}>
                     <b>Modified Files</b>
                   </text>
                 </box>
@@ -352,7 +292,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                     ✕
                   </text>
                 </box>
-                <text fg={theme.textMuted}>Base One includes free models so you can start immediately.</text>
+                <text fg={theme.textMuted}>OpenCode includes free models so you can start immediately.</text>
                 <text fg={theme.textMuted}>
                   Connect from 75+ providers to use other models, including Claude, GPT, Gemini etc
                 </text>
@@ -363,28 +303,17 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
               </box>
             </box>
           </Show>
-          <Show when={permissions().length > 0}>
-            <text fg={theme.warning}>
-              <span style={{ fg: theme.warning }}>◉</span> {permissions().length} Permission
-              {permissions().length > 1 ? "s" : ""}
-            </text>
-          </Show>
           <text>
             <span style={{ fg: theme.textMuted }}>{directory().split("/").slice(0, -1).join("/")}/</span>
             <span style={{ fg: theme.text }}>{directory().split("/").at(-1)}</span>
           </text>
-          <box flexDirection="row" justifyContent="space-between">
-            <text fg={theme.textMuted}>
-              <span style={{ fg: theme.success }}>•</span> <b>Base</b>
-              <span style={{ fg: theme.text }}>
-                <b>One</b>
-              </span>{" "}
-              <span>{Installation.VERSION}</span>
-            </text>
-            <Show when={showSidebarClock()}>
-              <text fg={theme.accent}>🐈 {clockTime()}</text>
-            </Show>
-          </box>
+          <text fg={theme.textMuted}>
+            <span style={{ fg: theme.success }}>•</span> <b>Open</b>
+            <span style={{ fg: theme.text }}>
+              <b>Code</b>
+            </span>{" "}
+            <span>{Installation.VERSION}</span>
+          </text>
         </box>
       </box>
     </Show>

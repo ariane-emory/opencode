@@ -693,7 +693,7 @@ function getSyntaxRules(theme: Theme) {
     {
       scope: ["default"],
       style: {
-        foreground: theme.text,
+        foreground: theme.markdownCodeBlock ?? RGBA.fromInts(229, 229, 229, 255),
       },
     },
     {

@@ -1,5 +1,5 @@
 import { useSync } from "@tui/context/sync"
-import { createMemo, For, Show, Switch, Match, createSignal, onMount, onCleanup } from "solid-js"
+import { createMemo, For, Show, Switch, Match, createSignal, onMount, onCleanup, createEffect } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useTheme } from "../../context/theme"
 import { Locale } from "@/util/locale"
@@ -30,6 +30,25 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
     todo: true,
     lsp: true,
   })
+
+  // Load saved sidebar expansion states from KV store when ready
+  const kv = useKV()
+  createEffect(() => {
+    if (kv.ready) {
+      setExpanded({
+        mcp: kv.get("sidebar_expanded_mcp", true),
+        diff: kv.get("sidebar_expanded_diff", true),
+        todo: kv.get("sidebar_expanded_todo", true),
+        lsp: kv.get("sidebar_expanded_lsp", true),
+      })
+    }
+  })
+
+  // Wrapper that persists expansion state to KV store
+  const setExpandedWithPersist = (key: "mcp" | "diff" | "todo" | "lsp", value: boolean) => {
+    setExpanded(key, value)
+    kv.set(`sidebar_expanded_${key}`, value)
+  }
 
   const local = useLocal()
   const sdk = useSDK()
@@ -87,7 +106,6 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
   })
 
   const directory = useDirectory()
-  const kv = useKV()
 
   const hasProviders = createMemo(() =>
     sync.data.provider.some((x) => x.id !== "opencode" || Object.values(x.models).some((y) => y.cost?.input !== 0)),
@@ -160,7 +178,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                 <box
                   flexDirection="row"
                   gap={1}
-                  onMouseDown={() => mcpEntries().length > 2 && setExpanded("mcp", !expanded.mcp)}
+                  onMouseDown={() => mcpEntries().length > 2 && setExpandedWithPersist("mcp", !expanded.mcp)}
                 >
                   <Show when={mcpEntries().length > 2}>
                     <text fg={theme.text}>{expanded.mcp ? "▼" : "▶"}</text>
@@ -220,7 +238,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
               <box
                 flexDirection="row"
                 gap={1}
-                onMouseDown={() => sync.data.lsp.length > 2 && setExpanded("lsp", !expanded.lsp)}
+                onMouseDown={() => sync.data.lsp.length > 2 && setExpandedWithPersist("lsp", !expanded.lsp)}
               >
                 <Show when={sync.data.lsp.length > 2}>
                   <text fg={theme.text}>{expanded.lsp ? "▼" : "▶"}</text>
@@ -264,7 +282,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                 <box
                   flexDirection="row"
                   gap={1}
-                  onMouseDown={() => todo().length > 2 && setExpanded("todo", !expanded.todo)}
+                  onMouseDown={() => todo().length > 2 && setExpandedWithPersist("todo", !expanded.todo)}
                 >
                   <Show when={todo().length > 2}>
                     <text fg={theme.text}>{expanded.todo ? "▼" : "▶"}</text>
@@ -283,7 +301,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                 <box
                   flexDirection="row"
                   gap={1}
-                  onMouseDown={() => diff().length > 2 && setExpanded("diff", !expanded.diff)}
+                  onMouseDown={() => diff().length > 2 && setExpandedWithPersist("diff", !expanded.diff)}
                 >
                   <Show when={diff().length > 2}>
                     <text fg={theme.text}>{expanded.diff ? "▼" : "▶"}</text>

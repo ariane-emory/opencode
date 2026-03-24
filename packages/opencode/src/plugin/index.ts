@@ -187,8 +187,14 @@ export namespace Plugin {
               for (const [_name, fn] of Object.entries<PluginInstance>(mod)) {
                 if (seen.has(fn)) continue
                 seen.add(fn)
-                const init = await fn(input)
-                hooks.push(init)
+                try {
+                  const init = await fn(input)
+                  hooks.push(init)
+                } catch (e) {
+                  const name = Config.getPluginName(plugin)
+                  const message = e instanceof Error ? e.message : String(e)
+                  recordError(`Failed to initialize plugin "${name}": ${message}`)
+                }
               }
             }
 

@@ -22,7 +22,7 @@ import { createStore, produce, reconcile } from "solid-js/store"
 import { useSDK } from "@tui/context/sdk"
 import { Binary } from "@opencode-ai/util/binary"
 import { createSimpleContext } from "./helper"
-import type { Snapshot } from "@/snapshot/service"
+import type { Snapshot } from "@/snapshot"
 import { useExit } from "./exit"
 import { useArgs } from "./args"
 import { useToast } from "../ui/toast"
@@ -424,7 +424,6 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
             sdk.client.provider.auth().then((x) => setStore("provider_auth", reconcile(x.data ?? {}))),
             sdk.client.vcs.get().then((x) => setStore("vcs", reconcile(x.data))),
             sdk.client.path.get().then((x) => setStore("path", reconcile(x.data!))),
-<<<<<<< HEAD
             sdk.client.config.startupErrors().then((x) => {
               const errors = x.data ?? []
               if (errors.length === 0) return

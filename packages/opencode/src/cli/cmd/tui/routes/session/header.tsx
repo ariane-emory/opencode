@@ -9,12 +9,17 @@ import { useCommandDialog } from "@tui/component/dialog-command"
 import { useKeybind } from "../../context/keybind"
 import { Flag } from "@/flag/flag"
 import { useTerminalDimensions } from "@opentui/solid"
+import { formatSessionTitle, parseSessionTitleParts } from "@tui/util/session-title"
 
 const Title = (props: { session: Accessor<Session> }) => {
   const { theme } = useTheme()
+  const parts = createMemo(() => parseSessionTitleParts(props.session().title))
   return (
     <text fg={theme.text}>
-      <span style={{ bold: true }}>#</span> <span style={{ bold: true }}>{props.session().title}</span>
+      <span style={{ bold: true }}>#</span>{" "}
+      <Show when={parts().group} fallback={<span style={{ bold: true }}>{parts().rest}</span>}>
+        <span style={{ bold: true }}>{parts().group}</span> {parts().rest}
+      </Show>
     </text>
   )
 }

@@ -1728,9 +1728,9 @@ export type Config = {
   }
   plugin?: Array<string>
   /**
-   * Enable or disable snapshot tracking. When false, filesystem snapshots are not recorded and undoing or reverting will not undo/redo file changes. Defaults to true.
+   * Enable or disable snapshot tracking. When false, filesystem snapshots are not recorded and undoing or reverting will not undo/redo file changes. Defaults to true. Can also be set to a number to specify the maximum number of snapshots to keep.
    */
-  snapshot?: boolean
+  snapshot?: boolean | number
   /**
    * Control sharing behavior:'manual' allows manual sharing via commands, 'auto' enables automatic sharing, 'disabled' disables all sharing
    */

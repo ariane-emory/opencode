@@ -50,7 +50,7 @@
 | ☑ | 44 | feat/improve-bash-tool-git-advice | origin | TBD | Conflict: Improved bash.txt PR creation instructions; Combined with feat/shell-advice |
 | ☑ | 45 | feat/renaming-doesnt-close-session-list | origin | TBD | Conflict: Combined pinKeybind from HEAD with initialSessionID from branch |
 | ☑ | 46 | feat/session-child-toggle-key | origin | TBD | Conflict: Combined session_continue from HEAD with session_child_toggle from branch |
-| ☐ | 47 | feat/set-session-title | origin | TBD | |
+| ☑ | 47 | feat/set-session-title | origin | TBD | Conflict: Removed duplicate update function; Fixed branded type usage with SessionID.make() |
 | ☐ | 48 | feat/get-session-title | origin | TBD | |
 | ☐ | 49 | feat/no-disabled-lsps-in-sidebar | origin | TBD | |
 | ☐ | 50 | feat/agent-timestamps | origin | TBD | |

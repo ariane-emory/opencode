@@ -47,7 +47,7 @@
 | ☑ | 41 | feat/persist-sidebar-group-folding-states | origin | TBD | Merged cleanly, persists sidebar group folding states |
 | ☑ | 42 | feat/persistant-sidebar-overlay-behaviour | origin | TBD | Conflict: Added sidebar_overlay toggle to command palette; Removed conflict markers from branch |
 | ☑ | 43 | feat/shell-advice | origin | TBD | Merged cleanly, adds shell advice features |
-| ☐ | 44 | feat/improve-bash-tool-git-advice | origin | TBD | Combine with feat/shell-advice |
+| ☑ | 44 | feat/improve-bash-tool-git-advice | origin | TBD | Conflict: Improved bash.txt PR creation instructions; Combined with feat/shell-advice |
 | ☐ | 45 | feat/renaming-doesnt-close-session-list | origin | TBD | |
 | ☐ | 46 | feat/session-child-toggle-key | origin | TBD | |
 | ☐ | 47 | feat/set-session-title | origin | TBD | |

@@ -6,6 +6,8 @@ import { useSDK } from "../context/sdk"
 
 interface DialogSessionRenameProps {
   session: string
+  onSuccess?: () => void
+  onCancel?: () => void
 }
 
 export function DialogSessionRename(props: DialogSessionRenameProps) {
@@ -18,14 +20,18 @@ export function DialogSessionRename(props: DialogSessionRenameProps) {
     <DialogPrompt
       title="Rename Session"
       value={session()?.title}
-      onConfirm={(value) => {
-        sdk.client.session.update({
+      onConfirm={async (value) => {
+        await sdk.client.session.update({
           sessionID: props.session,
           title: value,
         })
-        dialog.clear()
+        if (props.onSuccess) props.onSuccess()
+        else dialog.clear()
       }}
-      onCancel={() => dialog.clear()}
+      onCancel={() => {
+        if (props.onCancel) props.onCancel()
+        else dialog.clear()
+      }}
     />
   )
 }

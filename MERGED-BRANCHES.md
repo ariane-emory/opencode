@@ -51,11 +51,11 @@
 | ☑ | 45 | feat/renaming-doesnt-close-session-list | origin | TBD | Conflict: Combined pinKeybind from HEAD with initialSessionID from branch |
 | ☑ | 46 | feat/session-child-toggle-key | origin | TBD | Conflict: Combined session_continue from HEAD with session_child_toggle from branch |
 | ☑ | 47 | feat/set-session-title | origin | TBD | Conflict: Removed duplicate update function; Fixed branded type usage with SessionID.make() |
-| ☐ | 48 | feat/get-session-title | origin | TBD | |
+| ☑ | 48 | feat/get-session-title | origin | TBD | Conflict: Combined BookmarkCurrentSessionTool import from HEAD with GetCurrentSessionTitleTool from branch |
 | ☑ | 49 | feat/no-disabled-lsps-in-sidebar | origin | TBD | Conflict: Combined conditional Show wrapper from branch with setExpandedWithPersist from HEAD |
 | ☑ | 50 | feat/agent-timestamps | origin | TBD | Merged cleanly |
-| ☐ | 51 | feat/rewind-modal-option | origin | TBD | |
-| ☐ | 52 | feat/alphabetize-command-palette-groups | origin | TBD | |
+| ☑ | 51 | feat/rewind-modal-option | origin | TBD | Conflicts in generated SDK files; Fixed runtime error: used SessionID.make() and MessageID.make() in session.ts route |
+| ☑ | 52 | feat/alphabetize-command-palette-groups | origin | TBD | Conflict: Removed smartCompare import and usage; Removed duplicate sort prop; Fixed SessionID branding in session.ts |
 | ☐ | 53 | feat/taller-dialogs | origin | TBD | |
 | ☐ | 54 | feat/add-arianes-themes | origin | TBD | |
 | ☐ | 55 | feat/aspiers--readline-additions | origin | TBD | |

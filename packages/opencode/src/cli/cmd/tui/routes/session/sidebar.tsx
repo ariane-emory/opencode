@@ -1,5 +1,5 @@
 import { useSync } from "@tui/context/sync"
-import { createEffect, createMemo, For, Show, Switch, Match } from "solid-js"
+import { createEffect, createMemo, For, Show, Switch, Match, createSignal, onMount, onCleanup } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useTheme } from "../../context/theme"
 import { Locale } from "@/util/locale"
@@ -85,6 +85,19 @@ export function Sidebar(props: { sessionID: string }) {
     sync.data.provider.some((x) => x.id !== "opencode" || Object.values(x.models).some((y) => y.cost?.input !== 0)),
   )
   const gettingStartedDismissed = createMemo(() => kv.get("dismissed_getting_started", false))
+  const showSidebarClock = createMemo(() => kv.get("sidebar_clock_visible", true))
+
+  const formatTime = () => {
+    const now = new Date()
+    return now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false })
+  }
+
+  const [clockTime, setClockTime] = createSignal(formatTime())
+
+  onMount(() => {
+    const interval = setInterval(() => setClockTime(formatTime()), 10000)
+    onCleanup(() => clearInterval(interval))
+  })
 
   return (
     <Show when={session()}>
@@ -331,13 +344,18 @@ export function Sidebar(props: { sessionID: string }) {
             <span style={{ fg: theme.textMuted }}>{directory().split("/").slice(0, -1).join("/")}/</span>
             <span style={{ fg: theme.text }}>{directory().split("/").at(-1)}</span>
           </text>
-          <text fg={theme.textMuted}>
-            <span style={{ fg: theme.success }}>•</span> <b>Base</b>
-            <span style={{ fg: theme.text }}>
-              <b>One</b>
-            </span>{" "}
-            <span>{Installation.VERSION}</span>
-          </text>
+          <box flexDirection="row" justifyContent="space-between">
+            <text fg={theme.textMuted}>
+              <span style={{ fg: theme.success }}>•</span> <b>Base</b>
+              <span style={{ fg: theme.text }}>
+                <b>One</b>
+              </span>{" "}
+              <span>{Installation.VERSION}</span>
+            </text>
+            <Show when={showSidebarClock()}>
+              <text fg={theme.accent}>🐈 {clockTime()}</text>
+            </Show>
+          </box>
         </box>
       </box>
     </Show>

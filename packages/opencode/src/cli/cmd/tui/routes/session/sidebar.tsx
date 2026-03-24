@@ -10,7 +10,10 @@ import { Installation } from "@/installation"
 import { useKeybind } from "../../context/keybind"
 import { useDirectory } from "../../context/directory"
 import { useKV } from "../../context/kv"
+import { useLocal } from "@tui/context/local"
+import { useSDK } from "@tui/context/sdk"
 import { TodoItem } from "../../component/todo-item"
+import { Log } from "@/util/log"
 
 export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrollbar?: boolean }) {
   const sync = useSync()
@@ -26,6 +29,28 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
     todo: true,
     lsp: true,
   })
+
+  const local = useLocal()
+  const sdk = useSDK()
+  const [loading, setLoading] = createSignal<string | null>(null)
+
+  async function handleToggle(name: string) {
+    if (loading() !== null) return
+    setLoading(name)
+    try {
+      await local.mcp.toggle(name)
+      const status = await sdk.client.mcp.status()
+      if (status.data) sync.set("mcp", status.data)
+    } catch (error) {
+      Log.Default.error("Failed to toggle MCP", {
+        error: error instanceof Error ? error.message : String(error),
+        name: error instanceof Error ? error.name : undefined,
+        stack: error instanceof Error ? error.stack : undefined,
+      })
+    } finally {
+      setLoading(null)
+    }
+  }
 
   // Sort MCP servers alphabetically for consistent display order
   const mcpEntries = createMemo(() => Object.entries(sync.data.mcp).sort(([a], [b]) => a.localeCompare(b)))
@@ -143,7 +168,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                 <Show when={mcpEntries().length <= 2 || expanded.mcp}>
                   <For each={mcpEntries()}>
                     {([key, item]) => (
-                      <box flexDirection="row" gap={1}>
+                      <box flexDirection="row" gap={1} onMouseDown={() => handleToggle(key)}>
                         <text
                           flexShrink={0}
                           style={{
@@ -160,7 +185,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                         >
                           •
                         </text>
-                        <text fg={theme.text} wrapMode="word">
+                        <text fg={loading() === key ? theme.textMuted : theme.text} wrapMode="word">
                           {key}{" "}
                           <span style={{ fg: theme.textMuted }}>
                             <Switch fallback={item.status}>

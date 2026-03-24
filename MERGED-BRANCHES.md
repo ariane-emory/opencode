@@ -38,7 +38,7 @@
 | ☑ | 32 | refactor/shared-substitute | origin | TBD | Merged cleanly (already integrated), resolved leftover merge conflicts from branch 31 |
 | ☑ | 33 | feat/session-id-in-status | origin | TBD | Merged cleanly, no conflicts |
 | ☑ | 34 | feat/edit-tool-description | origin | TBD | Merged cleanly, no conflicts |
-| ☐ | 35 | feat/opeoginni--display-message-tps | origin | TBD | |
+| ☑ | 35 | feat/opeoginni--display-message-tps | origin | TBD | Merged cleanly, adds message TPS display to status |
 | ☐ | 36 | feat/kv-diff-style-clean | origin | TBD | |
 | ☐ | 37 | feat/global-compaction-threshold | origin | TBD | |
 | ☐ | 38 | feat/configurable-message-and-session-limit | origin | TBD | experimental._message_limit and experimental.session_list_limit accept "none" or positive integers |

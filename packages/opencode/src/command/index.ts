@@ -1,6 +1,7 @@
 import { BusEvent } from "@/bus/bus-event"
 import { InstanceState } from "@/effect/instance-state"
 import { makeRunPromise } from "@/effect/run-service"
+import { Instance } from "@/project/instance"
 import { SessionID, MessageID } from "@/session/schema"
 import { Effect, Layer, ServiceMap } from "effect"
 import z from "zod"
@@ -166,11 +167,25 @@ export namespace Command {
       const cache = yield* InstanceState.make<State>((ctx) => init(ctx))
 
       const get = Effect.fn("Command.get")(function* (name: string) {
+        const cfg = yield* Effect.promise(() => Config.get())
+        // When experimental.cache_command_markdown_files is explicitly false,
+        // bypass the cache and load fresh commands
+        if (cfg.experimental?.cache_command_markdown_files === false) {
+          const state = yield* init(Instance.current)
+          return state.commands[name]
+        }
         const state = yield* InstanceState.get(cache)
         return state.commands[name]
       })
 
       const list = Effect.fn("Command.list")(function* () {
+        const cfg = yield* Effect.promise(() => Config.get())
+        // When experimental.cache_command_markdown_files is explicitly false,
+        // bypass the cache and load fresh commands
+        if (cfg.experimental?.cache_command_markdown_files === false) {
+          const state = yield* init(Instance.current)
+          return Object.values(state.commands)
+        }
         const state = yield* InstanceState.get(cache)
         return Object.values(state.commands)
       })

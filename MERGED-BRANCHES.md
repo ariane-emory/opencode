@@ -52,8 +52,8 @@
 | ☑ | 46 | feat/session-child-toggle-key | origin | TBD | Conflict: Combined session_continue from HEAD with session_child_toggle from branch |
 | ☑ | 47 | feat/set-session-title | origin | TBD | Conflict: Removed duplicate update function; Fixed branded type usage with SessionID.make() |
 | ☐ | 48 | feat/get-session-title | origin | TBD | |
-| ☐ | 49 | feat/no-disabled-lsps-in-sidebar | origin | TBD | |
-| ☐ | 50 | feat/agent-timestamps | origin | TBD | |
+| ☑ | 49 | feat/no-disabled-lsps-in-sidebar | origin | TBD | Conflict: Combined conditional Show wrapper from branch with setExpandedWithPersist from HEAD |
+| ☑ | 50 | feat/agent-timestamps | origin | TBD | Merged cleanly |
 | ☐ | 51 | feat/rewind-modal-option | origin | TBD | |
 | ☐ | 52 | feat/alphabetize-command-palette-groups | origin | TBD | |
 | ☐ | 53 | feat/taller-dialogs | origin | TBD | |

@@ -24,13 +24,11 @@ export namespace SessionRevert {
   export async function revert(input: RevertInput) {
     SessionPrompt.assertNotBusy(input.sessionID)
     const all = await Session.messages({ sessionID: input.sessionID })
-    let lastUser: MessageV2.User | undefined
     const session = await Session.get(input.sessionID)
 
     let revert: Session.Info["revert"]
     const patches: Snapshot.Patch[] = []
     for (const msg of all) {
-      if (msg.info.role === "user") lastUser = msg.info
       const remaining = []
       for (const part of msg.parts) {
         if (revert) {
@@ -45,7 +43,7 @@ export namespace SessionRevert {
             // if no useful parts left in message, same as reverting whole message
             const partID = remaining.some((item) => ["text", "tool"].includes(item.type)) ? input.partID : undefined
             revert = {
-              messageID: !partID && lastUser ? lastUser.id : msg.info.id,
+              messageID: msg.info.id,
               partID,
             }
           }

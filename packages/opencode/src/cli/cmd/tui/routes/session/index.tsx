@@ -574,6 +574,31 @@ export function Session() {
       },
     },
     {
+      title: "Continue interrupted conversation",
+      value: "session.continue",
+      keybind: "session_continue",
+      category: "Session",
+      slash: {
+        name: "continue",
+      },
+      onSelect: async (dialog) => {
+        const currentModel = local.model.current()
+        const result = await sdk.client.session.continue({
+          sessionID: route.sessionID,
+          model: currentModel ? {
+            providerID: currentModel.providerID,
+            modelID: currentModel.modelID,
+          } : undefined,
+        })
+        
+        if (result.data) {
+          toBottom()
+        } else {
+          dialog.clear()
+        }
+      },
+    },
+    {
       title: sidebarVisible() ? "Hide sidebar" : "Show sidebar",
       value: "session.sidebar.toggle",
       keybind: "sidebar_toggle",

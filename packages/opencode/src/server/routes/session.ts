@@ -990,6 +990,77 @@ export const SessionRoutes = lazy(() =>
       },
     )
     .post(
+      "/:sessionID/continue",
+      describeRoute({
+        summary: "Continue interrupted conversation",
+        description:
+          "Continue a conversation that was interrupted, reverting incomplete assistant messages and resuming processing.",
+        operationId: "session.continue",
+        responses: {
+          200: {
+            description: "Conversation continued",
+            content: {
+              "application/json": {
+                schema: resolver(z.boolean()),
+              },
+            },
+          },
+          ...errors(400, 404),
+        },
+      }),
+      validator(
+        "param",
+        z.object({
+          sessionID: z.string().meta({ description: "Session ID" }),
+        }),
+      ),
+      validator(
+        "json",
+        z.object({
+          model: z.object({
+            providerID: z.string(),
+            modelID: z.string(),
+          }).optional(),
+        }),
+      ),
+      async (c) => {
+        const sessionID = c.req.valid("param").sessionID
+        const { model } = c.req.valid("json")
+
+        // Check if session has an unfinished assistant message
+        const msgs = await Session.messages({ sessionID })
+        let lastAssistant: MessageV2.Assistant | undefined
+
+        for (let i = msgs.length - 1; i >= 0; i--) {
+          const msg = msgs[i]
+          if (msg.info.role === "assistant") {
+            lastAssistant = msg.info as MessageV2.Assistant
+            break
+          }
+        }
+
+        // If no unfinished assistant message, return false
+        if (lastAssistant?.finish && !["tool-calls", "unknown", "length"].includes(lastAssistant.finish)) {
+          return c.json(false)
+        }
+
+        if (!lastAssistant) {
+          return c.json(false)
+        }
+
+        // Revert the unfinished assistant message
+        await SessionRevert.revert({
+          sessionID,
+          messageID: lastAssistant.id,
+        })
+
+        // Start the conversation loop to continue
+        await SessionPrompt.loop({ sessionID, model })
+
+        return c.json(true)
+      },
+    )
+    .post(
       "/:sessionID/permissions/:permissionID",
       describeRoute({
         summary: "Respond to permission",

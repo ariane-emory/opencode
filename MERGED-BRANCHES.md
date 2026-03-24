@@ -7,7 +7,7 @@
 | ☑ | 1 | split-config-fixes | upstream | b8ce3795cd | MUST use only local copy, do NOT pull from upstream - Conflict resolved: combined payload variable with Filesystem.write |
 | ☑ | 2 | feat/base-one-rebrand | origin | b75c1f76ed | Merged cleanly, no conflicts |
 | ☑ | 3 | feat/sinister-quotes | origin | 7f10644aa5 | Placeholders MUST be SINISTER_PLACEHOLDERS array - Verified SINISTER_PLACEHOLDERS array exists |
-| ☐ | 4 | feat/markdown-renderer | gignit | TBD | |
+| ☑ | 4 | feat/markdown-renderer | gignit | 6a861ff48e | Fixed type error: changed theme.markdownText to tui.theme.markdownText |
 | ☐ | 5 | feat/thinking-indicator-hidden | rcdailey | TBD | |
 | ☐ | 6 | fix/session-new-prompt-handoff | AksharP5 | TBD | |
 | ☐ | 7 | feat/session-grouping | origin | TBD | |
@@ -103,4 +103,9 @@
 - Commit: 7f10644aa5
 - Merged cleanly, no conflicts
 - Verified SINISTER_PLACEHOLDERS array exists in packages/ui/src/constants/placeholders.ts
+
+### Branch 4: feat/markdown-renderer
+- Commit: 6a861ff48e
+- Merged cleanly but had type error
+- Fix: Changed `theme.markdownText` and `theme.background` to `tui.theme.markdownText` and `tui.theme.background` in session/index.tsx
 

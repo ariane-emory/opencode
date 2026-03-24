@@ -22,6 +22,7 @@ export namespace SystemPrompt {
     if (model.api.id.includes("gemini-")) return [PROMPT_GEMINI]
     if (model.api.id.includes("claude")) return [PROMPT_ANTHROPIC]
     if (model.api.id.toLowerCase().includes("trinity")) return [PROMPT_TRINITY]
+    if (model.api.id.toLowerCase().includes("kimi") || model.api.id.toLowerCase().includes("k2p5")) return [PROMPT_ANTHROPIC]
     return [PROMPT_DEFAULT]
   }
 

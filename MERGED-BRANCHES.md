@@ -16,12 +16,12 @@
 | ☑ | 10 | feat/keybindable-commands | origin | TBD | Merged cleanly, no conflicts |
 | ☑ | 11 | feat/automatic-list-continuation | origin | TBD | Merged cleanly, no conflicts |
 | ☑ | 12 | feat/continue-command | origin | TBD | Merged cleanly but had type errors - Fixed: Use branded types for SessionID, ProviderID, ModelID |
-| ☐ | 13 | feat/configurable-snapshot-lifespan | origin | TBD | |
-| ☐ | 14 | feat/configurable-new-plan-mode | origin | TBD | |
-| ☐ | 15 | feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber; MUST add new item to command palette |
-| ☐ | 16 | feat/permission-spinner | origin | TBD | |
-| ☐ | 17 | feat/permission-indicator-in-sidebar | origin | TBD | |
-| ☐ | 18 | feat/opencode-expand | origin | TBD | |
+| ☑ | 13 | feat/configurable-snapshot-lifespan | origin | TBD | Merged cleanly, no conflicts |
+| ☑ | 14 | feat/configurable-new-plan-mode | origin | TBD | Merged cleanly, no conflicts |
+| ☑ | 15 | feat/canceled-prompts-in-history | origin | TBD | Conflict: Kept both command palette items (markdown toggle + clear prompt history) |
+| ☑ | 16 | feat/permission-spinner | origin | TBD | Merged cleanly, no conflicts |
+| ☑ | 17 | feat/permission-indicator-in-sidebar | origin | TBD | Merged cleanly, no conflicts |
+| ☑ | 18 | feat/opencode-expand | origin | TBD | Conflict: Kept both imports (Config + substituteArguments); Fixed leftover conflict marker in bash.ts |
 | ☐ | 19 | feat/argument-range-syntax | origin | TBD | |
 | ☐ | 20 | feat/default-arguments | origin | TBD | Don't reintroduce swallowing behaviour from feat/argument-range-syntax |
 | ☐ | 21 | fix/preserve-quotes-in-arguments | origin | TBD | |
@@ -144,4 +144,25 @@
   - src/server/routes/session.ts: Use SessionID.make() to convert string param to branded type
   - src/server/routes/session.ts: Use ProviderID.zod and ModelID.zod in route validator
   - src/session/prompt.ts: Use ProviderID.zod and ModelID.zod in LoopInput schema
+
+### Branch 13: feat/configurable-snapshot-lifespan
+- Merged cleanly, no conflicts
+
+### Branch 14: feat/configurable-new-plan-mode
+- Merged cleanly, no conflicts
+
+### Branch 15: feat/canceled-prompts-in-history
+- Conflict in packages/opencode/src/cli/cmd/tui/app.tsx
+- Resolution: Kept both command palette items - markdown toggle and clear prompt history toggle
+
+### Branch 16: feat/permission-spinner
+- Merged cleanly, no conflicts
+
+### Branch 17: feat/permission-indicator-in-sidebar
+- Merged cleanly, no conflicts
+
+### Branch 18: feat/opencode-expand
+- Conflict in packages/opencode/src/session/prompt.ts (import)
+- Conflict in packages/opencode/src/tool/bash.ts (leftover marker)
+- Resolution: Kept both imports (Config and substituteArguments); Removed leftover conflict marker
 

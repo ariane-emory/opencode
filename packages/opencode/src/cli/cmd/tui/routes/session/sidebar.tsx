@@ -178,11 +178,9 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                 <box
                   flexDirection="row"
                   gap={1}
-                  onMouseDown={() => mcpEntries().length > 2 && setExpandedWithPersist("mcp", !expanded.mcp)}
+                  onMouseDown={() => setExpandedWithPersist("mcp", !expanded.mcp)}
                 >
-                  <Show when={mcpEntries().length > 2}>
-                    <text fg={theme.text}>{expanded.mcp ? "▼" : "▶"}</text>
-                  </Show>
+                  <text fg={theme.text}>{expanded.mcp ? "▼" : "▶"}</text>
                   <text fg={theme.accent}>
                     <b>MCP</b>
                     <Show when={!expanded.mcp}>
@@ -194,7 +192,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                     </Show>
                   </text>
                 </box>
-                <Show when={mcpEntries().length <= 2 || expanded.mcp}>
+                <Show when={expanded.mcp}>
                   <For each={mcpEntries()}>
                     {([key, item]) => (
                       <box flexDirection="row" gap={1} onMouseDown={() => handleToggle(key)}>

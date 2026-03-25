@@ -601,7 +601,7 @@ export function Session() {
         aliases: ["toggle-timestamps"],
       },
       onSelect: (dialog) => {
-        setTimestamps(timestamps() === "show" ? "hide" : "show")
+        setTimestamps((prev) => (prev === "show" ? "hide" : "show"))
         dialog.clear()
       },
     },
@@ -615,7 +615,7 @@ export function Session() {
         aliases: ["toggle-thinking"],
       },
       onSelect: (dialog) => {
-        setShowThinking(!showThinking())
+        setShowThinking((prev) => !prev)
         dialog.clear()
       },
     },
@@ -625,7 +625,7 @@ export function Session() {
       keybind: "tool_details",
       category: "Session",
       onSelect: (dialog) => {
-        setShowDetails(!showDetails())
+        setShowDetails((prev) => !prev)
         dialog.clear()
       },
     },
@@ -635,7 +635,7 @@ export function Session() {
       keybind: "scrollbar_toggle",
       category: "Session",
       onSelect: (dialog) => {
-        setShowScrollbar(!showScrollbar())
+        setShowScrollbar((prev) => !prev)
         dialog.clear()
       },
     },
@@ -644,7 +644,7 @@ export function Session() {
       value: "session.toggle.header",
       category: "Session",
       onSelect: (dialog) => {
-        setShowHeader(!showHeader())
+        setShowHeader((prev) => !prev)
         dialog.clear()
       },
     },

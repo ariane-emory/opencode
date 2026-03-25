@@ -833,13 +833,19 @@ function App() {
       },
     },
     {
-      title: kv.get("sidebar", "auto") === "auto" ? "Hide sidebar" : "Show sidebar",
+      title: kv.get("sidebar", "auto") === "hide" ? "Show sidebar" : "Hide sidebar",
       value: "app.toggle.sidebar",
       keybind: "sidebar_toggle",
       category: "System",
       onSelect: (dialog) => {
         const current = kv.get("sidebar", "auto")
-        kv.set("sidebar", current === "auto" ? "hide" : "auto")
+        // Exit "auto" state to "show" (don't stay in auto)
+        // Then toggle between "show" and "hide"
+        let newValue: "show" | "hide"
+        if (current === "auto") newValue = "show"
+        else if (current === "hide") newValue = "show"
+        else newValue = "hide"
+        kv.set("sidebar", newValue)
         dialog.clear()
       },
     },

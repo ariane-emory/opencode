@@ -72,16 +72,17 @@
 | ☐ | 66 | fix/no-split-database | origin | TBD | |
 | ☐ | 67 | feat/elapsed-timer | origin | TBD | |
 | ☑ | 68 | fix/system-prompt-directories | origin | TBD | Merged cleanly |
-| ☐ | 69 | fix/rfc2119-question-tool | origin | TBD | |
-| ☐ | 70 | feat/sidebar-header-accent-colours | origin | TBD | |
-| ☐ | 71 | feat/distinct-title-colour | origin | TBD | Make compatible with feat/session-grouping title formatting |
-| ☐ | 72 | feat/tool-output-colour | origin | TBD | |
-| ☐ | 73 | feat/improve-experimental-plan-mode-prompt | origin | TBD | |
-| ☐ | 74 | fix/input-enter-keybindings | origin | TBD | |
-| ☐ | 75 | fix/escape-from-status | origin | TBD | |
-| ☐ | 76 | fix/restore-footer | origin | TBD | MUST NOT be clobbered; restores removed footer |
-| ☐ | 77 | feat/kimi-with-claude-system-prompt | origin | TBD | |
-| ☐ | 78 | feat/remove-canned-jokes | origin | TBD | |
+| ☑ | 69 | fix/subagent-todo-perms | origin | 8981cf5290 | Merged cleanly, no conflicts |
+| ☐ | 71 | fix/rfc2119-question-tool | origin | TBD | |
+| ☐ | 72 | feat/sidebar-header-accent-colours | origin | TBD | |
+| ☐ | 73 | feat/distinct-title-colour | origin | TBD | Make compatible with feat/session-grouping title formatting |
+| ☐ | 74 | feat/tool-output-colour | origin | TBD | |
+| ☐ | 75 | feat/improve-experimental-plan-mode-prompt | origin | TBD | |
+| ☐ | 76 | fix/input-enter-keybindings | origin | TBD | |
+| ☐ | 77 | fix/escape-from-status | origin | TBD | |
+| ☐ | 78 | fix/restore-footer | origin | TBD | MUST NOT be clobbered; restores removed footer |
+| ☐ | 79 | feat/kimi-with-claude-system-prompt | origin | TBD | |
+| ☐ | 80 | feat/remove-canned-jokes | origin | TBD | |
 
 ## Merge Log
 

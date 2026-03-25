@@ -72,7 +72,7 @@
 | ☐ | 66 | fix/no-split-database | origin | TBD | |
 | ☐ | 67 | feat/elapsed-timer | origin | TBD | |
 | ☑ | 68 | fix/system-prompt-directories | origin | TBD | Merged cleanly |
-| ☑ | 69 | fix/subagent-todo-perms | origin | 8981cf5290 | Merged cleanly, no conflicts |
+| ☑ | 69 | fix/subagent-todo-perms | origin | 77c9b186bc | Merged cleanly (updated with new commits) |
 | ☐ | 71 | fix/rfc2119-question-tool | origin | TBD | |
 | ☐ | 72 | feat/sidebar-header-accent-colours | origin | TBD | |
 | ☐ | 73 | feat/distinct-title-colour | origin | TBD | Make compatible with feat/session-grouping title formatting |

@@ -213,11 +213,13 @@ export default function FileTree(props: {
   const level = props.level ?? 0
   const draggable = () => props.draggable ?? true
 
-  const key = (p: string) =>
-    file
-      .normalize(p)
+  const key = (p: string) => {
+    const normalized = file.normalize(p)
+    if (typeof normalized !== "string") return ""
+    return normalized
       .replace(/[\\/]+$/, "")
       .replaceAll("\\", "/")
+  }
   const chain = props._chain ? [...props._chain, key(props.path)] : [key(props.path)]
 
   const filter = createMemo(() => {

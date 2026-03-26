@@ -74,7 +74,8 @@ export function SessionSidePanel(props: {
     return "session.review.noChanges"
   })
 
-  const diffFiles = createMemo(() => diffs().filter((d) => d.file).map((d) => d.file))
+  const diffFiles = createMemo(() =>
+    diffs().filter((d) => typeof d.file === "string").map((d) => d.file))
   const kinds = createMemo(() => {
     const merge = (a: "add" | "del" | "mix" | undefined, b: "add" | "del" | "mix") => {
       if (!a) return b
@@ -86,7 +87,7 @@ export function SessionSidePanel(props: {
 
     const out = new Map<string, "add" | "del" | "mix">()
     for (const diff of diffs()) {
-      if (!diff.file) continue
+      if (typeof diff.file !== "string") continue
       const file = normalize(diff.file)
       const kind = diff.status === "added" ? "add" : diff.status === "deleted" ? "del" : "mix"
 

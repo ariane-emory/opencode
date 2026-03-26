@@ -150,8 +150,8 @@ export const SessionReview = (props: SessionReviewProps) => {
   const opened = () => store.opened
 
   const open = () => props.open ?? store.open
-  const files = createMemo(() => props.diffs.map((diff) => diff.file))
-  const diffs = createMemo(() => new Map(props.diffs.map((diff) => [diff.file, diff] as const)))
+  const files = createMemo(() => (props.diffs ?? []).map((diff) => diff.file))
+  const diffs = createMemo(() => new Map((props.diffs ?? []).map((diff) => [diff.file, diff] as const)))
   const diffStyle = () => props.diffStyle ?? (props.split ? "split" : "unified")
   const hasDiffs = () => files().length > 0
 

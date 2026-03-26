@@ -126,7 +126,7 @@ export type UserMessage = {
   summary?: {
     title?: string
     body?: string
-    diffs: Array<FileDiff>
+    diffs?: Array<FileDiff>
   }
   agent: string
   model: {

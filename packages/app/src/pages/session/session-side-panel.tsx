@@ -55,7 +55,10 @@ export function SessionSidePanel(props: {
   const treeWidth = createMemo(() => (fileOpen() ? `${layout.fileTree.width()}px` : "0px"))
 
   const info = createMemo(() => (params.id ? sync.session.get(params.id) : undefined))
-  const diffs = createMemo(() => (params.id ? (sync.data.session_diff[params.id] ?? []) : []))
+  const diffs = createMemo(() => {
+    const raw = params.id ? sync.data.session_diff[params.id] : undefined
+    return Array.isArray(raw) ? raw : []
+  })
   const reviewCount = createMemo(() => Math.max(info()?.summary?.files ?? 0, diffs().length))
   const hasReview = createMemo(() => reviewCount() > 0)
   const diffsReady = createMemo(() => {

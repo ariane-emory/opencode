@@ -1,5 +1,5 @@
 import { useDialog } from "@tui/ui/dialog"
-import { DialogSelect } from "@tui/ui/dialog-select"
+import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { useRoute } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
 import { createMemo, createSignal, createResource, onMount, Show } from "solid-js"
@@ -23,6 +23,8 @@ export function DialogSessionList() {
 
   const [toDelete, setToDelete] = createSignal<string>()
   const [search, setSearch] = createDebouncedSignal("", 150)
+  const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()
+
 
   const [searchResults] = createResource(search, async (query) => {
     if (!query) return undefined
@@ -65,6 +67,7 @@ export function DialogSessionList() {
 
   return (
     <DialogSelect
+      ref={setSelectRef}
       title="Sessions"
       options={options()}
       skipFilter={true}
@@ -86,10 +89,26 @@ export function DialogSessionList() {
           title: "delete",
           onTrigger: async (option) => {
             if (toDelete() === option.value) {
+              // Find current index before deletion
+              const ref = selectRef()
+              const currentIndex = ref?.filtered.findIndex((opt) => opt.value === option.value) ?? -1
+
               sdk.client.session.delete({
                 sessionID: option.value,
               })
               setToDelete(undefined)
+
+              // Move to adjacent item after deletion
+              if (ref && currentIndex >= 0) {
+                setTimeout(() => {
+                  // Try to stay at same index (which will be next item after deletion)
+                  // Or go to previous if we were at the end
+                  const newIndex = Math.min(currentIndex, ref.filtered.length - 1)
+                  if (newIndex >= 0) {
+                    ref.moveTo(newIndex, true)
+                  }
+                }, 50)
+              }
               return
             }
             setToDelete(option.value)

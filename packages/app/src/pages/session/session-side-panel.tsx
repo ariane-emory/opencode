@@ -83,6 +83,7 @@ export function SessionSidePanel(props: {
 
     const out = new Map<string, "add" | "del" | "mix">()
     for (const diff of diffs()) {
+      if (!diff.file) continue
       const file = normalize(diff.file)
       const kind = diff.status === "added" ? "add" : diff.status === "deleted" ? "del" : "mix"
 

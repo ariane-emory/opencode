@@ -158,13 +158,14 @@ export namespace ToolRegistry {
       ) {
         const state = yield* InstanceState.get(cache)
         const allTools = yield* Effect.promise(() => all(state.custom))
+        const enableExa = yield* Effect.promise(() => Config.experimentalEnableExa())
         return yield* Effect.promise(() =>
           Promise.all(
             allTools
               .filter((tool) => {
                 // Enable websearch/codesearch for zen users OR via enable flag
                 if (tool.id === "codesearch" || tool.id === "websearch") {
-                  return model.providerID === ProviderID.opencode || Flag.OPENCODE_ENABLE_EXA
+                  return model.providerID === ProviderID.opencode || enableExa
                 }
 
                 // use apply tool in same format as codex

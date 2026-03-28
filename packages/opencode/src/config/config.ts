@@ -1225,6 +1225,10 @@ export namespace Config {
             .positive()
             .optional()
             .describe("Timeout in milliseconds for model context protocol (MCP) requests"),
+          enable_exa: z
+            .boolean()
+            .optional()
+            .describe("Enable experimental Exa features"),
         })
         .optional(),
     })
@@ -1458,6 +1462,13 @@ export namespace Config {
 
   export async function directories() {
     return state().then((x) => x.directories)
+  }
+
+  export async function experimentalEnableExa(): Promise<boolean> {
+    // Environment variable takes precedence
+    if (Flag.OPENCODE_ENABLE_EXA) return true
+    const config = await get()
+    return config.experimental?.enable_exa === true
   }
 }
 Filesystem.write

@@ -2,6 +2,7 @@ import { useSync } from "@tui/context/sync"
 import { createMemo, createSignal, For, Show, Switch, Match } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useTheme } from "../../context/theme"
+import { useTuiConfig } from "../../context/tui-config"
 import { Locale } from "@/util/locale"
 import path from "path"
 import type { AssistantMessage } from "@opencode-ai/sdk/v2"
@@ -14,14 +15,19 @@ import { useLocal } from "@tui/context/local"
 import { useSDK } from "@tui/context/sdk"
 import { TodoItem } from "../../component/todo-item"
 import { Log } from "@/util/log"
+import { TuiPluginRuntime } from "../../plugin"
+
+import { getScrollAcceleration } from "../../util/scroll"
 
 export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const sync = useSync()
   const { theme } = useTheme()
+  const tuiConfig = useTuiConfig()
   const session = createMemo(() => sync.session.get(props.sessionID)!)
   const diff = createMemo(() => sync.data.session_diff[props.sessionID] ?? [])
   const todo = createMemo(() => sync.data.todo[props.sessionID] ?? [])
   const messages = createMemo(() => sync.data.message[props.sessionID] ?? [])
+  const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
 
   const [expanded, setExpanded] = createStore({
     mcp: true,
@@ -52,10 +58,8 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
     }
   }
 
-  // Sort MCP servers alphabetically for consistent display order
   const mcpEntries = createMemo(() => Object.entries(sync.data.mcp).sort(([a], [b]) => a.localeCompare(b)))
 
-  // Count connected and error MCP servers for collapsed header display
   const connectedMcpCount = createMemo(() => mcpEntries().filter(([_, item]) => item.status === "connected").length)
   const errorMcpCount = createMemo(
     () =>
@@ -107,6 +111,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
       >
         <scrollbox
           flexGrow={1}
+          scrollAcceleration={scrollAcceleration()}
           verticalScrollbarOptions={{
             trackOptions: {
               backgroundColor: theme.background,
@@ -115,14 +120,22 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
           }}
         >
           <box flexShrink={0} gap={1} paddingRight={1}>
-            <box paddingRight={1}>
-              <text fg={theme.text}>
-                <b>{session().title}</b>
-              </text>
-              <Show when={session().share?.url}>
-                <text fg={theme.textMuted}>{session().share!.url}</text>
-              </Show>
-            </box>
+            <TuiPluginRuntime.Slot
+              name="sidebar_title"
+              mode="single_winner"
+              session_id={props.sessionID}
+              title={session().title}
+              share_url={session().share?.url}
+            >
+              <box paddingRight={1}>
+                <text fg={theme.text}>
+                  <b>{session().title}</b>
+                </text>
+                <Show when={session().share?.url}>
+                  <text fg={theme.textMuted}>{session().share!.url}</text>
+                </Show>
+              </box>
+            </TuiPluginRuntime.Slot>
             <box>
               <text fg={theme.text}>
                 <b>Context</b>
@@ -294,6 +307,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
                 </Show>
               </box>
             </Show>
+            <TuiPluginRuntime.Slot name="sidebar_content" session_id={props.sessionID} />
           </box>
         </scrollbox>
 
@@ -335,13 +349,15 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
             <span style={{ fg: theme.textMuted }}>{directory().split("/").slice(0, -1).join("/")}/</span>
             <span style={{ fg: theme.text }}>{directory().split("/").at(-1)}</span>
           </text>
-          <text fg={theme.textMuted}>
-            <span style={{ fg: theme.success }}>•</span> <b>Open</b>
-            <span style={{ fg: theme.text }}>
-              <b>Code</b>
-            </span>{" "}
-            <span>{Installation.VERSION}</span>
-          </text>
+          <TuiPluginRuntime.Slot name="sidebar_footer" mode="single_winner" session_id={props.sessionID}>
+            <text fg={theme.textMuted}>
+              <span style={{ fg: theme.success }}>•</span> <b>Open</b>
+              <span style={{ fg: theme.text }}>
+                <b>Code</b>
+              </span>{" "}
+              <span>{Installation.VERSION}</span>
+            </text>
+          </TuiPluginRuntime.Slot>
         </box>
       </box>
     </Show>

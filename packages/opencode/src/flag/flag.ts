@@ -36,6 +36,7 @@ function number(key: string) {
 export namespace Flag {
   // New BASEONE_* env vars with fallback to OPENCODE_*
   export const BASEONE_AUTO_SHARE = truthyWithFallback("BASEONE_AUTO_SHARE", "OPENCODE_AUTO_SHARE")
+  export const BASEONE_AUTO_HEAP_SNAPSHOT = truthyWithFallback("BASEONE_AUTO_HEAP_SNAPSHOT", "OPENCODE_AUTO_HEAP_SNAPSHOT")
   export const BASEONE_GIT_BASH_PATH = envWithFallback("BASEONE_GIT_BASH_PATH", "OPENCODE_GIT_BASH_PATH")
   export const BASEONE_CONFIG = envWithFallback("BASEONE_CONFIG", "OPENCODE_CONFIG")
   export declare const BASEONE_CONFIG_DIR: string | undefined
@@ -45,6 +46,7 @@ export namespace Flag {
   export const BASEONE_ALWAYS_NOTIFY_UPDATE = truthyWithFallback("BASEONE_ALWAYS_NOTIFY_UPDATE", "OPENCODE_ALWAYS_NOTIFY_UPDATE")
   export const BASEONE_DISABLE_PRUNE = truthyWithFallback("BASEONE_DISABLE_PRUNE", "OPENCODE_DISABLE_PRUNE")
   export const BASEONE_DISABLE_TERMINAL_TITLE = truthyWithFallback("BASEONE_DISABLE_TERMINAL_TITLE", "OPENCODE_DISABLE_TERMINAL_TITLE")
+  export const BASEONE_SHOW_TTFD = truthyWithFallback("BASEONE_SHOW_TTFD", "OPENCODE_SHOW_TTFD")
   export const BASEONE_PERMISSION = envWithFallback("BASEONE_PERMISSION", "OPENCODE_PERMISSION")
   export const BASEONE_DISABLE_DEFAULT_PLUGINS = truthyWithFallback("BASEONE_DISABLE_DEFAULT_PLUGINS", "OPENCODE_DISABLE_DEFAULT_PLUGINS")
   export const BASEONE_DISABLE_LSP_DOWNLOAD = truthyWithFallback("BASEONE_DISABLE_LSP_DOWNLOAD", "OPENCODE_DISABLE_LSP_DOWNLOAD")
@@ -94,13 +96,17 @@ export namespace Flag {
   export const BASEONE_STRICT_CONFIG_DEPS = truthyWithFallback("BASEONE_STRICT_CONFIG_DEPS", "OPENCODE_STRICT_CONFIG_DEPS")
   export const BASEONE_MODELS_URL = envWithFallback("BASEONE_MODELS_URL", "OPENCODE_MODELS_URL")
   export const BASEONE_MODELS_PATH = envWithFallback("BASEONE_MODELS_PATH", "OPENCODE_MODELS_PATH")
+  export const BASEONE_DISABLE_EMBEDDED_WEB_UI = truthyWithFallback("BASEONE_DISABLE_EMBEDDED_WEB_UI", "OPENCODE_DISABLE_EMBEDDED_WEB_UI")
   export const BASEONE_DB = envWithFallback("BASEONE_DB", "OPENCODE_DB")
   export const BASEONE_DISABLE_CHANNEL_DB = truthyWithFallback("BASEONE_DISABLE_CHANNEL_DB", "OPENCODE_DISABLE_CHANNEL_DB")
   export const BASEONE_SKIP_MIGRATIONS = truthyWithFallback("BASEONE_SKIP_MIGRATIONS", "OPENCODE_SKIP_MIGRATIONS")
   export declare const BASEONE_TUI_CONFIG: string | undefined
+  export declare const BASEONE_PURE: boolean
+  export declare const BASEONE_PLUGIN_META_FILE: string | undefined
 
   // Legacy OPENCODE_* env vars - using values from BASEONE_* as source of truth
   export const OPENCODE_AUTO_SHARE = BASEONE_AUTO_SHARE
+  export const OPENCODE_AUTO_HEAP_SNAPSHOT = BASEONE_AUTO_HEAP_SNAPSHOT
   export const OPENCODE_GIT_BASH_PATH = BASEONE_GIT_BASH_PATH
   export const OPENCODE_CONFIG = BASEONE_CONFIG
   export declare const OPENCODE_CONFIG_DIR: string | undefined
@@ -109,6 +115,7 @@ export namespace Flag {
   export const OPENCODE_ALWAYS_NOTIFY_UPDATE = BASEONE_ALWAYS_NOTIFY_UPDATE
   export const OPENCODE_DISABLE_PRUNE = BASEONE_DISABLE_PRUNE
   export const OPENCODE_DISABLE_TERMINAL_TITLE = BASEONE_DISABLE_TERMINAL_TITLE
+  export const OPENCODE_SHOW_TTFD = BASEONE_SHOW_TTFD
   export const OPENCODE_PERMISSION = BASEONE_PERMISSION
   export const OPENCODE_DISABLE_DEFAULT_PLUGINS = BASEONE_DISABLE_DEFAULT_PLUGINS
   export const OPENCODE_DISABLE_LSP_DOWNLOAD = BASEONE_DISABLE_LSP_DOWNLOAD
@@ -120,6 +127,8 @@ export namespace Flag {
   export const OPENCODE_DISABLE_CLAUDE_CODE_SKILLS = BASEONE_DISABLE_CLAUDE_CODE_SKILLS
   export const OPENCODE_DISABLE_EXTERNAL_SKILLS = BASEONE_DISABLE_EXTERNAL_SKILLS
   export declare const OPENCODE_TUI_CONFIG: string | undefined
+  export declare const OPENCODE_PURE: boolean
+  export declare const OPENCODE_PLUGIN_META_FILE: string | undefined
   export declare const OPENCODE_DISABLE_PROJECT_CONFIG: boolean
   export const OPENCODE_FAKE_VCS = BASEONE_FAKE_VCS
   export const OPENCODE_CLIENT = BASEONE_CLIENT
@@ -144,6 +153,7 @@ export namespace Flag {
   export const OPENCODE_STRICT_CONFIG_DEPS = BASEONE_STRICT_CONFIG_DEPS
   export const OPENCODE_MODELS_URL = BASEONE_MODELS_URL
   export const OPENCODE_MODELS_PATH = BASEONE_MODELS_PATH
+  export const OPENCODE_DISABLE_EMBEDDED_WEB_UI = BASEONE_DISABLE_EMBEDDED_WEB_UI
   export const OPENCODE_DB = BASEONE_DB
   export const OPENCODE_DISABLE_CHANNEL_DB = BASEONE_DISABLE_CHANNEL_DB
   export const OPENCODE_SKIP_MIGRATIONS = BASEONE_SKIP_MIGRATIONS
@@ -210,6 +220,42 @@ Object.defineProperty(Flag, "OPENCODE_TUI_CONFIG", {
 Object.defineProperty(Flag, "OPENCODE_CONFIG_DIR", {
   get() {
     return process.env["BASEONE_CONFIG_DIR"] ?? process.env["OPENCODE_CONFIG_DIR"]
+  },
+  enumerable: true,
+  configurable: false,
+})
+
+// Dynamic getter for BASEONE_PURE
+Object.defineProperty(Flag, "BASEONE_PURE", {
+  get() {
+    return truthyWithFallback("BASEONE_PURE", "OPENCODE_PURE")
+  },
+  enumerable: true,
+  configurable: false,
+})
+
+// Dynamic getter for OPENCODE_PURE (legacy alias)
+Object.defineProperty(Flag, "OPENCODE_PURE", {
+  get() {
+    return Flag.BASEONE_PURE
+  },
+  enumerable: true,
+  configurable: false,
+})
+
+// Dynamic getter for BASEONE_PLUGIN_META_FILE
+Object.defineProperty(Flag, "BASEONE_PLUGIN_META_FILE", {
+  get() {
+    return envWithFallback("BASEONE_PLUGIN_META_FILE", "OPENCODE_PLUGIN_META_FILE")
+  },
+  enumerable: true,
+  configurable: false,
+})
+
+// Dynamic getter for OPENCODE_PLUGIN_META_FILE (legacy alias)
+Object.defineProperty(Flag, "OPENCODE_PLUGIN_META_FILE", {
+  get() {
+    return Flag.BASEONE_PLUGIN_META_FILE
   },
   enumerable: true,
   configurable: false,

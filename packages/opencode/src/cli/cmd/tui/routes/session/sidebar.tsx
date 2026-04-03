@@ -11,11 +11,16 @@ import { useKeybind } from "../../context/keybind"
 import { useDirectory } from "../../context/directory"
 import { useKV } from "../../context/kv"
 import { TodoItem } from "../../component/todo-item"
+import { TuiPluginRuntime } from "../../plugin"
+import { useTuiConfig } from "../../context/tui-config"
+import { getScrollAcceleration } from "../../util/scroll"
 
 export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const sync = useSync()
   const { theme } = useTheme()
+  const tuiConfig = useTuiConfig()
   const session = createMemo(() => sync.session.get(props.sessionID)!)
+  const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
   const diff = createMemo(() => sync.data.session_diff[props.sessionID] ?? [])
   const todo = createMemo(() => sync.data.todo[props.sessionID] ?? [])
   const messages = createMemo(() => sync.data.message[props.sessionID] ?? [])
@@ -82,6 +87,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
       >
         <scrollbox
           flexGrow={1}
+          scrollAcceleration={scrollAcceleration()}
           verticalScrollbarOptions={{
             trackOptions: {
               backgroundColor: theme.background,
@@ -90,6 +96,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
           }}
         >
           <box flexShrink={0} gap={1} paddingRight={1}>
+            <TuiPluginRuntime.Slot name="sidebar_title" mode="single_winner" session_id={props.sessionID} title={session().title} share_url={session().share?.url}>
             <box paddingRight={1}>
               <text fg={theme.text}>
                 <b>{session().title}</b>
@@ -98,6 +105,8 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
                 <text fg={theme.textMuted}>{session().share!.url}</text>
               </Show>
             </box>
+            </TuiPluginRuntime.Slot>
+            <TuiPluginRuntime.Slot name="sidebar_content" session_id={props.sessionID} />
             <box>
               <text fg={theme.text}>
                 <b>Context</b>
@@ -307,13 +316,15 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
             <span style={{ fg: theme.textMuted }}>{directory().split("/").slice(0, -1).join("/")}/</span>
             <span style={{ fg: theme.text }}>{directory().split("/").at(-1)}</span>
           </text>
-          <text fg={theme.textMuted}>
-            <span style={{ fg: theme.success }}>•</span> <b>Base</b>
-            <span style={{ fg: theme.text }}>
-              <b>One</b>
-            </span>{" "}
-            <span>{Installation.VERSION}</span>
-          </text>
+          <TuiPluginRuntime.Slot name="sidebar_footer" mode="single_winner" session_id={props.sessionID}>
+            <text fg={theme.textMuted}>
+              <span style={{ fg: theme.success }}>•</span> <b>Base</b>
+              <span style={{ fg: theme.text }}>
+                <b>One</b>
+              </span>{" "}
+              <span>{Installation.VERSION}</span>
+            </text>
+          </TuiPluginRuntime.Slot>
         </box>
       </box>
     </Show>

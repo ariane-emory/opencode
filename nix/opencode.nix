@@ -3,6 +3,7 @@
   stdenvNoCC,
   callPackage,
   bun,
+  nodejs,
   sysctl,
   makeBinaryWrapper,
   models-dev,
@@ -84,6 +85,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   nativeBuildInputs = [
     bun
+    nodejs # for patchShebangs node_modules
     installShellFiles
     makeBinaryWrapper
     models-dev
@@ -94,6 +96,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook preConfigure
 
     cp -R ${finalAttrs.node_modules}/. .
+    patchShebangs node_modules
+    patchShebangs packages/*/node_modules
 
     runHook postConfigure
   '';

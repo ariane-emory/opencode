@@ -28,9 +28,7 @@ export const BookmarkCurrentSessionTool = Tool.define("bookmark_current_session"
       }
     }
 
-    await Session.update(ctx.sessionID, (draft) => {
-      draft.time.pinned = Date.now()
-    }, { touch: false })
+    await Session.setPinned({ sessionID: ctx.sessionID, time: Date.now() })
 
     return {
       title: "Session bookmarked",

@@ -1014,15 +1014,15 @@ export const SessionRoutes = lazy(() =>
       validator(
         "param",
         z.object({
-          sessionID: z.string().meta({ description: "Session ID" }),
+          sessionID: SessionID.zod,
         }),
       ),
       validator(
         "json",
         z.object({
           model: z.object({
-            providerID: z.string(),
-            modelID: z.string(),
+            providerID: ProviderID.zod,
+            modelID: ModelID.zod,
           }).optional(),
         }),
       ),

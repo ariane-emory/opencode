@@ -1334,8 +1334,8 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           throw new Error("Impossible")
         })
 
-      const runLoop: (sessionID: SessionID, modelOverride?: { providerID: string; modelID: string }) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.run")(
-        function* (sessionID: SessionID, modelOverride?: { providerID: string; modelID: string }) {
+      const runLoop: (sessionID: SessionID, modelOverride?: { providerID: ProviderID; modelID: ModelID }) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.run")(
+        function* (sessionID: SessionID, modelOverride?: { providerID: ProviderID; modelID: ModelID }) {
           const ctx = yield* InstanceState.context
           let structured: unknown | undefined
           let step = 0
@@ -1827,8 +1827,8 @@ NOTE: At any point in time through this workflow you should feel free to ask the
     sessionID: SessionID.zod,
     model: z
       .object({
-        providerID: z.string(),
-        modelID: z.string(),
+        providerID: ProviderID.zod,
+        modelID: ModelID.zod,
       })
       .optional(),
   })

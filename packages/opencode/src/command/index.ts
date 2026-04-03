@@ -1,7 +1,6 @@
 import { BusEvent } from "@/bus/bus-event"
 import { InstanceState } from "@/effect/instance-state"
-import { makeRunPromise } from "@/effect/run-service"
-import { Instance } from "@/project/instance"
+import { makeRuntime } from "@/effect/run-service"
 import { SessionID, MessageID } from "@/session/schema"
 import { Effect, Layer, ServiceMap } from "effect"
 import z from "zod"
@@ -280,13 +279,17 @@ export namespace Command {
   export const layer = Layer.effect(
     Service,
     Effect.gen(function* () {
+      const config = yield* Config.Service
+      const mcp = yield* MCP.Service
+      const skill = yield* Skill.Service
+
       const init = Effect.fn("Command.state")(function* (ctx) {
-        const cfg = yield* Effect.promise(() => Config.get())
+        const cfg = yield* config.get()
         const commands: Record<string, Info> = {}
 
         commands[Default.INIT] = {
           name: Default.INIT,
-          description: "create/update AGENTS.md",
+          description: "guided AGENTS.md setup",
           source: "command",
           get template() {
             return PROMPT_INITIALIZE.replace("${path}", ctx.worktree)
@@ -319,39 +322,43 @@ export namespace Command {
           }
         }
 
-        for (const [name, prompt] of Object.entries(yield* Effect.promise(() => MCP.prompts()))) {
+        for (const [name, prompt] of Object.entries(yield* mcp.prompts())) {
           commands[name] = {
             name,
             source: "mcp",
             description: prompt.description,
             get template() {
-              return new Promise<string>(async (resolve, reject) => {
-                const template = await MCP.getPrompt(
-                  prompt.client,
-                  prompt.name,
-                  prompt.arguments
-                    ? Object.fromEntries(prompt.arguments.map((argument, i) => [argument.name, `$${i + 1}`]))
-                    : {},
-                ).catch(reject)
-                resolve(
-                  template?.messages
-                    .map((message) => (message.content.type === "text" ? message.content.text : ""))
-                    .join("\n") || "",
-                )
-              })
+              return Effect.runPromise(
+                mcp
+                  .getPrompt(
+                    prompt.client,
+                    prompt.name,
+                    prompt.arguments
+                      ? Object.fromEntries(prompt.arguments.map((argument, i) => [argument.name, `$${i + 1}`]))
+                      : {},
+                  )
+                  .pipe(
+                    Effect.map(
+                      (template) =>
+                        template?.messages
+                          .map((message) => (message.content.type === "text" ? message.content.text : ""))
+                          .join("\n") || "",
+                    ),
+                  ),
+              )
             },
             hints: prompt.arguments?.map((_, i) => `$${i + 1}`) ?? [],
           }
         }
 
-        for (const skill of yield* Effect.promise(() => Skill.all())) {
-          if (commands[skill.name]) continue
-          commands[skill.name] = {
-            name: skill.name,
-            description: skill.description,
+        for (const item of yield* skill.all()) {
+          if (commands[item.name]) continue
+          commands[item.name] = {
+            name: item.name,
+            description: item.description,
             source: "skill",
             get template() {
-              return skill.content
+              return item.content
             },
             hints: [],
           }
@@ -362,8 +369,9 @@ export namespace Command {
         }
       })
 
-      const cache = yield* InstanceState.make<State>((ctx) => init(ctx))
+      const state = yield* InstanceState.make<State>((ctx) => init(ctx))
 
+      const get = Effect.fn("Command.get")(function* (name: string) {
       const get = Effect.fn("Command.get")(function* (name: string) {
         const cfg = yield* Effect.promise(() => Config.get())
         // When experimental.cache_command_markdown_files is explicitly false,
@@ -400,8 +408,8 @@ export namespace Command {
           }
           return command ?? undefined
         }
-        const state = yield* InstanceState.get(cache)
-        return state.commands[name]
+        const s = yield* InstanceState.get(state)
+        return s.commands[name]
       })
 
       const list = Effect.fn("Command.list")(function* () {
@@ -412,19 +420,21 @@ export namespace Command {
           const fresh = yield* Effect.promise(() => loadFreshCommandsWithMtime())
           return Object.values(fresh)
         }
-        const state = yield* InstanceState.get(cache)
-        return Object.values(state.commands)
+        const s = yield* InstanceState.get(state)
+        return Object.values(s.commands)
       })
 
       return Service.of({ get, list })
     }),
   )
 
-  const runPromise = makeRunPromise(Service, layer)
+  export const defaultLayer = layer.pipe(
+    Layer.provide(Config.defaultLayer),
+    Layer.provide(MCP.defaultLayer),
+    Layer.provide(Skill.defaultLayer),
+  )
 
-  export async function get(name: string) {
-    return runPromise((svc) => svc.get(name))
-  }
+  const { runPromise } = makeRuntime(Service, defaultLayer)
 
   export async function list() {
     return runPromise((svc) => svc.list())

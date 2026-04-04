@@ -2019,6 +2019,7 @@ export type Config = {
      */
     mcp_timeout?: number
     /**
+     /**
      * Maximum number of message parts to load per session when syncing, or 'none' to load all messages
      */
     messages_limit?: number | "none"
@@ -2034,6 +2035,10 @@ export type Config = {
      * Maximum number of sessions to display in session list, or 'none' to show all sessions
      */
     session_list_limit?: number | "none"
+    /**
+     * Maximum number of lines for the prompt input text box (1-99, default: 6)
+     */
+    max_prompt_input_lines?: number
   }
 }
 

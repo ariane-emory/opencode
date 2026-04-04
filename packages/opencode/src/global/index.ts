@@ -21,8 +21,8 @@ async function dirExists(dir: string): Promise<boolean> {
 async function resolveWithFallback(baseDir: string): Promise<string> {
   const newPath = path.join(baseDir, app)
   const legacyPath = path.join(baseDir, legacyApp)
-  if (await dirExists(newPath)) return newPath
   if (await dirExists(legacyPath)) return legacyPath
+  if (await dirExists(newPath)) return newPath
   return legacyPath // Default to legacy path if neither exists
 }
 

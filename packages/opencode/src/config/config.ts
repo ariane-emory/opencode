@@ -1096,6 +1096,8 @@ export namespace Config {
     plugin_origins?: PluginOrigin[]
   }
 
+  const RawInfo = deepRemoveDefaults(Info)
+
   type State = {
     config: Info
     directories: string[]

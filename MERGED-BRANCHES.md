@@ -78,7 +78,7 @@
 | ☑ | 72 | feat/tool-output-colour | origin | 1e6fd1d5f2 | Resolved conflicts in theme.tsx - combined sessionTitle + toolOutput theme colours |
 | ☑ | 73 | feat/improve-experimental-plan-mode-prompt | origin | 10a0a51be5 | Clean merge |
 | ☑ | 74 | fix/input-enter-keybindings | origin | 7c0cff33a1 | Clean merge |
-| ☐ | 75 | fix/escape-from-status | origin | TBD | |
+| ☑ | 75 | fix/escape-from-status | origin | 96a18ffb1e | Clean merge |
 | ☐ | 76 | fix/restore-footer | origin | TBD | Restores footer; must not be clobbered |
 | ☐ | 77 | feat/remove-canned-jokes | origin | TBD | |
 | ☐ | 78 | fix/session-list-delete-selection | origin | TBD | |

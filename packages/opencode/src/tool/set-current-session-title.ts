@@ -20,16 +20,17 @@ export const SetCurrentSessionTitleTool = Tool.define("set_current_session_title
       metadata: {},
     })
 
-    const session = await Session.update(ctx.sessionID, (draft) => {
-      draft.title = params.title
+    await Session.setTitle({
+      sessionID: ctx.sessionID,
+      title: params.title,
     })
 
     return {
       title: params.title,
-      output: `Session title updated to: ${session.title}`,
+      output: `Session title updated to: ${params.title}`,
       metadata: {
         sessionID: ctx.sessionID,
-        title: session.title,
+        title: params.title,
       },
     }
   },

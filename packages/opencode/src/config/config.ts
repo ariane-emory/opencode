@@ -62,11 +62,11 @@ export namespace Config {
   function systemManagedConfigDir(): string {
     switch (process.platform) {
       case "darwin":
-        return "/Library/Application Support/opencode"
+        return "/Library/Application Support/baseone"
       case "win32":
-        return path.join(process.env.ProgramData || "C:\\ProgramData", "opencode")
+        return path.join(process.env.ProgramData || "C:\\ProgramData", "baseone")
       default:
-        return "/etc/opencode"
+        return "/etc/baseone"
     }
   }
 
@@ -1065,9 +1065,13 @@ export namespace Config {
   export class Service extends ServiceMap.Service<Service, Interface>()("@opencode/Config") {}
 
   function globalConfigFile() {
-    const candidates = ["opencode.jsonc", "opencode.json", "config.json"].map((file) =>
-      path.join(Global.Path.config, file),
-    )
+    const hasBaseone =
+      existsSync(path.join(Global.Path.config, "baseone.json")) ||
+      existsSync(path.join(Global.Path.config, "baseone.jsonc"))
+    const names = hasBaseone
+      ? ["baseone.jsonc", "baseone.json"]
+      : ["opencode.jsonc", "opencode.json", "config.json"]
+    const candidates = names.map((file) => path.join(Global.Path.config, file))
     for (const file of candidates) {
       if (existsSync(file)) return file
     }
@@ -1216,12 +1220,24 @@ export namespace Config {
         })
 
         const loadGlobal = Effect.fnUntraced(function* () {
-          let result: Info = pipe(
-            {},
-            mergeDeep(yield* loadFile(path.join(Global.Path.config, "config.json"))),
-            mergeDeep(yield* loadFile(path.join(Global.Path.config, "opencode.json"))),
-            mergeDeep(yield* loadFile(path.join(Global.Path.config, "opencode.jsonc"))),
-          )
+          const hasBaseone =
+            existsSync(path.join(Global.Path.config, "baseone.json")) ||
+            existsSync(path.join(Global.Path.config, "baseone.jsonc"))
+          let result: Info
+          if (hasBaseone) {
+            result = pipe(
+              {},
+              mergeDeep(yield* loadFile(path.join(Global.Path.config, "baseone.json"))),
+              mergeDeep(yield* loadFile(path.join(Global.Path.config, "baseone.jsonc"))),
+            )
+          } else {
+            result = pipe(
+              {},
+              mergeDeep(yield* loadFile(path.join(Global.Path.config, "config.json"))),
+              mergeDeep(yield* loadFile(path.join(Global.Path.config, "opencode.json"))),
+              mergeDeep(yield* loadFile(path.join(Global.Path.config, "opencode.jsonc"))),
+            )
+          }
 
           const legacy = path.join(Global.Path.config, "config")
           if (existsSync(legacy)) {
@@ -1315,10 +1331,21 @@ export namespace Config {
           }
 
           if (!Flag.OPENCODE_DISABLE_PROJECT_CONFIG) {
-            for (const file of yield* Effect.promise(() =>
-              ConfigPaths.projectFiles("opencode", ctx.directory, ctx.worktree),
-            )) {
-              merge(file, yield* loadFile(file), "local")
+            const dirs = yield* Effect.promise(() => Array.fromAsync(Filesystem.upDirs(ctx.directory, ctx.worktree)))
+            for (const dir of dirs) {
+              const hasBaseone = existsSync(path.join(dir, "baseone.json")) || existsSync(path.join(dir, "baseone.jsonc"))
+              if (hasBaseone) {
+                for (const name of ["baseone.json", "baseone.jsonc"]) {
+                  const file = path.join(dir, name)
+                  merge(file, yield* loadFile(file), "local")
+                }
+              } else {
+                for (const file of yield* Effect.promise(() =>
+                  ConfigPaths.projectFiles("opencode", dir, ctx.worktree),
+                )) {
+                  merge(file, yield* loadFile(file), "local")
+                }
+              }
             }
           }
 
@@ -1326,7 +1353,30 @@ export namespace Config {
           result.mode = result.mode || {}
           result.plugin = result.plugin || []
 
-          const directories = yield* Effect.promise(() => ConfigPaths.directories(ctx.directory, ctx.worktree))
+          const directories = [
+            Global.Path.config,
+            ...(!Flag.OPENCODE_DISABLE_PROJECT_CONFIG
+              ? yield* Effect.promise(() =>
+                  Array.fromAsync(
+                    Filesystem.upFirst({
+                      targets: [".baseone", ".opencode"],
+                      start: ctx.directory,
+                      stop: ctx.worktree,
+                    }),
+                  ),
+                )
+              : []),
+            ...(yield* Effect.promise(() =>
+              Array.fromAsync(
+                Filesystem.upFirst({
+                  targets: [".baseone", ".opencode"],
+                  start: Global.Path.home,
+                  stop: Global.Path.home,
+                }),
+              ),
+            )),
+            ...(Flag.OPENCODE_CONFIG_DIR ? [Flag.OPENCODE_CONFIG_DIR] : []),
+          ]
 
           if (Flag.OPENCODE_CONFIG_DIR) {
             log.debug("loading config from OPENCODE_CONFIG_DIR", { path: Flag.OPENCODE_CONFIG_DIR })
@@ -1335,8 +1385,12 @@ export namespace Config {
           const deps: Promise<void>[] = []
 
           for (const dir of unique(directories)) {
-            if (dir.endsWith(".opencode") || dir === Flag.OPENCODE_CONFIG_DIR) {
-              for (const file of ["opencode.json", "opencode.jsonc"]) {
+            if (dir.endsWith(".opencode") || dir.endsWith(".baseone") || dir === Flag.OPENCODE_CONFIG_DIR) {
+              const hasBaseone = existsSync(path.join(dir, "baseone.json")) || existsSync(path.join(dir, "baseone.jsonc"))
+              const files = hasBaseone
+                ? ["baseone.json", "baseone.jsonc"]
+                : ["opencode.json", "opencode.jsonc"]
+              for (const file of files) {
                 const source = path.join(dir, file)
                 log.debug(`loading config from ${source}`)
                 merge(source, yield* loadFile(source))
@@ -1361,9 +1415,10 @@ export namespace Config {
             track(dir, list)
           }
 
-          if (process.env.OPENCODE_CONFIG_CONTENT) {
+          const configContent = process.env.BASEONE_CONFIG_CONTENT ?? process.env.OPENCODE_CONFIG_CONTENT
+          if (configContent) {
             const source = "OPENCODE_CONFIG_CONTENT"
-            const next = yield* loadConfig(process.env.OPENCODE_CONFIG_CONTENT, {
+            const next = yield* loadConfig(configContent, {
               dir: ctx.directory,
               source,
             })
@@ -1404,7 +1459,11 @@ export namespace Config {
           }
 
           if (existsSync(managedDir)) {
-            for (const file of ["opencode.json", "opencode.jsonc"]) {
+            const hasBaseone = existsSync(path.join(managedDir, "baseone.json")) || existsSync(path.join(managedDir, "baseone.jsonc"))
+            const files = hasBaseone
+              ? ["baseone.json", "baseone.jsonc"]
+              : ["opencode.json", "opencode.jsonc"]
+            for (const file of files) {
               const source = path.join(managedDir, file)
               merge(source, yield* loadFile(source), "global")
             }

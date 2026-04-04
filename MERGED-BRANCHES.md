@@ -27,13 +27,13 @@
 | ☑ | 21 | fix/history-navigation-key-commands | origin | 8a6ba49fa5 | Clean merge |
 | ☑ | 22 | fix/build-with-short-version | origin | 3494493cfd | Uses short timestamp version for integration branches |
 | ☑ | 23 | fix/autocompletion-filtered-order | origin | 1a09364962 | Conflict resolved - kept integration's prompt/index.tsx |
-| ☐ | 24 | fix/modal-menus-filtered-order | origin | TBD | |
+| ☑ | 24 | fix/modal-menus-filtered-order | origin | e277ebb759 | Clean merge |
 | ☑ | 25 | fix/config-package-json-pollution | origin | ab314ae77e | Prevents package.json pollution with non-SemVer versions |
 | ☑ | 26 | fix/session-list-viewport-jumping | origin | 1d6b25e544 | |
 | ☑ | 27 | fix/merging-multiple-configs | origin | 1ed6e50fcd | |
 | ☑ | 28 | fix/markdown-codeblock-theme-property | origin | ef776b1278 | |
 | ☑ | 29 | fix/persist-sidebar | origin | b08bb55dcc | Makes sidebar state persistent; removes auto-hide; no return to auto state |
-| ☐ | 30 | feat/command-palette-consistency | origin | TBD | MOVE items from Session to System category; don't duplicate |
+| ☑ | 30 | feat/command-palette-consistency | origin | f2d276bedd | Clean merge |
 | ☐ | 31 | refactor/shared-substitute | origin | TBD | |
 | ☐ | 32 | feat/session-id-in-status | origin | TBD | |
 | ☐ | 33 | feat/edit-tool-description | origin | TBD | |

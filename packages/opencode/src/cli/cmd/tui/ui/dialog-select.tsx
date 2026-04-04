@@ -17,6 +17,7 @@ export interface DialogSelectProps<T> {
   title: string
   placeholder?: string
   options: DialogSelectOption<T>[]
+  sort?: boolean
   flat?: boolean
   ref?: (ref: DialogSelectRef<T>) => void
   onMove?: (option: DialogSelectOption<T>) => void
@@ -128,10 +129,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     const result = pipe(
       filtered(),
       groupBy((x) => x.category ?? ""),
-      (groups) => {
-        if (!props.sort) return groups
-        return mapValues(groups, (x) => x.sort((a, b) => smartCompare(a.title, b.title)))
-      },
+      mapValues(groups, (x) => x.sort((a, b) => smartCompare(a.title, b.title))),
       entries(),
     )
     return result

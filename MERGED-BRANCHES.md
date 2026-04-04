@@ -34,7 +34,7 @@
 | ☑ | 28 | fix/markdown-codeblock-theme-property | origin | ef776b1278 | |
 | ☑ | 29 | fix/persist-sidebar | origin | b08bb55dcc | Makes sidebar state persistent; removes auto-hide; no return to auto state |
 | ☑ | 30 | feat/command-palette-consistency | origin | f2d276bedd | Clean merge |
-| ☐ | 31 | refactor/shared-substitute | origin | TBD | |
+| ☑ | 31 | refactor/shared-substitute | origin | 13867aa716 | Kept HEAD version with extended placeholder syntax |
 | ☐ | 32 | feat/session-id-in-status | origin | TBD | |
 | ☐ | 33 | feat/edit-tool-description | origin | TBD | |
 | ☐ | 34 | feat/opeoginni--display-message-tps | origin | TBD | |

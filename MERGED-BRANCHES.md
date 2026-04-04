@@ -42,7 +42,7 @@
 | ☑ | 36 | feat/global-compaction-threshold | origin | 199d2521a3 | Clean merge |
 | ☑ | 37 | feat/configurable-message-and-session-limit | origin | b49efb181a | Both experimental.messages_limit and experimental.session_list_limit accept positive integers or "none" |
 | ☑ | 38 | feat/experimental-dont-cache-command-markdown | origin | ddbec75d6d | Added reloadCommands export; fixed Instance import and test types |
-| ☐ | 39 | feat/jsonc-user-themes | origin | TBD | |
+| ☑ | 39 | feat/jsonc-user-themes | origin | 8ff073e83f | Clean merge - adds support for user-defined themes in JSONC format |
 | ☐ | 40 | feat/persist-sidebar-group-folding-states | origin | TBD | Don't let this feature get clobbered |
 | ☐ | 41 | feat/persistant-sidebar-overlay-behaviour | origin | TBD | |
 | ☐ | 42 | feat/shell-advice | origin | TBD | Combine with feat/improve-bash-tool-git-advice changes to bash tool description |

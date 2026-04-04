@@ -75,7 +75,7 @@
 | ☑ | 69 | fix/rfc2119-question-tool | origin | ea608d4a0c | Clean merge |
 | ☑ | 70 | feat/sidebar-header-accent-colours | origin | 3486765354 | Resolved conflict in lsp.tsx - kept folding + applied accent colour |
 | ☑ | 71 | feat/distinct-title-colour | origin | 37cd8fcd7c | Resolved conflict in sidebar.tsx - kept grouping title format with sessionTitle colour |
-| ☐ | 72 | feat/tool-output-colour | origin | TBD | |
+| ☑ | 72 | feat/tool-output-colour | origin | 1e6fd1d5f2 | Resolved conflicts in theme.tsx - combined sessionTitle + toolOutput theme colours |
 | ☐ | 73 | feat/improve-experimental-plan-mode-prompt | origin | TBD | |
 | ☐ | 74 | fix/input-enter-keybindings | origin | TBD | |
 | ☐ | 75 | fix/escape-from-status | origin | TBD | |

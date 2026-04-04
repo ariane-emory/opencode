@@ -52,7 +52,7 @@
 | ☑ | 46 | feat/set-session-title | origin | d4dcdb51ae | Clean merge - adds tool to set current session title |
 | ☑ | 47 | feat/get-session-title | origin | 4ad9462314 | Resolved conflict - kept both bookmark and session-title tool imports |
 | ☑ | 48 | feat/no-disabled-lsps-in-sidebar | origin | 627825c345 | Resolved conflict in lsp.tsx - combined toggle function with Show when !off wrapper |
-| ☐ | 49 | feat/agent-timestamps | origin | TBD | |
+| ☑ | 49 | feat/agent-timestamps | origin | 4e28fafa37 | Resolved conflict - combined sidebar overlay width calc with agent timestamps |
 | ☐ | 50 | feat/rewind-modal-option | origin | TBD | |
 | ☐ | 51 | feat/alphabetize-command-palette-groups | origin | TBD | |
 | ☐ | 52 | feat/taller-dialogs | origin | TBD | |

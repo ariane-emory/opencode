@@ -2005,10 +2005,6 @@ export type Config = {
      */
     messages_limit?: number | "none"
     /**
-     * Timeout in milliseconds for model context protocol (MCP) requests
-     */
-    mcp_timeout?: number
-    /**
      * Enable experimental plan mode
      */
     plan_mode?: boolean
@@ -2021,7 +2017,6 @@ export type Config = {
      */
     session_list_limit?: number | "none"
   }
-}
 }
 
 export type BadRequestError = {

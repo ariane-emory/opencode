@@ -29,7 +29,7 @@
 | ☑ | 23 | fix/autocompletion-filtered-order | origin | 1a09364962 | Conflict resolved - kept integration's prompt/index.tsx |
 | ☐ | 24 | fix/modal-menus-filtered-order | origin | TBD | |
 | ☑ | 25 | fix/config-package-json-pollution | origin | ab314ae77e | Prevents package.json pollution with non-SemVer versions |
-| ☐ | 26 | fix/session-list-viewport-jumping | origin | TBD | |
+| ☑ | 26 | fix/session-list-viewport-jumping | origin | 1d6b25e544 | |
 | ☐ | 27 | fix/merging-multiple-configs | origin | TBD | |
 | ☐ | 28 | fix/markdown-codeblock-theme-property | origin | TBD | |
 | ☐ | 29 | fix/persist-sidebar | origin | TBD | Makes sidebar state persistent; removes auto-hide; no return to auto state |

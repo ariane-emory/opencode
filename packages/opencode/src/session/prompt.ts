@@ -1334,8 +1334,8 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           throw new Error("Impossible")
         })
 
-      const runLoop: (sessionID: SessionID) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.run")(
-        function* (sessionID: SessionID) {
+      const runLoop: (sessionID: SessionID, modelOverride?: { providerID: ProviderID; modelID: ModelID }) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.run")(
+        function* (sessionID: SessionID, modelOverride?: { providerID: ProviderID; modelID: ModelID }) {
           const ctx = yield* InstanceState.context
           let structured: unknown | undefined
           let step = 0
@@ -1389,7 +1389,12 @@ NOTE: At any point in time through this workflow you should feel free to ask the
                 history: msgs,
               }).pipe(Effect.ignore, Effect.forkIn(scope))
 
-            const model = yield* getModel(lastUser.model.providerID, lastUser.model.modelID, sessionID)
+            const modelToUse = modelOverride ?? lastUser.model
+            if (modelOverride) {
+              yield* sessions.updateMessage({ ...lastUser, model: modelToUse })
+              lastUser.model = modelToUse
+            }
+            const model = yield* getModel(modelToUse.providerID, modelToUse.modelID, sessionID)
             const task = tasks.pop()
 
             if (task?.type === "subtask") {
@@ -1570,7 +1575,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       )(function* (input: z.infer<typeof LoopInput>) {
         const s = yield* InstanceState.get(state)
         const runner = getRunner(s.runners, input.sessionID)
-        return yield* runner.ensureRunning(runLoop(input.sessionID))
+        return yield* runner.ensureRunning(runLoop(input.sessionID, input.model))
       })
 
       const shell: (input: ShellInput) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.shell")(
@@ -1820,6 +1825,12 @@ NOTE: At any point in time through this workflow you should feel free to ask the
 
   export const LoopInput = z.object({
     sessionID: SessionID.zod,
+    model: z
+      .object({
+        providerID: ProviderID.zod,
+        modelID: ModelID.zod,
+      })
+      .optional(),
   })
 
   export async function loop(input: z.infer<typeof LoopInput>) {

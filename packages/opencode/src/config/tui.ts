@@ -155,8 +155,34 @@ export namespace TuiConfig {
 
     const parsed = Info.safeParse(normalized)
     if (!parsed.success) {
-      log.warn("invalid tui config", { path: configFilepath, issues: parsed.error.issues })
-      return {}
+      const keys = parsed.error.issues
+        .filter((x) => x.code === "unrecognized_keys" && x.path.length === 0)
+        .flatMap((x) => ("keys" in x && Array.isArray(x.keys) ? x.keys : []))
+      if (!keys.length) {
+        log.warn("invalid tui config", { path: configFilepath, issues: parsed.error.issues })
+        return {}
+      }
+
+      const next = { ...normalized }
+      for (const key of keys) {
+        delete next[key]
+      }
+
+      const retried = Info.safeParse(next)
+      if (!retried.success) {
+        log.warn("invalid tui config", { path: configFilepath, issues: retried.error.issues })
+        return {}
+      }
+
+      log.warn("ignoring unknown tui config keys", { path: configFilepath, keys })
+      const data = retried.data
+      if (data.plugin) {
+        for (let i = 0; i < data.plugin.length; i++) {
+          data.plugin[i] = await Config.resolvePluginSpec(data.plugin[i], configFilepath)
+        }
+      }
+
+      return data
     }
 
     const data = parsed.data

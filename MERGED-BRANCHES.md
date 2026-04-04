@@ -25,8 +25,8 @@
 | ☑ | 19 | feat/default-arguments | origin | 6584bb2549 | Clean merge - no swallowing behavior, defaults work correctly |
 | ☑ | 20 | fix/preserve-quotes-in-arguments | origin | d8fd29909a | Clean merge - kept substituteArguments, removed quote trimming |
 | ☑ | 21 | fix/history-navigation-key-commands | origin | 8a6ba49fa5 | Clean merge |
-| ☑ | 22 | fix/build-with-short-version | origin | 3494493cfd | Uses short timestamp version for integration branches | |
-| ☐ | 23 | fix/autocompletion-filtered-order | origin | TBD | |
+| ☑ | 22 | fix/build-with-short-version | origin | 3494493cfd | Uses short timestamp version for integration branches |
+| ☑ | 23 | fix/autocompletion-filtered-order | origin | 1a09364962 | Conflict resolved - kept integration's prompt/index.tsx |
 | ☐ | 24 | fix/modal-menus-filtered-order | origin | TBD | |
 | ☐ | 25 | fix/config-package-json-pollution | origin | TBD | Prevents package.json pollution with non-SemVer versions |
 | ☐ | 26 | fix/session-list-viewport-jumping | origin | TBD | |
@@ -97,3 +97,8 @@ _2025-04-04 01:16 UTC_ - Merged branch 21 (fix/history-navigation-key-commands) 
 
 _2025-04-04 01:17 UTC_ - Merged branch 22 (fix/build-with-short-version) - 3494493cfd
 - Clean merge
+
+_2025-04-04 01:18 UTC_ - Merged branch 23 (fix/autocompletion-filtered-order) - 1a09364962
+- Conflict resolved: packages/opencode/src/cli/cmd/tui/component/prompt/index.tsx
+- Resolution: Kept integration's version (HEAD) to preserve placeholders and list continuation features
+- Typecheck: Passed

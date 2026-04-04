@@ -16,7 +16,7 @@ import { useTuiConfig } from "../../context/tui-config"
 import { getScrollAcceleration } from "../../util/scroll"
 import { parseSessionTitleParts } from "@tui/util/session-title"
 
-export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
+export function Sidebar(props: { sessionID: string }) {
   const sync = useSync()
   const { theme } = useTheme()
   const tuiConfig = useTuiConfig()
@@ -86,7 +86,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
         paddingBottom={1}
         paddingLeft={2}
         paddingRight={2}
-        position={props.overlay ? "absolute" : "relative"}
+        position="relative"
       >
         <scrollbox
           flexGrow={1}

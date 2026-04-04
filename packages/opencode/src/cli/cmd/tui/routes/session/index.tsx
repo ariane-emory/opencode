@@ -62,6 +62,7 @@ import { useSDK } from "@tui/context/sdk"
 import { useCommandDialog } from "@tui/component/dialog-command"
 import type { DialogContext } from "@tui/ui/dialog"
 import { useKeybind } from "@tui/context/keybind"
+import { Header } from "./header"
 import { parsePatch } from "diff"
 import { useDialog } from "../../ui/dialog"
 import { TodoItem } from "../../component/todo-item"
@@ -166,6 +167,8 @@ export function Session() {
   const [showDetails, setShowDetails] = kv.signal("tool_details_visibility", true)
   const [showAssistantMetadata, setShowAssistantMetadata] = kv.signal("assistant_metadata_visibility", true)
   const [showScrollbar, setShowScrollbar] = kv.signal("scrollbar_visible", true)
+  const [sidebarOverlayEnabled, setSidebarOverlayEnabled] = kv.signal("sidebar_overlay", true)
+  const [showHeader, setShowHeader] = kv.signal("header_visible", true)
   const [diffWrapMode] = kv.signal<"word" | "none">("diff_wrap_mode", "word")
   const [animationsEnabled, setAnimationsEnabled] = kv.signal("animations_enabled", true)
   const [showTps, setShowTps] = kv.signal("tps_visibility", false)
@@ -180,8 +183,12 @@ export function Session() {
     if (sidebar() === "auto" && wide()) return true
     return false
   })
+  const sidebarOverlay = createMemo(() => {
+    if (!sidebarOverlayEnabled()) return false
+    return sidebarVisible() && !wide()
+  })
   const showTimestamps = createMemo(() => timestamps() === "show")
-  const contentWidth = createMemo(() => dimensions().width - (sidebarVisible() ? 42 : 0) - 4)
+  const contentWidth = createMemo(() => dimensions().width - (sidebarVisible() && !sidebarOverlay() ? 42 : 0) - 4)
   const providers = createMemo(() => Model.index(sync.data.provider))
 
   const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
@@ -678,6 +685,15 @@ export function Session() {
       },
     },
     {
+      title: showHeader() ? "Hide header" : "Show header",
+      value: "session.toggle.header",
+      category: "Session",
+      onSelect: (dialog) => {
+        setShowHeader((prev) => !prev)
+        dialog.clear()
+      },
+    },
+    {
       title: showGenericToolOutput() ? "Hide generic tool output" : "Show generic tool output",
       value: "session.toggle.generic_tool_output",
       category: "Session",
@@ -1083,8 +1099,11 @@ export function Session() {
       }}
     >
       <box flexDirection="row">
-        <box flexGrow={1} paddingBottom={1} paddingLeft={2} paddingRight={2} gap={1}>
+        <box flexGrow={1} paddingBottom={1} paddingTop={1} paddingLeft={2} paddingRight={2} gap={1}>
           <Show when={session()}>
+            <Show when={showHeader() && (!sidebarVisible() || sidebarOverlay())}>
+              <Header />
+            </Show>
             <scrollbox
               ref={(r) => (scroll = r)}
               viewportOptions={{
@@ -1238,10 +1257,10 @@ export function Session() {
         </box>
         <Show when={sidebarVisible()}>
           <Switch>
-            <Match when={wide()}>
+            <Match when={!sidebarOverlay()}>
               <Sidebar sessionID={route.sessionID} />
             </Match>
-            <Match when={!wide()}>
+            <Match when={sidebarOverlay()}>
               <box
                 position="absolute"
                 top={0}

@@ -12,11 +12,11 @@ import { useDirectory } from "../../context/directory"
 import { useKV } from "../../context/kv"
 import { TodoItem } from "../../component/todo-item"
 import { TuiPluginRuntime } from "../../plugin"
-<<<<<<< HEAD
 import { useTuiConfig } from "../../context/tui-config"
-import { useKV } from "../../context/kv"
 import { getScrollAcceleration } from "../../util/scroll"
 import { parseSessionTitleParts } from "@tui/util/session-title"
+
+export function Sidebar(props: { sessionID: string }) {
 
 export function Sidebar(props: { sessionID: string }) {
   const sync = useSync()

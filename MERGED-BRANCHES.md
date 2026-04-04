@@ -1,0 +1,88 @@
+# Integration Branch: integration/2026-04-04-00-14
+
+## Merge Checklist
+
+| Status | # | Branch Name | Remote | Commit Hash | Description |
+|--------|---|-------------|--------|-------------|-------------|
+| ☐ | 1 | feat/base-one-rebrand | origin | TBD | |
+| ☐ | 2 | feat/sinister-quotes | origin | TBD | Placeholders MUST be SINISTER_PLACEHOLDERS array |
+| ☐ | 3 | feat/markdown-renderer | gignit | TBD | |
+| ☐ | 4 | feat/thinking-indicator-hidden | rcdailey | TBD | |
+| ☐ | 5 | feat/session-grouping | origin | TBD | |
+| ☐ | 6 | feat/session-bookmarks | origin | TBD | |
+| ☐ | 7 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks |
+| ☐ | 8 | feat/keybindable-commands | origin | TBD | |
+| ☐ | 9 | feat/automatic-list-continuation | origin | TBD | |
+| ☐ | 10 | feat/continue-command | origin | TBD | |
+| ☐ | 11 | feat/configurable-snapshot-lifespan | origin | TBD | |
+| ☐ | 12 | feat/configurable-new-plan-mode | origin | TBD | |
+| ☐ | 13 | feat/enable-exa-setting | origin | TBD | |
+| ☐ | 14 | feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber; MUST add new item to command palette |
+| ☐ | 15 | feat/permission-spinner | origin | TBD | |
+| ☐ | 16 | feat/permission-indicator-in-sidebar | origin | TBD | |
+| ☐ | 17 | feat/opencode-expand | origin | TBD | |
+| ☐ | 18 | feat/argument-range-syntax | origin | TBD | |
+| ☐ | 19 | feat/default-arguments | origin | TBD | Don't reintroduce swallowing behaviour from feat/argument-range-syntax |
+| ☐ | 20 | fix/preserve-quotes-in-arguments | origin | TBD | |
+| ☐ | 21 | fix/history-navigation-key-commands | origin | TBD | |
+| ☐ | 22 | fix/build-with-short-version | origin | TBD | Uses short timestamp version for integration branches |
+| ☐ | 23 | fix/autocompletion-filtered-order | origin | TBD | |
+| ☐ | 24 | fix/modal-menus-filtered-order | origin | TBD | |
+| ☐ | 25 | fix/config-package-json-pollution | origin | TBD | Prevents package.json pollution with non-SemVer versions |
+| ☐ | 26 | fix/session-list-viewport-jumping | origin | TBD | |
+| ☐ | 27 | fix/merging-multiple-configs | origin | TBD | |
+| ☐ | 28 | fix/markdown-codeblock-theme-property | origin | TBD | |
+| ☐ | 29 | fix/persist-sidebar | origin | TBD | Makes sidebar state persistent; removes auto-hide; no return to auto state |
+| ☐ | 30 | feat/command-palette-consistency | origin | TBD | MOVE items from Session to System category; don't duplicate |
+| ☐ | 31 | refactor/shared-substitute | origin | TBD | |
+| ☐ | 32 | feat/session-id-in-status | origin | TBD | |
+| ☐ | 33 | feat/edit-tool-description | origin | TBD | |
+| ☐ | 34 | feat/opeoginni--display-message-tps | origin | TBD | |
+| ☐ | 35 | feat/kv-diff-style-clean | origin | TBD | |
+| ☐ | 36 | feat/global-compaction-threshold | origin | TBD | |
+| ☐ | 37 | feat/configurable-message-and-session-limit | origin | TBD | Both experimental._message__limit and experimental.session_list_limit accept positive integers or "none" |
+| ☐ | 38 | feat/experimental-dont-cache-command-markdown | origin | TBD | |
+| ☐ | 39 | feat/jsonc-user-themes | origin | TBD | |
+| ☐ | 40 | feat/persist-sidebar-group-folding-states | origin | TBD | Don't let this feature get clobbered |
+| ☐ | 41 | feat/persistant-sidebar-overlay-behaviour | origin | TBD | |
+| ☐ | 42 | feat/shell-advice | origin | TBD | Combine with feat/improve-bash-tool-git-advice changes to bash tool description |
+| ☐ | 43 | feat/improve-bash-tool-git-advice | origin | TBD | Combine with feat/shell-advice changes to bash tool description |
+| ☐ | 44 | feat/renaming-doesnt-close-session-list | origin | TBD | |
+| ☐ | 45 | feat/session-child-toggle-key | origin | TBD | |
+| ☐ | 46 | feat/set-session-title | origin | TBD | |
+| ☐ | 47 | feat/get-session-title | origin | TBD | |
+| ☐ | 48 | feat/no-disabled-lsps-in-sidebar | origin | TBD | |
+| ☐ | 49 | feat/agent-timestamps | origin | TBD | |
+| ☐ | 50 | feat/rewind-modal-option | origin | TBD | |
+| ☐ | 51 | feat/alphabetize-command-palette-groups | origin | TBD | |
+| ☐ | 52 | feat/taller-dialogs | origin | TBD | |
+| ☐ | 53 | feat/add-arianes-themes | origin | TBD | |
+| ☐ | 54 | feat/aspiers--readline-additions | origin | TBD | |
+| ☐ | 55 | feat/sidebar-clock | origin | TBD | |
+| ☐ | 56 | feat/alphabetical-message-modal | origin | TBD | |
+| ☐ | 57 | feat/toggle-sidebar-scrollbar | origin | TBD | |
+| ☐ | 58 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | TBD | |
+| ☐ | 59 | feat/configurable-maximum-prompt-input-size | origin | TBD | |
+| ☐ | 60 | fix/always-allow-folding-sidebar-mcps | origin | TBD | |
+| ☐ | 61 | feat/clickable-sidebar-mcps | origin | TBD | |
+| ☐ | 62 | feat/clickable-dialogue-mcps | origin | TBD | |
+| ☐ | 63 | feat/clickable-status-mcps | origin | TBD | |
+| ☐ | 64 | feat/ignored-commands | origin | TBD | |
+| ☐ | 65 | feat/dialogue-background-overlay-setting | origin | TBD | |
+| ☐ | 66 | fix/no-split-database | origin | TBD | |
+| ☐ | 67 | feat/elapsed-timer | origin | TBD | |
+| ☐ | 68 | fix/system-prompt-directories | origin | TBD | |
+| ☐ | 69 | fix/rfc2119-question-tool | origin | TBD | |
+| ☐ | 70 | feat/sidebar-header-accent-colours | origin | TBD | |
+| ☐ | 71 | feat/distinct-title-colour | origin | TBD | Must be compatible with feat/session-grouping grouped session title formatting |
+| ☐ | 72 | feat/tool-output-colour | origin | TBD | |
+| ☐ | 73 | feat/improve-experimental-plan-mode-prompt | origin | TBD | |
+| ☐ | 74 | fix/input-enter-keybindings | origin | TBD | |
+| ☐ | 75 | fix/escape-from-status | origin | TBD | |
+| ☐ | 76 | fix/restore-footer | origin | TBD | Restores footer; must not be clobbered |
+| ☐ | 77 | feat/remove-canned-jokes | origin | TBD | |
+| ☐ | 78 | fix/session-list-delete-selection | origin | TBD | |
+
+## Merge Log
+
+_Merge log entries will be added here as branches are merged._

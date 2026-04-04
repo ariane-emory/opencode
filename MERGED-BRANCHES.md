@@ -32,7 +32,7 @@
 | ☑ | 26 | fix/session-list-viewport-jumping | origin | 1d6b25e544 | |
 | ☑ | 27 | fix/merging-multiple-configs | origin | 1ed6e50fcd | |
 | ☑ | 28 | fix/markdown-codeblock-theme-property | origin | ef776b1278 | |
-| ☐ | 29 | fix/persist-sidebar | origin | TBD | Makes sidebar state persistent; removes auto-hide; no return to auto state |
+| ☑ | 29 | fix/persist-sidebar | origin | b08bb55dcc | Makes sidebar state persistent; removes auto-hide; no return to auto state |
 | ☐ | 30 | feat/command-palette-consistency | origin | TBD | MOVE items from Session to System category; don't duplicate |
 | ☐ | 31 | refactor/shared-substitute | origin | TBD | |
 | ☐ | 32 | feat/session-id-in-status | origin | TBD | |

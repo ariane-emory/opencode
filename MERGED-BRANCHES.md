@@ -64,7 +64,7 @@
 | ☑ | 58 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | 73b8c84de0 | Resolved conflict in locale.ts - used MONTHS array approach |
 | ☑ | 59 | feat/configurable-maximum-prompt-input-size | origin | c770635c63 | Resolved conflicts in config.ts and types.gen.ts - combined all experimental fields |
 | ☑ | 60 | fix/always-allow-folding-sidebar-mcps | origin | 685870c95b | Clean merge |
-| ☐ | 61 | feat/clickable-sidebar-mcps | origin | TBD | |
+| ☑ | 61 | feat/clickable-sidebar-mcps | origin | 12d51068be | Resolved conflict in mcp.tsx - kept folding toggle + loading signal |
 | ☐ | 62 | feat/clickable-dialogue-mcps | origin | TBD | |
 | ☐ | 63 | feat/clickable-status-mcps | origin | TBD | |
 | ☐ | 64 | feat/ignored-commands | origin | TBD | |

@@ -61,7 +61,7 @@
 | ☑ | 55 | feat/sidebar-clock | origin | 1ff685909c | Resolved conflict in sidebar.tsx - fixed missing hasProviders/gettingStartedDismissed definitions |
 | ☑ | 56 | feat/alphabetical-message-modal | origin | daf7776cd1 | Resolved conflicts in dialog-select.tsx - kept smartCompare, combined conditional sorting |
 | ☑ | 57 | feat/toggle-sidebar-scrollbar | origin | af5718c111 | Resolved conflicts in sidebar.tsx, app.tsx, index.tsx - combined overlay + scrollbar props |
-| ☐ | 58 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | TBD | |
+| ☑ | 58 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | 73b8c84de0 | Resolved conflict in locale.ts - used MONTHS array approach |
 | ☐ | 59 | feat/configurable-maximum-prompt-input-size | origin | TBD | |
 | ☐ | 60 | fix/always-allow-folding-sidebar-mcps | origin | TBD | |
 | ☐ | 61 | feat/clickable-sidebar-mcps | origin | TBD | |

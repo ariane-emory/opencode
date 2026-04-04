@@ -81,7 +81,7 @@
 | ☑ | 75 | fix/escape-from-status | origin | 96a18ffb1e | Clean merge |
 | ☑ | 76 | fix/restore-footer | origin | b80d74528b | Added missing Footer import |
 | ☑ | 77 | feat/remove-canned-jokes | origin | 9425b3b0e8 | Clean merge |
-| ☐ | 78 | fix/session-list-delete-selection | origin | TBD | |
+| ☑ | 78 | fix/session-list-delete-selection | origin | f2df9fc132 | Resolved conflicts in dialog-select.tsx and dialog-session-list.tsx - combined scrollToValue + moveTo |
 
 ## Merge Log
 

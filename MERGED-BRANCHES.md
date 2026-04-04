@@ -50,7 +50,7 @@
 | ☑ | 44 | feat/renaming-doesnt-close-session-list | origin | e38481407a | Resolved conflict - kept pinKeybind while incorporating initialSessionID logic |
 | ☑ | 45 | feat/session-child-toggle-key | origin | b931561423 | Resolved conflict - kept session_continue while adding session_child_toggle |
 | ☑ | 46 | feat/set-session-title | origin | d4dcdb51ae | Clean merge - adds tool to set current session title |
-| ☐ | 47 | feat/get-session-title | origin | TBD | |
+| ☑ | 47 | feat/get-session-title | origin | 4ad9462314 | Resolved conflict - kept both bookmark and session-title tool imports |
 | ☐ | 48 | feat/no-disabled-lsps-in-sidebar | origin | TBD | |
 | ☐ | 49 | feat/agent-timestamps | origin | TBD | |
 | ☐ | 50 | feat/rewind-modal-option | origin | TBD | |

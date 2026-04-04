@@ -53,7 +53,7 @@
 | ☑ | 47 | feat/get-session-title | origin | 4ad9462314 | Resolved conflict - kept both bookmark and session-title tool imports |
 | ☑ | 48 | feat/no-disabled-lsps-in-sidebar | origin | 627825c345 | Resolved conflict in lsp.tsx - combined toggle function with Show when !off wrapper |
 | ☑ | 49 | feat/agent-timestamps | origin | 4e28fafa37 | Resolved conflict - combined sidebar overlay width calc with agent timestamps |
-| ☐ | 50 | feat/rewind-modal-option | origin | TBD | |
+| ☑ | 50 | feat/rewind-modal-option | origin | TBD | Clean merge |
 | ☐ | 51 | feat/alphabetize-command-palette-groups | origin | TBD | |
 | ☐ | 52 | feat/taller-dialogs | origin | TBD | |
 | ☐ | 53 | feat/add-arianes-themes | origin | TBD | |

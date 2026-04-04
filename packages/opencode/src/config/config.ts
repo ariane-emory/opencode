@@ -1367,15 +1367,24 @@ export namespace Config {
         })
 
         const loadGlobal = Effect.fnUntraced(function* () {
-          const root = path.dirname(Global.Path.config)
-          let result = pipe(
-            {},
-            mergeDeep(yield* loadFile(path.join(root, "opencode", "config.json"))),
-            mergeDeep(yield* loadFile(path.join(root, "opencode", "opencode.json"))),
-            mergeDeep(yield* loadFile(path.join(root, "opencode", "opencode.jsonc"))),
-            mergeDeep(yield* loadFile(path.join(root, "baseone", "baseone.json"))),
-            mergeDeep(yield* loadFile(path.join(root, "baseone", "baseone.jsonc"))),
-          )
+          const hasBaseone =
+            existsSync(path.join(Global.Path.config, "baseone.json")) ||
+            existsSync(path.join(Global.Path.config, "baseone.jsonc"))
+          let result: Info
+          if (hasBaseone) {
+            result = pipe(
+              {},
+              mergeDeep(yield* loadFile(path.join(Global.Path.config, "baseone.json"))),
+              mergeDeep(yield* loadFile(path.join(Global.Path.config, "baseone.jsonc"))),
+            )
+          } else {
+            result = pipe(
+              {},
+              mergeDeep(yield* loadFile(path.join(Global.Path.config, "config.json"))),
+              mergeDeep(yield* loadFile(path.join(Global.Path.config, "opencode.json"))),
+              mergeDeep(yield* loadFile(path.join(Global.Path.config, "opencode.jsonc"))),
+            )
+          }
 
           const legacy = path.join(Global.Path.config, "config")
           if (existsSync(legacy)) {

@@ -39,7 +39,7 @@
 | ☑ | 33 | feat/edit-tool-description | origin | 62fe3955cc | Clean merge |
 | ☑ | 34 | feat/opeoginni--display-message-tps | origin | a5fefdc3bc | Clean merge |
 | ☑ | 35 | feat/kv-diff-style-clean | origin | 1774dc36d4 | Fixed duplicate useKV import and missing useTuiConfig |
-| ☐ | 36 | feat/global-compaction-threshold | origin | TBD | |
+| ☑ | 36 | feat/global-compaction-threshold | origin | 199d2521a3 | Clean merge |
 | ☐ | 37 | feat/configurable-message-and-session-limit | origin | TBD | Both experimental._message__limit and experimental.session_list_limit accept positive integers or "none" |
 | ☐ | 38 | feat/experimental-dont-cache-command-markdown | origin | TBD | |
 | ☐ | 39 | feat/jsonc-user-themes | origin | TBD | |

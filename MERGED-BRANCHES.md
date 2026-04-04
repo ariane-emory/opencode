@@ -56,7 +56,7 @@
 | ☑ | 50 | feat/rewind-modal-option | origin | TBD | Clean merge |
 | ☑ | 51 | feat/alphabetize-command-palette-groups | origin | b1755a163f | Resolved conflicts in dialog-select.tsx - kept smartCompare for sorting |
 | ☑ | 52 | feat/taller-dialogs | origin | b0f485a2e4 | Clean merge |
-| ☐ | 53 | feat/add-arianes-themes | origin | TBD | |
+| ☑ | 53 | feat/add-arianes-themes | origin | 31b3f4bd034 | Clean merge - adds Ariane's theme files |
 | ☐ | 54 | feat/aspiers--readline-additions | origin | TBD | |
 | ☐ | 55 | feat/sidebar-clock | origin | TBD | |
 | ☐ | 56 | feat/alphabetical-message-modal | origin | TBD | |

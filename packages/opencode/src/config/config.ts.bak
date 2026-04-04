@@ -549,7 +549,7 @@ export namespace Config {
     agent: z.string().optional(),
     model: ModelId.optional(),
     subtask: z.boolean().optional(),
-  }).catchall(z.any())
+  })
   export type Command = z.infer<typeof Command>
 
   export const Skills = z.object({
@@ -820,12 +820,16 @@ export namespace Config {
       })
       .optional()
       .describe("Scroll acceleration settings"),
-      diff_style: z
+<<<<<<< HEAD
+  })
+=======
+    diff_style: z
       .enum(["auto", "stacked"])
       .optional()
       .describe("Control diff rendering style: 'auto' adapts to terminal width, 'stacked' always shows single column"),
   })
   export type TUI = z.infer<typeof TUI>
+>>>>>>> feat/configurable-message-and-session-limit
 
   export const Server = z
     .object({
@@ -1088,11 +1092,6 @@ export namespace Config {
             .array(z.string())
             .optional()
             .describe("Tools that should only be available to primary agents."),
-          cache_command_markdown_files: z
-            .boolean()
-            .optional()
-            .default(true)
-            .describe("Cache command markdown files on first load. Set to false to reload command files on every execution."),
           continue_loop_on_deny: z.boolean().optional().describe("Continue the agent loop when a tool call is denied"),
           context_compaction_threshold: z.number().min(10).max(100).optional().describe("Percentage of usable context space at which to trigger compaction (10-100)"),
           mcp_timeout: z
@@ -1101,11 +1100,13 @@ export namespace Config {
             .positive()
             .optional()
             .describe("Timeout in milliseconds for model context protocol (MCP) requests"),
+<<<<<<< HEAD
           plan_mode: z.boolean().optional().describe("Enable experimental plan mode"),
           enable_exa: z
             .boolean()
             .optional()
             .describe("Enable experimental Exa features"),
+=======
           messages_limit: z
             .union([z.number().min(1), z.literal("none")])
             .optional()
@@ -1114,6 +1115,7 @@ export namespace Config {
             .union([z.number().min(1), z.literal("none")])
             .optional()
             .describe("Maximum number of sessions to display in session list, or 'none' to show all sessions"),
+>>>>>>> feat/configurable-message-and-session-limit
         })
         .optional(),
     })
@@ -1732,7 +1734,4 @@ export namespace Config {
     const config = await get()
     return config.experimental?.enable_exa === true
   }
-
-  // Re-export loadCommand for use when cache_command_markdown_files is false
-  export const reloadCommands = loadCommand
 }

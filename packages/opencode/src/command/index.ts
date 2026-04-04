@@ -1,6 +1,7 @@
 import { BusEvent } from "@/bus/bus-event"
 import { InstanceState } from "@/effect/instance-state"
 import { makeRuntime } from "@/effect/run-service"
+import { Instance } from "@/project/instance"
 import { SessionID, MessageID } from "@/session/schema"
 import { Effect, Layer, ServiceMap } from "effect"
 import z from "zod"
@@ -372,7 +373,6 @@ export namespace Command {
       const state = yield* InstanceState.make<State>((ctx) => init(ctx))
 
       const get = Effect.fn("Command.get")(function* (name: string) {
-      const get = Effect.fn("Command.get")(function* (name: string) {
         const cfg = yield* Effect.promise(() => Config.get())
         // When experimental.cache_command_markdown_files is explicitly false,
         // reload commands from disk on each call
@@ -427,7 +427,6 @@ export namespace Command {
       return Service.of({ get, list })
     }),
   )
-
   export const defaultLayer = layer.pipe(
     Layer.provide(Config.defaultLayer),
     Layer.provide(MCP.defaultLayer),

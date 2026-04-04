@@ -17,8 +17,6 @@ import { getScrollAcceleration } from "../../util/scroll"
 import { parseSessionTitleParts } from "@tui/util/session-title"
 
 export function Sidebar(props: { sessionID: string }) {
-
-export function Sidebar(props: { sessionID: string }) {
   const sync = useSync()
   const { theme } = useTheme()
   const tuiConfig = useTuiConfig()
@@ -70,15 +68,12 @@ export function Sidebar(props: { sessionID: string }) {
 
   const directory = useDirectory()
   const kv = useKV()
-
   const hasProviders = createMemo(() =>
     sync.data.provider.some((x) => x.id !== "opencode" || Object.values(x.models).some((y) => y.cost?.input !== 0)),
   )
   const gettingStartedDismissed = createMemo(() => kv.get("dismissed_getting_started", false))
   const titleParts = createMemo(() => parseSessionTitleParts(session()?.title ?? ""))
   const permissions = createMemo(() => sync.data.permission[props.sessionID] ?? [])
-
-  const kv = useKV()
   const showSidebarClock = createMemo(() => kv.get("sidebar_clock_visible", true))
 
   const formatTime = () => {

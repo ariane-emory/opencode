@@ -834,7 +834,6 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
-<<<<<<< HEAD
       title: kv.get("markdown_all_messages", false)
         ? "Render markdown: agent messages only"
         : "Render markdown: all messages",
@@ -851,7 +850,10 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       category: "System",
       onSelect: (dialog) => {
         kv.set("clear_prompt_save_history", !kv.get("clear_prompt_save_history", false))
-=======
+        dialog.clear()
+      },
+    },
+    {
       title: sidebarClockEnabled() ? "Hide sidebar clock" : "Show sidebar clock",
       value: "system.toggle.sidebar_clock",
       category: "System",
@@ -861,7 +863,6 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
           kv.set("sidebar_clock_visible", next)
           return next
         })
->>>>>>> origin/feat/sidebar-clock
         dialog.clear()
       },
     },

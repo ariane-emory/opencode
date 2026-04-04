@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/tui.json",
+  "theme": "matrix--transparent",
   "plugin": [
     [
       "./plugins/tui-smoke.tsx",

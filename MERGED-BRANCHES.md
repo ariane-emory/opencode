@@ -23,7 +23,7 @@
 | ☑ | 17 | feat/opencode-expand | origin | 2780051264 | Conflicts resolved |
 | ☑ | 18 | feat/argument-range-syntax | origin | 4c77b34916 | Conflicts in substitute.ts - kept extended placeholder syntax with ${N}, ${N..M}, ${..M}, ${N..}, ${..} |
 | ☑ | 19 | feat/default-arguments | origin | 6584bb2549 | Clean merge - no swallowing behavior, defaults work correctly |
-| ☐ | 20 | fix/preserve-quotes-in-arguments | origin | TBD | |
+| ☑ | 20 | fix/preserve-quotes-in-arguments | origin | d8fd29909a | Clean merge - kept substituteArguments, removed quote trimming |
 | ☐ | 21 | fix/history-navigation-key-commands | origin | TBD | |
 | ☐ | 22 | fix/build-with-short-version | origin | TBD | Uses short timestamp version for integration branches |
 | ☐ | 23 | fix/autocompletion-filtered-order | origin | TBD | |
@@ -86,3 +86,8 @@
 ## Merge Log
 
 _Merge log entries will be added here as branches are merged._
+
+_2025-04-04 01:15 UTC_ - Merged branch 20 (fix/preserve-quotes-in-arguments) - d8fd29909a
+- Resolved conflict: packages/opencode/src/session/prompt.ts
+- Resolution: Kept substituteArguments function, removed quote trimming from args
+- Result: Quotes in arguments are now preserved

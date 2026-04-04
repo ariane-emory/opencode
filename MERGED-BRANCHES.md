@@ -44,7 +44,7 @@
 | ☑ | 38 | feat/experimental-dont-cache-command-markdown | origin | ddbec75d6d | Added reloadCommands export; fixed Instance import and test types |
 | ☑ | 39 | feat/jsonc-user-themes | origin | 8ff073e83f | Clean merge - adds support for user-defined themes in JSONC format |
 | ☑ | 40 | feat/persist-sidebar-group-folding-states | origin | f8e1e6b974 | Clean merge - preserves sidebar group folding states |
-| ☐ | 41 | feat/persistant-sidebar-overlay-behaviour | origin | TBD | |
+| ☑ | 41 | feat/persistant-sidebar-overlay-behaviour | origin | 013a1de76f | Resolved conflict in app.tsx - combined TPS toggle, terminal title toggle, and sidebar overlay toggle |
 | ☐ | 42 | feat/shell-advice | origin | TBD | Combine with feat/improve-bash-tool-git-advice changes to bash tool description |
 | ☐ | 43 | feat/improve-bash-tool-git-advice | origin | TBD | Combine with feat/shell-advice changes to bash tool description |
 | ☐ | 44 | feat/renaming-doesnt-close-session-list | origin | TBD | |

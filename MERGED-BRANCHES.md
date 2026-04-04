@@ -58,7 +58,7 @@
 | ☑ | 52 | feat/taller-dialogs | origin | b0f485a2e4 | Clean merge |
 | ☑ | 53 | feat/add-arianes-themes | origin | 31b3f4bd034 | Clean merge - adds Ariane's theme files |
 | ☑ | 54 | feat/aspiers--readline-additions | origin | e5cc689f11 | Resolved conflicts in types.gen.ts - added readline keybinds |
-| ☑ | 55 | feat/sidebar-clock | origin | 6524ef311 | Resolved conflict in sidebar.tsx and combining both sidebar features |
+| ☑ | 55 | feat/sidebar-clock | origin | 1ff685909c | Resolved conflict in sidebar.tsx - fixed missing hasProviders/gettingStartedDismissed definitions |
 | ☐ | 56 | feat/alphabetical-message-modal | origin | TBD | |
 | ☐ | 57 | feat/toggle-sidebar-scrollbar | origin | TBD | |
 | ☐ | 58 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | TBD | |

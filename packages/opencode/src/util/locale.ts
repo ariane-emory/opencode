@@ -5,7 +5,10 @@ export namespace Locale {
 
   export function time(input: number): string {
     const date = new Date(input)
-    return date.toLocaleTimeString(undefined, { timeStyle: "short" })
+    const str = date.toLocaleTimeString(undefined, { timeStyle: "short" })
+    // Pad single-digit hours with leading space for alignment (e.g., "9:38 PM" -> " 9:38 PM")
+    if (/^\d:/.test(str)) return " " + str
+    return str
   }
 
   export function datetime(input: number): string {
@@ -36,16 +39,12 @@ export namespace Locale {
       date.getMonth() === now.getMonth() &&
       date.getDate() === now.getDate()
 
-    const timeStr = time(input)
-
     if (isToday) {
-      return timeStr
+      return time(input)
     } else {
-      const dateStr = date.toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-      })
-      return `${dateStr} · ${timeStr}`
+      const month = date.toLocaleDateString(undefined, { month: "short" })
+      const day = date.getDate().toString().padStart(2, " ")
+      return `${month} ${day}, ${time(input)}`
     }
   }
 

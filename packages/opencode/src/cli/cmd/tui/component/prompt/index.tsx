@@ -65,7 +65,6 @@ export type PromptRef = {
 
 import { SINISTER_PLACEHOLDERS as PLACEHOLDERS } from "@opencode-ai/ui/constants/placeholders"
 const SHELL_PLACEHOLDERS = ["ls -la", "git status", "pwd"]
-
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
@@ -138,7 +137,6 @@ export function Prompt(props: PromptProps) {
     if (!props.disabled) input.cursorColor = theme.text
   })
 
-  // Resize textarea when placeholder changes (e.g., when switching sessions or when placeholder index changes)
   createEffect(() => {
     const placeholderText = props.sessionID ? undefined : PLACEHOLDERS[store.placeholder]
     // Track both the placeholder text and sessionID changes

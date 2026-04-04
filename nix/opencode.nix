@@ -92,7 +92,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   };
 
   meta = {
-    description = "AI coding agent built for the terminal";
+    description = "The open source coding agent";
     homepage = "https://github.com/ariane-emory/baseone";
     license = lib.licenses.mit;
     mainProgram = "baseone";

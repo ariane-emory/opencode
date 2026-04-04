@@ -13,6 +13,7 @@ import { MessageID, PartID } from "@/session/schema"
 import { createStore, produce } from "solid-js/store"
 import { useKeybind } from "@tui/context/keybind"
 import { usePromptHistory, type PromptInfo } from "./history"
+import { isWordChar, getWordBoundaries, lowercaseWord, uppercaseWord, capitalizeWord } from "./word"
 import { assign } from "./part"
 import { usePromptStash } from "./stash"
 import { DialogStash } from "../dialog-stash"
@@ -180,6 +181,7 @@ export function Prompt(props: PromptProps) {
     extmarkToPartIndex: Map<number, number>
     interrupt: number
     placeholder: number
+    killBuffer: string
   }>({
     placeholder: randomIndex(list().length),
     prompt: {
@@ -189,6 +191,7 @@ export function Prompt(props: PromptProps) {
     mode: "normal",
     extmarkToPartIndex: new Map(),
     interrupt: 0,
+    killBuffer: "",
   })
 
   createEffect(
@@ -1075,6 +1078,122 @@ export function Prompt(props: PromptProps) {
                       e.preventDefault()
                       input.cursorOffset = input.plainText.length
                     }
+                    return
+                  }
+                }
+                if (
+                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_delete_to_line_end", e)
+                ) {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+                  const textToEnd = text.slice(cursorOffset)
+                  setStore("killBuffer", textToEnd)
+                }
+                if (
+                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_transpose_characters", e)
+                ) {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+
+                  let char1Pos: number, char2Pos: number, newCursorOffset: number
+
+                  if (text.length < 2) {
+                    return
+                  } else if (cursorOffset === 0) {
+                    char1Pos = 0
+                    char2Pos = 1
+                    newCursorOffset = 1
+                  } else if (cursorOffset === text.length) {
+                    char1Pos = text.length - 2
+                    char2Pos = text.length - 1
+                    newCursorOffset = cursorOffset
+                  } else {
+                    char1Pos = cursorOffset - 1
+                    char2Pos = cursorOffset
+                    newCursorOffset = cursorOffset + 1
+                  }
+
+                  const char1 = text[char1Pos]
+                  const char2 = text[char2Pos]
+                  const newText =
+                    text.slice(0, char1Pos) +
+                    char2 +
+                    text.slice(char1Pos + 1, char2Pos) +
+                    char1 +
+                    text.slice(char2Pos + 1)
+                  input.setText(newText)
+                  input.cursorOffset = newCursorOffset
+                  setStore("prompt", "input", newText)
+                  e.preventDefault()
+                  return
+                }
+                if (
+                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_delete_word_forward", e)
+                ) {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+                  const boundaries = getWordBoundaries(text, cursorOffset)
+                  if (boundaries) {
+                    setStore("killBuffer", text.slice(boundaries.start, boundaries.end))
+                  }
+                }
+                if (
+                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_delete_word_backward", e)
+                ) {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+                  let start = cursorOffset
+                  while (start > 0 && !isWordChar(text[start - 1])) start--
+                  while (start > 0 && isWordChar(text[start - 1])) start--
+                  setStore("killBuffer", text.slice(start, cursorOffset))
+                }
+                if (
+                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_lowercase_word", e) ||
+                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_uppercase_word", e) ||
+                  (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_capitalize_word", e)
+                ) {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+                  const selection = input.getSelection()
+                  const hasSelection = selection !== null
+
+                  let start: number, end: number
+
+                  if (hasSelection && selection) {
+                    start = selection.start
+                    end = selection.end
+                  } else {
+                    const boundaries = getWordBoundaries(text, cursorOffset)
+                    if (!boundaries) {
+                      e.preventDefault()
+                      return
+                    }
+                    start = boundaries.start
+                    end = boundaries.end
+                  }
+
+                  let newText: string
+                  if ((keybind as { match: (key: string, evt: unknown) => boolean }).match("input_lowercase_word", e)) {
+                    newText = lowercaseWord(text, start, end)
+                  } else if (
+                    (keybind as { match: (key: string, evt: unknown) => boolean }).match("input_uppercase_word", e)
+                  ) {
+                    newText = uppercaseWord(text, start, end)
+                  } else {
+                    newText = capitalizeWord(text, start, end)
+                  }
+
+                  input.setText(newText)
+                  input.cursorOffset = end
+                  setStore("prompt", "input", newText)
+                  e.preventDefault()
+                  return
+                }
+                if ((keybind as { match: (key: string, evt: unknown) => boolean }).match("input_yank", e)) {
+                  if (store.killBuffer) {
+                    input.insertText(store.killBuffer)
+                    setStore("prompt", "input", input.plainText)
+                    e.preventDefault()
                     return
                   }
                 }

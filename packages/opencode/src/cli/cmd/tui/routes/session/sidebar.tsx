@@ -74,6 +74,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   )
   const gettingStartedDismissed = createMemo(() => kv.get("dismissed_getting_started", false))
   const titleParts = createMemo(() => parseSessionTitleParts(session()?.title ?? ""))
+  const permissions = createMemo(() => sync.data.permission[props.sessionID] ?? [])
 
   return (
     <Show when={session()}>
@@ -320,6 +321,12 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
             <span style={{ fg: theme.textMuted }}>{directory().split("/").slice(0, -1).join("/")}/</span>
             <span style={{ fg: theme.text }}>{directory().split("/").at(-1)}</span>
           </text>
+          <Show when={permissions().length > 0}>
+            <text fg={theme.warning}>
+              <span style={{ fg: theme.warning }}>◉</span> {permissions().length} Permission
+              {permissions().length > 1 ? "s" : ""}
+            </text>
+          </Show>
           <TuiPluginRuntime.Slot name="sidebar_footer" mode="single_winner" session_id={props.sessionID}>
             <text fg={theme.textMuted}>
               <span style={{ fg: theme.success }}>•</span> <b>Base</b>

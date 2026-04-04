@@ -54,7 +54,7 @@
 | ☑ | 48 | feat/no-disabled-lsps-in-sidebar | origin | 627825c345 | Resolved conflict in lsp.tsx - combined toggle function with Show when !off wrapper |
 | ☑ | 49 | feat/agent-timestamps | origin | 4e28fafa37 | Resolved conflict - combined sidebar overlay width calc with agent timestamps |
 | ☑ | 50 | feat/rewind-modal-option | origin | TBD | Clean merge |
-| ☐ | 51 | feat/alphabetize-command-palette-groups | origin | TBD | |
+| ☑ | 51 | feat/alphabetize-command-palette-groups | origin | b1755a163f | Resolved conflicts in dialog-select.tsx - kept smartCompare for sorting |
 | ☐ | 52 | feat/taller-dialogs | origin | TBD | |
 | ☐ | 53 | feat/add-arianes-themes | origin | TBD | |
 | ☐ | 54 | feat/aspiers--readline-additions | origin | TBD | |

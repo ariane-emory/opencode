@@ -19,7 +19,7 @@
 | ☑ | 13 | feat/enable-exa-setting | origin | c62dd3417f | Conflicts in config.ts - combined plan_mode and enable_exa settings |
 | ☑ | 14 | feat/canceled-prompts-in-history | origin | a7bf927829 | Conflict in app.tsx - combined both command palette items |
 | ☑ | 15 | feat/permission-spinner | origin | d8b8b4209c | Clean merge |
-| ☐ | 16 | feat/permission-indicator-in-sidebar | origin | TBD | |
+| ☑ | 16 | feat/permission-indicator-in-sidebar | origin | 3adb3c7a18 | Conflicts in sidebar.tsx - combined permissions indicator with existing content |
 | ☐ | 17 | feat/opencode-expand | origin | TBD | |
 | ☐ | 18 | feat/argument-range-syntax | origin | TBD | |
 | ☐ | 19 | feat/default-arguments | origin | TBD | Don't reintroduce swallowing behaviour from feat/argument-range-syntax |

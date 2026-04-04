@@ -72,7 +72,7 @@
 | ☑ | 66 | fix/no-split-database | origin | 279a39ee7d | Clean merge |
 | ☑ | 67 | feat/elapsed-timer | origin | 43b96e2390 | Resolved import order conflict in index.tsx |
 | ☑ | 68 | fix/system-prompt-directories | origin | 88fe534d9f | Clean merge |
-| ☐ | 69 | fix/rfc2119-question-tool | origin | TBD | |
+| ☑ | 69 | fix/rfc2119-question-tool | origin | ea608d4a0c | Clean merge |
 | ☐ | 70 | feat/sidebar-header-accent-colours | origin | TBD | |
 | ☐ | 71 | feat/distinct-title-colour | origin | TBD | Must be compatible with feat/session-grouping grouped session title formatting |
 | ☐ | 72 | feat/tool-output-colour | origin | TBD | |

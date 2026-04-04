@@ -66,7 +66,7 @@
 | ☑ | 60 | fix/always-allow-folding-sidebar-mcps | origin | 685870c95b | Clean merge |
 | ☑ | 61 | feat/clickable-sidebar-mcps | origin | 12d51068be | Resolved conflict in mcp.tsx - kept folding toggle + loading signal |
 | ☑ | 62 | feat/clickable-dialogue-mcps | origin | 885955b41b | Clean merge |
-| ☐ | 63 | feat/clickable-status-mcps | origin | TBD | |
+| ☑ | 63 | feat/clickable-status-mcps | origin | 075ad7cc66 | Clean merge |
 | ☐ | 64 | feat/ignored-commands | origin | TBD | |
 | ☐ | 65 | feat/dialogue-background-overlay-setting | origin | TBD | |
 | ☐ | 66 | fix/no-split-database | origin | TBD | |

@@ -158,7 +158,8 @@ export namespace Config {
     input?.signal?.throwIfAborted()
 
     const pkg = path.join(dir, "package.json")
-    const target = Installation.isLocal() ? "*" : Installation.VERSION
+    const isValidSemVer = /^\d+\.\d+\.\d+/.test(Installation.VERSION)
+    const target = Installation.isLocal() || !isValidSemVer ? "*" : Installation.VERSION
     const json = await Filesystem.readJson<{ dependencies?: Record<string, string> }>(pkg).catch(() => ({
       dependencies: {},
     }))

@@ -26,7 +26,6 @@ import { MCP } from "../mcp"
 import { LSP } from "../lsp"
 import { ReadTool } from "../tool/read"
 import { FileTime } from "../file/time"
-import { Flag } from "../flag/flag"
 import { ulid } from "ulid"
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process"
 import * as CrossSpawnSpawner from "@/effect/cross-spawn-spawner"
@@ -34,6 +33,7 @@ import * as Stream from "effect/Stream"
 import { Command } from "../command"
 import { pathToFileURL, fileURLToPath } from "url"
 import { ConfigMarkdown } from "../config/markdown"
+import { Config } from "../config/config"
 import { SessionSummary } from "./summary"
 import { NamedError } from "@opencode-ai/util/error"
 import { SessionProcessor } from "./processor"
@@ -101,6 +101,7 @@ export namespace SessionPrompt {
       const spawner = yield* ChildProcessSpawner.ChildProcessSpawner
       const scope = yield* Scope.Scope
       const instruction = yield* Instruction.Service
+      const config = yield* Config.Service
 
       const state = yield* InstanceState.make(
         Effect.fn("SessionPrompt.state")(function* () {
@@ -257,7 +258,7 @@ export namespace SessionPrompt {
         const userMessage = input.messages.findLast((msg) => msg.info.role === "user")
         if (!userMessage) return input.messages
 
-        if (!Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE) {
+        if (!(yield* config.experimentalPlanMode())) {
           if (input.agent.name === "plan") {
             userMessage.parts.push({
               id: PartID.ascending(),
@@ -1729,6 +1730,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
         Layer.provide(Truncate.layer),
         Layer.provide(Provider.defaultLayer),
         Layer.provide(Instruction.defaultLayer),
+        Layer.provide(Config.defaultLayer),
         Layer.provide(AppFileSystem.defaultLayer),
         Layer.provide(Plugin.defaultLayer),
         Layer.provide(Session.defaultLayer),

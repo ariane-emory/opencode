@@ -70,7 +70,7 @@
 | ☑ | 64 | feat/ignored-commands | origin | 45977ac328 | Resolved conflict in config.ts - kept ignored + catchall |
 | ☑ | 65 | feat/dialogue-background-overlay-setting | origin | b9f6564df3 | Resolved conflicts in config.ts and types.gen.ts - combined all experimental fields |
 | ☑ | 66 | fix/no-split-database | origin | 279a39ee7d | Clean merge |
-| ☐ | 67 | feat/elapsed-timer | origin | TBD | |
+| ☑ | 67 | feat/elapsed-timer | origin | 43b96e2390 | Resolved import order conflict in index.tsx |
 | ☐ | 68 | fix/system-prompt-directories | origin | TBD | |
 | ☐ | 69 | fix/rfc2119-question-tool | origin | TBD | |
 | ☐ | 70 | feat/sidebar-header-accent-colours | origin | TBD | |

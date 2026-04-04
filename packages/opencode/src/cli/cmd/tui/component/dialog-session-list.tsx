@@ -82,7 +82,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
     if (!sync.ready) return []
     const today = new Date().toDateString()
     const sessionsListLimit = sync.data.config.experimental?.session_list_limit
-    const limit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
+    const limit = sessionsListLimit === "none" ? undefined : sessionsListLimit
 
     const allSessions = sessions().filter((x) => x.parentID === undefined)
 

@@ -25,7 +25,7 @@
 | ☑ | 19 | feat/default-arguments | origin | 6584bb2549 | Clean merge - no swallowing behavior, defaults work correctly |
 | ☑ | 20 | fix/preserve-quotes-in-arguments | origin | d8fd29909a | Clean merge - kept substituteArguments, removed quote trimming |
 | ☑ | 21 | fix/history-navigation-key-commands | origin | 8a6ba49fa5 | Clean merge |
-| ☐ | 22 | fix/build-with-short-version | origin | TBD | Uses short timestamp version for integration branches |
+| ☑ | 22 | fix/build-with-short-version | origin | 3494493cfd | Uses short timestamp version for integration branches | |
 | ☐ | 23 | fix/autocompletion-filtered-order | origin | TBD | |
 | ☐ | 24 | fix/modal-menus-filtered-order | origin | TBD | |
 | ☐ | 25 | fix/config-package-json-pollution | origin | TBD | Prevents package.json pollution with non-SemVer versions |
@@ -93,4 +93,7 @@ _2025-04-04 01:15 UTC_ - Merged branch 20 (fix/preserve-quotes-in-arguments) - d
 - Result: Quotes in arguments are now preserved
 
 _2025-04-04 01:16 UTC_ - Merged branch 21 (fix/history-navigation-key-commands) - 8a6ba49fa5
+- Clean merge
+
+_2025-04-04 01:17 UTC_ - Merged branch 22 (fix/build-with-short-version) - 3494493cfd
 - Clean merge

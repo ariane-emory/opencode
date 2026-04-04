@@ -20,7 +20,7 @@
 | ☑ | 14 | feat/canceled-prompts-in-history | origin | a7bf927829 | Conflict in app.tsx - combined both command palette items |
 | ☑ | 15 | feat/permission-spinner | origin | d8b8b4209c | Clean merge |
 | ☑ | 16 | feat/permission-indicator-in-sidebar | origin | 3adb3c7a18 | Conflicts in sidebar.tsx - combined permissions indicator with existing content |
-| ☐ | 17 | feat/opencode-expand | origin | TBD | |
+| ☑ | 17 | feat/opencode-expand | origin | 2780051264 | Conflicts resolved |
 | ☐ | 18 | feat/argument-range-syntax | origin | TBD | |
 | ☐ | 19 | feat/default-arguments | origin | TBD | Don't reintroduce swallowing behaviour from feat/argument-range-syntax |
 | ☐ | 20 | fix/preserve-quotes-in-arguments | origin | TBD | |

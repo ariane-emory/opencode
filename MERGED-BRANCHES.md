@@ -68,7 +68,7 @@
 | ☑ | 62 | feat/clickable-dialogue-mcps | origin | 885955b41b | Clean merge |
 | ☑ | 63 | feat/clickable-status-mcps | origin | 075ad7cc66 | Clean merge |
 | ☑ | 64 | feat/ignored-commands | origin | 45977ac328 | Resolved conflict in config.ts - kept ignored + catchall |
-| ☐ | 65 | feat/dialogue-background-overlay-setting | origin | TBD | |
+| ☑ | 65 | feat/dialogue-background-overlay-setting | origin | b9f6564df3 | Resolved conflicts in config.ts and types.gen.ts - combined all experimental fields |
 | ☐ | 66 | fix/no-split-database | origin | TBD | |
 | ☐ | 67 | feat/elapsed-timer | origin | TBD | |
 | ☐ | 68 | fix/system-prompt-directories | origin | TBD | |

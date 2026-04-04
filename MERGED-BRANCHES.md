@@ -7,7 +7,7 @@
 | ☑ | 1 | feat/base-one-rebrand | origin | 0fd0c0799e | Clean merge |
 | ☑ | 2 | feat/sinister-quotes | origin | 622d1cd8dc | Clean merge; bun install needed for ui symlink |
 | ☑ | 3 | feat/markdown-renderer | gignit | b065e3d532 | Conflicts in session/index.tsx - combined imports and theme resolution |
-| ☐ | 4 | feat/thinking-indicator-hidden | rcdailey | TBD | |
+| ☑ | 4 | feat/thinking-indicator-hidden | rcdailey | f80c2a55b5 | Clean merge |
 | ☐ | 5 | feat/session-grouping | origin | TBD | |
 | ☐ | 6 | feat/session-bookmarks | origin | TBD | |
 | ☐ | 7 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks |

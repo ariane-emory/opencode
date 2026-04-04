@@ -24,7 +24,6 @@ export interface DialogSelectProps<T> {
   onFilter?: (query: string) => void
   onSelect?: (option: DialogSelectOption<T>) => void
   skipFilter?: boolean
-  sort?: boolean
   keybind?: {
     keybind?: Keybind.Info
     title: string
@@ -129,7 +128,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     const result = pipe(
       filtered(),
       groupBy((x) => x.category ?? ""),
-      mapValues(groups, (x) => x.sort((a, b) => smartCompare(a.title, b.title))),
+      mapValues((x) => x.sort((a, b) => a.title.localeCompare(b.title))),
       entries(),
     )
     return result

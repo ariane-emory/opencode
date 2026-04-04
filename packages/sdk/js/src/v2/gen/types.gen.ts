@@ -1512,7 +1512,6 @@ export type KeybindsConfig = {
    */
   display_thinking?: string
 }
-}
 
 /**
  * Log level

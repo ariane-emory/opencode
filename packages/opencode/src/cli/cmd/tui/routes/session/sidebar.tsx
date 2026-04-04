@@ -1,5 +1,5 @@
 import { useSync } from "@tui/context/sync"
-import { createMemo, For, Show, Switch, Match } from "solid-js"
+import { createMemo, For, Show, Switch, Match, createSignal, onMount, onCleanup } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useTheme } from "../../context/theme"
 import { Locale } from "@/util/locale"
@@ -12,7 +12,9 @@ import { useDirectory } from "../../context/directory"
 import { useKV } from "../../context/kv"
 import { TodoItem } from "../../component/todo-item"
 import { TuiPluginRuntime } from "../../plugin"
+<<<<<<< HEAD
 import { useTuiConfig } from "../../context/tui-config"
+import { useKV } from "../../context/kv"
 import { getScrollAcceleration } from "../../util/scroll"
 import { parseSessionTitleParts } from "@tui/util/session-title"
 
@@ -75,6 +77,21 @@ export function Sidebar(props: { sessionID: string }) {
   const gettingStartedDismissed = createMemo(() => kv.get("dismissed_getting_started", false))
   const titleParts = createMemo(() => parseSessionTitleParts(session()?.title ?? ""))
   const permissions = createMemo(() => sync.data.permission[props.sessionID] ?? [])
+
+  const kv = useKV()
+  const showSidebarClock = createMemo(() => kv.get("sidebar_clock_visible", true))
+
+  const formatTime = () => {
+    const now = new Date()
+    return now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false })
+  }
+
+  const [clockTime, setClockTime] = createSignal(formatTime())
+
+  onMount(() => {
+    const interval = setInterval(() => setClockTime(formatTime()), 10000)
+    onCleanup(() => clearInterval(interval))
+  })
 
   return (
     <Show when={session()}>
@@ -328,13 +345,18 @@ export function Sidebar(props: { sessionID: string }) {
             </text>
           </Show>
           <TuiPluginRuntime.Slot name="sidebar_footer" mode="single_winner" session_id={props.sessionID}>
-            <text fg={theme.textMuted}>
-              <span style={{ fg: theme.success }}>•</span> <b>Base</b>
-              <span style={{ fg: theme.text }}>
-                <b>One</b>
-              </span>{" "}
-              <span>{Installation.VERSION}</span>
-            </text>
+            <box flexDirection="row" justifyContent="space-between">
+              <text fg={theme.textMuted}>
+                <span style={{ fg: theme.success }}>•</span> <b>Base</b>
+                <span style={{ fg: theme.text }}>
+                  <b>One</b>
+                </span>{" "}
+                <span>{Installation.VERSION}</span>
+              </text>
+              <Show when={showSidebarClock()}>
+                <text fg={theme.accent}> {clockTime()}</text>
+              </Show>
+            </box>
           </TuiPluginRuntime.Slot>
         </box>
       </box>

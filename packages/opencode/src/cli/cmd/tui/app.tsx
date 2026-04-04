@@ -345,6 +345,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
     renderer.clearSelection()
   }
   const [terminalTitleEnabled, setTerminalTitleEnabled] = createSignal(kv.get("terminal_title_enabled", true))
+  const [sidebarClockEnabled, setSidebarClockEnabled] = createSignal(kv.get("sidebar_clock_visible", true))
 
   // Update terminal window title based on current route and session
   createEffect(() => {
@@ -833,6 +834,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
+<<<<<<< HEAD
       title: kv.get("markdown_all_messages", false)
         ? "Render markdown: agent messages only"
         : "Render markdown: all messages",
@@ -849,6 +851,17 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       category: "System",
       onSelect: (dialog) => {
         kv.set("clear_prompt_save_history", !kv.get("clear_prompt_save_history", false))
+=======
+      title: sidebarClockEnabled() ? "Hide sidebar clock" : "Show sidebar clock",
+      value: "system.toggle.sidebar_clock",
+      category: "System",
+      onSelect: (dialog) => {
+        setSidebarClockEnabled((prev) => {
+          const next = !prev
+          kv.set("sidebar_clock_visible", next)
+          return next
+        })
+>>>>>>> origin/feat/sidebar-clock
         dialog.clear()
       },
     },

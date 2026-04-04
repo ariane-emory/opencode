@@ -14,6 +14,7 @@ import { TodoItem } from "../../component/todo-item"
 import { TuiPluginRuntime } from "../../plugin"
 import { useTuiConfig } from "../../context/tui-config"
 import { getScrollAcceleration } from "../../util/scroll"
+import { parseSessionTitleParts } from "@tui/util/session-title"
 
 export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const sync = useSync()
@@ -72,6 +73,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
     sync.data.provider.some((x) => x.id !== "opencode" || Object.values(x.models).some((y) => y.cost?.input !== 0)),
   )
   const gettingStartedDismissed = createMemo(() => kv.get("dismissed_getting_started", false))
+  const titleParts = createMemo(() => parseSessionTitleParts(session()?.title ?? ""))
 
   return (
     <Show when={session()}>
@@ -97,14 +99,16 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
         >
           <box flexShrink={0} gap={1} paddingRight={1}>
             <TuiPluginRuntime.Slot name="sidebar_title" mode="single_winner" session_id={props.sessionID} title={session().title} share_url={session().share?.url}>
-            <box paddingRight={1}>
-              <text fg={theme.text}>
-                <b>{session().title}</b>
-              </text>
-              <Show when={session().share?.url}>
-                <text fg={theme.textMuted}>{session().share!.url}</text>
-              </Show>
-            </box>
+              <box paddingRight={1}>
+                <text fg={theme.text}>
+                  <Show when={titleParts().group} fallback={<b>{titleParts().rest}</b>}>
+                    <b>{titleParts().group}</b> {titleParts().rest}
+                  </Show>
+                </text>
+                <Show when={session().share?.url}>
+                  <text fg={theme.textMuted}>{session().share!.url}</text>
+                </Show>
+              </box>
             </TuiPluginRuntime.Slot>
             <TuiPluginRuntime.Slot name="sidebar_content" session_id={props.sessionID} />
             <box>

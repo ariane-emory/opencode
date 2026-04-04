@@ -22,7 +22,7 @@
 | ☑ | 16 | feat/permission-indicator-in-sidebar | origin | 3adb3c7a18 | Conflicts in sidebar.tsx - combined permissions indicator with existing content |
 | ☑ | 17 | feat/opencode-expand | origin | 2780051264 | Conflicts resolved |
 | ☑ | 18 | feat/argument-range-syntax | origin | 4c77b34916 | Conflicts in substitute.ts - kept extended placeholder syntax with ${N}, ${N..M}, ${..M}, ${N..}, ${..} |
-| ☑ | 19 | feat/default-arguments | origin | TBD | Clean merge - no swallowing behavior, defaults work correctly |
+| ☑ | 19 | feat/default-arguments | origin | 6584bb2549 | Clean merge - no swallowing behavior, defaults work correctly |
 | ☐ | 20 | fix/preserve-quotes-in-arguments | origin | TBD | |
 | ☐ | 21 | fix/history-navigation-key-commands | origin | TBD | |
 | ☐ | 22 | fix/build-with-short-version | origin | TBD | Uses short timestamp version for integration branches |

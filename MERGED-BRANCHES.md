@@ -31,7 +31,7 @@
 | ☑ | 25 | fix/config-package-json-pollution | origin | ab314ae77e | Prevents package.json pollution with non-SemVer versions |
 | ☑ | 26 | fix/session-list-viewport-jumping | origin | 1d6b25e544 | |
 | ☑ | 27 | fix/merging-multiple-configs | origin | 1ed6e50fcd | |
-| ☐ | 28 | fix/markdown-codeblock-theme-property | origin | TBD | |
+| ☑ | 28 | fix/markdown-codeblock-theme-property | origin | ef776b1278 | |
 | ☐ | 29 | fix/persist-sidebar | origin | TBD | Makes sidebar state persistent; removes auto-hide; no return to auto state |
 | ☐ | 30 | feat/command-palette-consistency | origin | TBD | MOVE items from Session to System category; don't duplicate |
 | ☐ | 31 | refactor/shared-substitute | origin | TBD | |

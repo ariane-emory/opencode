@@ -59,7 +59,7 @@
 | ☑ | 53 | feat/add-arianes-themes | origin | 31b3f4bd034 | Clean merge - adds Ariane's theme files |
 | ☑ | 54 | feat/aspiers--readline-additions | origin | e5cc689f11 | Resolved conflicts in types.gen.ts - added readline keybinds |
 | ☑ | 55 | feat/sidebar-clock | origin | 1ff685909c | Resolved conflict in sidebar.tsx - fixed missing hasProviders/gettingStartedDismissed definitions |
-| ☐ | 56 | feat/alphabetical-message-modal | origin | TBD | |
+| ☑ | 56 | feat/alphabetical-message-modal | origin | daf7776cd1 | Resolved conflicts in dialog-select.tsx - kept smartCompare, combined conditional sorting |
 | ☐ | 57 | feat/toggle-sidebar-scrollbar | origin | TBD | |
 | ☐ | 58 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | TBD | |
 | ☐ | 59 | feat/configurable-maximum-prompt-input-size | origin | TBD | |

@@ -65,7 +65,7 @@
 | ☑ | 59 | feat/configurable-maximum-prompt-input-size | origin | c770635c63 | Resolved conflicts in config.ts and types.gen.ts - combined all experimental fields |
 | ☑ | 60 | fix/always-allow-folding-sidebar-mcps | origin | 685870c95b | Clean merge |
 | ☑ | 61 | feat/clickable-sidebar-mcps | origin | 12d51068be | Resolved conflict in mcp.tsx - kept folding toggle + loading signal |
-| ☐ | 62 | feat/clickable-dialogue-mcps | origin | TBD | |
+| ☑ | 62 | feat/clickable-dialogue-mcps | origin | 885955b41b | Clean merge |
 | ☐ | 63 | feat/clickable-status-mcps | origin | TBD | |
 | ☐ | 64 | feat/ignored-commands | origin | TBD | |
 | ☐ | 65 | feat/dialogue-background-overlay-setting | origin | TBD | |

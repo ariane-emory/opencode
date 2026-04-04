@@ -1,4 +1,5 @@
 import { existsSync } from "fs"
+import path from "path"
 import z from "zod"
 import { mergeDeep, unique } from "remeda"
 import { Config } from "./config"
@@ -85,8 +86,10 @@ export namespace TuiConfig {
       result: {},
     }
 
-    for (const file of ConfigPaths.fileInDirectory(Global.Path.config, "tui")) {
-      await mergeFile(acc, file)
+    for (const dir of unique([path.join(path.dirname(Global.Path.config), "opencode"), path.join(path.dirname(Global.Path.config), "baseone")])) {
+      for (const file of ConfigPaths.fileInDirectory(dir, "tui")) {
+        await mergeFile(acc, file)
+      }
     }
 
     if (custom) {

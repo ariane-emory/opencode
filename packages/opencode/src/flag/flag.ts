@@ -266,7 +266,7 @@ Object.defineProperty(Flag, "OPENCODE_PLUGIN_META_FILE", {
 // because some commands override the client at runtime
 Object.defineProperty(Flag, "OPENCODE_CLIENT", {
   get() {
-    return process.env["OPENCODE_CLIENT"] ?? "cli"
+    return process.env["BASEONE_CLIENT"] ?? process.env["OPENCODE_CLIENT"] ?? "cli"
   },
   enumerable: true,
   configurable: false,

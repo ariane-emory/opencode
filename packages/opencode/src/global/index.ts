@@ -4,32 +4,12 @@ import path from "path"
 import os from "os"
 import { Filesystem } from "../util/filesystem"
 
-const app = "baseone"
-const legacyApp = "opencode"
+const app = "opencode"
 
-// Helper to check if a directory exists
-async function dirExists(dir: string): Promise<boolean> {
-  try {
-    const stat = await fs.stat(dir)
-    return stat.isDirectory()
-  } catch {
-    return false
-  }
-}
-
-// For each path type, use the new name if it exists, otherwise fall back to legacy if it exists
-async function resolveWithFallback(baseDir: string): Promise<string> {
-  const newPath = path.join(baseDir, app)
-  const legacyPath = path.join(baseDir, legacyApp)
-  if (await dirExists(newPath)) return newPath
-  if (await dirExists(legacyPath)) return legacyPath
-  return legacyPath // Default to legacy path if neither exists
-}
-
-const data = await resolveWithFallback(xdgData!)
-const cache = await resolveWithFallback(xdgCache!)
-const config = await resolveWithFallback(xdgConfig!)
-const state = await resolveWithFallback(xdgState!)
+const data = path.join(xdgData!, app)
+const cache = path.join(xdgCache!, app)
+const config = path.join(xdgConfig!, app)
+const state = path.join(xdgState!, app)
 
 export namespace Global {
   export const Path = {

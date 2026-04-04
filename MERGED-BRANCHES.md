@@ -46,7 +46,7 @@
 | ☑ | 40 | feat/persist-sidebar-group-folding-states | origin | f8e1e6b974 | Clean merge - preserves sidebar group folding states |
 | ☑ | 41 | feat/persistant-sidebar-overlay-behaviour | origin | 013a1de76f | Resolved conflict in app.tsx - combined TPS toggle, terminal title toggle, and sidebar overlay toggle |
 | ☑ | 42 | feat/shell-advice | origin | 300b17f22b | Clean merge - added shell advice to bash tool |
-| ☐ | 43 | feat/improve-bash-tool-git-advice | origin | TBD | Combine with feat/shell-advice changes to bash tool description |
+| ☑ | 43 | feat/improve-bash-tool-git-advice | origin | c27be67f5d | Resolved conflict in bash.txt - kept ${shellName} variable while incorporating git advice improvements |
 | ☐ | 44 | feat/renaming-doesnt-close-session-list | origin | TBD | |
 | ☐ | 45 | feat/session-child-toggle-key | origin | TBD | |
 | ☐ | 46 | feat/set-session-title | origin | TBD | |

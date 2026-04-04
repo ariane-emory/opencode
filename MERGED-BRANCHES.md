@@ -49,7 +49,7 @@
 | ☑ | 43 | feat/improve-bash-tool-git-advice | origin | c27be67f5d | Resolved conflict in bash.txt - kept ${shellName} variable while incorporating git advice improvements |
 | ☑ | 44 | feat/renaming-doesnt-close-session-list | origin | e38481407a | Resolved conflict - kept pinKeybind while incorporating initialSessionID logic |
 | ☑ | 45 | feat/session-child-toggle-key | origin | b931561423 | Resolved conflict - kept session_continue while adding session_child_toggle |
-| ☐ | 46 | feat/set-session-title | origin | TBD | |
+| ☑ | 46 | feat/set-session-title | origin | d4dcdb51ae | Clean merge - adds tool to set current session title |
 | ☐ | 47 | feat/get-session-title | origin | TBD | |
 | ☐ | 48 | feat/no-disabled-lsps-in-sidebar | origin | TBD | |
 | ☐ | 49 | feat/agent-timestamps | origin | TBD | |

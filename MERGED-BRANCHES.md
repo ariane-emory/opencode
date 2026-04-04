@@ -80,7 +80,7 @@
 | ☑ | 74 | fix/input-enter-keybindings | origin | 7c0cff33a1 | Clean merge |
 | ☑ | 75 | fix/escape-from-status | origin | 96a18ffb1e | Clean merge |
 | ☑ | 76 | fix/restore-footer | origin | b80d74528b | Added missing Footer import |
-| ☐ | 77 | feat/remove-canned-jokes | origin | TBD | |
+| ☑ | 77 | feat/remove-canned-jokes | origin | 9425b3b0e8 | Clean merge |
 | ☐ | 78 | fix/session-list-delete-selection | origin | TBD | |
 
 ## Merge Log

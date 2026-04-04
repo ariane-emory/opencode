@@ -35,7 +35,7 @@
 | ☑ | 29 | fix/persist-sidebar | origin | b08bb55dcc | Makes sidebar state persistent; removes auto-hide; no return to auto state |
 | ☑ | 30 | feat/command-palette-consistency | origin | f2d276bedd | Clean merge |
 | ☑ | 31 | refactor/shared-substitute | origin | 13867aa716 | Kept HEAD version with extended placeholder syntax |
-| ☐ | 32 | feat/session-id-in-status | origin | TBD | |
+| ☑ | 32 | feat/session-id-in-status | origin | e9f9c6c6c0 | Clean merge |
 | ☐ | 33 | feat/edit-tool-description | origin | TBD | |
 | ☐ | 34 | feat/opeoginni--display-message-tps | origin | TBD | |
 | ☐ | 35 | feat/kv-diff-style-clean | origin | TBD | |

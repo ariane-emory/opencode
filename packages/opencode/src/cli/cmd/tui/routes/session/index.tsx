@@ -161,28 +161,26 @@ export function Session() {
   })
 
   const dimensions = useTerminalDimensions()
-  const [sidebar, setSidebar] = kv.signal<"show" | "hide" | "auto">("sidebar", "auto")
-  const [sidebarOpen, setSidebarOpen] = createSignal(false)
+  const [sidebar] = kv.signal<"show" | "hide" | "auto">("sidebar", "auto")
   const [conceal, setConceal] = createSignal(true)
-  const [showThinking, setShowThinking] = kv.signal("thinking_visibility", true)
-  const [timestamps, setTimestamps] = kv.signal<"hide" | "show">("timestamps", "hide")
-  const [agentTimestamps, setAgentTimestamps] = kv.signal<"hide" | "show">("agent_timestamps", "hide")
-  const [showDetails, setShowDetails] = kv.signal("tool_details_visibility", true)
+  const [showThinking] = kv.signal("thinking_visibility", true)
+  const [timestamps] = kv.signal<"hide" | "show">("timestamps", "hide")
+  const [agentTimestamps] = kv.signal<"hide" | "show">("agent_timestamps", "hide")
+  const [showDetails] = kv.signal("tool_details_visibility", true)
   const [showAssistantMetadata, setShowAssistantMetadata] = kv.signal("assistant_metadata_visibility", true)
-  const [showScrollbar, setShowScrollbar] = kv.signal("scrollbar_visible", true)
-  const [sidebarOverlayEnabled, setSidebarOverlayEnabled] = kv.signal("sidebar_overlay", true)
-  const [showHeader, setShowHeader] = kv.signal("header_visible", true)
-  const [showSidebarScrollbar, setShowSidebarScrollbar] = kv.signal("sidebar_scrollbar_visible", true)
+  const [showScrollbar] = kv.signal("scrollbar_visible", true)
+  const [sidebarOverlayEnabled] = kv.signal("sidebar_overlay", true)
+  const [showHeader] = kv.signal("header_visible", true)
+  const [showSidebarScrollbar] = kv.signal("sidebar_scrollbar_visible", true)
   const [diffWrapMode] = kv.signal<"word" | "none">("diff_wrap_mode", "word")
   const [animationsEnabled, setAnimationsEnabled] = kv.signal("animations_enabled", true)
-  const [showTps, setShowTps] = kv.signal("tps_visibility", false)
-  const [showGenericToolOutput, setShowGenericToolOutput] = kv.signal("generic_tool_output_visibility", false)
+  const [showTps] = kv.signal("tps_visibility", false)
+  const [showGenericToolOutput] = kv.signal("generic_tool_output_visibility", false)
 
   const wide = createMemo(() => dimensions().width > 120)
   const [markdownAll, setMarkdownAll] = kv.signal("markdown_all_messages", false)
   const sidebarVisible = createMemo(() => {
     if (session()?.parentID) return false
-    if (sidebarOpen()) return true
     if (sidebar() === "show") return true
     if (sidebar() === "auto" && wide()) return true
     return false
@@ -632,93 +630,12 @@ export function Session() {
       },
     },
     {
-      title: sidebarVisible() ? "Hide sidebar" : "Show sidebar",
-      value: "session.sidebar.toggle",
-      keybind: "sidebar_toggle",
-      category: "Session",
-      onSelect: (dialog) => {
-        const prev = sidebar()
-        let newValue: "show" | "hide" | "auto"
-        if (prev === "auto") newValue = sidebarVisible() ? "hide" : "show"
-        else if (prev === "show") newValue = "hide"
-        else newValue = "show"
-        setSidebar(newValue)
-        setSidebarOpen(newValue === "show")
-        dialog.clear()
-      },
-    },
-    {
       title: conceal() ? "Disable code concealment" : "Enable code concealment",
       value: "session.toggle.conceal",
       keybind: "messages_toggle_conceal" as any,
       category: "Session",
       onSelect: (dialog) => {
         setConceal((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
-      title: showTimestamps() ? "Hide timestamps" : "Show timestamps",
-      value: "session.toggle.timestamps",
-      category: "Session",
-      slash: {
-        name: "timestamps",
-        aliases: ["toggle-timestamps"],
-      },
-      onSelect: (dialog) => {
-        setTimestamps((prev) => (prev === "show" ? "hide" : "show"))
-        dialog.clear()
-      },
-    },
-    {
-      title: showThinking() ? "Hide thinking" : "Show thinking",
-      value: "session.toggle.thinking",
-      keybind: "display_thinking",
-      category: "Session",
-      slash: {
-        name: "thinking",
-        aliases: ["toggle-thinking"],
-      },
-      onSelect: (dialog) => {
-        setShowThinking((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
-      title: showDetails() ? "Hide tool details" : "Show tool details",
-      value: "session.toggle.actions",
-      keybind: "tool_details",
-      category: "Session",
-      onSelect: (dialog) => {
-        setShowDetails((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
-      title: "Toggle session scrollbar",
-      value: "session.toggle.scrollbar",
-      keybind: "scrollbar_toggle",
-      category: "Session",
-      onSelect: (dialog) => {
-        setShowScrollbar((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
-      title: showHeader() ? "Hide header" : "Show header",
-      value: "session.toggle.header",
-      category: "Session",
-      onSelect: (dialog) => {
-        setShowHeader((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
-      title: showGenericToolOutput() ? "Hide generic tool output" : "Show generic tool output",
-      value: "session.toggle.generic_tool_output",
-      category: "Session",
-      onSelect: (dialog) => {
-        setShowGenericToolOutput((prev) => !prev)
         dialog.clear()
       },
     },

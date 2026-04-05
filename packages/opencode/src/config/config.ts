@@ -726,7 +726,7 @@ export namespace Config {
         .optional()
         .default("shift+return,ctrl+return,alt+return,ctrl+j,linefeed")
         .describe("Insert newline in input"),
-      input_move_left: z.string().optional().default("left,ctrl+b").describe("Move cursor left in input"),
+      input_move_left: z.string().optional().default("left").describe("Move cursor left in input"),
       input_move_right: z.string().optional().default("right,ctrl+f").describe("Move cursor right in input"),
       input_move_up: z.string().optional().default("up").describe("Move cursor up in input"),
       input_move_down: z.string().optional().default("down").describe("Move cursor down in input"),

@@ -1,10 +1,10 @@
-import { InputRenderable, RGBA, ScrollBoxRenderable, TextAttributes } from "@opentui/core"
+import { InputRenderable, RGBA, ScrollBoxRenderable, TextAttributes, parseKeypress } from "@opentui/core"
 import { useTheme, selectedForeground } from "@tui/context/theme"
 import { entries, filter, flatMap, groupBy, mapValues, pipe, take } from "remeda"
 import { smartCompare } from "@/util/smart-sort"
-import { batch, createEffect, createMemo, For, Show, type JSX, on } from "solid-js"
+import { batch, createEffect, createMemo, For, onCleanup, Show, type JSX, on } from "solid-js"
 import { createStore } from "solid-js/store"
-import { useKeyboard, useTerminalDimensions } from "@opentui/solid"
+import { useKeyboard, useRenderer, useTerminalDimensions } from "@opentui/solid"
 import { isDeepEqual } from "remeda"
 import { useDialog, type DialogContext } from "@tui/ui/dialog"
 import { useKeybind } from "@tui/context/keybind"
@@ -55,6 +55,7 @@ export type DialogSelectRef<T> = {
 export function DialogSelect<T>(props: DialogSelectProps<T>) {
   const dialog = useDialog()
   const { theme } = useTheme()
+  const renderer = useRenderer()
   const tuiConfig = useTuiConfig()
   const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
 
@@ -143,7 +144,6 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
   const height = createMemo(() => Math.min(rows(), Math.floor(dimensions().height * 0.8) - 6))
 
   const selected = createMemo(() => flat()[store.selected])
-  const inputKeybinds = [{ name: "b", ctrl: true, action: "bookmark" as never }]
 
   createEffect(
     on([() => store.filter, () => props.current, () => flat().length], ([filter, current]) => {
@@ -198,6 +198,33 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
   }
 
   const keybind = useKeybind()
+  const keybinds = createMemo(() => props.keybind?.filter((x) => !x.disabled && x.keybind) ?? [])
+
+  const trigger = (evt: { preventDefault(): void; stopPropagation(): void }, parsed: Keybind.Info) => {
+    for (const item of keybinds()) {
+      if (!Keybind.match(item.keybind, parsed)) continue
+      const s = selected()
+      if (!s) return false
+      evt.preventDefault()
+      evt.stopPropagation()
+      item.onTrigger(s)
+      return true
+    }
+    return false
+  }
+
+  const handle = (seq: string) => {
+    if (seq !== "\x02") return false
+    const evt = parseKeypress(seq, { useKittyKeyboard: renderer.useKittyKeyboard })
+    if (!evt) return false
+    return trigger({ preventDefault() {}, stopPropagation() {} }, keybind.parse(evt))
+  }
+
+  renderer.prependInputHandler(handle)
+  onCleanup(() => {
+    renderer.removeInputHandler(handle)
+  })
+
   useKeyboard((evt) => {
     setStore("input", "keyboard")
 
@@ -218,16 +245,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
       }
     }
 
-    for (const item of props.keybind ?? []) {
-      if (item.disabled || !item.keybind) continue
-      if (Keybind.match(item.keybind, keybind.parse(evt))) {
-        const s = selected()
-        if (s) {
-          evt.preventDefault()
-          item.onTrigger(s)
-        }
-      }
-    }
+    trigger(evt, keybind.parse(evt))
   })
 
   let scroll: ScrollBoxRenderable | undefined
@@ -248,8 +266,6 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
   }
   props.ref?.(ref)
 
-  const keybinds = createMemo(() => props.keybind?.filter((x) => !x.disabled && x.keybind) ?? [])
-
   return (
     <box gap={1} paddingBottom={1}>
       <box paddingLeft={4} paddingRight={4}>
@@ -263,7 +279,6 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
         </box>
         <box paddingTop={1}>
           <input
-            keyBindings={inputKeybinds}
             onInput={(e) => {
               batch(() => {
                 setStore("filter", e)

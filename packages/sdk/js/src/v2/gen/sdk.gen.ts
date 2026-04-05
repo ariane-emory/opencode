@@ -2347,12 +2347,13 @@ export class Session2 extends HeyApiClient {
   /**
    * Continue interrupted conversation
    *
-   * Continue a conversation that was interrupted, reverting incomplete assistant messages and resuming processing.
+   * Continue a conversation that was interrupted by resuming the existing assistant turn without creating a new user message.
    */
   public continue<ThrowOnError extends boolean = false>(
     parameters: {
       sessionID: string
       directory?: string
+      agent?: string
       model?: {
         providerID: string
         modelID: string
@@ -2367,6 +2368,7 @@ export class Session2 extends HeyApiClient {
           args: [
             { in: "path", key: "sessionID" },
             { in: "query", key: "directory" },
+            { in: "body", key: "agent" },
             { in: "body", key: "model" },
           ],
         },

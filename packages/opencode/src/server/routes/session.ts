@@ -1021,6 +1021,7 @@ export const SessionRoutes = lazy(() =>
         "json",
         z
           .object({
+            agent: z.string().optional(),
             model: z
               .object({
                 providerID: ProviderID.zod,
@@ -1033,7 +1034,7 @@ export const SessionRoutes = lazy(() =>
       async (c) => {
         const sessionID = c.req.valid("param").sessionID
         const body = c.req.valid("json") ?? {}
-        await SessionPrompt.continue_({ sessionID, model: body.model })
+        await SessionPrompt.continue_({ sessionID, agent: body.agent, model: body.model })
 
         return c.json(true)
       },

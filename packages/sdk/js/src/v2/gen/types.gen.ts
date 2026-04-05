@@ -3928,6 +3928,7 @@ export type SessionUnrevertResponse = SessionUnrevertResponses[keyof SessionUnre
 
 export type SessionContinueData = {
   body?: {
+    agent?: string
     model?: {
       providerID: string
       modelID: string

@@ -85,7 +85,7 @@ function View(props: { api: TuiPluginApi }) {
           <span>{props.api.app.version}</span>
         </text>
         <Show when={showClock()}>
-          <text fg={theme().accent}> {time()}</text>
+          <text fg={theme().accent}>🐈 {time()}</text>
         </Show>
       </box>
     </box>

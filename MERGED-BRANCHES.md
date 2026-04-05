@@ -13,7 +13,7 @@
 | ☑ | 7 | fix/dialog-datetime-alignment | origin | c9704d9d90 | Clean merge |
 | ☑ | 8 | feat/keybindable-commands | origin | 9c9bb419bb | Clean merge |
 | ☑ | 9 | feat/automatic-list-continuation | origin | effde79144 | Clean merge |
-| ☑ | 10 | feat/continue-command | origin | 393969e96d | Updated merge v2 - additional continue command improvements |
+| ☑ | 10 | feat/continue-command | origin | 514f4430bf | Updated merge v3 - additional continue command improvements and sdk js openapi cleanup |
 | ☑ | 11 | feat/configurable-snapshot-lifespan | origin | df11b16bb5 | Clean merge |
 | ☑ | 12 | feat/configurable-new-plan-mode | origin | ac81705f07 | Clean merge |
 | ☑ | 13 | feat/enable-exa-setting | origin | c62dd3417f | Conflicts in config.ts - combined plan_mode and enable_exa settings |
@@ -112,3 +112,8 @@ _2026-04-05 20:57 UTC_ - Merged branch 43 (feat/improve-bash-tool-git-advice) - 
 _2026-04-05 21:11 UTC_ - Merged branch 79 (feat/kimi-with-claude-system-prompt) - 5997e34b96
 - Clean merge
 - Result: Kimi and K2.5 models now use the Claude system prompt
+
+_2026-04-05 21:16 UTC_ - Merged branch 10 (feat/continue-command) - 514f4430bf
+- Conflict resolved: packages/sdk/js/openapi.json
+- Resolution: Accepted branch cleanup and deleted the tracked temporary sdk js OpenAPI artifact
+- Result: Continue-command branch updated and sdk js OpenAPI junk file removed

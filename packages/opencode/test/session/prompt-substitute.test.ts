@@ -120,4 +120,17 @@ describe("SessionPrompt.substituteArguments", () => {
     const result = SessionPrompt.substituteArguments("Hello ${1}", ["foo"])
     expect(result.hasPlaceholders).toBe(true)
   })
+
+  test("default placeholders should work", () => {
+    const result = SessionPrompt.substituteArguments("Hello ${2:fallback}", ["foo"])
+    expect(result.result).toBe("Hello fallback")
+  })
+
+  test("range defaults and chained defaults should work together", () => {
+    const result = SessionPrompt.substituteArguments(
+      "Default arg test: ${2..:default string}, ${3:$2:a secondary default}\nSlice: ${2..3}\nIffy slice: ${2..3:a value}",
+      ["foo", "bar", "baz", "quux"],
+    )
+    expect(result.result).toBe("Default arg test: bar baz quux, baz\nSlice: bar baz\nIffy slice: bar baz")
+  })
 })

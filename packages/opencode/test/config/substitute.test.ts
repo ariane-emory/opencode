@@ -75,3 +75,33 @@ test("substituteArguments - $N with ${N..} does not swallow", () => {
   ])
   expect(result).toBe("Branch: feat/add-arianes-themes, Args: foo bar baz")
 })
+
+test("substituteArguments - ${2:fallback} uses default", () => {
+  const { result } = substituteArguments("${2:fallback}", ["only-one"])
+  expect(result).toBe("fallback")
+})
+
+test("substituteArguments - ${3:$2} uses previous arg fallback", () => {
+  const { result } = substituteArguments("${3:$2}", ["a", "b"])
+  expect(result).toBe("b")
+})
+
+test("substituteArguments - ${2..3:fallback} uses slice when present", () => {
+  const { result } = substituteArguments("${2..3:fallback}", ["a", "b", "c", "d"])
+  expect(result).toBe("b c")
+})
+
+test("substituteArguments - ${2..3:fallback} uses default when missing", () => {
+  const { result } = substituteArguments("${2..3:fallback}", ["a"])
+  expect(result).toBe("fallback")
+})
+
+test("substituteArguments - mixed range and chained defaults", () => {
+  const { result } = substituteArguments("${2..:default string}, ${3:$2:a secondary default}, ${2..3:a value}", [
+    "foo",
+    "bar",
+    "baz",
+    "quux",
+  ])
+  expect(result).toBe("bar baz quux, baz, bar baz")
+})

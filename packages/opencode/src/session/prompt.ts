@@ -1338,8 +1338,14 @@ NOTE: At any point in time through this workflow you SHOULD feel free to ask the
           throw new Error("Impossible")
         })
 
-      const runLoop: (sessionID: SessionID, modelOverride?: { providerID: ProviderID; modelID: ModelID }) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.run")(
-        function* (sessionID: SessionID, modelOverride?: { providerID: ProviderID; modelID: ModelID }) {
+      const runLoop: (
+        sessionID: SessionID,
+        overrides?: { agent?: string; model?: { providerID: ProviderID; modelID: ModelID } },
+      ) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.run")(
+        function* (
+          sessionID: SessionID,
+          overrides?: { agent?: string; model?: { providerID: ProviderID; modelID: ModelID } },
+        ) {
           const ctx = yield* InstanceState.context
           let structured: unknown | undefined
           let step = 0
@@ -1384,9 +1390,11 @@ NOTE: At any point in time through this workflow you SHOULD feel free to ask the
               break
             }
 
-            const modelToUse = modelOverride ?? lastUser.model
-            if (modelOverride) {
-              yield* sessions.updateMessage({ ...lastUser, model: modelToUse })
+            const agentToUse = overrides?.agent ?? lastUser.agent
+            const modelToUse = overrides?.model ?? lastUser.model
+            if (overrides?.agent || overrides?.model) {
+              yield* sessions.updateMessage({ ...lastUser, agent: agentToUse, model: modelToUse })
+              lastUser.agent = agentToUse
               lastUser.model = modelToUse
             }
 
@@ -1580,7 +1588,7 @@ NOTE: At any point in time through this workflow you SHOULD feel free to ask the
       )(function* (input: z.infer<typeof LoopInput>) {
         const s = yield* InstanceState.get(state)
         const runner = getRunner(s.runners, input.sessionID)
-        return yield* runner.ensureRunning(runLoop(input.sessionID, input.model))
+        return yield* runner.ensureRunning(runLoop(input.sessionID, { agent: input.agent, model: input.model }))
       })
 
       const shell: (input: ShellInput) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.shell")(
@@ -1708,6 +1716,10 @@ NOTE: At any point in time through this workflow you SHOULD feel free to ask the
       const continue_ = Effect.fn("SessionPrompt.continue")(function* (input: z.infer<typeof ContinueInput>) {
         const s = yield* InstanceState.get(state)
         if (s.runners.get(input.sessionID)?.busy) throw new Session.BusyError(input.sessionID)
+        if (input.agent) {
+          const agent = yield* agents.get(input.agent)
+          if (!agent || agent.mode === "subagent" || agent.hidden) throw new Session.InvalidContinueAgentError(input.agent)
+        }
 
         const last = (yield* MessageV2.filterCompactedEffect(input.sessionID)).findLast(
           (msg): msg is MessageV2.WithParts & { info: MessageV2.Assistant } => msg.info.role === "assistant",
@@ -1724,6 +1736,7 @@ NOTE: At any point in time through this workflow you SHOULD feel free to ask the
         ) {
           return yield* prompt({
             sessionID: input.sessionID,
+            agent: input.agent,
             model: input.model,
             parts: [{ type: "text", text: "continue" }],
           })
@@ -1735,7 +1748,9 @@ NOTE: At any point in time through this workflow you SHOULD feel free to ask the
         yield* sessions.updateMessage(last.info)
 
         yield* sessions.touch(input.sessionID)
-        return yield* getRunner(s.runners, input.sessionID).ensureRunning(runLoop(input.sessionID, input.model))
+        return yield* getRunner(s.runners, input.sessionID).ensureRunning(
+          runLoop(input.sessionID, { agent: input.agent, model: input.model }),
+        )
       })
 
       return Service.of({
@@ -1863,6 +1878,7 @@ NOTE: At any point in time through this workflow you SHOULD feel free to ask the
 
   export const ContinueInput = z.object({
     sessionID: SessionID.zod,
+    agent: z.string().optional(),
     model: z
       .object({
         providerID: ProviderID.zod,
@@ -1877,6 +1893,7 @@ NOTE: At any point in time through this workflow you SHOULD feel free to ask the
 
   export const LoopInput = z.object({
     sessionID: SessionID.zod,
+    agent: z.string().optional(),
     model: z
       .object({
         providerID: ProviderID.zod,

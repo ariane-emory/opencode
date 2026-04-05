@@ -147,14 +147,14 @@ describe("session action routes", () => {
 
         expect(res.status).toBe(200)
         expect(await res.json()).toBe(true)
-        expect(cont).toHaveBeenCalledWith({ sessionID: session.id, model: undefined })
+        expect(cont).toHaveBeenCalledWith({ sessionID: session.id, agent: undefined, model: undefined })
 
         await Session.remove(session.id)
       },
     })
   })
 
-  test("continue route passes selected model override", async () => {
+  test("continue route passes selected agent and model override", async () => {
     await using tmp = await tmpdir({ git: true })
     await Instance.provide({
       directory: tmp.path,
@@ -168,6 +168,7 @@ describe("session action routes", () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            agent: "plan",
             model: {
               providerID: "test",
               modelID: "next",
@@ -178,6 +179,7 @@ describe("session action routes", () => {
         expect(res.status).toBe(200)
         expect(cont).toHaveBeenCalledWith({
           sessionID: session.id,
+          agent: "plan",
           model: {
             providerID: "test",
             modelID: "next",
@@ -204,7 +206,7 @@ describe("session action routes", () => {
         })
 
         expect(res.status).toBe(200)
-        expect(cont).toHaveBeenCalledWith({ sessionID: session.id, model: undefined })
+        expect(cont).toHaveBeenCalledWith({ sessionID: session.id, agent: undefined, model: undefined })
 
         await Session.remove(session.id)
       },
@@ -400,10 +402,124 @@ describe("continue logic", () => {
     })
   })
 
+  test("updates the resumed agent when continue receives an override", async () => {
+    await using tmp = await tmpdir({ git: true })
+    await Instance.provide({
+      directory: tmp.path,
+      fn: async () => {
+        const session = await Session.create({})
+        const usr = await user(session.id, "hello")
+        await assistant(session.id, usr.id, { finish: undefined })
+
+        await SessionPrompt.continue_({
+          sessionID: session.id,
+          agent: "plan",
+        }).catch(() => undefined)
+
+        const msgs = await Session.messages({ sessionID: session.id })
+        const next = msgs.findLast((msg) => msg.info.role === "user")
+        expect(next?.info.role).toBe("user")
+        if (next?.info.role === "user") {
+          expect(next.info.agent).toBe("plan")
+        }
+
+        await Session.remove(session.id)
+      },
+    })
+  })
+
+  test("updates the resumed agent and model together", async () => {
+    await using tmp = await tmpdir({ git: true })
+    await Instance.provide({
+      directory: tmp.path,
+      fn: async () => {
+        const session = await Session.create({})
+        const usr = await user(session.id, "hello", "old")
+        await assistant(session.id, usr.id, { finish: undefined })
+
+        await SessionPrompt.continue_({
+          sessionID: session.id,
+          agent: "plan",
+          model: {
+            providerID: ProviderID.make("test"),
+            modelID: ModelID.make("new"),
+          },
+        }).catch(() => undefined)
+
+        const msgs = await Session.messages({ sessionID: session.id })
+        const next = msgs.findLast((msg) => msg.info.role === "user")
+        expect(next?.info.role).toBe("user")
+        if (next?.info.role === "user") {
+          expect(next.info.agent).toBe("plan")
+          expect(String(next.info.model.modelID)).toBe("new")
+        }
+
+        await Session.remove(session.id)
+      },
+    })
+  })
+
+  test("rejects non-primary continue agents", async () => {
+    await using tmp = await tmpdir({ git: true })
+    await Instance.provide({
+      directory: tmp.path,
+      fn: async () => {
+        const session = await Session.create({})
+        const usr = await user(session.id, "hello")
+        await assistant(session.id, usr.id, { finish: undefined })
+
+        const err = await SessionPrompt.continue_({
+          sessionID: session.id,
+          agent: "general",
+        }).then(
+          () => undefined,
+          (err) => err,
+        )
+
+        expect(err).toBeInstanceOf(Session.InvalidContinueAgentError)
+
+        await Session.remove(session.id)
+      },
+    })
+  })
+
+  test("uses the selected primary agent for finished-assistant fallback", async () => {
+    await using tmp = await tmpdir({ git: true })
+    await Instance.provide({
+      directory: tmp.path,
+      fn: async () => {
+        const session = await Session.create({})
+        const usr = await user(session.id, "hello")
+        await assistant(session.id, usr.id, { finish: "stop" })
+
+        await SessionPrompt.continue_({
+          sessionID: session.id,
+          agent: "plan",
+        }).catch(() => undefined)
+
+        const msgs = await Session.messages({ sessionID: session.id })
+        const next = msgs.findLast((msg) => msg.info.role === "user")
+        expect(next?.info.role).toBe("user")
+        if (next?.info.role === "user") {
+          expect(next.info.agent).toBe("plan")
+        }
+
+        await Session.remove(session.id)
+      },
+    })
+  })
+
   test("NothingToContinueError exposes the session id", () => {
     const err = new Session.NothingToContinueError("test-session-id")
     expect(err).toBeInstanceOf(Error)
     expect(err.sessionID).toBe("test-session-id")
     expect(err.message).toBe("Nothing to continue in session test-session-id")
+  })
+
+  test("InvalidContinueAgentError exposes the agent", () => {
+    const err = new Session.InvalidContinueAgentError("general")
+    expect(err).toBeInstanceOf(Error)
+    expect(err.agent).toBe("general")
+    expect(err.message).toBe("Invalid continue agent: general")
   })
 })

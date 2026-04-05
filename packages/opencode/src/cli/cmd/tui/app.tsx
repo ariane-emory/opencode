@@ -162,6 +162,32 @@ function errorMessage(error: unknown) {
   return FormatUnknownError(error)
 }
 
+function focusedSelection(renderer: ReturnType<typeof useRenderer>) {
+  const focus = renderer.currentFocusedRenderable as
+    | {
+        hasSelection?: () => boolean
+        getSelection?: () => { start: number; end: number } | null
+        plainText?: string
+      }
+    | undefined
+  if (!focus?.hasSelection?.()) return
+  const sel = focus.getSelection?.()
+  if (!sel) return
+  const text = focus.plainText?.slice(sel.start, sel.end)
+  if (!text) return
+  return text
+}
+
+function copySelection(renderer: ReturnType<typeof useRenderer>, toast: ReturnType<typeof useToast>) {
+  if (Selection.copy(renderer, toast)) return true
+  const text = focusedSelection(renderer)
+  if (!text) return false
+  Clipboard.copy(text)
+    .then(() => toast.show({ message: "Copied to clipboard", variant: "info" }))
+    .catch(toast.error)
+  return true
+}
+
 export function tui(input: {
   url: string
   args: Args
@@ -1047,11 +1073,17 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         if (!Flag.OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT) return
         if (evt.button !== MouseButton.RIGHT) return
 
-        if (!Selection.copy(renderer, toast)) return
+        if (!copySelection(renderer, toast)) return
         evt.preventDefault()
         evt.stopPropagation()
       }}
-      onMouseUp={Flag.OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT ? undefined : () => Selection.copy(renderer, toast)}
+      onMouseUp={
+        Flag.OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT
+          ? undefined
+          : () => {
+              copySelection(renderer, toast)
+            }
+      }
     >
       <Show when={Flag.OPENCODE_SHOW_TTFD}>
         <TimeToFirstDraw />

@@ -74,6 +74,7 @@ export namespace SessionPrompt {
     readonly loop: (input: z.infer<typeof LoopInput>) => Effect.Effect<MessageV2.WithParts>
     readonly shell: (input: ShellInput) => Effect.Effect<MessageV2.WithParts>
     readonly command: (input: CommandInput) => Effect.Effect<MessageV2.WithParts>
+    readonly continue: (input: z.infer<typeof ContinueInput>) => Effect.Effect<MessageV2.WithParts>
     readonly resolvePromptParts: (template: string) => Effect.Effect<PromptInput["parts"]>
   }
 
@@ -1380,6 +1381,12 @@ NOTE: At any point in time through this workflow you should feel free to ask the
               break
             }
 
+            const modelToUse = modelOverride ?? lastUser.model
+            if (modelOverride) {
+              yield* sessions.updateMessage({ ...lastUser, model: modelToUse })
+              lastUser.model = modelToUse
+            }
+
             step++
             if (step === 1)
               yield* title({
@@ -1389,11 +1396,6 @@ NOTE: At any point in time through this workflow you should feel free to ask the
                 history: msgs,
               }).pipe(Effect.ignore, Effect.forkIn(scope))
 
-            const modelToUse = modelOverride ?? lastUser.model
-            if (modelOverride) {
-              yield* sessions.updateMessage({ ...lastUser, model: modelToUse })
-              lastUser.model = modelToUse
-            }
             const model = yield* getModel(modelToUse.providerID, modelToUse.modelID, sessionID)
             const task = tasks.pop()
 
@@ -1702,6 +1704,39 @@ NOTE: At any point in time through this workflow you should feel free to ask the
         return result
       })
 
+      const continue_ = Effect.fn("SessionPrompt.continue")(function* (input: z.infer<typeof ContinueInput>) {
+        const s = yield* InstanceState.get(state)
+        if (s.runners.get(input.sessionID)?.busy) throw new Session.BusyError(input.sessionID)
+
+        const last = (yield* MessageV2.filterCompactedEffect(input.sessionID)).findLast(
+          (msg): msg is MessageV2.WithParts & { info: MessageV2.Assistant } => msg.info.role === "assistant",
+        )
+        if (!last) throw new Session.NothingToContinueError(input.sessionID)
+
+        if (
+          last.info.finish &&
+          last.info.finish !== "tool-calls" &&
+          !last.parts.some(
+            (part) => part.type === "tool" && (part.state.status === "pending" || part.state.status === "running"),
+          ) &&
+          !last.info.error
+        ) {
+          return yield* prompt({
+            sessionID: input.sessionID,
+            model: input.model,
+            parts: [{ type: "text", text: "continue" }],
+          })
+        }
+
+        last.info.error = undefined
+        last.info.finish = "tool-calls"
+        last.info.time.completed ??= Date.now()
+        yield* sessions.updateMessage(last.info)
+
+        yield* sessions.touch(input.sessionID)
+        return yield* getRunner(s.runners, input.sessionID).ensureRunning(runLoop(input.sessionID, input.model))
+      })
+
       return Service.of({
         assertNotBusy,
         cancel,
@@ -1709,6 +1744,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
         loop,
         shell,
         command,
+        continue: continue_,
         resolvePromptParts,
       })
     }),
@@ -1821,6 +1857,20 @@ NOTE: At any point in time through this workflow you should feel free to ask the
 
   export async function cancel(sessionID: SessionID) {
     return runPromise((svc) => svc.cancel(SessionID.zod.parse(sessionID)))
+  }
+
+  export const ContinueInput = z.object({
+    sessionID: SessionID.zod,
+    model: z
+      .object({
+        providerID: ProviderID.zod,
+        modelID: ModelID.zod,
+      })
+      .optional(),
+  })
+
+  export async function continue_(input: z.infer<typeof ContinueInput>) {
+    return runPromise((svc) => svc.continue(ContinueInput.parse(input)))
   }
 
   export const LoopInput = z.object({

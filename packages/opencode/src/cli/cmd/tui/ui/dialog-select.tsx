@@ -237,14 +237,10 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     get filtered() {
       return filtered()
     },
-    scrollToValue: (value: T, _center?: boolean) => {
+    scrollToValue: (value: T, center?: boolean) => {
       const index = flat().findIndex((opt) => isDeepEqual(opt.value, value))
       if (index >= 0) {
-        setStore("selected", index)
-        if (scroll) {
-          const y = index * 2
-          scroll.scrollTo(y)
-        }
+        moveTo(index, center)
       }
     },
     moveTo,

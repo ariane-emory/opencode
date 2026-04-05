@@ -624,12 +624,9 @@ export function Session() {
             modelID: currentModel.modelID,
           } : undefined,
         })
-        
-        if (result.data) {
-          toBottom()
-        } else {
-          dialog.clear()
-        }
+
+        dialog.clear()
+        if (result.data) toBottom()
       },
     },
     {

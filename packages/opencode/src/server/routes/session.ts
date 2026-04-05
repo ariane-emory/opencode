@@ -1036,7 +1036,7 @@ export const SessionRoutes = lazy(() =>
       describeRoute({
         summary: "Continue interrupted conversation",
         description:
-          "Continue a conversation that was interrupted, reverting incomplete assistant messages and resuming processing.",
+          "Continue a conversation that was interrupted by resuming the existing assistant turn without creating a new user message.",
         operationId: "session.continue",
         responses: {
           200: {
@@ -1058,46 +1058,21 @@ export const SessionRoutes = lazy(() =>
       ),
       validator(
         "json",
-        z.object({
-          model: z.object({
-            providerID: ProviderID.zod,
-            modelID: ModelID.zod,
-          }).optional(),
-        }),
+        z
+          .object({
+            model: z
+              .object({
+                providerID: ProviderID.zod,
+                modelID: ModelID.zod,
+              })
+              .optional(),
+          })
+          .optional(),
       ),
       async (c) => {
         const sessionID = c.req.valid("param").sessionID
-        const { model } = c.req.valid("json")
-
-        // Check if session has an unfinished assistant message
-        const msgs = await Session.messages({ sessionID })
-        let lastAssistant: MessageV2.Assistant | undefined
-
-        for (let i = msgs.length - 1; i >= 0; i--) {
-          const msg = msgs[i]
-          if (msg.info.role === "assistant") {
-            lastAssistant = msg.info as MessageV2.Assistant
-            break
-          }
-        }
-
-        // If no unfinished assistant message, return false
-        if (lastAssistant?.finish && !["tool-calls", "unknown", "length"].includes(lastAssistant.finish)) {
-          return c.json(false)
-        }
-
-        if (!lastAssistant) {
-          return c.json(false)
-        }
-
-        // Revert the unfinished assistant message
-        await SessionRevert.revert({
-          sessionID,
-          messageID: lastAssistant.id,
-        })
-
-        // Start the conversation loop to continue
-        await SessionPrompt.loop({ sessionID, model })
+        const body = c.req.valid("json") ?? {}
+        await SessionPrompt.continue_({ sessionID, model: body.model })
 
         return c.json(true)
       },

@@ -1,15 +1,9 @@
 import { useSync } from "@tui/context/sync"
-import { createMemo, For, Show, Switch, Match, createSignal, onMount, onCleanup } from "solid-js"
+import { createMemo, For, Show, Switch, Match } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useTheme } from "../../context/theme"
 import { Locale } from "@/util/locale"
-import path from "path"
 import type { AssistantMessage } from "@opencode-ai/sdk/v2"
-import { Global } from "@/global"
-import { Installation } from "@/installation"
-import { useKeybind } from "../../context/keybind"
-import { useDirectory } from "../../context/directory"
-import { useKV } from "../../context/kv"
 import { TodoItem } from "../../component/todo-item"
 import { TuiPluginRuntime } from "../../plugin"
 import { useTuiConfig } from "../../context/tui-config"
@@ -66,27 +60,8 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
     }
   })
 
-  const directory = useDirectory()
-  const kv = useKV()
-  const hasProviders = createMemo(() =>
-    sync.data.provider.some((x) => x.id !== "opencode" || Object.values(x.models).some((y) => y.cost?.input !== 0)),
-  )
-  const gettingStartedDismissed = createMemo(() => kv.get("dismissed_getting_started", false))
   const titleParts = createMemo(() => parseSessionTitleParts(session()?.title ?? ""))
   const permissions = createMemo(() => sync.data.permission[props.sessionID] ?? [])
-  const showSidebarClock = createMemo(() => kv.get("sidebar_clock_visible", true))
-
-  const formatTime = () => {
-    const now = new Date()
-    return now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false })
-  }
-
-  const [clockTime, setClockTime] = createSignal(formatTime())
-
-  onMount(() => {
-    const interval = setInterval(() => setClockTime(formatTime()), 10000)
-    onCleanup(() => clearInterval(interval))
-  })
 
   return (
     <Show when={session()}>
@@ -297,63 +272,13 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
         </scrollbox>
 
         <box flexShrink={0} gap={1} paddingTop={1}>
-          <Show when={!hasProviders() && !gettingStartedDismissed()}>
-            <box
-              backgroundColor={theme.backgroundElement}
-              paddingTop={1}
-              paddingBottom={1}
-              paddingLeft={2}
-              paddingRight={2}
-              flexDirection="row"
-              gap={1}
-            >
-              <text flexShrink={0} fg={theme.text}>
-                ⬖
-              </text>
-              <box flexGrow={1} gap={1}>
-                <box flexDirection="row" justifyContent="space-between">
-                  <text fg={theme.text}>
-                    <b>Getting started</b>
-                  </text>
-                  <text fg={theme.textMuted} onMouseDown={() => kv.set("dismissed_getting_started", true)}>
-                    ✕
-                  </text>
-                </box>
-                <text fg={theme.textMuted}>Base One includes free models so you can start immediately.</text>
-                <text fg={theme.textMuted}>
-                  Connect from 75+ providers to use other models, including Claude, GPT, Gemini etc
-                </text>
-                <box flexDirection="row" gap={1} justifyContent="space-between">
-                  <text fg={theme.text}>Connect provider</text>
-                  <text fg={theme.textMuted}>/connect</text>
-                </box>
-              </box>
-            </box>
-          </Show>
-          <text>
-            <span style={{ fg: theme.textMuted }}>{directory().split("/").slice(0, -1).join("/")}/</span>
-            <span style={{ fg: theme.text }}>{directory().split("/").at(-1)}</span>
-          </text>
           <Show when={permissions().length > 0}>
             <text fg={theme.warning}>
               <span style={{ fg: theme.warning }}>◉</span> {permissions().length} Permission
               {permissions().length > 1 ? "s" : ""}
             </text>
           </Show>
-          <TuiPluginRuntime.Slot name="sidebar_footer" mode="single_winner" session_id={props.sessionID}>
-            <box flexDirection="row" justifyContent="space-between">
-              <text fg={theme.textMuted}>
-                <span style={{ fg: theme.success }}>•</span> <b>Base</b>
-                <span style={{ fg: theme.text }}>
-                  <b>One</b>
-                </span>{" "}
-                <span>{Installation.VERSION}</span>
-              </text>
-              <Show when={showSidebarClock()}>
-                <text fg={theme.accent}> {clockTime()}</text>
-              </Show>
-            </box>
-          </TuiPluginRuntime.Slot>
+          <TuiPluginRuntime.Slot name="sidebar_footer" mode="single_winner" session_id={props.sessionID} />
         </box>
       </box>
     </Show>

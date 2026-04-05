@@ -82,6 +82,7 @@
 | ☑ | 76 | fix/restore-footer | origin | b80d74528b | Added missing Footer import |
 | ☑ | 77 | feat/remove-canned-jokes | origin | 9425b3b0e8 | Clean merge |
 | ☑ | 78 | fix/session-list-delete-selection | origin | f2df9fc132 | Resolved conflicts in dialog-select.tsx and dialog-session-list.tsx - combined scrollToValue + moveTo |
+| ☑ | 79 | feat/kimi-with-claude-system-prompt | origin | 5997e34b96 | Clean merge - routes Kimi/K2.5 models to the Claude system prompt |
 
 ## Merge Log
 
@@ -107,3 +108,7 @@ _2026-04-05 20:57 UTC_ - Merged branch 43 (feat/improve-bash-tool-git-advice) - 
 - Updated merge: packages/opencode/src/tool/bash.txt
 - Resolution: Git advice improvements incorporated
 - Result: Bash tool now provides better git advice
+
+_2026-04-05 21:11 UTC_ - Merged branch 79 (feat/kimi-with-claude-system-prompt) - 5997e34b96
+- Clean merge
+- Result: Kimi and K2.5 models now use the Claude system prompt

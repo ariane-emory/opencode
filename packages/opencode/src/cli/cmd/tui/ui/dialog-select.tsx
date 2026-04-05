@@ -1,4 +1,4 @@
-import { InputRenderable, RGBA, ScrollBoxRenderable, TextAttributes, parseKeypress } from "@opentui/core"
+import { InputRenderable, RGBA, ScrollBoxRenderable, TextAttributes, parseKeypress, type ParsedKey } from "@opentui/core"
 import { useTheme, selectedForeground } from "@tui/context/theme"
 import { entries, filter, flatMap, groupBy, mapValues, pipe, take } from "remeda"
 import { smartCompare } from "@/util/smart-sort"
@@ -50,6 +50,11 @@ export type DialogSelectRef<T> = {
   filtered: DialogSelectOption<T>[]
   scrollToValue: (value: T, center?: boolean) => void
   moveTo: (index: number, center?: boolean) => void
+}
+
+type InputEvent = ParsedKey & {
+  preventDefault(): void
+  stopPropagation(): void
 }
 
 export function DialogSelect<T>(props: DialogSelectProps<T>) {
@@ -200,9 +205,23 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
   const keybind = useKeybind()
   const keybinds = createMemo(() => props.keybind?.filter((x) => !x.disabled && x.keybind) ?? [])
 
-  const trigger = (evt: { preventDefault(): void; stopPropagation(): void }, parsed: Keybind.Info) => {
+  const bookmark = (item: Keybind.Info | undefined) => {
+    if (!item) return false
+    return item.name === "b" && item.ctrl && !item.meta && !item.shift && !item.super && !item.leader
+  }
+
+  const alias = (parsed: Keybind.Info, evt: ParsedKey) => {
+    if (parsed.leader || parsed.shift || parsed.super) return false
+    if (parsed.name === "left" && parsed.ctrl) return true
+    if (parsed.name === "left" && evt.sequence === "\x1bB") return true
+    if (parsed.name === "b" && parsed.ctrl && parsed.meta) return true
+    if (evt.sequence === "\x1b[1;5D" || evt.sequence === "\x1b[5D") return true
+    return false
+  }
+
+  const trigger = (evt: InputEvent, parsed: Keybind.Info) => {
     for (const item of keybinds()) {
-      if (!Keybind.match(item.keybind, parsed)) continue
+      if (!Keybind.match(item.keybind, parsed) && !(bookmark(item.keybind) && alias(parsed, evt))) continue
       const s = selected()
       if (!s) return false
       evt.preventDefault()
@@ -214,10 +233,12 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
   }
 
   const handle = (seq: string) => {
-    if (seq !== "\x02") return false
+    if (seq !== "\x02" && seq !== "\x1b\x02" && seq !== "\x1b[1;5D" && seq !== "\x1b[5D" && seq !== "\x1bB") {
+      return false
+    }
     const evt = parseKeypress(seq, { useKittyKeyboard: renderer.useKittyKeyboard })
     if (!evt) return false
-    return trigger({ preventDefault() {}, stopPropagation() {} }, keybind.parse(evt))
+    return trigger({ ...evt, preventDefault() {}, stopPropagation() {} }, keybind.parse(evt))
   }
 
   renderer.prependInputHandler(handle)

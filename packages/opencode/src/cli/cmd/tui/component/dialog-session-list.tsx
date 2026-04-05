@@ -5,7 +5,6 @@ import { useSync } from "@tui/context/sync"
 import { createMemo, createSignal, createResource, onMount, Show } from "solid-js"
 import { Locale } from "@/util/locale"
 import { useKeybind } from "../context/keybind"
-import { Keybind } from "@/util/keybind"
 import { useTheme } from "../context/theme"
 import { useSDK } from "../context/sdk"
 import { DialogSessionRename } from "./dialog-session-rename"
@@ -32,7 +31,6 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
     return result.data ?? []
   })
 
-  const pinKeybind = "ctrl+b"
   const currentSessionID = createMemo(() => props.initialSessionID ?? (route.data.type === "session" ? route.data.sessionID : undefined))
 
   const sessions = createMemo(() => {
@@ -221,7 +219,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
           },
         },
         {
-          keybind: Keybind.parse(pinKeybind)[0],
+          keybind: keybind.all.session_bookmark?.[0],
           title: "bookmark",
           onTrigger: async (option) => {
             const session = sessions().find((s) => s.id === option.value)

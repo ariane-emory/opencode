@@ -12,7 +12,6 @@ import { DialogSessionRename } from "./dialog-session-rename"
 import { useKV } from "../context/kv"
 import { createDebouncedSignal } from "../util/signal"
 import { Spinner } from "./spinner"
-import { useToast } from "../ui/toast"
 
 export function DialogSessionList(props: { initialSessionID?: string } = {}) {
   const dialog = useDialog()
@@ -22,7 +21,6 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
   const { theme } = useTheme()
   const sdk = useSDK()
   const kv = useKV()
-  const toast = useToast()
 
   const [toDelete, setToDelete] = createSignal<string>()
   const [search, setSearch] = createDebouncedSignal("", 150)
@@ -226,31 +224,13 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
           keybind: Keybind.parse(pinKeybind)[0],
           title: "bookmark",
           onTrigger: async (option) => {
-            toast.show({
-              variant: "info",
-              message: `bookmark trigger ${option.value}`,
-              duration: 2500,
-            })
             const session = sessions().find((s) => s.id === option.value)
             if (!session) return
             const isPinned = session.time.pinned !== undefined
-            try {
-              await sdk.client.session.update({
-                sessionID: option.value,
-                time: { pinned: isPinned ? null : Date.now() },
-              })
-              toast.show({
-                variant: "info",
-                message: `bookmark update ok ${isPinned ? "unpinned" : "pinned"}`,
-                duration: 2500,
-              })
-            } catch (err) {
-              toast.show({
-                variant: "error",
-                message: err instanceof Error ? err.message : "bookmark update failed",
-                duration: 4000,
-              })
-            }
+            await sdk.client.session.update({
+              sessionID: option.value,
+              time: { pinned: isPinned ? null : Date.now() },
+            })
             setTimeout(() => selectRef()?.scrollToValue(option.value, true), 0)
           },
         },

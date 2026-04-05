@@ -1,4 +1,4 @@
-import { InputRenderable, RGBA, ScrollBoxRenderable, TextAttributes, type KeyEvent } from "@opentui/core"
+import { InputRenderable, RGBA, ScrollBoxRenderable, TextAttributes } from "@opentui/core"
 import { useTheme, selectedForeground } from "@tui/context/theme"
 import { entries, filter, flatMap, groupBy, mapValues, pipe, take } from "remeda"
 import { smartCompare } from "@/util/smart-sort"
@@ -143,21 +143,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
   const height = createMemo(() => Math.min(rows(), Math.floor(dimensions().height * 0.8) - 6))
 
   const selected = createMemo(() => flat()[store.selected])
-  const keybinds = createMemo(() => props.keybind?.filter((x) => !x.disabled && x.keybind) ?? [])
-
-  function trigger(evt: KeyEvent) {
-    if (evt.defaultPrevented) return false
-    for (const item of keybinds()) {
-      if (!Keybind.match(item.keybind, keybind.parse(evt))) continue
-      const option = selected()
-      if (!option) return false
-      evt.preventDefault()
-      evt.stopPropagation()
-      item.onTrigger(option)
-      return true
-    }
-    return false
-  }
+  const inputKeybinds = [{ name: "b", ctrl: true, action: "bookmark" as never }]
 
   createEffect(
     on([() => store.filter, () => props.current, () => flat().length], ([filter, current]) => {
@@ -232,7 +218,16 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
       }
     }
 
-    trigger(evt)
+    for (const item of props.keybind ?? []) {
+      if (item.disabled || !item.keybind) continue
+      if (Keybind.match(item.keybind, keybind.parse(evt))) {
+        const s = selected()
+        if (s) {
+          evt.preventDefault()
+          item.onTrigger(s)
+        }
+      }
+    }
   })
 
   let scroll: ScrollBoxRenderable | undefined
@@ -253,6 +248,8 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
   }
   props.ref?.(ref)
 
+  const keybinds = createMemo(() => props.keybind?.filter((x) => !x.disabled && x.keybind) ?? [])
+
   return (
     <box gap={1} paddingBottom={1}>
       <box paddingLeft={4} paddingRight={4}>
@@ -266,7 +263,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
         </box>
         <box paddingTop={1}>
           <input
-            onKeyDown={trigger}
+            keyBindings={inputKeybinds}
             onInput={(e) => {
               batch(() => {
                 setStore("filter", e)
@@ -278,7 +275,6 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
             focusedTextColor={theme.textMuted}
             ref={(r) => {
               input = r
-              input.traits = { status: "FILTER" }
               setTimeout(() => {
                 if (!input) return
                 if (input.isDestroyed) return

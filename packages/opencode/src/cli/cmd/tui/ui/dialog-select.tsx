@@ -266,6 +266,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
         </box>
         <box paddingTop={1}>
           <input
+            onKeyDown={trigger}
             onInput={(e) => {
               batch(() => {
                 setStore("filter", e)
@@ -278,7 +279,6 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
             ref={(r) => {
               input = r
               input.traits = { status: "FILTER" }
-              input.onKeyDown = trigger
               setTimeout(() => {
                 if (!input) return
                 if (input.isDestroyed) return

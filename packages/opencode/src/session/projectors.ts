@@ -56,6 +56,7 @@ export function toPartialRow(info: DeepPartial<Session.Info>) {
     time_updated: grab(info, "time", (v) => grab(v, "updated")),
     time_compacting: grab(info, "time", (v) => grab(v, "compacting")),
     time_archived: grab(info, "time", (v) => grab(v, "archived")),
+    time_pinned: grab(info, "time", (v) => grab(v, "pinned")),
   }
 
   return Object.fromEntries(Object.entries(obj).filter(([_, val]) => val !== undefined))

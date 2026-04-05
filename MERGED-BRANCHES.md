@@ -46,7 +46,7 @@
 | ☑ | 40 | feat/persist-sidebar-group-folding-states | origin | f8e1e6b974 | Clean merge - preserves sidebar group folding states |
 | ☑ | 41 | feat/persistant-sidebar-overlay-behaviour | origin | 013a1de76f | Resolved conflict in app.tsx - combined TPS toggle, terminal title toggle, and sidebar overlay toggle |
 | ☑ | 42 | feat/shell-advice | origin | 300b17f22b | Clean merge - added shell advice to bash tool |
-| ☑ | 43 | feat/improve-bash-tool-git-advice | origin | c27be67f5d | Resolved conflict in bash.txt - kept ${shellName} variable while incorporating git advice improvements |
+| ☑ | 43 | feat/improve-bash-tool-git-advice | origin | fc89b05d58 | Updated merge - git advice improvements in bash.txt |
 | ☑ | 44 | feat/renaming-doesnt-close-session-list | origin | e38481407a | Resolved conflict - kept pinKeybind while incorporating initialSessionID logic |
 | ☑ | 45 | feat/session-child-toggle-key | origin | b931561423 | Resolved conflict - kept session_continue while adding session_child_toggle |
 | ☑ | 46 | feat/set-session-title | origin | d4dcdb51ae | Clean merge - adds tool to set current session title |
@@ -102,3 +102,8 @@ _2025-04-04 01:18 UTC_ - Merged branch 23 (fix/autocompletion-filtered-order) - 
 - Conflict resolved: packages/opencode/src/cli/cmd/tui/component/prompt/index.tsx
 - Resolution: Kept integration's version (HEAD) to preserve placeholders and list continuation features
 - Typecheck: Passed
+
+_2026-04-05 20:57 UTC_ - Merged branch 43 (feat/improve-bash-tool-git-advice) - fc89b05d58
+- Updated merge: packages/opencode/src/tool/bash.txt
+- Resolution: Git advice improvements incorporated
+- Result: Bash tool now provides better git advice

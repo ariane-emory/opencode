@@ -12,6 +12,7 @@ import { Keybind } from "@/util/keybind"
 import { Locale } from "@/util/locale"
 import { getScrollAcceleration } from "../util/scroll"
 import { useTuiConfig } from "../context/tui-config"
+import { useToast } from "./toast"
 
 export interface DialogSelectProps<T> {
   title: string
@@ -59,6 +60,7 @@ type InputEvent = ParsedKey & {
 
 export function DialogSelect<T>(props: DialogSelectProps<T>) {
   const dialog = useDialog()
+  const toast = useToast()
   const { theme } = useTheme()
   const renderer = useRenderer()
   const tuiConfig = useTuiConfig()
@@ -224,6 +226,13 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
       if (!Keybind.match(item.keybind, parsed) && !(bookmark(item.keybind) && alias(parsed, evt))) continue
       const s = selected()
       if (!s) return false
+      if (bookmark(item.keybind)) {
+        toast.show({
+          variant: "info",
+          message: `bookmark match name=${parsed.name} ctrl=${parsed.ctrl ? 1 : 0} meta=${parsed.meta ? 1 : 0} seq=${JSON.stringify(evt.sequence)}`,
+          duration: 2500,
+        })
+      }
       evt.preventDefault()
       evt.stopPropagation()
       item.onTrigger(s)
@@ -236,6 +245,11 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     if (seq !== "\x02" && seq !== "\x1b\x02" && seq !== "\x1b[1;5D" && seq !== "\x1b[5D" && seq !== "\x1bB") {
       return false
     }
+    toast.show({
+      variant: "info",
+      message: `bookmark raw seq=${JSON.stringify(seq)}`,
+      duration: 2500,
+    })
     const evt = parseKeypress(seq, { useKittyKeyboard: renderer.useKittyKeyboard })
     if (!evt) return false
     return trigger({ ...evt, preventDefault() {}, stopPropagation() {} }, keybind.parse(evt))

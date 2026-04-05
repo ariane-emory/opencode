@@ -13,7 +13,7 @@
 | ☑ | 7 | fix/dialog-datetime-alignment | origin | c9704d9d90 | Clean merge |
 | ☑ | 8 | feat/keybindable-commands | origin | 9c9bb419bb | Clean merge |
 | ☑ | 9 | feat/automatic-list-continuation | origin | effde79144 | Clean merge |
-| ☑ | 10 | feat/continue-command | origin | 7ef43c0699 | Clean merge |
+| ☑ | 10 | feat/continue-command | origin | 6e82df527a | Updated merge - adds continue command improvements and session action tests |
 | ☑ | 11 | feat/configurable-snapshot-lifespan | origin | df11b16bb5 | Clean merge |
 | ☑ | 12 | feat/configurable-new-plan-mode | origin | ac81705f07 | Clean merge |
 | ☑ | 13 | feat/enable-exa-setting | origin | c62dd3417f | Conflicts in config.ts - combined plan_mode and enable_exa settings |

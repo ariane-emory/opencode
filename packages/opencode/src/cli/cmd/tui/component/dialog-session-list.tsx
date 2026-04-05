@@ -2,7 +2,7 @@ import { useDialog } from "@tui/ui/dialog"
 import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { useRoute } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
-import { createMemo, createSignal, createResource, onMount, Show } from "solid-js"
+import { createEffect, createMemo, createSignal, createResource, onMount, Show } from "solid-js"
 import { Locale } from "@/util/locale"
 import { useKeybind } from "../context/keybind"
 import { Keybind } from "@/util/keybind"
@@ -157,6 +157,15 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
 
     const allOptions = [...pinnedOptions, ...groupedOptions, ...ungroupedOptions]
     return limit ? allOptions.slice(0, limit) : allOptions
+  })
+
+  createEffect(() => {
+    const id = currentSessionID() ?? defaultSessionID()
+    if (!id) return
+    options()
+    setTimeout(() => {
+      selectRef()?.scrollToValue(id, true)
+    }, 0)
   })
 
   onMount(() => {

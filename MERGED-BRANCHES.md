@@ -7,7 +7,7 @@
 | ☑ | 1 | feat/base-one-rebrand | origin | 0669b5b183 | Clean merge |
 | ☑ | 2 | feat/sinister-quotes | origin | 748c770400 | Clean merge |
 | ☑ | 3 | feat/markdown-renderer | gignit | 82e0ce00e7 | Conflicts in session/index.tsx: combined imports and theme destructuring |
-| ☐ | 4 | feat/thinking-indicator-hidden | rcdailey | TBD | |
+| ☑ | 4 | feat/thinking-indicator-hidden | rcdailey | b455d2be4d | Clean merge |
 | ☐ | 5 | feat/session-grouping | origin | TBD | |
 | ☐ | 6 | feat/session-bookmarks | origin | TBD | |
 | ☐ | 7 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks |

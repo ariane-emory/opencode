@@ -26,7 +26,7 @@
 | ☑ | 20 | fix/history-navigation-key-commands | origin | 4fa3d4b07b | merged cleanly |
 | ☑ | 21 | fix/build-with-short-version | origin | 1cebc3b098 | merged cleanly; short integration timestamp version preserved |
 | ☑ | 22 | fix/autocompletion-filtered-order | origin | d09c986062 | resolved prompt conflict while preserving current placeholder and list continuation behavior |
-| ☐ | 23 | fix/modal-menus-filtered-order | origin | TBD |  |
+| ☑ | 23 | fix/modal-menus-filtered-order | origin | d8155cff0b | merged cleanly |
 | ☐ | 24 | fix/config-package-json-pollution | origin | TBD | This branch **MUST** be included in integration branches to prevent package.json pollution with non-SemVer versions |
 | ☐ | 25 | fix/session-list-viewport-jumping | origin | TBD |  |
 | ☐ | 26 | fix/merging-multiple-configs | origin | TBD |  |
@@ -110,3 +110,4 @@
 - fix/history-navigation-key-commands: merged 4fa3d4b07b; clean merge.
 - fix/build-with-short-version: merged 1cebc3b098; clean merge.
 - fix/autocompletion-filtered-order: merged d09c986062; resolved prompt conflict to keep existing placeholder/list continuation behavior and add filtered ordering fixes.
+- fix/modal-menus-filtered-order: merged d8155cff0b; clean merge.

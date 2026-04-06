@@ -42,7 +42,7 @@
 | ☑ | 36 | feat/kv-diff-style-clean | origin | a4705b750e | merged with permission prompt kv-diff style integration |
 | ☑ | 37 | feat/global-compaction-threshold | origin | 8443a8821b | merged cleanly |
 | ☑ | 38 | feat/configurable-message-and-session-limit | origin | 9b63556a00 | merged with message/session limits supporting positive integers or "none" |
-| ☐ | 39 | feat/experimental-dont-cache-command-markdown | origin | TBD |  |
+| ☑ | 39 | feat/experimental-dont-cache-command-markdown | origin | 8bf6f33ed3 | merged with command markdown cache toggle preserved |
 | ☐ | 40 | feat/jsonc-user-themes | origin | TBD |  |
 | ☐ | 41 | feat/shell-advice | origin | TBD | Make sure to combine this properly with the changes to the bash tool's description that are made in the feat/improve-bash-tool-git-advice branch, both sets of changes must be synthesized! |
 | ☐ | 42 | feat/improve-bash-tool-git-advice | origin | TBD | Make sure to combine this properly with the changes to the bash tool's description that are made in the feat/shell-advice branch, both sets of changes must be synthesized! |
@@ -126,3 +126,4 @@
 - feat/kv-diff-style-clean: merged a4705b750e; fixed permission prompt import/config wiring for kv diff style setting.
 - feat/global-compaction-threshold: merged 8443a8821b; clean merge.
 - feat/configurable-message-and-session-limit: merged 9b63556a00; resolved config/session list/sdk conflicts while preserving grouped+bookmarked list behavior and limit settings accepting positive integers or "none".
+- feat/experimental-dont-cache-command-markdown: merged 8bf6f33ed3; resolved config and command loader conflicts to keep command markdown cache toggle alongside existing experimental settings.

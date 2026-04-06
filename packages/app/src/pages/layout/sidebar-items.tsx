@@ -16,6 +16,7 @@ import { getAvatarColors, type LocalProject, useLayout } from "@/context/layout"
 import { useNotification } from "@/context/notification"
 import { usePermission } from "@/context/permission"
 import { messageAgentColor } from "@/utils/agent"
+import { formatSessionTitle } from "@/utils/session-title"
 import { sessionPermissionRequest } from "../session/composer/session-request-tree"
 import { hasProjectPermissions } from "./helpers"
 
@@ -134,7 +135,7 @@ const SessionRow = (props: {
         </Match>
       </Switch>
     </div>
-    <span class="text-14-regular text-text-strong min-w-0 flex-1 truncate">{props.session.title}</span>
+    <span class="text-14-regular text-text-strong min-w-0 flex-1 truncate">{formatSessionTitle(props.session.title)}</span>
   </A>
 )
 
@@ -319,7 +320,7 @@ export const SessionItem = (props: SessionItemProps): JSX.Element => {
             fallback={
               <Tooltip
                 placement={props.mobile ? "bottom" : "right"}
-                value={props.session.title}
+                value={formatSessionTitle(props.session.title)}
                 gutter={10}
                 class="min-w-0 w-full"
               >

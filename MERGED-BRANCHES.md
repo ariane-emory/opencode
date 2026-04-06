@@ -27,11 +27,11 @@
 | ☑ | 21 | fix/build-with-short-version | origin | 301acb9b5d | Automatically uses short timestamp version for integration branches without requiring OPENCODE_VERSION to be set |
 | ☑ | 22 | fix/autocompletion-filtered-order | origin | 3665c35e79 | |
 | ☑ | 23 | fix/modal-menus-filtered-order | origin | 5a994bb6e0 | |
-| ☐ | 24 | fix/config-package-json-pollution | origin | TBD | MUST be included in integration branches to prevent package.json pollution with non-SemVer versions |
-| ☐ | 25 | fix/session-list-viewport-jumping | origin | TBD | |
-| ☐ | 26 | fix/merging-multiple-configs | origin | TBD | |
-| ☐ | 27 | fix/markdown-codeblock-theme-property | origin | TBD | |
-| ☐ | 28 | fix/persist-sidebar | origin | TBD | This branch is meant not only to make the sidebar display state persistent across restarts but also to remove the normal behaviour where the sidebar is hidden when the terminal is not wide enough! There MUST NOT be a way to return to the auto state after transitioning to the "show" or "hide" state |
+| ☑ | 24 | fix/config-package-json-pollution | origin | 062bb2c6ed | MUST be included in integration branches to prevent package.json pollution with non-SemVer versions |
+| ☑ | 25 | fix/session-list-viewport-jumping | origin | 062bb2c6ed | |
+| ☑ | 26 | fix/merging-multiple-configs | origin | 062bb2c6ed | |
+| ☑ | 27 | fix/markdown-codeblock-theme-property | origin | 062bb2c6ed | |
+| ☑ | 28 | fix/persist-sidebar | origin | 062bb2c6ed | This branch is meant not only to make the sidebar display state persistent across restarts but also to remove the normal behaviour where the sidebar is hidden when the terminal is not wide enough! There MUST NOT be a way to return to the auto state after transitioning to the "show" or "hide" state |
 | ☐ | 29 | feat/persist-sidebar-group-folding-states | origin | TBD | Be sure not to let this feature get clobbered by subsequent merges! |
 | ☐ | 30 | feat/permission-indicator-in-sidebar | origin | TBD | |
 | ☐ | 31 | feat/command-palette-consistency | origin | TBD | MOVE several items from the Session category to the System category in the command palette - do NOT duplicate them into both categories |

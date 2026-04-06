@@ -40,7 +40,7 @@
 | ☑ | 34 | feat/session-id-in-status | origin | c41362a21c | merged cleanly |
 | ☑ | 35 | feat/opeoginni--display-message-tps | origin | 76a3367f11 | resolved app conflict and preserved tps toggle |
 | ☑ | 36 | feat/kv-diff-style-clean | origin | a4705b750e | merged with permission prompt kv-diff style integration |
-| ☐ | 37 | feat/global-compaction-threshold | origin | TBD |  |
+| ☑ | 37 | feat/global-compaction-threshold | origin | 8443a8821b | merged cleanly |
 | ☐ | 38 | feat/configurable-message-and-session-limit | origin | TBD | Don't forget that both the `experimental._message__limit` and `experimental.session_list_limit` settings should accept either positive integers or the string value "none"! |
 | ☐ | 39 | feat/experimental-dont-cache-command-markdown | origin | TBD |  |
 | ☐ | 40 | feat/jsonc-user-themes | origin | TBD |  |
@@ -124,3 +124,4 @@
 - feat/session-id-in-status: merged c41362a21c; clean merge.
 - feat/opeoginni--display-message-tps: merged 76a3367f11; resolved app conflict to keep sidebar overlay and terminal title toggles while adding message TPS toggle.
 - feat/kv-diff-style-clean: merged a4705b750e; fixed permission prompt import/config wiring for kv diff style setting.
+- feat/global-compaction-threshold: merged 8443a8821b; clean merge.

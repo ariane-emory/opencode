@@ -38,7 +38,7 @@
 | ☑ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | 70b618c620 | Kept only showHeader toggle (others already moved to System by #31) |
 | ☑ | 33 | refactor/shared-substitute | origin | e0eebcc3f5 | Kept our richer substitute.ts (with default/range syntax); removed duplicate placeholderRegex from prompt.ts namespace |
 | ☑ | 34 | feat/session-id-in-status | origin | 851c958fa4 | Clean merge |
-| ☐ | 35 | feat/opeoginni--display-message-tps | origin | TBD | |
+| ☑ | 35 | feat/opeoginni--display-message-tps | origin | a0f8fd0ca0 | Combined sidebar overlay + tps + terminal title toggles in app.tsx |
 | ☐ | 36 | feat/kv-diff-style-clean | origin | TBD | |
 | ☐ | 37 | feat/global-compaction-threshold | origin | TBD | |
 | ☐ | 38 | feat/configurable-message-and-session-limit | origin | TBD | Both _message__limit and session_list_limit must accept positive integers or "none" |

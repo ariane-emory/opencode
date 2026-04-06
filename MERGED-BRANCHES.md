@@ -46,7 +46,7 @@
 | ☑ | 40 | feat/persist-sidebar-group-folding-states | origin | f8e1e6b974 | Clean merge - preserves sidebar group folding states |
 | ☑ | 41 | feat/persistant-sidebar-overlay-behaviour | origin | 013a1de76f | Resolved conflict in app.tsx - combined TPS toggle, terminal title toggle, and sidebar overlay toggle |
 | ☑ | 42 | feat/shell-advice | origin | 300b17f22b | Clean merge - added shell advice to bash tool |
-| ☑ | 43 | feat/improve-bash-tool-git-advice | origin | f8e73255eb | Re-merge - updated git advice in bash.txt |
+| ☑ | 43 | feat/improve-bash-tool-git-advice | origin | 239c3d6109 | Re-merge v3 - further git advice refinements in bash.txt |
 | ☑ | 44 | feat/renaming-doesnt-close-session-list | origin | e38481407a | Resolved conflict - kept pinKeybind while incorporating initialSessionID logic |
 | ☑ | 45 | feat/session-child-toggle-key | origin | b931561423 | Resolved conflict - kept session_continue while adding session_child_toggle |
 | ☑ | 46 | feat/set-session-title | origin | d4dcdb51ae | Clean merge - adds tool to set current session title |
@@ -122,3 +122,8 @@ _2026-04-06 00:25 UTC_ - Re-merged branch 43 (feat/improve-bash-tool-git-advice)
 - Clean merge: packages/opencode/src/tool/bash.txt
 - Changes: 4 insertions(+), 5 deletions(-)
 - Result: Updated git advice improvements incorporated
+
+_2026-04-06 19:27 UTC_ - Re-merged branch 43 (feat/improve-bash-tool-git-advice) - 239c3d6109
+- Clean merge: packages/opencode/src/tool/bash.txt
+- Changes: 2 insertions(+), 1 deletion(-)
+- Result: Further git advice refinements incorporated

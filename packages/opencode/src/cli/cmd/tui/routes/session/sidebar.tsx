@@ -4,8 +4,8 @@ import { useTheme } from "../../context/theme"
 import { useTuiConfig } from "../../context/tui-config"
 import { Installation } from "@/installation"
 import { TuiPluginRuntime } from "../../plugin"
-
 import { getScrollAcceleration } from "../../util/scroll"
+import { parseSessionTitleParts } from "@tui/util/session-title"
 
 export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const sync = useSync()
@@ -13,6 +13,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const tuiConfig = useTuiConfig()
   const session = createMemo(() => sync.session.get(props.sessionID))
   const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
+  const titleParts = createMemo(() => parseSessionTitleParts(session()?.title ?? ""))
 
   return (
     <Show when={session()}>
@@ -46,7 +47,9 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
             >
               <box paddingRight={1}>
                 <text fg={theme.text}>
-                  <b>{session()!.title}</b>
+                  <Show when={titleParts().group} fallback={<b>{titleParts().rest}</b>}>
+                    <b>{titleParts().group}</b> {titleParts().rest}
+                  </Show>
                 </text>
                 <Show when={session()!.share?.url}>
                   <text fg={theme.textMuted}>{session()!.share!.url}</text>

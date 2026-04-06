@@ -9,4 +9,4 @@ Usage:
 - The edit will FAIL if `oldString` is found multiple times in the file with an error "oldString found multiple times and requires more code context to uniquely identify the intended match". Either provide a larger string with more surrounding context to make it unique or use `replaceAll` to change every instance of `oldString`. 
 - The edit will FAIL if `oldString` and `newString` are identical strings: you MUST NEVER pass identical arguments for the `oldString` and `newString` arguments!
 - Use `replaceAll` for replacing and renaming strings across the file. This parameter is useful if you want to rename a variable for instance.
-- When you have made substantial changes to a file, you SHOULD make sure that you commit and push the changes to origin. 
+- When you have made substantial changes to a file, you MUST make sure that you commit and push the changes to origin. 

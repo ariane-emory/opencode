@@ -37,7 +37,7 @@
 | ☑ | 31 | feat/command-palette-consistency | origin | a0165409e9 | moved palette items to System and preserved persist-sidebar behavior |
 | ☑ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | 9c43996c78 | merged with sidebar overlay behavior and header toggle preserved |
 | ☑ | 33 | refactor/shared-substitute | origin | 9db11d4503 | resolved substitute conflicts preserving range/default and quote-safe behavior |
-| ☐ | 34 | feat/session-id-in-status | origin | TBD |  |
+| ☑ | 34 | feat/session-id-in-status | origin | c41362a21c | merged cleanly |
 | ☐ | 35 | feat/opeoginni--display-message-tps | origin | TBD |  |
 | ☐ | 36 | feat/kv-diff-style-clean | origin | TBD |  |
 | ☐ | 37 | feat/global-compaction-threshold | origin | TBD |  |
@@ -121,3 +121,4 @@
 - feat/command-palette-consistency: merged a0165409e9; resolved app and session palette conflicts to move items into System without duplication and preserve no-return-to-auto sidebar behavior.
 - feat/persistant-sidebar-overlay-behaviour: merged 9c43996c78; resolved session route conflict to keep overlay behavior and header toggle without reintroducing moved palette items.
 - refactor/shared-substitute: merged 9db11d4503; kept shared substitute usage while preserving range/default placeholder support and quote-safe argument handling.
+- feat/session-id-in-status: merged c41362a21c; clean merge.

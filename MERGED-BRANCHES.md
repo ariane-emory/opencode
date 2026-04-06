@@ -34,7 +34,7 @@
 | ☑ | 28 | fix/persist-sidebar | origin | a752929233 | Kept our prompt/index.tsx; feature changes in kv.tsx and session/index.tsx |
 | ☑ | 29 | feat/persist-sidebar-group-folding-states | origin | 6a4d9a5943 | Kept HEAD prompt.ts; sidebar fold persistence changes clean |
 | ☑ | 30 | feat/permission-indicator-in-sidebar | origin | 18a0efc7e0 | Combined titleParts + permissions memos in sidebar.tsx |
-| ☐ | 31 | feat/command-palette-consistency | origin | TBD | MOVES items from Session to System category; must NOT duplicate; handle persist-sidebar logic |
+| ☑ | 31 | feat/command-palette-consistency | origin | 4e35784d76 | Moved timestamps/thinking/tooldetails/scrollbar/generic_tool_output to System; kept sidebar toggle in Session with persist-sidebar logic |
 | ☐ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | TBD | |
 | ☐ | 33 | refactor/shared-substitute | origin | TBD | |
 | ☐ | 34 | feat/session-id-in-status | origin | TBD | |

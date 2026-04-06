@@ -16,7 +16,7 @@
 | ☑ | 10 | feat/continue-command | origin | f3269808e1 | Clean merge |
 | ☑ | 11 | feat/configurable-snapshot-lifespan | origin | 474515455f | Clean merge |
 | ☑ | 12 | feat/configurable-new-plan-mode | origin | 4f1656c416 | Clean merge |
-| ☐ | 13 | feat/enable-exa-setting | origin | TBD | |
+| ☑ | 13 | feat/enable-exa-setting | origin | d15eec432b | Conflicts in config.ts: combined plan_mode and enable_exa fields |
 | ☐ | 14 | feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber; must add new item to command palette |
 | ☐ | 15 | feat/permission-spinner | origin | TBD | |
 | ☐ | 16 | feat/opencode-expand | origin | TBD | |

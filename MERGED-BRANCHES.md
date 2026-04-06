@@ -13,7 +13,7 @@
 | ☑ | 7 | fix/dialog-datetime-alignment | origin | b8871b4225 | merged after bookmarks; datetime alignment preserved |
 | ☑ | 8 | feat/keybindable-commands | origin | 431032c56c | merged cleanly |
 | ☑ | 9 | feat/automatic-list-continuation | origin | cef5387a81 | merged cleanly |
-| ☐ | 10 | feat/continue-command | origin | TBD |  |
+| ☑ | 10 | feat/continue-command | origin | 514f4430bf | merged cleanly |
 | ☐ | 11 | feat/configurable-snapshot-lifespan | origin | TBD |  |
 | ☐ | 12 | feat/configurable-new-plan-mode | origin | TBD |  |
 | ☐ | 13 | feat/enable-exa-setting | origin | TBD |  |
@@ -97,3 +97,4 @@
 - fix/dialog-datetime-alignment: merged b8871b4225; kept datetime alignment immediately after bookmarks merge.
 - feat/keybindable-commands: merged 431032c56c; clean merge.
 - feat/automatic-list-continuation: merged cef5387a81; clean merge.
+- feat/continue-command: merged 514f4430bf; clean merge.

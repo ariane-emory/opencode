@@ -1,5 +1,5 @@
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
-import { createMemo, For, Show, createSignal } from "solid-js"
+import { createEffect, createMemo, createSignal, For, Show } from "solid-js"
 
 const id = "internal:sidebar-files"
 
@@ -8,10 +8,23 @@ function View(props: { api: TuiPluginApi; session_id: string }) {
   const theme = () => props.api.theme.current
   const list = createMemo(() => props.api.state.session.diff(props.session_id))
 
+  createEffect(() => {
+    if (props.api.kv.ready) {
+      setOpen(props.api.kv.get("sidebar_expanded_diff", true))
+    }
+  })
+
+  const toggle = () => {
+    if (list().length <= 2) return
+    const next = !open()
+    setOpen(next)
+    props.api.kv.set("sidebar_expanded_diff", next)
+  }
+
   return (
     <Show when={list().length > 0}>
       <box>
-        <box flexDirection="row" gap={1} onMouseDown={() => list().length > 2 && setOpen((x) => !x)}>
+        <box flexDirection="row" gap={1} onMouseDown={toggle}>
           <Show when={list().length > 2}>
             <text fg={theme().text}>{open() ? "▼" : "▶"}</text>
           </Show>

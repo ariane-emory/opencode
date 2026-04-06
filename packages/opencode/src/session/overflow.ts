@@ -18,5 +18,10 @@ export function isOverflow(input: { cfg: Config.Info; tokens: MessageV2.Assistan
   const usable = input.model.limit.input
     ? input.model.limit.input - reserved
     : context - ProviderTransform.maxOutputTokens(input.model)
-  return count >= usable
+
+  const threshold = input.cfg.experimental?.context_compaction_threshold ?? 100
+  const thresholdMultiplier = threshold / 100
+  const thresholdedUsable = usable * thresholdMultiplier
+
+  return count >= thresholdedUsable
 }

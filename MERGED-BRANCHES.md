@@ -15,7 +15,7 @@
 | ☑ | 9 | feat/automatic-list-continuation | origin | 27d59b47ed | Clean merge |
 | ☑ | 10 | feat/continue-command | origin | f3269808e1 | Clean merge |
 | ☑ | 11 | feat/configurable-snapshot-lifespan | origin | 474515455f | Clean merge |
-| ☐ | 12 | feat/configurable-new-plan-mode | origin | TBD | |
+| ☑ | 12 | feat/configurable-new-plan-mode | origin | 4f1656c416 | Clean merge |
 | ☐ | 13 | feat/enable-exa-setting | origin | TBD | |
 | ☐ | 14 | feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber; must add new item to command palette |
 | ☐ | 15 | feat/permission-spinner | origin | TBD | |

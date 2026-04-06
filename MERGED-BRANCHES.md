@@ -38,23 +38,23 @@
 | ☑ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | 28ce4a061b | |
 | ☑ | 33 | refactor/shared-substitute | origin | 6a6db6d2a2 | |
 | ☑ | 34 | feat/session-id-in-status | origin | 9a48738c38 | |
-| ☐ | 35 | feat/opeoginni--display-message-tps | origin | TBD | |
-| ☐ | 36 | feat/kv-diff-style-clean | origin | TBD | |
-| ☐ | 37 | feat/global-compaction-threshold | origin | TBD | |
-| ☐ | 38 | feat/configurable-message-and-session-limit | origin | TBD | experimental._message_limit and experimental.session_list_limit should accept either positive integers or the string value "none" |
-| ☐ | 39 | feat/experimental-dont-cache-command-markdown | origin | TBD | |
-| ☐ | 40 | feat/jsonc-user-themes | origin | TBD | |
-| ☐ | 41 | feat/shell-advice | origin | TBD | Combine properly with changes from feat/improve-bash-tool-git-advice branch |
-| ☐ | 42 | feat/improve-bash-tool-git-advice | origin | TBD | Combine properly with changes from feat/shell-advice branch |
-| ☐ | 43 | feat/edit-tool-description | origin | TBD | |
-| ☐ | 44 | feat/renaming-doesnt-close-session-list | origin | TBD | |
-| ☐ | 45 | feat/session-child-toggle-key | origin | TBD | |
-| ☐ | 46 | feat/set-session-title | origin | TBD | |
-| ☐ | 47 | feat/get-session-title | origin | TBD | |
-| ☐ | 48 | feat/no-disabled-lsps-in-sidebar | origin | TBD | |
-| ☐ | 49 | feat/agent-timestamps | origin | TBD | |
-| ☐ | 50 | feat/rewind-modal-option | origin | TBD | |
-| ☐ | 51 | feat/alphabetize-command-palette-groups | origin | TBD | |
+| ☑ | 35 | feat/opeoginni--display-message-tps | origin | 29170db8dc | |
+| ☑ | 36 | feat/kv-diff-style-clean | origin | aaa55e9bc2 | |
+| ☑ | 37 | feat/global-compaction-threshold | origin | 6e06f493a2 | |
+| ☑ | 38 | feat/configurable-message-and-session-limit | origin | aeac3ae564 | experimental._message_limit and experimental.session_list_limit should accept either positive integers or the string value "none" |
+| ☑ | 39 | feat/experimental-dont-cache-command-markdown | origin | ddbec75d6d | |
+| ☑ | 40 | feat/jsonc-user-themes | origin | 5b00433c6a | |
+| ☑ | 41 | feat/shell-advice | origin | 4cd99cf01b | Combine properly with changes from feat/improve-bash-tool-git-advice branch |
+| ☑ | 42 | feat/improve-bash-tool-git-advice | origin | d06fde5930 | Combine properly with changes from feat/shell-advice branch |
+| ☑ | 43 | feat/edit-tool-description | origin | bb465f6b17 | |
+| ☑ | 44 | feat/renaming-doesnt-close-session-list | origin | 52fc9dc290 | |
+| ☑ | 45 | feat/session-child-toggle-key | origin | 8d6f008dbb | |
+| ☑ | 46 | feat/set-session-title | origin | 89fd8e62bc | |
+| ☑ | 47 | feat/get-session-title | origin | 95ab1ba7dc | |
+| ☑ | 48 | feat/no-disabled-lsps-in-sidebar | origin | ff678f48ad | |
+| ☑ | 49 | feat/agent-timestamps | origin | a2598e22a8 | |
+| ☑ | 50 | feat/rewind-modal-option | origin | fd2787f481 | |
+| ☑ | 51 | feat/alphabetize-command-palette-groups | origin | c2e1ee9af0 | |
 | ☐ | 52 | feat/taller-dialogs | origin | TBD | |
 | ☐ | 53 | feat/add-arianes-themes | origin | TBD | |
 | ☐ | 54 | feat/aspiers--readline-additions | origin | TBD | |

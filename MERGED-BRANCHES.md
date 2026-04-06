@@ -36,7 +36,7 @@
 | ☑ | 30 | feat/permission-indicator-in-sidebar | origin | 18a0efc7e0 | Combined titleParts + permissions memos in sidebar.tsx |
 | ☑ | 31 | feat/command-palette-consistency | origin | 4e35784d76 | Moved timestamps/thinking/tooldetails/scrollbar/generic_tool_output to System; kept sidebar toggle in Session with persist-sidebar logic |
 | ☑ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | 70b618c620 | Kept only showHeader toggle (others already moved to System by #31) |
-| ☐ | 33 | refactor/shared-substitute | origin | TBD | |
+| ☑ | 33 | refactor/shared-substitute | origin | e0eebcc3f5 | Kept our richer substitute.ts (with default/range syntax); removed duplicate placeholderRegex from prompt.ts namespace |
 | ☐ | 34 | feat/session-id-in-status | origin | TBD | |
 | ☐ | 35 | feat/opeoginni--display-message-tps | origin | TBD | |
 | ☐ | 36 | feat/kv-diff-style-clean | origin | TBD | |

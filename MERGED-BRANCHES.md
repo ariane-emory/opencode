@@ -20,7 +20,7 @@
 | ☑ | 14 | feat/canceled-prompts-in-history | origin | 97a94571a4 | kept command palette item and canceled prompt history behavior |
 | ☑ | 15 | feat/permission-spinner | origin | fd3b710806 | merged cleanly |
 | ☑ | 16 | feat/opencode-expand | origin | 7df86edd87 | merged with existing session prompt command expansion preserved |
-| ☐ | 17 | feat/argument-range-syntax | origin | TBD |  |
+| ☑ | 17 | feat/argument-range-syntax | origin | a813a55478 | merged with non-swallowing range placeholder syntax |
 | ☐ | 18 | feat/default-arguments | origin | TBD | When merging this branch, make sure that you don't accidentally reintroduce the swallowing behaviour that the feat/argument-range-syntax branch was meant to eliminate. |
 | ☐ | 19 | fix/preserve-quotes-in-arguments | origin | TBD |  |
 | ☐ | 20 | fix/history-navigation-key-commands | origin | TBD |  |
@@ -104,3 +104,4 @@
 - feat/canceled-prompts-in-history: merged 97a94571a4; resolved app command palette conflict to keep markdown toggle and add cleared-prompt history toggle.
 - feat/permission-spinner: merged fd3b710806; clean merge.
 - feat/opencode-expand: merged 7df86edd87; resolved session prompt import conflict without dropping existing command expansion logic.
+- feat/argument-range-syntax: merged a813a55478; resolved substitute helper conflicts to preserve non-swallowing $N behavior and add range placeholder syntax.

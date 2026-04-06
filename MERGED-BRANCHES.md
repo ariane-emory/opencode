@@ -24,7 +24,7 @@
 | ☑ | 18 | feat/default-arguments | origin | 6a4b0346e9 | combined default placeholders with non-swallowing range syntax |
 | ☑ | 19 | fix/preserve-quotes-in-arguments | origin | b3076f0662 | resolved prompt conflict while keeping quote-preserving argument parsing |
 | ☑ | 20 | fix/history-navigation-key-commands | origin | 4fa3d4b07b | merged cleanly |
-| ☐ | 21 | fix/build-with-short-version | origin | TBD | Automatically uses short timestamp version for integration branches without requiring OPENCODE_VERSION to be set |
+| ☑ | 21 | fix/build-with-short-version | origin | 1cebc3b098 | merged cleanly; short integration timestamp version preserved |
 | ☐ | 22 | fix/autocompletion-filtered-order | origin | TBD |  |
 | ☐ | 23 | fix/modal-menus-filtered-order | origin | TBD |  |
 | ☐ | 24 | fix/config-package-json-pollution | origin | TBD | This branch **MUST** be included in integration branches to prevent package.json pollution with non-SemVer versions |
@@ -108,3 +108,4 @@
 - feat/default-arguments: merged 6a4b0346e9; resolved substitute conflicts to add default placeholders without reintroducing swallowing behavior.
 - fix/preserve-quotes-in-arguments: merged b3076f0662; resolved session prompt conflict to keep quote-preserving argument parsing with current substitute helper flow.
 - fix/history-navigation-key-commands: merged 4fa3d4b07b; clean merge.
+- fix/build-with-short-version: merged 1cebc3b098; clean merge.

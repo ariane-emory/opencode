@@ -22,7 +22,7 @@
 | ☑ | 16 | feat/opencode-expand | origin | 7df86edd87 | merged with existing session prompt command expansion preserved |
 | ☑ | 17 | feat/argument-range-syntax | origin | a813a55478 | merged with non-swallowing range placeholder syntax |
 | ☑ | 18 | feat/default-arguments | origin | 6a4b0346e9 | combined default placeholders with non-swallowing range syntax |
-| ☐ | 19 | fix/preserve-quotes-in-arguments | origin | TBD |  |
+| ☑ | 19 | fix/preserve-quotes-in-arguments | origin | b3076f0662 | resolved prompt conflict while keeping quote-preserving argument parsing |
 | ☐ | 20 | fix/history-navigation-key-commands | origin | TBD |  |
 | ☐ | 21 | fix/build-with-short-version | origin | TBD | Automatically uses short timestamp version for integration branches without requiring OPENCODE_VERSION to be set |
 | ☐ | 22 | fix/autocompletion-filtered-order | origin | TBD |  |
@@ -106,3 +106,4 @@
 - feat/opencode-expand: merged 7df86edd87; resolved session prompt import conflict without dropping existing command expansion logic.
 - feat/argument-range-syntax: merged a813a55478; resolved substitute helper conflicts to preserve non-swallowing $N behavior and add range placeholder syntax.
 - feat/default-arguments: merged 6a4b0346e9; resolved substitute conflicts to add default placeholders without reintroducing swallowing behavior.
+- fix/preserve-quotes-in-arguments: merged b3076f0662; resolved session prompt conflict to keep quote-preserving argument parsing with current substitute helper flow.

@@ -33,8 +33,8 @@ import * as CrossSpawnSpawner from "@/effect/cross-spawn-spawner"
 import * as Stream from "effect/Stream"
 import { Command } from "../command"
 import { pathToFileURL, fileURLToPath } from "url"
-import { ConfigMarkdown } from "../config/markdown"
 import { Config } from "../config/config"
+import { ConfigMarkdown } from "../config/markdown"
 import { substituteArguments } from "../config/substitute"
 import { SessionSummary } from "./summary"
 import { NamedError } from "@opencode-ai/util/error"
@@ -1978,5 +1978,9 @@ NOTE: At any point in time through this workflow you should feel free to ask the
   export const substituteArguments = _substituteArguments
 
   const quoteTrimRegex = /^["']|["']$/g
-
+  /**
+   * Regular expression to match @ file references in text
+   * Matches @ followed by file paths, excluding commas, periods at end of sentences, and backticks
+   * Does not match when preceded by word characters or backticks (to avoid email addresses and quoted references)
+   */
 }

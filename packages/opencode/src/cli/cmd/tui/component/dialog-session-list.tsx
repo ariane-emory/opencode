@@ -79,6 +79,7 @@ export function DialogSessionList() {
   }
 
   const options = createMemo(() => {
+    if (!sync.ready) return []
     const today = new Date().toDateString()
     const allSessions = sessions().filter((x) => x.parentID === undefined)
     const pinned = allSessions
@@ -124,8 +125,9 @@ export function DialogSessionList() {
       const category = date.toDateString() === today ? "Today" : date.toDateString()
       return mapSession(x, category, false)
     })
-
-    return [...pinnedOptions, ...groupedOptions, ...plainOptions]
+    const sessionsListLimit = sync.data.config.experimental?.session_list_limit
+    const limit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
+    return [...pinnedOptions, ...groupedOptions, ...plainOptions].slice(0, limit)
   })
 
   createEffect(() => {

@@ -46,7 +46,7 @@
 | ☑ | 40 | feat/jsonc-user-themes | origin | 30b87fedb3 | merged cleanly |
 | ☑ | 41 | feat/shell-advice | origin | dfbe74cdee | merged; bash tool shell advice kept ready for later git advice synthesis |
 | ☑ | 42 | feat/improve-bash-tool-git-advice | origin | 239c3d6109 | synthesized bash shell advice with improved git guidance |
-| ☐ | 43 | feat/edit-tool-description | origin | TBD |  |
+| ☑ | 43 | feat/edit-tool-description | origin | 14769dad18 | merged cleanly |
 | ☐ | 44 | feat/renaming-doesnt-close-session-list | origin | TBD |  |
 | ☐ | 45 | feat/session-child-toggle-key | origin | TBD |  |
 | ☐ | 46 | feat/set-session-title | origin | TBD |  |
@@ -130,3 +130,4 @@
 - feat/jsonc-user-themes: merged 30b87fedb3; clean merge.
 - feat/shell-advice: merged dfbe74cdee; clean merge, with final bash tool description synthesis deferred until feat/improve-bash-tool-git-advice.
 - feat/improve-bash-tool-git-advice: merged 239c3d6109; resolved bash tool description conflict by combining shell advice with improved git guidance.
+- feat/edit-tool-description: merged 14769dad18; clean merge.

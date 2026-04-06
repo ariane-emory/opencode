@@ -94,6 +94,7 @@ export namespace UI {
       }
       return parts.join("")
     }
+
     glyphs.left.forEach((row, index) => {
       if (pad) result.push(pad)
       result.push(draw(row, left.fg, left.shadow, left.bg))

@@ -1361,9 +1361,10 @@ export namespace Config {
             track(dir, list)
           }
 
-          if (process.env.OPENCODE_CONFIG_CONTENT) {
+          const content = process.env.BASEONE_CONFIG_CONTENT ?? process.env.OPENCODE_CONFIG_CONTENT
+          if (content) {
             const source = "OPENCODE_CONFIG_CONTENT"
-            const next = yield* loadConfig(process.env.OPENCODE_CONFIG_CONTENT, {
+            const next = yield* loadConfig(content, {
               dir: ctx.directory,
               source,
             })

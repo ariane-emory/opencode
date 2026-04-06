@@ -14,7 +14,7 @@
 | ☑ | 8 | feat/keybindable-commands | origin | b908b3d54f | Clean merge |
 | ☑ | 9 | feat/automatic-list-continuation | origin | 27d59b47ed | Clean merge |
 | ☑ | 10 | feat/continue-command | origin | f3269808e1 | Clean merge |
-| ☐ | 11 | feat/configurable-snapshot-lifespan | origin | TBD | |
+| ☑ | 11 | feat/configurable-snapshot-lifespan | origin | 474515455f | Clean merge |
 | ☐ | 12 | feat/configurable-new-plan-mode | origin | TBD | |
 | ☐ | 13 | feat/enable-exa-setting | origin | TBD | |
 | ☐ | 14 | feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber; must add new item to command palette |

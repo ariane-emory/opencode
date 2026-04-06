@@ -549,7 +549,7 @@ export namespace Config {
     agent: z.string().optional(),
     model: ModelId.optional(),
     subtask: z.boolean().optional(),
-  })
+  }).catchall(z.any())
   export type Command = z.infer<typeof Command>
 
   export const Skills = z.object({
@@ -1089,6 +1089,11 @@ export namespace Config {
             .array(z.string())
             .optional()
             .describe("Tools that should only be available to primary agents."),
+          cache_command_markdown_files: z
+            .boolean()
+            .optional()
+            .default(true)
+            .describe("Cache command markdown files on first load. Set to false to reload command files on every execution."),
           continue_loop_on_deny: z.boolean().optional().describe("Continue the agent loop when a tool call is denied"),
           context_compaction_threshold: z.number().min(10).max(100).optional().describe("Percentage of usable context space at which to trigger compaction (10-100)"),
           mcp_timeout: z
@@ -1668,4 +1673,7 @@ export namespace Config {
     const config = await get()
     return config.experimental?.enable_exa === true
   }
+
+  // Re-export loadCommand for use when cache_command_markdown_files is false
+  export const reloadCommands = loadCommand
 }

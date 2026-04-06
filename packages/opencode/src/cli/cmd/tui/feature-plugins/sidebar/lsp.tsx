@@ -1,17 +1,30 @@
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
-import { createMemo, For, Show, createSignal } from "solid-js"
+import { createEffect, createMemo, createSignal, For, Show } from "solid-js"
 
 const id = "internal:sidebar-lsp"
 
 function View(props: { api: TuiPluginApi }) {
   const [open, setOpen] = createSignal(true)
+
+  createEffect(() => {
+    if (props.api.kv.ready) {
+      setOpen(props.api.kv.get("sidebar_expanded_lsp", true))
+    }
+  })
+
+  const toggle = () => {
+    if (list().length <= 2) return
+    const next = !open()
+    setOpen(next)
+    props.api.kv.set("sidebar_expanded_lsp", next)
+  }
   const theme = () => props.api.theme.current
   const list = createMemo(() => props.api.state.lsp())
   const off = createMemo(() => props.api.state.config.lsp === false)
 
   return (
     <box>
-      <box flexDirection="row" gap={1} onMouseDown={() => list().length > 2 && setOpen((x) => !x)}>
+      <box flexDirection="row" gap={1} onMouseDown={toggle}>
         <Show when={list().length > 2}>
           <text fg={theme().text}>{open() ? "▼" : "▶"}</text>
         </Show>

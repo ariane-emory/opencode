@@ -163,9 +163,10 @@ export namespace ToolRegistry {
       ) {
         const s = yield* InstanceState.get(state)
         const allTools = yield* all(s.custom)
+        const enableExa = yield* Effect.promise(() => Config.experimentalEnableExa())
         const filtered = allTools.filter((tool) => {
           if (tool.id === "codesearch" || tool.id === "websearch") {
-            return model.providerID === ProviderID.opencode || Flag.OPENCODE_ENABLE_EXA
+            return model.providerID === ProviderID.opencode || enableExa
           }
 
           const usePatch =

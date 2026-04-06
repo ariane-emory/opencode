@@ -1035,6 +1035,7 @@ export namespace Config {
             .positive()
             .optional()
             .describe("Timeout in milliseconds for model context protocol (MCP) requests"),
+          plan_mode: z.boolean().optional().describe("Enable experimental plan mode"),
         })
         .optional(),
     })
@@ -1061,6 +1062,7 @@ export namespace Config {
     readonly invalidate: (wait?: boolean) => Effect.Effect<void>
     readonly directories: () => Effect.Effect<string[]>
     readonly waitForDependencies: () => Effect.Effect<void>
+    readonly experimentalPlanMode: () => Effect.Effect<boolean>
   }
 
   export class Service extends ServiceMap.Service<Service, Interface>()("@opencode/Config") {}
@@ -1471,6 +1473,12 @@ export namespace Config {
           return yield* InstanceState.use(state, (s) => s.config)
         })
 
+        const experimentalPlanMode = Effect.fn("Config.experimentalPlanMode")(function* () {
+          if (Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE) return true
+          const config = yield* get()
+          return config.experimental?.plan_mode === true
+        })
+
         const directories = Effect.fn("Config.directories")(function* () {
           return yield* InstanceState.use(state, (s) => s.directories)
         })
@@ -1535,6 +1543,7 @@ export namespace Config {
           invalidate,
           directories,
           waitForDependencies,
+          experimentalPlanMode,
         })
       }),
     )
@@ -1573,5 +1582,9 @@ export namespace Config {
 
   export async function waitForDependencies() {
     return runPromise((svc) => svc.waitForDependencies())
+  }
+
+  export async function experimentalPlanMode() {
+    return runPromise((svc) => svc.experimentalPlanMode())
   }
 }

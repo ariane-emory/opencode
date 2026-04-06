@@ -22,7 +22,7 @@
 | ☑ | 16 | feat/opencode-expand | origin | 47a26a17f0 | Minor conflict in prompt.ts: combined imports |
 | ☑ | 17 | feat/argument-range-syntax | origin | 335c653c6e | Conflicts in substitute.ts and test; took feature branch version |
 | ☑ | 18 | feat/default-arguments | origin | 1ada6754ec | Restored prompt.ts to pre-merge; substitute.ts changes kept from feature branch |
-| ☐ | 19 | fix/preserve-quotes-in-arguments | origin | TBD | |
+| ☑ | 19 | fix/preserve-quotes-in-arguments | origin | 39207ad0cf | Conflict in prompt.ts; kept substituteArguments re-export for tests |
 | ☐ | 20 | fix/history-navigation-key-commands | origin | TBD | |
 | ☐ | 21 | fix/build-with-short-version | origin | TBD | Automatically uses short timestamp version for integration branches |
 | ☐ | 22 | fix/autocompletion-filtered-order | origin | TBD | |

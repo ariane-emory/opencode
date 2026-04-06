@@ -32,10 +32,10 @@
 | ☑ | 26 | fix/merging-multiple-configs | origin | 062bb2c6ed | |
 | ☑ | 27 | fix/markdown-codeblock-theme-property | origin | 062bb2c6ed | |
 | ☑ | 28 | fix/persist-sidebar | origin | 062bb2c6ed | This branch is meant not only to make the sidebar display state persistent across restarts but also to remove the normal behaviour where the sidebar is hidden when the terminal is not wide enough! There MUST NOT be a way to return to the auto state after transitioning to the "show" or "hide" state |
-| ☐ | 29 | feat/persist-sidebar-group-folding-states | origin | TBD | Be sure not to let this feature get clobbered by subsequent merges! |
-| ☐ | 30 | feat/permission-indicator-in-sidebar | origin | TBD | |
-| ☐ | 31 | feat/command-palette-consistency | origin | TBD | MOVE several items from the Session category to the System category in the command palette - do NOT duplicate them into both categories |
-| ☐ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | TBD | |
+| ☑ | 29 | feat/persist-sidebar-group-folding-states | origin | 28ce4a061b | Be sure not to let this feature get clobbered by subsequent merges! |
+| ☑ | 30 | feat/permission-indicator-in-sidebar | origin | 28ce4a061b | |
+| ☑ | 31 | feat/command-palette-consistency | origin | 28ce4a061b | MOVE several items from the Session category to the System category in the command palette - do NOT duplicate them into both categories |
+| ☑ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | 28ce4a061b | |
 | ☐ | 33 | refactor/shared-substitute | origin | TBD | |
 | ☐ | 34 | feat/session-id-in-status | origin | TBD | |
 | ☐ | 35 | feat/opeoginni--display-message-tps | origin | TBD | |

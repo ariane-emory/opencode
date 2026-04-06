@@ -19,7 +19,7 @@ test("substituteArguments - multiple placeholders", () => {
   expect(hasPlaceholders).toBe(true)
 })
 
-test("substituteArguments - $N placeholders do not swallow", () => {
+test("substituteArguments - simple $N does not swallow", () => {
   const { result } = substituteArguments("$1 $2", ["a", "b", "c", "d"])
   expect(result).toBe("a b")
 })

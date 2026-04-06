@@ -1617,7 +1617,6 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           templateCommand,
           args,
         )
-
         const usesArgumentsPlaceholder = templateCommand.includes("$ARGUMENTS")
         let template = withArgs.replaceAll("$ARGUMENTS", input.arguments)
 

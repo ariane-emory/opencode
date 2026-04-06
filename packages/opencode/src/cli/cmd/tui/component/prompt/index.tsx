@@ -42,6 +42,7 @@ export type PromptProps = {
   workspaceID?: string
   visible?: boolean
   disabled?: boolean
+  showUsage?: boolean
   onSubmit?: () => void
   ref?: (ref: PromptRef | undefined) => void
   hint?: JSX.Element
@@ -1314,7 +1315,7 @@ export function Prompt(props: PromptProps) {
               <Switch>
                 <Match when={store.mode === "normal"}>
                   <Switch>
-                    <Match when={usage()}>
+                    <Match when={props.showUsage !== false && usage()}>
                       {(item) => (
                         <text fg={theme.textMuted} wrapMode="none">
                           {[item().context, item().cost].filter(Boolean).join(" · ")}

@@ -10,18 +10,18 @@
 | ☑ | 4 | feat/thinking-indicator-hidden | rcdailey | 0e23fd92a3 | |
 | ☑ | 5 | feat/session-grouping | origin | 76f03e32f6 | |
 | ☑ | 6 | feat/session-bookmarks | origin | fcaa059532 | |
-| ☐ | 7 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks |
-| ☐ | 8 | feat/keybindable-commands | origin | TBD | |
-| ☐ | 9 | feat/automatic-list-continuation | origin | TBD | |
-| ☐ | 10 | feat/continue-command | origin | TBD | |
-| ☐ | 11 | feat/configurable-snapshot-lifespan | origin | TBD | |
-| ☐ | 12 | feat/configurable-new-plan-mode | origin | TBD | |
-| ☐ | 13 | feat/enable-exa-setting | origin | TBD | |
-| ☐ | 14 | feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber this while merging! Merging this branch MUST add the new item to the command palette |
-| ☐ | 15 | feat/permission-spinner | origin | TBD | |
-| ☐ | 16 | feat/opencode-expand | origin | TBD | |
-| ☐ | 17 | feat/argument-range-syntax | origin | TBD | |
-| ☐ | 18 | feat/default-arguments | origin | TBD | Make sure that you don't accidentally reintroduce the swallowing behaviour that the feat/argument-range-syntax branch was meant to eliminate |
+| ☑ | 7 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks |
+| ☑ | 8 | feat/keybindable-commands | origin | TBD | |
+| ☑ | 9 | feat/automatic-list-continuation | origin | TBD | |
+| ☑ | 10 | feat/continue-command | origin | TBD | |
+| ☑ | 11 | feat/configurable-snapshot-lifespan | origin | TBD | |
+| ☑ | 12 | feat/configurable-new-plan-mode | origin | TBD | |
+| ☑ | 13 | feat/enable-exa-setting | origin | TBD | |
+| ☑ | 14 | feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber this while merging! Merging this branch MUST add the new item to the command palette |
+| ☑ | 15 | feat/permission-spinner | origin | TBD | |
+| ☑ | 16 | feat/opencode-expand | origin | TBD | |
+| ☑ | 17 | feat/argument-range-syntax | origin | TBD | |
+| ☑ | 18 | feat/default-arguments | origin | 90988219a8 | Make sure that you don't accidentally reintroduce the swallowing behaviour that the feat/argument-range-syntax branch was meant to eliminate |
 | ☐ | 19 | fix/preserve-quotes-in-arguments | origin | TBD | |
 | ☐ | 20 | fix/history-navigation-key-commands | origin | TBD | |
 | ☐ | 21 | fix/build-with-short-version | origin | TBD | Automatically uses short timestamp version for integration branches without requiring OPENCODE_VERSION to be set |

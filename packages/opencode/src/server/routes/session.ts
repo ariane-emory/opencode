@@ -997,6 +997,53 @@ export const SessionRoutes = lazy(() =>
       },
     )
     .post(
+      "/:sessionID/continue",
+      describeRoute({
+        summary: "Continue interrupted conversation",
+        description:
+          "Continue a conversation that was interrupted by resuming the existing assistant turn without creating a new user message.",
+        operationId: "session.continue",
+        responses: {
+          200: {
+            description: "Conversation continued",
+            content: {
+              "application/json": {
+                schema: resolver(z.boolean()),
+              },
+            },
+          },
+          ...errors(400, 404),
+        },
+      }),
+      validator(
+        "param",
+        z.object({
+          sessionID: SessionID.zod,
+        }),
+      ),
+      validator(
+        "json",
+        z
+          .object({
+            agent: z.string().optional(),
+            model: z
+              .object({
+                providerID: ProviderID.zod,
+                modelID: ModelID.zod,
+              })
+              .optional(),
+          })
+          .optional(),
+      ),
+      async (c) => {
+        const sessionID = c.req.valid("param").sessionID
+        const body = c.req.valid("json") ?? {}
+        await SessionPrompt.continue_({ sessionID, agent: body.agent, model: body.model })
+
+        return c.json(true)
+      },
+    )
+    .post(
       "/:sessionID/permissions/:permissionID",
       describeRoute({
         summary: "Respond to permission",

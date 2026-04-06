@@ -8,6 +8,7 @@ import { Provider } from "../provider/provider"
 import { Instance } from "../project/instance"
 import { type SessionID, MessageID, PartID } from "../session/schema"
 import EXIT_DESCRIPTION from "./plan-exit.txt"
+import ENTER_DESCRIPTION from "./plan-enter.txt"
 
 async function getLastModel(sessionID: SessionID) {
   for await (const item of MessageV2.stream(sessionID)) {
@@ -71,7 +72,6 @@ export const PlanExitTool = Tool.define("plan_exit", {
   },
 })
 
-/*
 export const PlanEnterTool = Tool.define("plan_enter", {
   description: ENTER_DESCRIPTION,
   parameters: z.object({}),
@@ -128,4 +128,3 @@ export const PlanEnterTool = Tool.define("plan_enter", {
     }
   },
 })
-*/

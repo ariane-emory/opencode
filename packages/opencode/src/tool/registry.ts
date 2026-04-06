@@ -1,4 +1,4 @@
-import { PlanExitTool } from "./plan"
+import { PlanExitTool, PlanEnterTool } from "./plan"
 import { QuestionTool } from "./question"
 import { BashTool } from "./bash"
 import { EditTool } from "./edit"
@@ -136,7 +136,7 @@ export namespace ToolRegistry {
           ApplyPatchTool,
           ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
           ...(cfg.experimental?.batch_tool === true ? [BatchTool] : []),
-          ...(Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE && Flag.OPENCODE_CLIENT === "cli" ? [PlanExitTool] : []),
+          ...((yield* config.experimentalPlanMode()) && Flag.OPENCODE_CLIENT === "cli" ? [PlanExitTool, PlanEnterTool] : []),
           ...custom,
         ]
       })

@@ -41,6 +41,7 @@ import { useRenderer } from "@opentui/solid"
 import { createStore, produce } from "solid-js/store"
 import { Global } from "@/global"
 import { Filesystem } from "@/util/filesystem"
+import { Config } from "../../../../config/config"
 import { useTuiConfig } from "./tui-config"
 import { isRecord } from "@/util/record"
 import type { TuiThemeCurrent } from "@opencode-ai/plugin/tui"
@@ -476,6 +477,8 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
   },
 })
 
+const CUSTOM_THEME_GLOB = new Bun.Glob("themes/*.{json,jsonc}")
+
 async function getCustomThemes() {
   const directories = [
     Global.Path.config,
@@ -489,14 +492,17 @@ async function getCustomThemes() {
 
   const result: Record<string, ThemeJson> = {}
   for (const dir of directories) {
-    for (const item of await Glob.scan("themes/*.json", {
+    for (const item of await Glob.scan("themes/*.{json,jsonc}", {
       cwd: dir,
       absolute: true,
       dot: true,
       symlink: true,
     })) {
-      const name = path.basename(item, ".json")
-      result[name] = await Filesystem.readJson(item)
+      const ext = path.extname(item)
+      const name = path.basename(item, ext)
+
+      // Use JSONC parser for all theme files regardless of extension
+      result[name] = await Config.loadThemeFile(item)
     }
   }
   return result

@@ -28,7 +28,7 @@
 | ☑ | 22 | fix/autocompletion-filtered-order | origin | feb179574b | Conflicts in prompt/index.tsx; kept HEAD additions from previous merges |
 | ☑ | 23 | fix/modal-menus-filtered-order | origin | 479300198a | Conflicts in autocomplete, dialog-select, use-filtered-list; used fuzzysort approach |
 | ☑ | 24 | fix/config-package-json-pollution | origin | 6a015e7dd4 | Clean |
-| ☐ | 25 | fix/session-list-viewport-jumping | origin | TBD | |
+| ☑ | 25 | fix/session-list-viewport-jumping | origin | 821e88d3e8 | Clean |
 | ☐ | 26 | fix/merging-multiple-configs | origin | TBD | |
 | ☐ | 27 | fix/markdown-codeblock-theme-property | origin | TBD | |
 | ☐ | 28 | fix/persist-sidebar | origin | TBD | Makes sidebar display state persistent; removes auto-hide on narrow terminal; no return to auto state |

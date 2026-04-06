@@ -35,7 +35,7 @@
 | ☑ | 29 | feat/persist-sidebar-group-folding-states | origin | 72912f3c2f | merged cleanly; group folding persistence preserved |
 | ☑ | 30 | feat/permission-indicator-in-sidebar | origin | 8731e53a60 | combined grouped title formatting with sidebar permission indicator |
 | ☑ | 31 | feat/command-palette-consistency | origin | a0165409e9 | moved palette items to System and preserved persist-sidebar behavior |
-| ☐ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | TBD |  |
+| ☑ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | 9c43996c78 | merged with sidebar overlay behavior and header toggle preserved |
 | ☐ | 33 | refactor/shared-substitute | origin | TBD |  |
 | ☐ | 34 | feat/session-id-in-status | origin | TBD |  |
 | ☐ | 35 | feat/opeoginni--display-message-tps | origin | TBD |  |
@@ -119,3 +119,4 @@
 - feat/persist-sidebar-group-folding-states: merged 72912f3c2f; clean merge.
 - feat/permission-indicator-in-sidebar: merged 8731e53a60; resolved sidebar conflict to keep grouped title formatting and add permission indicator.
 - feat/command-palette-consistency: merged a0165409e9; resolved app and session palette conflicts to move items into System without duplication and preserve no-return-to-auto sidebar behavior.
+- feat/persistant-sidebar-overlay-behaviour: merged 9c43996c78; resolved session route conflict to keep overlay behavior and header toggle without reintroducing moved palette items.

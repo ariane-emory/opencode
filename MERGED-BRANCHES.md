@@ -13,7 +13,7 @@
 | ☑ | 7 | fix/dialog-datetime-alignment | origin | d39c0f3db2 | Clean merge |
 | ☑ | 8 | feat/keybindable-commands | origin | b908b3d54f | Clean merge |
 | ☑ | 9 | feat/automatic-list-continuation | origin | 27d59b47ed | Clean merge |
-| ☐ | 10 | feat/continue-command | origin | TBD | |
+| ☑ | 10 | feat/continue-command | origin | f3269808e1 | Clean merge |
 | ☐ | 11 | feat/configurable-snapshot-lifespan | origin | TBD | |
 | ☐ | 12 | feat/configurable-new-plan-mode | origin | TBD | |
 | ☐ | 13 | feat/enable-exa-setting | origin | TBD | |

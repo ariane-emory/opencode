@@ -12,7 +12,6 @@ import { useSync } from "../../context/sync"
 import { useKV } from "../../context/kv"
 import { useTextareaKeybindings } from "../../component/textarea-keybindings"
 import { useLocal } from "../../context/local"
-import { useKV } from "../../context/kv"
 import { createPulseFrames, createPulseColors } from "../../ui/spinner"
 import path from "path"
 import { LANGUAGE_EXTENSIONS } from "@/lsp/language"
@@ -68,7 +67,8 @@ function EditBody(props: { request: PermissionRequest }) {
   })
 
   const ft = createMemo(() => filetype(filepath()))
-  const scrollAcceleration = createMemo(() => getScrollAcceleration(config))
+  const tuiConfig = useTuiConfig()
+  const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
 
   return (
     <box flexDirection="column" gap={1}>

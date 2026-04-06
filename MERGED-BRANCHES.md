@@ -10,7 +10,7 @@
 | ☑ | 4 | feat/thinking-indicator-hidden | rcdailey | 6c0f983f67 | merged cleanly |
 | ☑ | 5 | feat/session-grouping | origin | fe4280bb33 | merged cleanly |
 | ☑ | 6 | feat/session-bookmarks | origin | ef669d4b73 | combined bookmarks with grouped session title display |
-| ☐ | 7 | fix/dialog-datetime-alignment | origin | TBD | for best results, merge this one immediately after feat/session-bookmarks. This feature **MUST** not be clobbered; if there is a conflict, it **MUST** be combined with the other feature with which it is conflicting! |
+| ☑ | 7 | fix/dialog-datetime-alignment | origin | b8871b4225 | merged after bookmarks; datetime alignment preserved |
 | ☐ | 8 | feat/keybindable-commands | origin | TBD |  |
 | ☐ | 9 | feat/automatic-list-continuation | origin | TBD |  |
 | ☐ | 10 | feat/continue-command | origin | TBD |  |
@@ -94,3 +94,4 @@
 - feat/thinking-indicator-hidden: merged 6c0f983f67; clean merge.
 - feat/session-grouping: merged fe4280bb33; clean merge.
 - feat/session-bookmarks: merged ef669d4b73; resolved conflicts in packages/opencode/src/cli/cmd/tui/component/dialog-session-list.tsx and packages/opencode/src/util/locale.ts to keep grouped titles and add bookmark categories.
+- fix/dialog-datetime-alignment: merged b8871b4225; kept datetime alignment immediately after bookmarks merge.

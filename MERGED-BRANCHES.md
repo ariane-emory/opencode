@@ -6,7 +6,7 @@
 |--------|---|-------------|--------|-------------|-------------|
 | ☑ | 1 | feat/base-one-rebrand | origin | 65630d99c8 | |
 | ☑ | 2 | feat/sinister-quotes | origin | fa31ef54a8 | Placeholders MUST be SINISTER_PLACEHOLDERS array |
-| ☐ | 3 | feat/markdown-renderer | gignit | TBD | |
+| ☑ | 3 | feat/markdown-renderer | gignit | 18fc650f63 | |
 | ☐ | 4 | feat/thinking-indicator-hidden | rcdailey | TBD | |
 | ☐ | 5 | feat/session-grouping | origin | TBD | |
 | ☐ | 6 | feat/session-bookmarks | origin | TBD | |

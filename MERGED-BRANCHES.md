@@ -26,7 +26,7 @@
 | ☑ | 20 | fix/history-navigation-key-commands | origin | dd74c7306a | |
 | ☑ | 21 | fix/build-with-short-version | origin | 301acb9b5d | Automatically uses short timestamp version for integration branches without requiring OPENCODE_VERSION to be set |
 | ☑ | 22 | fix/autocompletion-filtered-order | origin | 3665c35e79 | |
-| ☐ | 23 | fix/modal-menus-filtered-order | origin | TBD | |
+| ☑ | 23 | fix/modal-menus-filtered-order | origin | 5a994bb6e0 | |
 | ☐ | 24 | fix/config-package-json-pollution | origin | TBD | MUST be included in integration branches to prevent package.json pollution with non-SemVer versions |
 | ☐ | 25 | fix/session-list-viewport-jumping | origin | TBD | |
 | ☐ | 26 | fix/merging-multiple-configs | origin | TBD | |

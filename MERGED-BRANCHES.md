@@ -16,7 +16,7 @@
 | ☑ | 10 | feat/continue-command | origin | 514f4430bf | merged cleanly |
 | ☑ | 11 | feat/configurable-snapshot-lifespan | origin | 0cd1199c59 | merged cleanly |
 | ☑ | 12 | feat/configurable-new-plan-mode | origin | b1f5936529 | merged cleanly |
-| ☐ | 13 | feat/enable-exa-setting | origin | TBD |  |
+| ☑ | 13 | feat/enable-exa-setting | origin | 750bf1ca6b | combined enable_exa with plan_mode config support |
 | ☐ | 14 | feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber this while merging! Merging this branch **MUST** add the new item to the command palette. |
 | ☐ | 15 | feat/permission-spinner | origin | TBD |  |
 | ☐ | 16 | feat/opencode-expand | origin | TBD |  |
@@ -100,3 +100,4 @@
 - feat/continue-command: merged 514f4430bf; clean merge.
 - feat/configurable-snapshot-lifespan: merged 0cd1199c59; clean merge.
 - feat/configurable-new-plan-mode: merged b1f5936529; clean merge.
+- feat/enable-exa-setting: merged 750bf1ca6b; resolved config conflict to keep experimental plan mode and add experimental enable_exa support.

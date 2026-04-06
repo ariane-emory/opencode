@@ -45,7 +45,7 @@
 | ☑ | 39 | feat/experimental-dont-cache-command-markdown | origin | 8bf6f33ed3 | merged with command markdown cache toggle preserved |
 | ☑ | 40 | feat/jsonc-user-themes | origin | 30b87fedb3 | merged cleanly |
 | ☑ | 41 | feat/shell-advice | origin | dfbe74cdee | merged; bash tool shell advice kept ready for later git advice synthesis |
-| ☐ | 42 | feat/improve-bash-tool-git-advice | origin | TBD | Make sure to combine this properly with the changes to the bash tool's description that are made in the feat/shell-advice branch, both sets of changes must be synthesized! |
+| ☑ | 42 | feat/improve-bash-tool-git-advice | origin | 239c3d6109 | synthesized bash shell advice with improved git guidance |
 | ☐ | 43 | feat/edit-tool-description | origin | TBD |  |
 | ☐ | 44 | feat/renaming-doesnt-close-session-list | origin | TBD |  |
 | ☐ | 45 | feat/session-child-toggle-key | origin | TBD |  |
@@ -129,3 +129,4 @@
 - feat/experimental-dont-cache-command-markdown: merged 8bf6f33ed3; resolved config and command loader conflicts to keep command markdown cache toggle alongside existing experimental settings.
 - feat/jsonc-user-themes: merged 30b87fedb3; clean merge.
 - feat/shell-advice: merged dfbe74cdee; clean merge, with final bash tool description synthesis deferred until feat/improve-bash-tool-git-advice.
+- feat/improve-bash-tool-git-advice: merged 239c3d6109; resolved bash tool description conflict by combining shell advice with improved git guidance.

@@ -6,7 +6,7 @@
 |--------|---|-------------|--------|-------------|-------------|
 | ☑ | 1 | feat/base-one-rebrand | origin | 2d2fc335c5 | merged cleanly |
 | ☑ | 2 | feat/sinister-quotes | origin | 8c164617a7 | verified SINISTER_PLACEHOLDERS source |
-| ☐ | 3 | feat/markdown-renderer | gignit | TBD |  |
+| ☑ | 3 | feat/markdown-renderer | gignit | f2bb02ce81 | conflict resolved in session route imports and markdown rendering |
 | ☐ | 4 | feat/thinking-indicator-hidden | rcdailey | TBD |  |
 | ☐ | 5 | feat/session-grouping | origin | TBD |  |
 | ☐ | 6 | feat/session-bookmarks | origin | TBD |  |
@@ -90,3 +90,4 @@
 
 - feat/base-one-rebrand: merged 2d2fc335c5; clean merge.
 - feat/sinister-quotes: merged 8c164617a7; verified SINISTER_PLACEHOLDERS in packages/ui/src/constants/placeholders.ts.
+- feat/markdown-renderer: merged f2bb02ce81; resolved conflict in packages/opencode/src/cli/cmd/tui/routes/session/index.tsx to keep existing session UI behavior and add markdown renderer support.

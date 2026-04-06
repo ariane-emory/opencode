@@ -20,7 +20,7 @@
 | ☑ | 14 | feat/canceled-prompts-in-history | origin | effacea859 | Conflict in app.tsx: kept both menu items |
 | ☑ | 15 | feat/permission-spinner | origin | 476faf9c42 | Clean merge |
 | ☑ | 16 | feat/opencode-expand | origin | 47a26a17f0 | Minor conflict in prompt.ts: combined imports |
-| ☐ | 17 | feat/argument-range-syntax | origin | TBD | |
+| ☑ | 17 | feat/argument-range-syntax | origin | 335c653c6e | Conflicts in substitute.ts and test; took feature branch version |
 | ☐ | 18 | feat/default-arguments | origin | TBD | Don't reintroduce swallowing behaviour that feat/argument-range-syntax eliminated |
 | ☐ | 19 | fix/preserve-quotes-in-arguments | origin | TBD | |
 | ☐ | 20 | fix/history-navigation-key-commands | origin | TBD | |

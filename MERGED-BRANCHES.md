@@ -4,8 +4,8 @@
 
 | Status | # | Branch Name | Remote | Commit Hash | Description |
 |--------|---|-------------|--------|-------------|-------------|
-| ☐ | 1 | feat/base-one-rebrand | origin | TBD | |
-| ☐ | 2 | feat/sinister-quotes | origin | TBD | Placeholders MUST be SINISTER_PLACEHOLDERS array |
+| ☑ | 1 | feat/base-one-rebrand | origin | 65630d99c8 | |
+| ☑ | 2 | feat/sinister-quotes | origin | 7e7ecac91d | Placeholders MUST be SINISTER_PLACEHOLDERS array |
 | ☐ | 3 | feat/markdown-renderer | gignit | TBD | |
 | ☐ | 4 | feat/thinking-indicator-hidden | rcdailey | TBD | |
 | ☐ | 5 | feat/session-grouping | origin | TBD | |

@@ -25,7 +25,7 @@
 | ☑ | 19 | fix/preserve-quotes-in-arguments | origin | 39207ad0cf | Conflict in prompt.ts; kept substituteArguments re-export for tests |
 | ☑ | 20 | fix/history-navigation-key-commands | origin | a49b2075fe | Clean |
 | ☑ | 21 | fix/build-with-short-version | origin | e0b3c0a7b4 | Clean |
-| ☐ | 22 | fix/autocompletion-filtered-order | origin | TBD | |
+| ☑ | 22 | fix/autocompletion-filtered-order | origin | feb179574b | Conflicts in prompt/index.tsx; kept HEAD additions from previous merges |
 | ☐ | 23 | fix/modal-menus-filtered-order | origin | TBD | |
 | ☐ | 24 | fix/config-package-json-pollution | origin | TBD | Prevents package.json pollution with non-SemVer versions |
 | ☐ | 25 | fix/session-list-viewport-jumping | origin | TBD | |

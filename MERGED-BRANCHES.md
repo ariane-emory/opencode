@@ -9,7 +9,7 @@
 | ☑ | 3 | feat/markdown-renderer | gignit | 18fc650f63 | |
 | ☑ | 4 | feat/thinking-indicator-hidden | rcdailey | 0e23fd92a3 | |
 | ☑ | 5 | feat/session-grouping | origin | 76f03e32f6 | |
-| ☐ | 6 | feat/session-bookmarks | origin | TBD | |
+| ☑ | 6 | feat/session-bookmarks | origin | fcaa059532 | |
 | ☐ | 7 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks |
 | ☐ | 8 | feat/keybindable-commands | origin | TBD | |
 | ☐ | 9 | feat/automatic-list-continuation | origin | TBD | |

@@ -15,7 +15,7 @@
 | ☑ | 9 | feat/automatic-list-continuation | origin | cef5387a81 | merged cleanly |
 | ☑ | 10 | feat/continue-command | origin | 514f4430bf | merged cleanly |
 | ☑ | 11 | feat/configurable-snapshot-lifespan | origin | 0cd1199c59 | merged cleanly |
-| ☐ | 12 | feat/configurable-new-plan-mode | origin | TBD |  |
+| ☑ | 12 | feat/configurable-new-plan-mode | origin | b1f5936529 | merged cleanly |
 | ☐ | 13 | feat/enable-exa-setting | origin | TBD |  |
 | ☐ | 14 | feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber this while merging! Merging this branch **MUST** add the new item to the command palette. |
 | ☐ | 15 | feat/permission-spinner | origin | TBD |  |
@@ -99,3 +99,4 @@
 - feat/automatic-list-continuation: merged cef5387a81; clean merge.
 - feat/continue-command: merged 514f4430bf; clean merge.
 - feat/configurable-snapshot-lifespan: merged 0cd1199c59; clean merge.
+- feat/configurable-new-plan-mode: merged b1f5936529; clean merge.

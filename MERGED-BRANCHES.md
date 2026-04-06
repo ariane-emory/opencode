@@ -28,7 +28,7 @@
 | ☑ | 22 | fix/autocompletion-filtered-order | origin | d09c986062 | resolved prompt conflict while preserving current placeholder and list continuation behavior |
 | ☑ | 23 | fix/modal-menus-filtered-order | origin | d8155cff0b | merged cleanly |
 | ☑ | 24 | fix/config-package-json-pollution | origin | 022a5c194d | merged cleanly; package.json pollution fix preserved |
-| ☐ | 25 | fix/session-list-viewport-jumping | origin | TBD |  |
+| ☑ | 25 | fix/session-list-viewport-jumping | origin | d2679705eb | merged cleanly |
 | ☐ | 26 | fix/merging-multiple-configs | origin | TBD |  |
 | ☐ | 27 | fix/markdown-codeblock-theme-property | origin | TBD |  |
 | ☐ | 28 | fix/persist-sidebar | origin | TBD | This branch is meant not only to make the sidebar display state persistent across bestarts if the progran but also  to remove the normal behaviour where the sidebar is hidden when the terminal is not wide enough! There **MUST NOT** be a way to return to the auto state after transitioning to the "show" or "hide" state. This change in the sidebar behaviour **MUST NOT** be clobbered while merging! |
@@ -112,3 +112,4 @@
 - fix/autocompletion-filtered-order: merged d09c986062; resolved prompt conflict to keep existing placeholder/list continuation behavior and add filtered ordering fixes.
 - fix/modal-menus-filtered-order: merged d8155cff0b; clean merge.
 - fix/config-package-json-pollution: merged 022a5c194d; clean merge.
+- fix/session-list-viewport-jumping: merged d2679705eb; clean merge.

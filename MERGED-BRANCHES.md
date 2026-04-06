@@ -24,8 +24,8 @@
 | ☑ | 18 | feat/default-arguments | origin | 90988219a8 | Make sure that you don't accidentally reintroduce the swallowing behaviour that the feat/argument-range-syntax branch was meant to eliminate |
 | ☑ | 19 | fix/preserve-quotes-in-arguments | origin | dfdfe161ce | |
 | ☑ | 20 | fix/history-navigation-key-commands | origin | dd74c7306a | |
-| ☐ | 21 | fix/build-with-short-version | origin | TBD | Automatically uses short timestamp version for integration branches without requiring OPENCODE_VERSION to be set |
-| ☐ | 22 | fix/autocompletion-filtered-order | origin | TBD | |
+| ☑ | 21 | fix/build-with-short-version | origin | 301acb9b5d | Automatically uses short timestamp version for integration branches without requiring OPENCODE_VERSION to be set |
+| ☑ | 22 | fix/autocompletion-filtered-order | origin | 3665c35e79 | |
 | ☐ | 23 | fix/modal-menus-filtered-order | origin | TBD | |
 | ☐ | 24 | fix/config-package-json-pollution | origin | TBD | MUST be included in integration branches to prevent package.json pollution with non-SemVer versions |
 | ☐ | 25 | fix/session-list-viewport-jumping | origin | TBD | |

@@ -31,7 +31,7 @@
 | ☑ | 25 | fix/session-list-viewport-jumping | origin | d2679705eb | merged cleanly |
 | ☑ | 26 | fix/merging-multiple-configs | origin | b72c6d2068 | merged with RawInfo restoration for config parsing |
 | ☑ | 27 | fix/markdown-codeblock-theme-property | origin | 463a752d65 | merged cleanly |
-| ☐ | 28 | fix/persist-sidebar | origin | TBD | This branch is meant not only to make the sidebar display state persistent across bestarts if the progran but also  to remove the normal behaviour where the sidebar is hidden when the terminal is not wide enough! There **MUST NOT** be a way to return to the auto state after transitioning to the "show" or "hide" state. This change in the sidebar behaviour **MUST NOT** be clobbered while merging! |
+| ☑ | 28 | fix/persist-sidebar | origin | 62a4c67f69 | preserved persistent sidebar state and no-return-to-auto behavior |
 | ☐ | 29 | feat/persist-sidebar-group-folding-states | origin | TBD | Be sure not to let this feature get clobbered by subsequent merges! |
 | ☐ | 30 | feat/permission-indicator-in-sidebar | origin | TBD |  |
 | ☐ | 31 | feat/command-palette-consistency | origin | TBD | to prevent recurence of a past mistake: this branch is meant to **MOVE** several items from the Session category to the System category in the command palette. You **MUST NOT** duplicate them into both categories when resolving merge conflicts! Additionally, if fix/persist-sidebar was merged previously, be sue to properly move the new logic for the sidebar that it added: no return to "auto" after leaving, et cetera |
@@ -115,3 +115,4 @@
 - fix/session-list-viewport-jumping: merged d2679705eb; clean merge.
 - fix/merging-multiple-configs: merged b72c6d2068; restored RawInfo schema for merged config parsing.
 - fix/markdown-codeblock-theme-property: merged 463a752d65; clean merge.
+- fix/persist-sidebar: merged 62a4c67f69; resolved prompt conflict while preserving persistent sidebar behavior with no return to auto after explicit toggle.

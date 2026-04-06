@@ -823,15 +823,6 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
-      title: kv.get("header_visible", true) ? "Hide header" : "Show header",
-      value: "app.toggle.header",
-      category: "System",
-      onSelect: (dialog) => {
-        kv.set("header_visible", !kv.get("header_visible", true))
-        dialog.clear()
-      },
-    },
-    {
       title: kv.get("scrollbar_visible", true) ? "Hide session scrollbar" : "Show session scrollbar",
       value: "app.toggle.scrollbar",
       keybind: "scrollbar_toggle",

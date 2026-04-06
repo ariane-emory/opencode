@@ -94,3 +94,20 @@ export function substituteArguments(
 
   // Process simple $N placeholders - no swallowing, just return the specific arg
   result = result.replaceAll(placeholderRegex, (_, index) => {
+    const argIndex = Number(index) - 1
+    if (argIndex >= args.length) return ""
+    return args[argIndex]
+  })
+
+  // Handle $ARGUMENTS placeholder
+  result = result.replace(/\$ARGUMENTS\b/g, args.join(" "))
+
+  const hasPlaceholders =
+    simplePlaceholders.length > 0 || 
+    extendedPlaceholders.length > 0 || 
+    defaultPlaceholders.length > 0 ||
+    rangeWithDefaultPlaceholders.length > 0 ||
+    template.includes("$ARGUMENTS")
+
+  return { result, hasPlaceholders }
+}

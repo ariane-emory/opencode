@@ -656,6 +656,7 @@ export function Session() {
       },
     },
     {
+      title: "Page up",
       value: "session.page.up",
       keybind: "messages_page_up",
       category: "Session",

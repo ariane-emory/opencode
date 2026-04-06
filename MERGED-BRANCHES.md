@@ -36,7 +36,7 @@
 | ☑ | 30 | feat/permission-indicator-in-sidebar | origin | 28ce4a061b | |
 | ☑ | 31 | feat/command-palette-consistency | origin | 28ce4a061b | MOVE several items from the Session category to the System category in the command palette - do NOT duplicate them into both categories |
 | ☑ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | 28ce4a061b | |
-| ☐ | 33 | refactor/shared-substitute | origin | TBD | |
+| ☑ | 33 | refactor/shared-substitute | origin | 6a6db6d2a2 | |
 | ☐ | 34 | feat/session-id-in-status | origin | TBD | |
 | ☐ | 35 | feat/opeoginni--display-message-tps | origin | TBD | |
 | ☐ | 36 | feat/kv-diff-style-clean | origin | TBD | |

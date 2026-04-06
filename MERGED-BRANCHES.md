@@ -33,7 +33,7 @@
 | ☑ | 27 | fix/markdown-codeblock-theme-property | origin | 5876652e45 | Clean |
 | ☑ | 28 | fix/persist-sidebar | origin | a752929233 | Kept our prompt/index.tsx; feature changes in kv.tsx and session/index.tsx |
 | ☑ | 29 | feat/persist-sidebar-group-folding-states | origin | 6a4d9a5943 | Kept HEAD prompt.ts; sidebar fold persistence changes clean |
-| ☐ | 30 | feat/permission-indicator-in-sidebar | origin | TBD | |
+| ☑ | 30 | feat/permission-indicator-in-sidebar | origin | 18a0efc7e0 | Combined titleParts + permissions memos in sidebar.tsx |
 | ☐ | 31 | feat/command-palette-consistency | origin | TBD | MOVES items from Session to System category; must NOT duplicate; handle persist-sidebar logic |
 | ☐ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | TBD | |
 | ☐ | 33 | refactor/shared-substitute | origin | TBD | |

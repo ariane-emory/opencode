@@ -14,6 +14,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const session = createMemo(() => sync.session.get(props.sessionID))
   const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
   const titleParts = createMemo(() => parseSessionTitleParts(session()?.title ?? ""))
+  const permissions = createMemo(() => sync.data.permission[props.sessionID] ?? [])
 
   return (
     <Show when={session()}>
@@ -61,6 +62,12 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
         </scrollbox>
 
         <box flexShrink={0} gap={1} paddingTop={1}>
+          <Show when={permissions().length > 0}>
+            <text fg={theme.warning}>
+              <span style={{ fg: theme.warning }}>◉</span> {permissions().length} Permission
+              {permissions().length > 1 ? "s" : ""}
+            </text>
+          </Show>
           <TuiPluginRuntime.Slot name="sidebar_footer" mode="single_winner" session_id={props.sessionID}>
             <text fg={theme.textMuted}>
               <span style={{ fg: theme.success }}>•</span> <b>Base</b>

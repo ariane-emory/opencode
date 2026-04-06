@@ -31,7 +31,7 @@
 | ☑ | 25 | fix/session-list-viewport-jumping | origin | 821e88d3e8 | Clean |
 | ☑ | 26 | fix/merging-multiple-configs | origin | aa2c9160d1 | Fixed RawInfo -> Info reference |
 | ☑ | 27 | fix/markdown-codeblock-theme-property | origin | 5876652e45 | Clean |
-| ☐ | 28 | fix/persist-sidebar | origin | TBD | Makes sidebar display state persistent; removes auto-hide on narrow terminal; no return to auto state |
+| ☑ | 28 | fix/persist-sidebar | origin | a752929233 | Kept our prompt/index.tsx; feature changes in kv.tsx and session/index.tsx |
 | ☐ | 29 | feat/persist-sidebar-group-folding-states | origin | TBD | Be sure not to let this feature get clobbered |
 | ☐ | 30 | feat/permission-indicator-in-sidebar | origin | TBD | |
 | ☐ | 31 | feat/command-palette-consistency | origin | TBD | MOVES items from Session to System category; must NOT duplicate; handle persist-sidebar logic |

@@ -17,7 +17,7 @@
 | ☑ | 11 | feat/configurable-snapshot-lifespan | origin | 0cd1199c59 | merged cleanly |
 | ☑ | 12 | feat/configurable-new-plan-mode | origin | b1f5936529 | merged cleanly |
 | ☑ | 13 | feat/enable-exa-setting | origin | 750bf1ca6b | combined enable_exa with plan_mode config support |
-| ☐ | 14 | feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber this while merging! Merging this branch **MUST** add the new item to the command palette. |
+| ☑ | 14 | feat/canceled-prompts-in-history | origin | 97a94571a4 | kept command palette item and canceled prompt history behavior |
 | ☐ | 15 | feat/permission-spinner | origin | TBD |  |
 | ☐ | 16 | feat/opencode-expand | origin | TBD |  |
 | ☐ | 17 | feat/argument-range-syntax | origin | TBD |  |
@@ -101,3 +101,4 @@
 - feat/configurable-snapshot-lifespan: merged 0cd1199c59; clean merge.
 - feat/configurable-new-plan-mode: merged b1f5936529; clean merge.
 - feat/enable-exa-setting: merged 750bf1ca6b; resolved config conflict to keep experimental plan mode and add experimental enable_exa support.
+- feat/canceled-prompts-in-history: merged 97a94571a4; resolved app command palette conflict to keep markdown toggle and add cleared-prompt history toggle.

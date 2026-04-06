@@ -32,7 +32,7 @@
 | ☑ | 26 | fix/merging-multiple-configs | origin | aa2c9160d1 | Fixed RawInfo -> Info reference |
 | ☑ | 27 | fix/markdown-codeblock-theme-property | origin | 5876652e45 | Clean |
 | ☑ | 28 | fix/persist-sidebar | origin | a752929233 | Kept our prompt/index.tsx; feature changes in kv.tsx and session/index.tsx |
-| ☐ | 29 | feat/persist-sidebar-group-folding-states | origin | TBD | Be sure not to let this feature get clobbered |
+| ☑ | 29 | feat/persist-sidebar-group-folding-states | origin | 6a4d9a5943 | Kept HEAD prompt.ts; sidebar fold persistence changes clean |
 | ☐ | 30 | feat/permission-indicator-in-sidebar | origin | TBD | |
 | ☐ | 31 | feat/command-palette-consistency | origin | TBD | MOVES items from Session to System category; must NOT duplicate; handle persist-sidebar logic |
 | ☐ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | TBD | |

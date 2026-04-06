@@ -13,6 +13,7 @@ export interface FilteredListProps<T> {
   sortBy?: (a: T, b: T) => number
   sortGroupsBy?: (a: { category: string; items: T[] }, b: { category: string; items: T[] }) => number
   onSelect?: (value: T | undefined, index: number) => void
+  sortKey?: keyof T
   noInitialSelection?: boolean
 }
 
@@ -35,10 +36,26 @@ export function useFilteredList<T>(props: FilteredListProps<T>) {
         all,
         (x) => {
           if (!needle) return x
+          let filtered: T[]
           if (!props.filterKeys && Array.isArray(x) && x.every((e) => typeof e === "string")) {
-            return fuzzysort.go(needle, x).map((x) => x.target) as T[]
+            filtered = fuzzysort.go(needle, x).map((x) => x.target) as T[]
+          } else {
+            filtered = fuzzysort.go(needle, x, { keys: props.filterKeys! }).map((x) => x.obj)
           }
-          return fuzzysort.go(needle, x, { keys: props.filterKeys! }).map((x) => x.obj)
+          if (props.sortKey) {
+            const key = props.sortKey
+            const lowerNeedle = needle.toLowerCase()
+            filtered.sort((a, b) => {
+              const aVal = String(a[key]).toLowerCase()
+              const bVal = String(b[key]).toLowerCase()
+              const aPrefix = aVal.startsWith(lowerNeedle)
+              const bPrefix = bVal.startsWith(lowerNeedle)
+              if (aPrefix && !bPrefix) return -1
+              if (!aPrefix && bPrefix) return 1
+              return aVal.localeCompare(bVal)
+            })
+          }
+          return filtered
         },
         groupBy((x) => (props.groupBy ? props.groupBy(x) : "")),
         entries(),

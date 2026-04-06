@@ -34,7 +34,7 @@
 | ☑ | 28 | fix/persist-sidebar | origin | 62a4c67f69 | preserved persistent sidebar state and no-return-to-auto behavior |
 | ☑ | 29 | feat/persist-sidebar-group-folding-states | origin | 72912f3c2f | merged cleanly; group folding persistence preserved |
 | ☑ | 30 | feat/permission-indicator-in-sidebar | origin | 8731e53a60 | combined grouped title formatting with sidebar permission indicator |
-| ☐ | 31 | feat/command-palette-consistency | origin | TBD | to prevent recurence of a past mistake: this branch is meant to **MOVE** several items from the Session category to the System category in the command palette. You **MUST NOT** duplicate them into both categories when resolving merge conflicts! Additionally, if fix/persist-sidebar was merged previously, be sue to properly move the new logic for the sidebar that it added: no return to "auto" after leaving, et cetera |
+| ☑ | 31 | feat/command-palette-consistency | origin | a0165409e9 | moved palette items to System and preserved persist-sidebar behavior |
 | ☐ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | TBD |  |
 | ☐ | 33 | refactor/shared-substitute | origin | TBD |  |
 | ☐ | 34 | feat/session-id-in-status | origin | TBD |  |
@@ -118,3 +118,4 @@
 - fix/persist-sidebar: merged 62a4c67f69; resolved prompt conflict while preserving persistent sidebar behavior with no return to auto after explicit toggle.
 - feat/persist-sidebar-group-folding-states: merged 72912f3c2f; clean merge.
 - feat/permission-indicator-in-sidebar: merged 8731e53a60; resolved sidebar conflict to keep grouped title formatting and add permission indicator.
+- feat/command-palette-consistency: merged a0165409e9; resolved app and session palette conflicts to move items into System without duplication and preserve no-return-to-auto sidebar behavior.

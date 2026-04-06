@@ -12,7 +12,7 @@
 | ☑ | 6 | feat/session-bookmarks | origin | ef669d4b73 | combined bookmarks with grouped session title display |
 | ☑ | 7 | fix/dialog-datetime-alignment | origin | b8871b4225 | merged after bookmarks; datetime alignment preserved |
 | ☑ | 8 | feat/keybindable-commands | origin | 431032c56c | merged cleanly |
-| ☐ | 9 | feat/automatic-list-continuation | origin | TBD |  |
+| ☑ | 9 | feat/automatic-list-continuation | origin | cef5387a81 | merged cleanly |
 | ☐ | 10 | feat/continue-command | origin | TBD |  |
 | ☐ | 11 | feat/configurable-snapshot-lifespan | origin | TBD |  |
 | ☐ | 12 | feat/configurable-new-plan-mode | origin | TBD |  |
@@ -96,3 +96,4 @@
 - feat/session-bookmarks: merged ef669d4b73; resolved conflicts in packages/opencode/src/cli/cmd/tui/component/dialog-session-list.tsx and packages/opencode/src/util/locale.ts to keep grouped titles and add bookmark categories.
 - fix/dialog-datetime-alignment: merged b8871b4225; kept datetime alignment immediately after bookmarks merge.
 - feat/keybindable-commands: merged 431032c56c; clean merge.
+- feat/automatic-list-continuation: merged cef5387a81; clean merge.

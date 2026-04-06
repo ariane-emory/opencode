@@ -345,6 +345,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
     renderer.clearSelection()
   }
   const [terminalTitleEnabled, setTerminalTitleEnabled] = createSignal(kv.get("terminal_title_enabled", true))
+  const [sidebarClockEnabled, setSidebarClockEnabled] = createSignal(kv.get("sidebar_clock_visible", true))
 
   // Update terminal window title based on current route and session
   createEffect(() => {
@@ -833,90 +834,24 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
-      title: kv.get("timestamps", "hide") === "show" ? "Hide timestamps" : "Show timestamps",
-      value: "app.toggle.timestamps",
-      category: "System",
-      slash: {
-        name: "timestamps",
-        aliases: ["toggle-timestamps"],
-      },
-      onSelect: (dialog) => {
-        const current = kv.get("timestamps", "hide")
-        kv.set("timestamps", current === "show" ? "hide" : "show")
-        dialog.clear()
-      },
-    },
-    {
-      title: kv.get("markdown_all_messages", false)
-        ? "Render markdown: agent messages only"
-        : "Render markdown: all messages",
-      value: "app.toggle.markdown_all",
-      category: "System",
-      onSelect: (dialog) => {
-        kv.set("markdown_all_messages", !kv.get("markdown_all_messages", false))
-        dialog.clear()
-      },
-    },
-    {
-      title: kv.get("thinking_visibility", true) ? "Hide thinking" : "Show thinking",
-      value: "app.toggle.thinking",
-      keybind: "display_thinking",
-      category: "System",
-      slash: {
-        name: "thinking",
-        aliases: ["toggle-thinking"],
-      },
-      onSelect: (dialog) => {
-        kv.set("thinking_visibility", !kv.get("thinking_visibility", true))
-        dialog.clear()
-      },
-    },
-    {
-      title: kv.get("tool_details_visibility", true) ? "Hide tool details" : "Show tool details",
-      value: "app.toggle.tooldetails",
-      keybind: "tool_details",
-      category: "System",
-      onSelect: (dialog) => {
-        kv.set("tool_details_visibility", !kv.get("tool_details_visibility", true))
-        dialog.clear()
-      },
-    },
-    {
-      title: kv.get("scrollbar_visible", true) ? "Hide session scrollbar" : "Show session scrollbar",
-      value: "app.toggle.scrollbar",
-      keybind: "scrollbar_toggle",
-      category: "System",
-      onSelect: (dialog) => {
-        kv.set("scrollbar_visible", !kv.get("scrollbar_visible", true))
-        dialog.clear()
-      },
-    },
-    {
-      title: kv.get("generic_tool_output_visibility", false) ? "Hide generic tool output" : "Show generic tool output",
-      value: "app.toggle.generic_tool_output",
-      category: "System",
-      onSelect: (dialog) => {
-        kv.set("generic_tool_output_visibility", !kv.get("generic_tool_output_visibility", false))
-        dialog.clear()
-      },
-    },
-    {
-      title: kv.get("sidebar", "auto") === "auto" ? "Hide sidebar" : "Show sidebar",
-      value: "app.toggle.sidebar",
-      keybind: "sidebar_toggle",
-      category: "System",
-      onSelect: (dialog) => {
-        const current = kv.get("sidebar", "auto")
-        kv.set("sidebar", current === "auto" ? "hide" : "auto")
-        dialog.clear()
-      },
-    },
-    {
       title: kv.get("clear_prompt_save_history", false) ? "Don't include cleared prompts in history" : "Include cleared prompts in history",
       value: "app.toggle.clear_prompt_history",
       category: "System",
       onSelect: (dialog) => {
         kv.set("clear_prompt_save_history", !kv.get("clear_prompt_save_history", false))
+        dialog.clear()
+      },
+    },
+    {
+      title: sidebarClockEnabled() ? "Hide sidebar clock" : "Show sidebar clock",
+      value: "system.toggle.sidebar_clock",
+      category: "System",
+      onSelect: (dialog) => {
+        setSidebarClockEnabled((prev) => {
+          const next = !prev
+          kv.set("sidebar_clock_visible", next)
+          return next
+        })
         dialog.clear()
       },
     },

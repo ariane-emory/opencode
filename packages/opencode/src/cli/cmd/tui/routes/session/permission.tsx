@@ -9,6 +9,7 @@ import type { PermissionRequest } from "@opencode-ai/sdk/v2"
 import { useSDK } from "../../context/sdk"
 import { SplitBorder } from "../../component/border"
 import { useSync } from "../../context/sync"
+import { useKV } from "../../context/kv"
 import { useTextareaKeybindings } from "../../component/textarea-keybindings"
 import { useLocal } from "../../context/local"
 import { useKV } from "../../context/kv"
@@ -54,15 +55,15 @@ function EditBody(props: { request: PermissionRequest }) {
   const themeState = useTheme()
   const theme = themeState.theme
   const syntax = themeState.syntax
-  const config = useTuiConfig()
+  const kv = useKV()
   const dimensions = useTerminalDimensions()
 
   const filepath = createMemo(() => (props.request.metadata?.filepath as string) ?? "")
   const diff = createMemo(() => (props.request.metadata?.diff as string) ?? "")
 
   const view = createMemo(() => {
-    const diffStyle = config.diff_style
-    if (diffStyle === "stacked") return "unified"
+    const diffStyle = kv.get("diff_style", "auto")
+    if (diffStyle === "unified") return "unified"
     return dimensions().width > 120 ? "split" : "unified"
   })
 

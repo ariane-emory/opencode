@@ -86,6 +86,7 @@ import stripAnsi from "strip-ansi"
 import { usePromptRef } from "../../context/prompt"
 import { useExit } from "../../context/exit"
 import { Filesystem } from "@/util/filesystem"
+import { DialogSubagent } from "./dialog-subagent.tsx"
 import { Global } from "@/global"
 import { PermissionPrompt } from "./permission"
 import { QuestionPrompt } from "./question"
@@ -107,6 +108,7 @@ const context = createContext<{
   showThinking: () => boolean
   showTimestamps: () => boolean
   showDetails: () => boolean
+  showTps: () => boolean
   showGenericToolOutput: () => boolean
   diffWrapMode: () => "word" | "none"
   providers: () => ReadonlyMap<string, Provider>
@@ -169,6 +171,7 @@ export function Session() {
   const [showHeader, setShowHeader] = kv.signal("header_visible", true)
   const [diffWrapMode] = kv.signal<"word" | "none">("diff_wrap_mode", "word")
   const [animationsEnabled, setAnimationsEnabled] = kv.signal("animations_enabled", true)
+  const [showTps, setShowTps] = kv.signal("tps_visibility", false)
   const [showGenericToolOutput, setShowGenericToolOutput] = kv.signal("generic_tool_output_visibility", false)
 
   const wide = createMemo(() => dimensions().width > 120)
@@ -1010,6 +1013,7 @@ export function Session() {
         showThinking,
         showTimestamps,
         showDetails,
+        showTps,
         showGenericToolOutput,
         diffWrapMode,
         providers,
@@ -1342,6 +1346,10 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
   const messages = createMemo(() => sync.data.message[props.message.sessionID] ?? [])
   const model = createMemo(() => Model.name(ctx.providers(), props.message.providerID, props.message.modelID))
 
+  function getParts(messageID: string) {
+    return sync.data.part[messageID] ?? []
+  }
+
   const final = createMemo(() => {
     return props.message.finish && !["tool-calls", "unknown"].includes(props.message.finish)
   })
@@ -1352,6 +1360,62 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
     const user = messages().find((x) => x.role === "user" && x.id === props.message.parentID)
     if (!user || !user.time) return 0
     return props.message.time.completed - user.time.created
+  })
+
+  const TPS = createMemo(() => {
+    if (!final()) return 0
+    if (!props.message.time.completed) return 0
+    if (!ctx.showTps()) return 0
+  
+    const msg = props.message
+
+    const allParts = getParts(msg.id)
+
+    const INVALID_REASONING_TEXTS = ["[REDACTED]", "", null, undefined] as const
+  
+    // Filter for actual streaming parts (reasoning + text), exclude tool/step markers
+    const streamingParts = allParts.filter((part): part is TextPart | ReasoningPart => {
+      // Only text and reasoning parts have streaming time data
+      if (part.type !== "text" && part.type !== "reasoning") return false
+
+      // Skip parts without valid timestamps
+      if (!part.time?.start || !part.time?.end) return false
+
+      // Include text parts with content
+      if (part.type === "text" && (part.text?.trim().length ?? 0) > 0) return true
+
+      // Include reasoning parts with valid (non-empty) text
+      if (part.type === "reasoning" && !INVALID_REASONING_TEXTS.includes(part.text as any)) {
+        return true
+      }
+
+      return false
+    })
+  
+    if (streamingParts.length === 0) return 0
+  
+    // Sum individual part durations (excludes tool execution time between parts)
+    let totalStreamingTimeMs = 0
+    let hasValidReasoning = false
+  
+    for (const part of streamingParts) {
+      totalStreamingTimeMs += part.time!.end! - part.time!.start!
+      if (part.type === "reasoning") {
+        hasValidReasoning = true
+      }
+    }
+  
+    if (totalStreamingTimeMs === 0) return 0
+  
+    const totalTokens = msg.tokens.output + (hasValidReasoning ? msg.tokens.reasoning : 0)
+  
+    if (totalTokens === 0) return 0
+  
+    // Calculate tokens per second
+    const totalStreamingTimeSec = totalStreamingTimeMs / 1000
+    const tokensPerSecond = totalTokens / totalStreamingTimeSec
+  
+    return Number(tokensPerSecond.toFixed(2))
   })
 
   const keybind = useKeybind()
@@ -1413,6 +1477,9 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
               <span style={{ fg: theme.textMuted }}> · {model()}</span>
               <Show when={duration()}>
                 <span style={{ fg: theme.textMuted }}> · {Locale.duration(duration())}</span>
+              </Show>
+              <Show when={ctx.showTps() && TPS()}>
+                <span style={{ fg: theme.textMuted }}> · {TPS()} tps</span>
               </Show>
               <Show when={props.message.error?.name === "MessageAbortedError"}>
                 <span style={{ fg: theme.textMuted }}> · interrupted</span>

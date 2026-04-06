@@ -58,7 +58,7 @@ Git Safety Protocol:
 - You SHOULD only skip hooks (--no-verify, --no-gpg-sign, etc) to avoid push failures due to pre-existing errors in the base branch or when user explicitly requests it
 - You MUST NOT ever use `git push --delete` commands unless it is explicitly and clearly requested by the user!
 - CRITICAL: If you already pushed to remote, you may need to amend and use force push
-- CRITICAL: NEVER forget to commit changes and push changes to origin unless the user explicitly instructs you not to do. It is VERY IMPORTANT that you NEVER forget to push changes you have made to origin, otherwise the user will feel that you are being lazy and forgetful.
+- CRITICAL: You MUST NOT EVER forget to commit changes and push changes to origin unless the user explicitly instructs you not to do. It is VERY IMPORTANT that you NEVER forget to push changes you have made to origin, otherwise the user will feel that you are being lazy and forgetful.
 - CRITICAL: You MUST NOT EVER use any git worktree commands. 
 
 1. You can call multiple tools in a single response. When multiple independent pieces of information are requested and all commands are likely to succeed, run multiple tool calls in parallel for optimal performance. run the following bash commands in parallel, each using the Bash tool:

@@ -30,7 +30,7 @@
 | ☑ | 24 | fix/config-package-json-pollution | origin | 022a5c194d | merged cleanly; package.json pollution fix preserved |
 | ☑ | 25 | fix/session-list-viewport-jumping | origin | d2679705eb | merged cleanly |
 | ☑ | 26 | fix/merging-multiple-configs | origin | b72c6d2068 | merged with RawInfo restoration for config parsing |
-| ☐ | 27 | fix/markdown-codeblock-theme-property | origin | TBD |  |
+| ☑ | 27 | fix/markdown-codeblock-theme-property | origin | 463a752d65 | merged cleanly |
 | ☐ | 28 | fix/persist-sidebar | origin | TBD | This branch is meant not only to make the sidebar display state persistent across bestarts if the progran but also  to remove the normal behaviour where the sidebar is hidden when the terminal is not wide enough! There **MUST NOT** be a way to return to the auto state after transitioning to the "show" or "hide" state. This change in the sidebar behaviour **MUST NOT** be clobbered while merging! |
 | ☐ | 29 | feat/persist-sidebar-group-folding-states | origin | TBD | Be sure not to let this feature get clobbered by subsequent merges! |
 | ☐ | 30 | feat/permission-indicator-in-sidebar | origin | TBD |  |
@@ -114,3 +114,4 @@
 - fix/config-package-json-pollution: merged 022a5c194d; clean merge.
 - fix/session-list-viewport-jumping: merged d2679705eb; clean merge.
 - fix/merging-multiple-configs: merged b72c6d2068; restored RawInfo schema for merged config parsing.
+- fix/markdown-codeblock-theme-property: merged 463a752d65; clean merge.

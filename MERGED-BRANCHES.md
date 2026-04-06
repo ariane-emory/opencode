@@ -41,7 +41,7 @@
 | ☑ | 35 | feat/opeoginni--display-message-tps | origin | 76a3367f11 | resolved app conflict and preserved tps toggle |
 | ☑ | 36 | feat/kv-diff-style-clean | origin | a4705b750e | merged with permission prompt kv-diff style integration |
 | ☑ | 37 | feat/global-compaction-threshold | origin | 8443a8821b | merged cleanly |
-| ☐ | 38 | feat/configurable-message-and-session-limit | origin | TBD | Don't forget that both the `experimental._message__limit` and `experimental.session_list_limit` settings should accept either positive integers or the string value "none"! |
+| ☑ | 38 | feat/configurable-message-and-session-limit | origin | 9b63556a00 | merged with message/session limits supporting positive integers or "none" |
 | ☐ | 39 | feat/experimental-dont-cache-command-markdown | origin | TBD |  |
 | ☐ | 40 | feat/jsonc-user-themes | origin | TBD |  |
 | ☐ | 41 | feat/shell-advice | origin | TBD | Make sure to combine this properly with the changes to the bash tool's description that are made in the feat/improve-bash-tool-git-advice branch, both sets of changes must be synthesized! |
@@ -125,3 +125,4 @@
 - feat/opeoginni--display-message-tps: merged 76a3367f11; resolved app conflict to keep sidebar overlay and terminal title toggles while adding message TPS toggle.
 - feat/kv-diff-style-clean: merged a4705b750e; fixed permission prompt import/config wiring for kv diff style setting.
 - feat/global-compaction-threshold: merged 8443a8821b; clean merge.
+- feat/configurable-message-and-session-limit: merged 9b63556a00; resolved config/session list/sdk conflicts while preserving grouped+bookmarked list behavior and limit settings accepting positive integers or "none".

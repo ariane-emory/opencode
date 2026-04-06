@@ -11,7 +11,7 @@
 | ☑ | 5 | feat/session-grouping | origin | 868424d1dd | Clean merge |
 | ☑ | 6 | feat/session-bookmarks | origin | 06b87d8259 | Conflicts in dialog-session-list.tsx and locale.ts; combined grouping+bookmarks |
 | ☑ | 7 | fix/dialog-datetime-alignment | origin | d39c0f3db2 | Clean merge |
-| ☐ | 8 | feat/keybindable-commands | origin | TBD | |
+| ☑ | 8 | feat/keybindable-commands | origin | b908b3d54f | Clean merge |
 | ☐ | 9 | feat/automatic-list-continuation | origin | TBD | |
 | ☐ | 10 | feat/continue-command | origin | TBD | |
 | ☐ | 11 | feat/configurable-snapshot-lifespan | origin | TBD | |

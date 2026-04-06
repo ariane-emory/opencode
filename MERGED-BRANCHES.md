@@ -4,7 +4,7 @@
 
 | Status | # | Branch Name | Remote | Commit Hash | Description |
 |--------|---|-------------|--------|-------------|-------------|
-| ☐ | 1 | feat/base-one-rebrand | origin | TBD |  |
+| ☑ | 1 | feat/base-one-rebrand | origin | 2d2fc335c5 | merged cleanly |
 | ☐ | 2 | feat/sinister-quotes | origin | TBD | the placeholders used **MUST** be the SINISTER_PLACEHOLDERS array in this branch's packages/ui/src/constants/placeholders.ts file, **NO OTHER PLACEHOLDER SOURCE/LOCATION IS PERMISSIBLE!** |
 | ☐ | 3 | feat/markdown-renderer | gignit | TBD |  |
 | ☐ | 4 | feat/thinking-indicator-hidden | rcdailey | TBD |  |
@@ -88,3 +88,4 @@
 
 ## Merge Log
 
+- feat/base-one-rebrand: merged 2d2fc335c5; clean merge.

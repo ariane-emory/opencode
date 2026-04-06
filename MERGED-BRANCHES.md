@@ -26,7 +26,7 @@
 | ☑ | 20 | fix/history-navigation-key-commands | origin | a49b2075fe | Clean |
 | ☑ | 21 | fix/build-with-short-version | origin | e0b3c0a7b4 | Clean |
 | ☑ | 22 | fix/autocompletion-filtered-order | origin | feb179574b | Conflicts in prompt/index.tsx; kept HEAD additions from previous merges |
-| ☐ | 23 | fix/modal-menus-filtered-order | origin | TBD | |
+| ☑ | 23 | fix/modal-menus-filtered-order | origin | 479300198a | Conflicts in autocomplete, dialog-select, use-filtered-list; used fuzzysort approach |
 | ☐ | 24 | fix/config-package-json-pollution | origin | TBD | Prevents package.json pollution with non-SemVer versions |
 | ☐ | 25 | fix/session-list-viewport-jumping | origin | TBD | |
 | ☐ | 26 | fix/merging-multiple-configs | origin | TBD | |

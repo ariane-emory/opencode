@@ -42,13 +42,11 @@ export namespace SessionRevert {
       const revert = Effect.fn("SessionRevert.revert")(function* (input: RevertInput) {
         yield* Effect.promise(() => SessionPrompt.assertNotBusy(input.sessionID))
         const all = yield* sessions.messages({ sessionID: input.sessionID })
-        let lastUser: MessageV2.User | undefined
         const session = yield* sessions.get(input.sessionID)
 
         let rev: Session.Info["revert"]
         const patches: Snapshot.Patch[] = []
         for (const msg of all) {
-          if (msg.info.role === "user") lastUser = msg.info
           const remaining = []
           for (const part of msg.parts) {
             if (rev) {
@@ -60,7 +58,7 @@ export namespace SessionRevert {
               if ((msg.info.id === input.messageID && !input.partID) || part.id === input.partID) {
                 const partID = remaining.some((item) => ["text", "tool"].includes(item.type)) ? input.partID : undefined
                 rev = {
-                  messageID: !partID && lastUser ? lastUser.id : msg.info.id,
+                  messageID: msg.info.id,
                   partID,
                 }
               }

@@ -1092,6 +1092,8 @@ export namespace Config {
       ref: "Config",
     })
 
+  const RawInfo = deepRemoveDefaults(Info)
+
   export type Info = z.output<typeof Info> & {
     plugin_origins?: PluginOrigin[]
   }

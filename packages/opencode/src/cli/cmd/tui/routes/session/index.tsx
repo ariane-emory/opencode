@@ -1191,6 +1191,7 @@ export function Session() {
                     visible={visible()}
                     ref={bind}
                     disabled={disabled()}
+                    showUsage={!sidebarVisible()}
                     onSubmit={() => {
                       toBottom()
                     }}

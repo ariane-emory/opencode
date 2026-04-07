@@ -26,6 +26,7 @@ import { Flag } from "@/flag/flag"
 import { Log } from "@/util/log"
 import { LspTool } from "./lsp"
 import { Truncate } from "./truncate"
+import { SetCurrentSessionTitleTool } from "./set-current-session-title"
 import { ApplyPatchTool } from "./apply_patch"
 import { BookmarkCurrentSessionTool } from "./bookmark"
 import { Glob } from "../util/glob"
@@ -129,6 +130,7 @@ export namespace ToolRegistry {
           TaskTool,
           WebFetchTool,
           TodoWriteTool,
+          SetCurrentSessionTitleTool,
           WebSearchTool,
           CodeSearchTool,
           SkillTool,

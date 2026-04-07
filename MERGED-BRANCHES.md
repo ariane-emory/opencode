@@ -144,3 +144,4 @@
 - feat/aspiers--readline-additions: merged 4f138e317f; resolved generated SDK keybinding conflict to keep readline additions with existing keybinding typing.
 - feat/sidebar-clock: merged 4046d90f5b; resolved app and sidebar conflicts to add sidebar clock toggle without clobbering BaseOne branding, permissions indicator, grouped title formatting, or overlay behavior.
 - feat/alphabetical-message-modal: merged 36ad8ba868; resolved dialog select conflict to keep taller dialog sizing and scroll support while preserving alphabetical ordering behavior during non-filtered modal browsing.
+- feat/toggle-sidebar-scrollbar: merged 2c8fb1540c; resolved app/session/sidebar conflicts to add sidebar scrollbar toggle without clobbering clock, overlay, permissions, or grouped title behavior.

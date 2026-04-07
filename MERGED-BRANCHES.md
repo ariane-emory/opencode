@@ -64,7 +64,7 @@
 | ☑ | 58 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | cdd6679bf5 | Kept feature branch date formatting with padded days in locale.ts |
 | ☑ | 59 | feat/configurable-maximum-prompt-input-size | origin | d9dfb7225c | Combined config fields; fixed test to include max_prompt_input_lines |
 | ☑ | 60 | fix/always-allow-folding-sidebar-mcps | origin | 376ef5da31 | Clean merge |
-| ☐ | 61 | feat/clickable-sidebar-mcps | origin | TBD | |
+| ☑ | 61 | feat/clickable-sidebar-mcps | origin | 8ba1978025 | Combined clickable connect/disconnect MCP rows with persistent sidebar fold state |
 | ☐ | 62 | feat/clickable-dialogue-mcps | origin | TBD | |
 | ☐ | 63 | feat/clickable-status-mcps | origin | TBD | |
 | ☐ | 64 | feat/ignored-commands | origin | TBD | |

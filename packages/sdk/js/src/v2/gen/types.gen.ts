@@ -2026,6 +2026,10 @@ export type Config = {
      */
     max_prompt_input_lines?: number
     /**
+     * Control dialog background overlay: 'full' = semi-transparent overlay (default), 'limited' = overlay only within dialog bounds, 'none' = no overlay
+     */
+    dialog_background_overlay?: 'full' | 'limited' | 'none'
+    /**
      * Enable experimental plan mode
      */
     plan_mode?: boolean

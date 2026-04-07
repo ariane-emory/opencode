@@ -81,7 +81,7 @@
 | ☑      | 75 | fix/restore-footer                                 | origin   | c67b9c7498  | Clean merge - added missing Footer import                                              |
 | ☑      | 76 | feat/remove-canned-jokes                           | origin   | 0d4f95d4f4  | Clean merge - removed canned jokes from generate.txt and task.txt                   |
 | ☑      | 77 | fix/session-list-delete-selection                  | origin   | 5f8836166a  | Combined scrollToValue + moveTo in dialog-select ref                                 |
-| ☐      | 78 | feat/allow-variant_list-keybinding                 | origin   | TBD         |                                                                                                                                          |
+| ☑      | 78 | feat/allow-variant_list-keybinding                 | origin   | f76793947e  | Clean merge - variant_list keybind for model switching                       |
 | ☐      | 79 | feat/kimi-with-claude-system-prompt                | origin   | TBD         |                                                                                                                                          |
 | ☐      | 80 | fix/less-bottom-padding                            | origin   | TBD         |                                                                                                                                          |
 | ☐      | 81 | fix/no-footer-context-when-sidebar                 | origin   | TBD         |                                                                                                                                          |

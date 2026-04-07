@@ -56,7 +56,7 @@
 | ☑ | 50 | feat/rewind-modal-option | origin | c9753bee6b | Clean merge; adds rewind option to message dialog |
 | ☑ | 51 | feat/alphabetize-command-palette-groups | origin | 89db90e437 | Kept smartCompare sorting; added sort={true} to command dialog; removed duplicate sort prop |
 | ☑ | 52 | feat/taller-dialogs | origin | be1eca02fa | Clean merge; increases dialog height |
-| ☐ | 53 | feat/add-arianes-themes | origin | TBD | |
+| ☑ | 53 | feat/add-arianes-themes | origin | 1c2d1be766 | Clean merge; adds 53 theme JSON files and theme registration in theme.tsx |
 | ☐ | 54 | feat/aspiers--readline-additions | origin | TBD | |
 | ☐ | 55 | feat/sidebar-clock | origin | TBD | |
 | ☐ | 56 | feat/alphabetical-message-modal | origin | TBD | |

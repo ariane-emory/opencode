@@ -55,7 +55,7 @@
 | ☑ | 49 | feat/agent-timestamps | origin | 3a8f97b064 | Combined showAgentTimestamps memo with sidebarOverlay fix in contentWidth |
 | ☑ | 50 | feat/rewind-modal-option | origin | c9753bee6b | Clean merge; adds rewind option to message dialog |
 | ☑ | 51 | feat/alphabetize-command-palette-groups | origin | 89db90e437 | Kept smartCompare sorting; added sort={true} to command dialog; removed duplicate sort prop |
-| ☐ | 52 | feat/taller-dialogs | origin | TBD | |
+| ☑ | 52 | feat/taller-dialogs | origin | be1eca02fa | Clean merge; increases dialog height |
 | ☐ | 53 | feat/add-arianes-themes | origin | TBD | |
 | ☐ | 54 | feat/aspiers--readline-additions | origin | TBD | |
 | ☐ | 55 | feat/sidebar-clock | origin | TBD | |

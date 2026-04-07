@@ -231,7 +231,6 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
       }
     },
     moveTo,
-    moveTo,
   }
   props.ref?.(ref)
 

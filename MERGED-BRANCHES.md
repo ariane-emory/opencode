@@ -73,7 +73,7 @@
 | ☑ | 67 | feat/elapsed-timer | origin | a64f16081c | Kept existing session UI integrations while preserving elapsed timer changes |
 | ☑ | 68 | fix/rfc2119-question-tool | origin | 6616a525b3 | Clean merge |
 | ☑ | 69 | feat/sidebar-header-accent-colours | origin | 237f8d07eb | Applied accent-colored sidebar headers while keeping hidden-disabled LSPs and persisted folding |
-| ☐ | 70 | feat/distinct-title-colour | origin | TBD | Must be compatible with feat/session-grouping grouped session title formatting |
+| ☑ | 70 | feat/distinct-title-colour | origin | bf335b50f7 | Applied `sessionTitle` theme color while keeping grouped session title formatting |
 | ☐ | 71 | feat/tool-output-colour | origin | TBD | |
 | ☐ | 72 | feat/improve-experimental-plan-mode-prompt | origin | TBD | |
 | ☐ | 73 | fix/input-enter-keybindings | origin | TBD | |

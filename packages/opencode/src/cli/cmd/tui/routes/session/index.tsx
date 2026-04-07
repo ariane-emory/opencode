@@ -184,7 +184,7 @@ export function Session() {
     if (session()?.parentID) return false
     if (sidebarOpen()) return true
     if (sidebar() === "show") return true
-    if (sidebar() === "auto" && wide()) return true
+    if (sidebar() === "auto" && (tuiConfig.no_sidebar_auto || wide())) return true
     return false
   })
   const sidebarOverlay = createMemo(() => {

@@ -1,5 +1,6 @@
 const placeholderRegex = /\$(\d+)/g
 const defaultPlaceholderRegex = /\$\{(\d+):([^}]*)\}/g
+const extendedPlaceholderRegex = /\$\{(\d*)(\.\.\d*)?\}/g
 const rangeWithDefaultRegex = /\$\{(\d*)(\.\.\d*):([^}]*)\}/g
 
 // AGENTS: When merging with feat/argument-range-syntax, maintain this processing order:
@@ -35,9 +36,15 @@ export function substituteArguments(
 ): { result: string; hasPlaceholders: boolean } {
   const placeholders = template.match(placeholderRegex) ?? []
   const defaultPlaceholders = template.match(defaultPlaceholderRegex) ?? []
+  const extendedPlaceholders = template.match(extendedPlaceholderRegex) ?? []
   const rangeWithDefaultPlaceholders = template.match(rangeWithDefaultRegex) ?? []
 
-  const hasPlaceholders = placeholders.length > 0 || defaultPlaceholders.length > 0 || rangeWithDefaultPlaceholders.length > 0
+  const hasPlaceholders =
+    placeholders.length > 0 ||
+    defaultPlaceholders.length > 0 ||
+    extendedPlaceholders.length > 0 ||
+    rangeWithDefaultPlaceholders.length > 0 ||
+    template.includes("$ARGUMENTS")
 
   let result = template.replaceAll(rangeWithDefaultRegex, (expr, start, dotsAndEnd, defaultVal) => {
     const startIndex = start ? Number(start) : 1
@@ -60,6 +67,18 @@ export function substituteArguments(
       if (arg.trim() !== "") return arg
     }
     return resolveChainedDefault(expr, defaultVal, args)
+  })
+
+  result = result.replaceAll(extendedPlaceholderRegex, (_, start, dotsAndEnd) => {
+    const startIndex = start ? Number(start) : 1
+    const hasDots = dotsAndEnd !== undefined
+    const endIndex = hasDots ? (dotsAndEnd.length > 2 ? Number(dotsAndEnd.slice(2)) : undefined) : undefined
+    const argStart = startIndex - 1
+    if (argStart >= args.length) return ""
+    const argEnd = hasDots ? endIndex : startIndex
+    const slice = args.slice(argStart, argEnd)
+    const nonEmpty = slice.filter((arg) => arg.trim() !== "")
+    return nonEmpty.join(" ")
   })
 
   result = result.replaceAll(placeholderRegex, (_, index) => {

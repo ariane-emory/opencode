@@ -127,7 +127,7 @@ test("migrates tui-specific keys from opencode.json when tui.json does not exist
         JSON.stringify(
           {
             theme: "migrated-theme",
-            tui: { scroll_speed: 5 },
+            tui: { scroll_speed: 5, no_sidebar_auto: true },
             keybinds: { app_exit: "ctrl+q" },
           },
           null,
@@ -143,11 +143,13 @@ test("migrates tui-specific keys from opencode.json when tui.json does not exist
       const config = await TuiConfig.get()
       expect(config.theme).toBe("migrated-theme")
       expect(config.scroll_speed).toBe(5)
+      expect(config.no_sidebar_auto).toBe(true)
       expect(config.keybinds?.app_exit).toBe("ctrl+q")
       const text = await Filesystem.readText(path.join(tmp.path, "tui.json"))
       expect(JSON.parse(text)).toMatchObject({
         theme: "migrated-theme",
         scroll_speed: 5,
+        no_sidebar_auto: true,
       })
       const server = JSON.parse(await Filesystem.readText(path.join(tmp.path, "opencode.json")))
       expect(server.theme).toBeUndefined()
@@ -437,6 +439,31 @@ test("merges keybind overrides across precedence layers", async () => {
       const config = await TuiConfig.get()
       expect(config.keybinds?.app_exit).toBe("ctrl+q")
       expect(config.keybinds?.theme_list).toBe("ctrl+k")
+    },
+  })
+})
+
+test("loads keybinds from global tui.json when no_sidebar_auto is present", async () => {
+  await using tmp = await tmpdir()
+
+  await Bun.write(
+    path.join(Global.Path.config, "tui.json"),
+    JSON.stringify({
+      no_sidebar_auto: true,
+      keybinds: {
+        app_exit: "ctrl+q",
+        "/note-dir": "ctrl+alt+n",
+      },
+    }),
+  )
+
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await TuiConfig.get()
+      expect(config.no_sidebar_auto).toBe(true)
+      expect(config.keybinds?.app_exit).toBe("ctrl+q")
+      expect(config.keybinds?.["/note-dir"]).toBe("ctrl+alt+n")
     },
   })
 })

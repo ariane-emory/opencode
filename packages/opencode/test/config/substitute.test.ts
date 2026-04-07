@@ -94,6 +94,21 @@ test("substituteArguments - ${1..:default} with args", () => {
   expect(result).toBe("a b c")
 })
 
+test("substituteArguments - ${2..3} with args", () => {
+  const { result } = substituteArguments("${2..3}", ["a", "b", "c", "d"])
+  expect(result).toBe("b c")
+})
+
+test("substituteArguments - ${2..} with args", () => {
+  const { result } = substituteArguments("${2..}", ["a", "b", "c"])
+  expect(result).toBe("b c")
+})
+
+test("substituteArguments - ${..3} hasPlaceholders is true", () => {
+  const { hasPlaceholders } = substituteArguments("${..3}", [])
+  expect(hasPlaceholders).toBe(true)
+})
+
 test("substituteArguments - ${1..:default} without args uses default", () => {
   const { result } = substituteArguments("${1..:fallback}", [])
   expect(result).toBe("fallback")

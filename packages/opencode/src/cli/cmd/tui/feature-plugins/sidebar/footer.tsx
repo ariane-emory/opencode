@@ -1,5 +1,5 @@
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
-import { createMemo, Show } from "solid-js"
+import { createMemo, createSignal, onCleanup, onMount, Show } from "solid-js"
 import { Global } from "@/global"
 
 const id = "internal:sidebar-footer"
@@ -13,6 +13,7 @@ function View(props: { api: TuiPluginApi }) {
   )
   const done = createMemo(() => props.api.kv.get("dismissed_getting_started", false))
   const show = createMemo(() => !has() && !done())
+  const clock = createMemo(() => props.api.kv.get("sidebar_clock_visible", true))
   const path = createMemo(() => {
     const dir = props.api.state.path.directory || process.cwd()
     const out = dir.replace(Global.Path.home, "~")
@@ -22,6 +23,13 @@ function View(props: { api: TuiPluginApi }) {
       parent: list.slice(0, -1).join("/"),
       name: list.at(-1) ?? "",
     }
+  })
+  const format = () => new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false })
+  const [time, setTime] = createSignal(format())
+
+  onMount(() => {
+    const id = setInterval(() => setTime(format()), 10000)
+    onCleanup(() => clearInterval(id))
   })
 
   return (
@@ -63,13 +71,18 @@ function View(props: { api: TuiPluginApi }) {
         <span style={{ fg: theme().textMuted }}>{path().parent}/</span>
         <span style={{ fg: theme().text }}>{path().name}</span>
       </text>
-      <text fg={theme().textMuted}>
-        <span style={{ fg: theme().success }}>•</span> <b>Base</b>
-        <span style={{ fg: theme().text }}>
-          <b>One</b>
-        </span>{" "}
-        <span>{props.api.app.version}</span>
-      </text>
+      <box flexDirection="row" justifyContent="space-between">
+        <text fg={theme().textMuted}>
+          <span style={{ fg: theme().success }}>•</span> <b>Base</b>
+          <span style={{ fg: theme().text }}>
+            <b>One</b>
+          </span>{" "}
+          <span>{props.api.app.version}</span>
+        </text>
+        <Show when={clock()}>
+          <text fg={theme().accent}>🐈 {time()}</text>
+        </Show>
+      </box>
     </box>
   )
 }

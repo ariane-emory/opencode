@@ -40,7 +40,7 @@
 | ☑ | 34 | feat/session-id-in-status | origin | 851c958fa4 | Clean merge |
 | ☑ | 35 | feat/opeoginni--display-message-tps | origin | a0f8fd0ca0 | Combined sidebar overlay + tps + terminal title toggles in app.tsx |
 | ☑ | 36 | feat/kv-diff-style-clean | origin | 7ab7053a0f | Fixed duplicate useKV import, missing useLocal import, and undefined config ref in permission.tsx |
-| ☐ | 37 | feat/global-compaction-threshold | origin | TBD | |
+| ☑ | 37 | feat/global-compaction-threshold | origin | 844958ed40 | Clean merge |
 | ☐ | 38 | feat/configurable-message-and-session-limit | origin | TBD | Both _message__limit and session_list_limit must accept positive integers or "none" |
 | ☐ | 39 | feat/experimental-dont-cache-command-markdown | origin | TBD | |
 | ☐ | 40 | feat/jsonc-user-themes | origin | TBD | |

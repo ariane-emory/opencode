@@ -26,6 +26,20 @@ export function DialogMcp() {
   const [, setRef] = createSignal<DialogSelectRef<unknown>>()
   const [loading, setLoading] = createSignal<string | null>(null)
 
+  async function toggle(name: string) {
+    if (loading() !== null) return
+    setLoading(name)
+    try {
+      await local.mcp.toggle(name)
+      const status = await sdk.client.mcp.status()
+      if (status.data) sync.set("mcp", status.data)
+    } catch (error) {
+      console.error("Failed to toggle MCP:", error)
+    } finally {
+      setLoading(null)
+    }
+  }
+
   const options = createMemo(() => {
     // Track sync data and loading state to trigger re-render when they change
     const mcpData = sync.data.mcp
@@ -38,9 +52,10 @@ export function DialogMcp() {
       map(([name, status]) => ({
         value: name,
         title: name,
-        description: status.status === "failed" ? "failed" : status.status,
+        description: loadingMcp === name ? "loading..." : status.status === "failed" ? "failed" : status.status,
         footer: <Status enabled={local.mcp.isEnabled(name)} loading={loadingMcp === name} />,
         category: undefined,
+        onSelect: () => toggle(name),
       })),
     )
   })
@@ -50,24 +65,7 @@ export function DialogMcp() {
       keybind: Keybind.parse("space")[0],
       title: "toggle",
       onTrigger: async (option: DialogSelectOption<string>) => {
-        // Prevent toggling while an operation is already in progress
-        if (loading() !== null) return
-
-        setLoading(option.value)
-        try {
-          await local.mcp.toggle(option.value)
-          // Refresh MCP status from server
-          const status = await sdk.client.mcp.status()
-          if (status.data) {
-            sync.set("mcp", status.data)
-          } else {
-            console.error("Failed to refresh MCP status: no data returned")
-          }
-        } catch (error) {
-          console.error("Failed to toggle MCP:", error)
-        } finally {
-          setLoading(null)
-        }
+        await toggle(option.value)
       },
     },
   ])

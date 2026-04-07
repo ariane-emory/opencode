@@ -65,7 +65,7 @@
 | ☑ | 59 | feat/configurable-maximum-prompt-input-size | origin | d9dfb7225c | Combined config fields; fixed test to include max_prompt_input_lines |
 | ☑ | 60 | fix/always-allow-folding-sidebar-mcps | origin | 376ef5da31 | Clean merge |
 | ☑ | 61 | feat/clickable-sidebar-mcps | origin | 8ba1978025 | Combined clickable connect/disconnect MCP rows with persistent sidebar fold state |
-| ☐ | 62 | feat/clickable-dialogue-mcps | origin | TBD | |
+| ☑ | 62 | feat/clickable-dialogue-mcps | origin | 6d0ae7b719 | Clean merge; makes MCP entries in the dialogue interactive |
 | ☐ | 63 | feat/clickable-status-mcps | origin | TBD | |
 | ☐ | 64 | feat/ignored-commands | origin | TBD | |
 | ☐ | 65 | feat/dialogue-background-overlay-setting | origin | TBD | |

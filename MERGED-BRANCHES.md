@@ -52,7 +52,7 @@
 | ☑ | 46 | feat/set-session-title | origin | 3a1e81bdee | Fixed tool to use existing `Session.setTitle` + `Session.get` APIs |
 | ☑ | 47 | feat/get-session-title | origin | 849f605a21 | Combined new current-session-title getter with existing bookmark tool registry entries |
 | ☑ | 48 | feat/no-disabled-lsps-in-sidebar | origin | 2a845d8e99 | Hid disabled LSP section while keeping persistent expand/collapse behavior |
-| ☐ | 49 | feat/agent-timestamps | origin | TBD | |
+| ☑ | 49 | feat/agent-timestamps | origin | 3a8f97b064 | Combined showAgentTimestamps memo with sidebarOverlay fix in contentWidth |
 | ☐ | 50 | feat/rewind-modal-option | origin | TBD | |
 | ☐ | 51 | feat/alphabetize-command-palette-groups | origin | TBD | |
 | ☐ | 52 | feat/taller-dialogs | origin | TBD | |

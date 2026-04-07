@@ -55,7 +55,7 @@
 | ☑ | 49 | feat/agent-timestamps | origin | 93d137f775 | merged with agent timestamp visibility and sidebar overlay behavior preserved |
 | ☐ | 50 | feat/rewind-modal-option | origin | TBD |  |
 | ☑ | 51 | feat/alphabetize-command-palette-groups | origin | 9d2d8ef581 | resolved dialog select conflict and preserved sorted group rendering |
-| ☐ | 52 | feat/taller-dialogs | origin | TBD |  |
+| ☑ | 52 | feat/taller-dialogs | origin | 412163c1ce | merged cleanly |
 | ☐ | 53 | feat/add-arianes-themes | origin | TBD |  |
 | ☐ | 54 | feat/aspiers--readline-additions | origin | TBD |  |
 | ☐ | 55 | feat/sidebar-clock | origin | TBD |  |
@@ -138,3 +138,4 @@
 - feat/no-disabled-lsps-in-sidebar: merged ceed67ec39; resolved sidebar LSP conflict to preserve persisted expansion state while hiding the LSP section when disabled.
 - feat/agent-timestamps: merged 93d137f775; resolved session route conflict to add agent timestamp visibility without clobbering sidebar overlay layout behavior.
 - feat/alphabetize-command-palette-groups: merged 9d2d8ef581; resolved dialog select conflict to preserve scrollToValue support and add alphabetical group sorting.
+- feat/taller-dialogs: merged 412163c1ce; clean merge.

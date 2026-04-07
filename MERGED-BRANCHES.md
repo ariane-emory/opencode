@@ -49,7 +49,7 @@
 | ☑ | 43 | feat/edit-tool-description | origin | 14769dad18 | merged cleanly |
 | ☑ | 44 | feat/renaming-doesnt-close-session-list | origin | 59566042e8 | resolved session list conflict and preserved rename return flow |
 | ☑ | 45 | feat/session-child-toggle-key | origin | 5b2748d69a | merged with session continue and child toggle keybindings both preserved |
-| ☐ | 46 | feat/set-session-title | origin | TBD |  |
+| ☑ | 46 | feat/set-session-title | origin | 92993aae78 | merged with set session title tool fixed to use Session.setTitle |
 | ☐ | 47 | feat/get-session-title | origin | TBD |  |
 | ☐ | 48 | feat/no-disabled-lsps-in-sidebar | origin | TBD |  |
 | ☐ | 49 | feat/agent-timestamps | origin | TBD |  |
@@ -133,3 +133,4 @@
 - feat/edit-tool-description: merged 14769dad18; clean merge.
 - feat/renaming-doesnt-close-session-list: merged 59566042e8; resolved session list conflict to preserve grouped/bookmarked list behavior and keep the list open after rename.
 - feat/session-child-toggle-key: merged 5b2748d69a; resolved config conflict to keep both session_continue and session_child_toggle keybindings.
+- feat/set-session-title: merged 92993aae78; fixed tool implementation to use Session.setTitle API.

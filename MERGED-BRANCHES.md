@@ -57,7 +57,7 @@
 | ☑ | 51 | feat/alphabetize-command-palette-groups | origin | 9d2d8ef581 | resolved dialog select conflict and preserved sorted group rendering |
 | ☑ | 52 | feat/taller-dialogs | origin | 412163c1ce | merged cleanly |
 | ☑ | 53 | feat/add-arianes-themes | origin | cde1912243 | merged cleanly |
-| ☐ | 54 | feat/aspiers--readline-additions | origin | TBD |  |
+| ☑ | 54 | feat/aspiers--readline-additions | origin | 4f138e317f | resolved SDK keybinding conflict and preserved readline additions |
 | ☐ | 55 | feat/sidebar-clock | origin | TBD |  |
 | ☐ | 56 | feat/alphabetical-message-modal | origin | TBD |  |
 | ☐ | 57 | feat/toggle-sidebar-scrollbar | origin | TBD |  |
@@ -140,3 +140,4 @@
 - feat/alphabetize-command-palette-groups: merged 9d2d8ef581; resolved dialog select conflict to preserve scrollToValue support and add alphabetical group sorting.
 - feat/taller-dialogs: merged 412163c1ce; clean merge.
 - feat/add-arianes-themes: merged cde1912243; clean merge.
+- feat/aspiers--readline-additions: merged 4f138e317f; resolved generated SDK keybinding conflict to keep readline additions with existing keybinding typing.

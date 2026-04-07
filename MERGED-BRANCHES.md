@@ -146,3 +146,4 @@
 - feat/alphabetical-message-modal: merged 36ad8ba868; resolved dialog select conflict to keep taller dialog sizing and scroll support while preserving alphabetical ordering behavior during non-filtered modal browsing.
 - feat/toggle-sidebar-scrollbar: merged 2c8fb1540c; resolved app/session/sidebar conflicts to add sidebar scrollbar toggle without clobbering clock, overlay, permissions, or grouped title behavior.
 - feat/full-datetimes-in-fork-and-timeline-dialogues: merged f2b1458a99; resolved locale conflict by keeping session list short dates while using full datetimes in fork and timeline dialogs.
+- feat/configurable-maximum-prompt-input-size: merged 3097648d99; resolved config and SDK conflicts to add maximum prompt input size without dropping existing experimental settings.

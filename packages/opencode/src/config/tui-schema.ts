@@ -33,4 +33,3 @@ export const TuiInfo = z
     plugin_enabled: z.record(z.string(), z.boolean()).optional(),
   })
   .extend(TuiOptions.shape)
-  .strict()

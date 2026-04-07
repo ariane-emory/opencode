@@ -49,7 +49,7 @@
 | ☑ | 43 | feat/edit-tool-description | origin | 5e083c7b90 | Clean merge |
 | ☑ | 44 | feat/renaming-doesnt-close-session-list | origin | 07c1e61a3f | Kept bookmark keybind/current session selection and preserved session-list reopen after rename |
 | ☑ | 45 | feat/session-child-toggle-key | origin | d2fd381a59 | Combined new child-toggle keybind with existing session-continue keybind |
-| ☐ | 46 | feat/set-session-title | origin | TBD | |
+| ☑ | 46 | feat/set-session-title | origin | 3a1e81bdee | Fixed tool to use existing `Session.setTitle` + `Session.get` APIs |
 | ☐ | 47 | feat/get-session-title | origin | TBD | |
 | ☐ | 48 | feat/no-disabled-lsps-in-sidebar | origin | TBD | |
 | ☐ | 49 | feat/agent-timestamps | origin | TBD | |

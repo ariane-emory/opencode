@@ -2021,6 +2021,9 @@ export type Config = {
      */
     mcp_timeout?: number
     /**
+     * Maximum number of lines for the prompt input text box (1-99, default: 6)
+     */
+    max_prompt_input_lines?: number
     /**
      * Enable experimental plan mode
      */

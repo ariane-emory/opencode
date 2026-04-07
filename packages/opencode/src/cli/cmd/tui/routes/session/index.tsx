@@ -993,6 +993,16 @@ export function Session() {
       },
     },
     {
+      title: sidebar() === "show" ? "Hide sidebar" : sidebar() === "hide" ? "Auto sidebar" : "Show sidebar",
+      value: "session.sidebar.toggle",
+      keybind: "sidebar_toggle",
+      category: "Session",
+      onSelect: (dialog) => {
+        setSidebar((prev) => (prev === "show" ? "hide" : prev === "hide" ? "auto" : "show"))
+        dialog.clear()
+      },
+    },
+    {
       title: "Next child session",
       value: "session.child.next",
       keybind: "session_child_cycle",

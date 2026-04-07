@@ -63,7 +63,7 @@
 | ☑ | 57 | feat/toggle-sidebar-scrollbar | origin | 347a7c8b06 | Combined sidebar scrollbar toggle with all System toggles and sidebar overlay logic |
 | ☑ | 58 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | cdd6679bf5 | Kept feature branch date formatting with padded days in locale.ts |
 | ☑ | 59 | feat/configurable-maximum-prompt-input-size | origin | d9dfb7225c | Combined config fields; fixed test to include max_prompt_input_lines |
-| ☐ | 60 | fix/always-allow-folding-sidebar-mcps | origin | TBD | |
+| ☑ | 60 | fix/always-allow-folding-sidebar-mcps | origin | 376ef5da31 | Clean merge |
 | ☐ | 61 | feat/clickable-sidebar-mcps | origin | TBD | |
 | ☐ | 62 | feat/clickable-dialogue-mcps | origin | TBD | |
 | ☐ | 63 | feat/clickable-status-mcps | origin | TBD | |

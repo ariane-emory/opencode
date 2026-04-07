@@ -64,7 +64,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
               share_url={session()!.share?.url}
             >
               <box paddingRight={1}>
-                <text fg={theme.text}>
+                <text fg={theme.sessionTitle}>
                   <Show when={titleParts().group} fallback={<b>{titleParts().rest}</b>}>
                     <b>{titleParts().group}</b> {titleParts().rest}
                   </Show>

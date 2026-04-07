@@ -67,7 +67,7 @@
 | ☑ | 61 | feat/clickable-sidebar-mcps | origin | 8ba1978025 | Combined clickable connect/disconnect MCP rows with persistent sidebar fold state |
 | ☑ | 62 | feat/clickable-dialogue-mcps | origin | 6d0ae7b719 | Clean merge; makes MCP entries in the dialogue interactive |
 | ☑ | 63 | feat/clickable-status-mcps | origin | cc6df23259 | Combined clickable MCP toggles in status dialog with existing session ID display |
-| ☐ | 64 | feat/ignored-commands | origin | TBD | |
+| ☑ | 64 | feat/ignored-commands | origin | 119026a4c0 | Combined `ignored` command schema with existing config catchall and prompt no-reply behavior |
 | ☐ | 65 | feat/dialogue-background-overlay-setting | origin | TBD | |
 | ☐ | 66 | fix/no-split-database | origin | TBD | |
 | ☐ | 67 | feat/elapsed-timer | origin | TBD | |

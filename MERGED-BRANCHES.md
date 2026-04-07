@@ -83,7 +83,7 @@
 | ☑      | 77 | fix/session-list-delete-selection                  | origin   | 5f8836166a  | Combined scrollToValue + moveTo in dialog-select ref                                 |
 | ☑      | 78 | feat/allow-variant_list-keybinding                 | origin   | f76793947e  | Clean merge - variant_list keybind for model switching                       |
 | ☑      | 79 | feat/kimi-with-claude-system-prompt                | origin   | 396b07d07c  | Clean merge - kimi/k2p5 models use Anthropic system prompt                   |
-| ☐      | 80 | fix/less-bottom-padding                            | origin   | TBD         |                                                                                                                                          |
+| ☑      | 80 | fix/less-bottom-padding                            | origin   | e24097d1c7  | Combined: kept paddingTop, removed paddingBottom                              |
 | ☐      | 81 | fix/no-footer-context-when-sidebar                 | origin   | TBD         |                                                                                                                                          |
 
 ## Merge Log

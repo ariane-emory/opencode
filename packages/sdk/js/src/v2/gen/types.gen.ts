@@ -2037,6 +2037,10 @@ export type Config = {
      * Maximum number of sessions to display in session list, or 'none' to show all sessions
      */
     session_list_limit?: number | "none"
+    /**
+     * Control dialog background overlay: 'full' = semi-transparent overlay (default), 'limited' = overlay only within dialog bounds, 'none' = no overlay
+     */
+    dialog_background_overlay?: 'full' | 'limited' | 'none'
   }
 }
 

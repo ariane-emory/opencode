@@ -60,7 +60,7 @@
 | ☑ | 54 | feat/aspiers--readline-additions | origin | 2d92514834 | Added readline keybinds (lowercase/uppercase/capitalize/yank); combined with index signature in types.gen.ts |
 | ☑ | 55 | feat/sidebar-clock | origin | e6f802eee0 | Combined sidebar clock with BaseOne branding in footer; kept all System toggles in app.tsx |
 | ☑ | 56 | feat/alphabetical-message-modal | origin | 836c5aaeff | Kept smartCompare with filter guard; removed duplicate sort prop |
-| ☐ | 57 | feat/toggle-sidebar-scrollbar | origin | TBD | |
+| ☑ | 57 | feat/toggle-sidebar-scrollbar | origin | 347a7c8b06 | Combined sidebar scrollbar toggle with all System toggles and sidebar overlay logic |
 | ☐ | 58 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | TBD | |
 | ☐ | 59 | feat/configurable-maximum-prompt-input-size | origin | TBD | |
 | ☐ | 60 | fix/always-allow-folding-sidebar-mcps | origin | TBD | |

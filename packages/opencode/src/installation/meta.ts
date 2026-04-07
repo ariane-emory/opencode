@@ -3,5 +3,5 @@ declare global {
   const OPENCODE_CHANNEL: string
 }
 
-export const VERSION = typeof OPENCODE_VERSION === "string" ? OPENCODE_VERSION : "local"
+export const VERSION = "2026-04-06-14-10"
 export const CHANNEL = typeof OPENCODE_CHANNEL === "string" ? OPENCODE_CHANNEL : "local"

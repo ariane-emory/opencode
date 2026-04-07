@@ -1874,7 +1874,7 @@ function GenericTool(props: ToolProps<any>) {
         onClick={overflow() ? () => setExpanded((prev) => !prev) : undefined}
       >
         <box gap={1}>
-          <text fg={theme.text}>{limited()}</text>
+          <text fg={theme.toolOutput}>{limited()}</text>
           <Show when={overflow()}>
             <text fg={theme.textMuted}>{expanded() ? "Click to collapse" : "Click to expand"}</text>
           </Show>
@@ -2073,7 +2073,7 @@ function Bash(props: ToolProps<typeof BashTool>) {
           <box gap={1}>
             <text fg={theme.text}>$ {props.input.command}</text>
             <Show when={output()}>
-              <text fg={theme.text}>{limited()}</text>
+          <text fg={theme.toolOutput}>{limited()}</text>
             </Show>
             <Show when={overflow()}>
               <text fg={theme.textMuted}>{expanded() ? "Click to collapse" : "Click to expand"}</text>

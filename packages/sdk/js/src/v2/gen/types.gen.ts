@@ -2021,11 +2021,13 @@ export type Config = {
      */
     mcp_timeout?: number
     /**
-<<<<<<< HEAD
-    /**
      * Enable experimental plan mode
      */
     plan_mode?: boolean
+    /**
+     * Enable experimental Exa features
+     */
+    enable_exa?: boolean
     /**
      * Maximum number of message parts to load per session when syncing, or 'none' to load all messages
      */

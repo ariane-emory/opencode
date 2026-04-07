@@ -5,7 +5,6 @@ const id = "internal:sidebar-mcp"
 
 function View(props: { api: TuiPluginApi }) {
   const [open, setOpen] = createSignal(true)
-
   createEffect(() => {
     if (props.api.kv.ready) {
       setOpen(props.api.kv.get("sidebar_expanded_mcp", true))
@@ -18,6 +17,7 @@ function View(props: { api: TuiPluginApi }) {
     setOpen(next)
     props.api.kv.set("sidebar_expanded_mcp", next)
   }
+  const [loading, setLoading] = createSignal<string | null>(null)
   const theme = () => props.api.theme.current
   const list = createMemo(() => props.api.state.mcp())
   const on = createMemo(() => list().filter((item) => item.status === "connected").length)
@@ -36,6 +36,23 @@ function View(props: { api: TuiPluginApi }) {
     if (status === "needs_auth") return theme().warning
     if (status === "needs_client_registration") return theme().error
     return theme().textMuted
+  }
+
+  async function handleToggle(name: string) {
+    if (loading() !== null) return
+    setLoading(name)
+    try {
+      const item = list().find((m) => m.name === name)
+      if (item?.status === "connected") {
+        await props.api.client.mcp.disconnect({ name })
+      } else {
+        await props.api.client.mcp.connect({ name })
+      }
+    } catch {
+      // silently ignore toggle errors
+    } finally {
+      setLoading(null)
+    }
   }
 
   return (
@@ -58,7 +75,7 @@ function View(props: { api: TuiPluginApi }) {
         <Show when={list().length <= 2 || open()}>
           <For each={list()}>
             {(item) => (
-              <box flexDirection="row" gap={1}>
+              <box flexDirection="row" gap={1} onMouseDown={() => handleToggle(item.name)}>
                 <text
                   flexShrink={0}
                   style={{
@@ -67,10 +84,13 @@ function View(props: { api: TuiPluginApi }) {
                 >
                   •
                 </text>
-                <text fg={theme().text} wrapMode="word">
+                <text fg={loading() === item.name ? theme().textMuted : theme().text} wrapMode="word">
                   {item.name}{" "}
                   <span style={{ fg: theme().textMuted }}>
                     <Switch fallback={item.status}>
+                      <Match when={loading() === item.name}>
+                        <i>Loading…</i>
+                      </Match>
                       <Match when={item.status === "connected"}>Connected</Match>
                       <Match when={item.status === "failed"}>
                         <i>{item.error}</i>

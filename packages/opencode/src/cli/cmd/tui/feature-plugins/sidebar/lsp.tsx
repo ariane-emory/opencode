@@ -25,11 +25,11 @@ function View(props: { api: TuiPluginApi }) {
   return (
     <Show when={!off()}>
       <box>
-        <box flexDirection="row" gap={1} onMouseDown={toggle}>
+        <box flexDirection="row" gap={1} onMouseDown={() => list().length > 2 && setOpen((x) => !x)}>
           <Show when={list().length > 2}>
             <text fg={theme().text}>{open() ? "▼" : "▶"}</text>
           </Show>
-          <text fg={theme().text}>
+          <text fg={theme().accent}>
             <b>LSP</b>
           </text>
         </box>

@@ -71,7 +71,7 @@
 | ☑ | 65 | feat/dialogue-background-overlay-setting | origin | d5af65620a | Combined dialog background overlay mode with existing experimental config fields |
 | ☑ | 66 | fix/no-split-database | origin | af1b6cdb67 | Clean merge | 
 | ☑ | 67 | feat/elapsed-timer | origin | a64f16081c | Kept existing session UI integrations while preserving elapsed timer changes |
-| ☐ | 68 | fix/rfc2119-question-tool | origin | TBD | |
+| ☑ | 68 | fix/rfc2119-question-tool | origin | 6616a525b3 | Clean merge |
 | ☐ | 69 | feat/sidebar-header-accent-colours | origin | TBD | |
 | ☐ | 70 | feat/distinct-title-colour | origin | TBD | Must be compatible with feat/session-grouping grouped session title formatting |
 | ☐ | 71 | feat/tool-output-colour | origin | TBD | |

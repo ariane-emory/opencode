@@ -79,7 +79,7 @@
 | ☑      | 73 | fix/input-enter-keybindings                        | origin   | 0515eed3bf  | Clean merge - configurable submit/newline keybindings                                                                                    |
 | ☑      | 74 | fix/escape-from-status                             | origin   | 8214a0cc86  | Clean merge - escape key closes status dialog                                                                    |
 | ☑      | 75 | fix/restore-footer                                 | origin   | c67b9c7498  | Clean merge - added missing Footer import                                              |
-| ☐      | 76 | feat/remove-canned-jokes                           | origin   | TBD         |                                                                                                                                          |
+| ☑      | 76 | feat/remove-canned-jokes                           | origin   | 0d4f95d4f4  | Clean merge - removed canned jokes from generate.txt and task.txt                   |
 | ☐      | 77 | fix/session-list-delete-selection                  | origin   | TBD         |                                                                                                                                          |
 | ☐      | 78 | feat/allow-variant_list-keybinding                 | origin   | TBD         |                                                                                                                                          |
 | ☐      | 79 | feat/kimi-with-claude-system-prompt                | origin   | TBD         |                                                                                                                                          |

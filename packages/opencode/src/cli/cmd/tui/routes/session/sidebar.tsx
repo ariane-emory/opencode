@@ -8,7 +8,7 @@ import { useKV } from "../../context/kv"
 import { getScrollAcceleration } from "../../util/scroll"
 import { parseSessionTitleParts } from "@tui/util/session-title"
 
-export function Sidebar(props: { sessionID: string }) {
+export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrollbar?: boolean }) {
   const sync = useSync()
   const { theme } = useTheme()
   const tuiConfig = useTuiConfig()
@@ -48,6 +48,7 @@ export function Sidebar(props: { sessionID: string }) {
           flexGrow={1}
           scrollAcceleration={scrollAcceleration()}
           verticalScrollbarOptions={{
+            visible: props.showScrollbar,
             trackOptions: {
               backgroundColor: theme.background,
               foregroundColor: theme.borderActive,

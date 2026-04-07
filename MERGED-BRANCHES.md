@@ -43,7 +43,7 @@
 | ☑ | 37 | feat/global-compaction-threshold | origin | 844958ed40 | Clean merge |
 | ☑ | 38 | feat/configurable-message-and-session-limit | origin | a7e638e8ba | Combined grouping/bookmarks + session_list_limit; kept plan_mode/enable_exa/diff_style in config |
 | ☑ | 39 | feat/experimental-dont-cache-command-markdown | origin | a0bfb553b6 | Fixed malformed feature-branch `command/index.ts`, kept `reloadCommands`, and updated test config for `cache_command_markdown_files` | 
-| ☐ | 40 | feat/jsonc-user-themes | origin | TBD | |
+| ☑ | 40 | feat/jsonc-user-themes | origin | a8a7a6886e | Clean merge |
 | ☐ | 41 | feat/shell-advice | origin | TBD | Combine with feat/improve-bash-tool-git-advice bash tool description changes |
 | ☐ | 42 | feat/improve-bash-tool-git-advice | origin | TBD | Combine with feat/shell-advice bash tool description changes |
 | ☐ | 43 | feat/edit-tool-description | origin | TBD | |

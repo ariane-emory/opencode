@@ -59,7 +59,7 @@
 | ☑ | 53 | feat/add-arianes-themes | origin | cde1912243 | merged cleanly |
 | ☑ | 54 | feat/aspiers--readline-additions | origin | 4f138e317f | resolved SDK keybinding conflict and preserved readline additions |
 | ☑ | 55 | feat/sidebar-clock | origin | 4046d90f5b | resolved sidebar clock conflicts while preserving BaseOne branding and sidebar behavior |
-| ☐ | 56 | feat/alphabetical-message-modal | origin | TBD |  |
+| ☑ | 56 | feat/alphabetical-message-modal | origin | 36ad8ba868 | resolved dialog select conflict and preserved alphabetical message modal ordering |
 | ☐ | 57 | feat/toggle-sidebar-scrollbar | origin | TBD |  |
 | ☐ | 58 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | TBD |  |
 | ☐ | 59 | feat/configurable-maximum-prompt-input-size | origin | TBD |  |
@@ -142,3 +142,4 @@
 - feat/add-arianes-themes: merged cde1912243; clean merge.
 - feat/aspiers--readline-additions: merged 4f138e317f; resolved generated SDK keybinding conflict to keep readline additions with existing keybinding typing.
 - feat/sidebar-clock: merged 4046d90f5b; resolved app and sidebar conflicts to add sidebar clock toggle without clobbering BaseOne branding, permissions indicator, grouped title formatting, or overlay behavior.
+- feat/alphabetical-message-modal: merged 36ad8ba868; resolved dialog select conflict to keep taller dialog sizing and scroll support while preserving alphabetical ordering behavior during non-filtered modal browsing.

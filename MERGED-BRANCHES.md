@@ -76,7 +76,7 @@
 | ☑ | 70 | feat/distinct-title-colour | origin | bf335b50f7 | Applied `sessionTitle` theme color while keeping grouped session title formatting |
 | ☑ | 71 | feat/tool-output-colour | origin | b5833e243a | Combined optional `toolOutput` theme color with existing `sessionTitle` theme support |
 | ☑ | 72 | feat/improve-experimental-plan-mode-prompt | origin | 013d9b5b96 | Clean merge - RFC2119 language in plan mode prompt |
-| ☐ | 73 | fix/input-enter-keybindings | origin | TBD | |
+| ☑ | 73 | fix/input-enter-keybindings | origin | 0515eed3bf | Clean merge - configurable submit/newline keybindings |
 | ☐ | 74 | fix/escape-from-status | origin | TBD | |
 | ☐ | 75 | fix/restore-footer | origin | TBD | Restores footer; must not be clobbered |
 | ☐ | 76 | feat/remove-canned-jokes | origin | TBD | |

@@ -45,7 +45,7 @@
 | ☑ | 39 | feat/experimental-dont-cache-command-markdown | origin | a0bfb553b6 | Fixed malformed feature-branch `command/index.ts`, kept `reloadCommands`, and updated test config for `cache_command_markdown_files` | 
 | ☑ | 40 | feat/jsonc-user-themes | origin | a8a7a6886e | Clean merge |
 | ☑ | 41 | feat/shell-advice | origin | 7337a80d05 | Merged cleanly; bash tool description still must be synthesized with #42 |
-| ☐ | 42 | feat/improve-bash-tool-git-advice | origin | TBD | Combine with feat/shell-advice bash tool description changes |
+| ☑ | 42 | feat/improve-bash-tool-git-advice | origin | face3f41d5 | Synthesized bash tool guidance with #41: kept shell advice and updated git/PR base-branch wording |
 | ☐ | 43 | feat/edit-tool-description | origin | TBD | |
 | ☐ | 44 | feat/renaming-doesnt-close-session-list | origin | TBD | |
 | ☐ | 45 | feat/session-child-toggle-key | origin | TBD | |

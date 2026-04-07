@@ -12,7 +12,7 @@ import { Installation } from "../installation"
 import { Database, NotFoundError, eq, and, gte, isNull, desc, like, inArray, lt } from "../storage/db"
 import { SyncEvent } from "../sync"
 import type { SQL } from "../storage/db"
-import { SessionTable } from "./session.sql"
+import { SessionTable, MessageTable } from "./session.sql"
 import { ProjectTable } from "../project/project.sql"
 import { Storage } from "@/storage/storage"
 import { Log } from "../util/log"
@@ -719,6 +719,27 @@ export namespace Session {
       })
       .optional(),
     (input) => runPromise((svc) => svc.create(input)),
+  )
+
+  export const rewind = fn(
+    z.object({
+      sessionID: SessionID.zod,
+      messageID: MessageID.zod,
+    }),
+    async (input) => {
+      SessionPrompt.assertNotBusy(input.sessionID)
+      const msgs = await messages({ sessionID: input.sessionID })
+      for (const msg of msgs) {
+        if (msg.info.id >= input.messageID) {
+          Database.use((db) => db.delete(MessageTable).where(eq(MessageTable.id, msg.info.id)).run())
+          Bus.publish(MessageV2.Event.Removed, {
+            sessionID: input.sessionID,
+            messageID: msg.info.id,
+          })
+        }
+      }
+      return get(input.sessionID)
+    },
   )
 
   export const fork = fn(z.object({ sessionID: SessionID.zod, messageID: MessageID.zod.optional() }), (input) =>

@@ -441,6 +441,28 @@ test("merges keybind overrides across precedence layers", async () => {
   })
 })
 
+test("ignores unknown tui.json keys without dropping valid keybinds", async () => {
+  await using tmp = await tmpdir({
+    init: async () => {
+      await Bun.write(
+        path.join(Global.Path.config, "tui.json"),
+        JSON.stringify({
+          keybinds: { session_list: "ctrl+s" },
+          no_sidebar_auto: true,
+        }),
+      )
+    },
+  })
+
+  await Instance.provide({
+    directory: tmp.path,
+    fn: async () => {
+      const config = await TuiConfig.get()
+      expect(config.keybinds?.session_list).toBe("ctrl+s")
+    },
+  })
+})
+
 test("OPENCODE_TUI_CONFIG provides settings when no project config exists", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {

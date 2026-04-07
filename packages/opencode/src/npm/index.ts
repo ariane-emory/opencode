@@ -49,10 +49,14 @@ export namespace Npm {
       return false
     }
 
-    const range = /[\s^~*xX<>|=]/.test(cachedVersion)
-    if (range) return !semver.satisfies(latestVersion, cachedVersion)
-
-    return semver.lt(cachedVersion, latestVersion)
+    try {
+      const range = /[\s^~*xX<>|=]/.test(cachedVersion)
+      if (range) return !semver.satisfies(latestVersion, cachedVersion)
+      return semver.lt(cachedVersion, latestVersion)
+    } catch {
+      log.warn("Invalid semver while checking outdated package", { pkg, cachedVersion, latestVersion })
+      return false
+    }
   }
 
   export async function add(pkg: string) {

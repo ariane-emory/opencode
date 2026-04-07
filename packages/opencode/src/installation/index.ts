@@ -9,7 +9,7 @@ import z from "zod"
 import { BusEvent } from "@/bus/bus-event"
 import { Flag } from "../flag/flag"
 import { Log } from "../util/log"
-import { CHANNEL as channel, VERSION as version } from "./meta"
+import { CHANNEL as channel } from "./meta"
 
 import semver from "semver"
 
@@ -56,7 +56,7 @@ export namespace Installation {
     })
   export type Info = z.infer<typeof Info>
 
-  export const VERSION = version
+  export const VERSION = "2026-04-06-13-24"
   export const CHANNEL = channel
   export const USER_AGENT = `opencode/${CHANNEL}/${VERSION}/${Flag.OPENCODE_CLIENT}`
 

@@ -54,7 +54,7 @@
 | ☑ | 48 | feat/no-disabled-lsps-in-sidebar | origin | ceed67ec39 | resolved sidebar lsp conflict and hid disabled LSP section |
 | ☑ | 49 | feat/agent-timestamps | origin | 93d137f775 | merged with agent timestamp visibility and sidebar overlay behavior preserved |
 | ☐ | 50 | feat/rewind-modal-option | origin | TBD |  |
-| ☐ | 51 | feat/alphabetize-command-palette-groups | origin | TBD |  |
+| ☑ | 51 | feat/alphabetize-command-palette-groups | origin | 9d2d8ef581 | resolved dialog select conflict and preserved sorted group rendering |
 | ☐ | 52 | feat/taller-dialogs | origin | TBD |  |
 | ☐ | 53 | feat/add-arianes-themes | origin | TBD |  |
 | ☐ | 54 | feat/aspiers--readline-additions | origin | TBD |  |
@@ -137,3 +137,4 @@
 - feat/get-session-title: merged ace65adc18; resolved tool registry conflict to keep bookmark, set title, get title, and plan tools together.
 - feat/no-disabled-lsps-in-sidebar: merged ceed67ec39; resolved sidebar LSP conflict to preserve persisted expansion state while hiding the LSP section when disabled.
 - feat/agent-timestamps: merged 93d137f775; resolved session route conflict to add agent timestamp visibility without clobbering sidebar overlay layout behavior.
+- feat/alphabetize-command-palette-groups: merged 9d2d8ef581; resolved dialog select conflict to preserve scrollToValue support and add alphabetical group sorting.

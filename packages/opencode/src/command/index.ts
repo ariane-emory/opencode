@@ -1,5 +1,6 @@
 import { BusEvent } from "@/bus/bus-event"
 import { InstanceState } from "@/effect/instance-state"
+import { Instance } from "@/project/instance"
 import { makeRuntime } from "@/effect/run-service"
 import { SessionID, MessageID } from "@/session/schema"
 import { Effect, Layer, ServiceMap } from "effect"
@@ -371,7 +372,6 @@ export namespace Command {
 
       const state = yield* InstanceState.make<State>((ctx) => init(ctx))
 
-      const get = Effect.fn("Command.get")(function* (name: string) {
       const get = Effect.fn("Command.get")(function* (name: string) {
         const cfg = yield* Effect.promise(() => Config.get())
         // When experimental.cache_command_markdown_files is explicitly false,

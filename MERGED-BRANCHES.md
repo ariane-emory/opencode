@@ -77,14 +77,14 @@
 | ☑      | 71 | feat/tool-output-colour                            | origin   | b5833e243a  | Combined optional `toolOutput` theme color with existing `sessionTitle` theme support                                                    |
 | ☑      | 72 | feat/improve-experimental-plan-mode-prompt         | origin   | 013d9b5b96  | Clean merge - RFC2119 language in plan mode prompt                                                                                       |
 | ☑      | 73 | fix/input-enter-keybindings                        | origin   | 0515eed3bf  | Clean merge - configurable submit/newline keybindings                                                                                    |
-| ☑      | 74 | fix/escape-from-status                             | origin   | 8214a0cc86  | Clean merge - escape key closes status dialog                                                                    |
-| ☑      | 75 | fix/restore-footer                                 | origin   | c67b9c7498  | Clean merge - added missing Footer import                                              |
-| ☑      | 76 | feat/remove-canned-jokes                           | origin   | 0d4f95d4f4  | Clean merge - removed canned jokes from generate.txt and task.txt                   |
-| ☑      | 77 | fix/session-list-delete-selection                  | origin   | 5f8836166a  | Combined scrollToValue + moveTo in dialog-select ref                                 |
-| ☑      | 78 | feat/allow-variant_list-keybinding                 | origin   | f76793947e  | Clean merge - variant_list keybind for model switching                       |
-| ☑      | 79 | feat/kimi-with-claude-system-prompt                | origin   | 396b07d07c  | Clean merge - kimi/k2p5 models use Anthropic system prompt                   |
-| ☑      | 80 | fix/less-bottom-padding                            | origin   | e24097d1c7  | Combined: kept paddingTop, removed paddingBottom                              |
-| ☑      | 81 | fix/no-footer-context-when-sidebar                 | origin   | bac6b4d74b  | Clean merge - hide footer usage when sidebar is visible                         |
+| ☑      | 74 | fix/escape-from-status                             | origin   | 8214a0cc86  | Clean merge - escape key closes status dialog                                                                                            |
+| ☑      | 75 | fix/restore-footer                                 | origin   | c67b9c7498  | Clean merge - added missing Footer import                                                                                                |
+| ☑      | 76 | feat/remove-canned-jokes                           | origin   | 0d4f95d4f4  | Clean merge - removed canned jokes from generate.txt and task.txt                                                                        |
+| ☑      | 77 | fix/session-list-delete-selection                  | origin   | 5f8836166a  | Combined scrollToValue + moveTo in dialog-select ref                                                                                     |
+| ☑      | 78 | feat/allow-variant_list-keybinding                 | origin   | f76793947e  | Clean merge - variant_list keybind for model switching                                                                                   |
+| ☑      | 79 | feat/kimi-with-claude-system-prompt                | origin   | 396b07d07c  | Clean merge - kimi/k2p5 models use Anthropic system prompt                                                                               |
+| ☑      | 80 | fix/less-bottom-padding                            | origin   | e24097d1c7  | Combined: kept paddingTop, removed paddingBottom                                                                                         |
+| ☑      | 81 | fix/no-footer-context-when-sidebar                 | origin   | bac6b4d74b  | Clean merge - hide footer usage when sidebar is visible                                                                                  |
 
 ## Merge Log
 

@@ -1211,6 +1211,9 @@ export function Session() {
                 </TuiPluginRuntime.Slot>
               </Show>
             </box>
+            <Show when={!sidebarVisible()}>
+              <Footer />
+            </Show>
           </Show>
           <Toast />
         </box>

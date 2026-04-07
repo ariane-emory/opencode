@@ -44,7 +44,7 @@
 | ☑ | 38 | feat/configurable-message-and-session-limit | origin | a7e638e8ba | Combined grouping/bookmarks + session_list_limit; kept plan_mode/enable_exa/diff_style in config |
 | ☑ | 39 | feat/experimental-dont-cache-command-markdown | origin | a0bfb553b6 | Fixed malformed feature-branch `command/index.ts`, kept `reloadCommands`, and updated test config for `cache_command_markdown_files` | 
 | ☑ | 40 | feat/jsonc-user-themes | origin | a8a7a6886e | Clean merge |
-| ☐ | 41 | feat/shell-advice | origin | TBD | Combine with feat/improve-bash-tool-git-advice bash tool description changes |
+| ☑ | 41 | feat/shell-advice | origin | 7337a80d05 | Merged cleanly; bash tool description still must be synthesized with #42 |
 | ☐ | 42 | feat/improve-bash-tool-git-advice | origin | TBD | Combine with feat/shell-advice bash tool description changes |
 | ☐ | 43 | feat/edit-tool-description | origin | TBD | |
 | ☐ | 44 | feat/renaming-doesnt-close-session-list | origin | TBD | |

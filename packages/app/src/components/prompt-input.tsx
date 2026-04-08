@@ -56,15 +56,6 @@ import { PromptImageAttachments } from "./prompt-input/image-attachments"
 import { PromptDragOverlay } from "./prompt-input/drag-overlay"
 import { ImagePreview } from "@opencode-ai/ui/image-preview"
 
-const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/gif", "image/webp"]
-
-type PendingPrompt = {
-  abort: AbortController
-  cleanup: VoidFunction
-}
-
-const pending = new Map<string, PendingPrompt>()
-
 interface PromptInputProps {
   class?: string
   ref?: (el: HTMLDivElement) => void

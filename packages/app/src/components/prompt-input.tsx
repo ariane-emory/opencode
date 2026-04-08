@@ -54,7 +54,6 @@ import { PromptPopover, type AtOption, type SlashCommand } from "./prompt-input/
 import { PromptContextItems } from "./prompt-input/context-items"
 import { PromptImageAttachments } from "./prompt-input/image-attachments"
 import { PromptDragOverlay } from "./prompt-input/drag-overlay"
-import { promptPlaceholder } from "./prompt-input/placeholder"
 import { ImagePreview } from "@opencode-ai/ui/image-preview"
 
 const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/gif", "image/webp"]
@@ -78,8 +77,6 @@ interface PromptInputProps {
   onAbort?: () => void
   onSubmit?: () => void
 }
-
-
 
 const NON_EMPTY_TEXT = /[^\s\u200B]/
 
@@ -288,14 +285,6 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     return items.filter((item) => !item.comment?.trim())
   })
 
-  const hasUserPrompt = createMemo(() => {
-    const sessionID = params.id
-    if (!sessionID) return false
-    const messages = sync.data.message[sessionID]
-    if (!messages) return false
-    return messages.some((m) => m.role === "user")
-  })
-
   const [history, setHistory] = persisted(
     Persist.global("prompt-history", ["prompt-history.v1"]),
     createStore<{
@@ -313,17 +302,10 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     }),
   )
 
-  const suggest = createMemo(() => !hasUserPrompt())
-
-  const placeholder = createMemo(() =>
-    promptPlaceholder({
-      mode: store.mode,
-      commentCount: commentCount(),
-      example: suggest() ? PLACEHOLDERS[store.placeholder] : "",
-      suggest: suggest(),
-      t: (key, params) => language.t(key as Parameters<typeof language.t>[0], params as never),
-    }),
-  )
+  const placeholder = createMemo(() => {
+    if (store.mode === "shell") return language.t("prompt.placeholder.shell")
+    return PLACEHOLDERS[store.placeholder]
+  })
 
   const historyComments = () => {
     const byID = new Map(comments.all().map((item) => [`${item.file}\n${item.id}`, item] as const))
@@ -495,7 +477,6 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   createEffect(() => {
     params.id
     if (params.id) return
-    if (!suggest()) return
     const interval = setInterval(() => {
       setStore("placeholder", (prev) => (prev + 1) % PLACEHOLDERS.length)
     }, 6500)

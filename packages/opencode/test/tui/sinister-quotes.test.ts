@@ -41,6 +41,20 @@ describe("sinister-quotes placeholder format", () => {
     // The regex matches the pattern in code, not in comments (which show WRONG example)
     // Look for: `Ask anything... followed by ${PLACEHOLDERS (actual usage pattern)
     expect(content).not.toMatch(/: `Ask anything\.\.\. "\$\{PLACEHOLDERS/)
+    expect(content).not.toContain('./prompt-input/placeholder')
+    expect(content).not.toContain('promptPlaceholder(')
+  })
+
+  test("TUI home route should use sinister placeholders", () => {
+    const path = join(
+      import.meta.dir,
+      "../../src/cli/cmd/tui/routes/home.tsx",
+    )
+    const content = readFileSync(path, "utf-8")
+
+    expect(content).toContain('import { SINISTER_PLACEHOLDERS } from "@opencode-ai/ui/constants/placeholders"')
+    expect(content).toContain("normal: [...SINISTER_PLACEHOLDERS]")
+    expect(content).not.toContain('"Fix a TODO in the codebase"')
   })
 
   test("Shared placeholders module should contain sinister quotes", () => {

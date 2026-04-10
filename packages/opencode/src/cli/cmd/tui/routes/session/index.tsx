@@ -1073,8 +1073,8 @@ export function Session() {
         markdownAll,
       }}
     >
-      <box flexDirection="row">
-        <box flexGrow={1} paddingTop={1} paddingLeft={2} paddingRight={2} gap={1}>
+      <box flexDirection="row" height="100%">
+        <box flexGrow={1} minHeight={0} height="100%" paddingTop={1} paddingLeft={2} paddingRight={2} gap={1}>
           <Show when={session()}>
             <Show when={showHeader() && (!sidebarVisible() || sidebarOverlay())}>
               <Header />

@@ -133,7 +133,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
 
     const groupedOptions = grouped.map((session) => {
       const parsed = parseSessionTitle(session.title)
-      return mapSession(session, parsed.group ?? "", parsed.displayTitle, false)
+      return mapSession(session, parsed.group ?? "", parsed.displayTitle, true)
     })
 
     const ungroupedOptions = ungrouped.map((session) => {

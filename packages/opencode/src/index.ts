@@ -53,6 +53,10 @@ process.on("uncaughtException", (e) => {
 const args = hideBin(process.argv)
 
 function show(out: string) {
+  out = out.replace(
+    "  project  path to start opencode in                                                        [string]",
+    "  project path to start opencode in                                                         [string]",
+  )
   const text = out.trimStart()
   if (!text.startsWith("opencode ")) {
     process.stderr.write(UI.logo() + EOL + EOL)

@@ -32,7 +32,7 @@
 | ☑ | 26 | fix/merging-multiple-configs | origin | 133b9837c3 | RawInfo -> Info fix |
 | ☑ | 27 | fix/markdown-codeblock-theme-property | origin | 99179e6768 | Clean merge |
 | ☑ | 28 | fix/persist-sidebar | origin | 3fd442791f | Conflicts in prompt/index.tsx; kept PLACEHOLDERS, listContinuation, placeholder effect |
-| ☐ | 29 | feat/persist-sidebar-group-folding-states | origin | TBD | Be sure not to let this get clobbered by subsequent merges |
+| ☑ | 29 | feat/persist-sidebar-group-folding-states | origin | d7bd4cde89 | Clean merge; preserves sidebar group folding state persistence |
 | ☐ | 30 | feat/permission-indicator-in-sidebar | origin | TBD | |
 | ☐ | 31 | feat/command-palette-consistency | origin | TBD | Moves items from Session to System category; do not duplicate into both categories |
 | ☐ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | TBD | |
@@ -105,3 +105,14 @@
 16. **feat/opencode-expand** (a8a6bfada0) - Conflict in prompt.ts imports: kept both Config and substituteArguments imports.
 17. **feat/argument-range-syntax** (a461fe96d6) - Conflicts in substitute.ts and test. Took feature branch's version: $N no longer swallows, added ${N..M}, ${N..}, ${..M}, ${..} range syntax.
 18. **feat/default-arguments** (dbc91d387f) - Conflicts in substitute.ts/test/prompt.ts. Combined all regex patterns (range syntax + default args with ${N:default}, ${N..M:default}). Prompt.ts expanded command function was incompatible with Effect-based architecture; kept simple wrapper.
+19. **fix/preserve-quotes-in-arguments** (0fc87634cf) - Conflict in prompt.ts; kept all exports and added placeholderRegex.
+20. **fix/history-navigation-key-commands** (9de34aa2db) - Clean merge, no conflicts.
+21. **fix/build-with-short-version** (8414afb4f8) - Clean merge, no conflicts.
+22. **fix/autocompletion-filtered-order** (ff2f89981e) - Conflicts in prompt/index.tsx. Kept SINISTER_PLACEHOLDERS, listContinuation, and placeholder effect.
+23. **fix/modal-menus-filtered-order** (95782d8d89) - Conflicts in autocomplete.tsx, dialog-select.tsx, and use-filtered-list.tsx. Combined fuzzysort sorting with existing sortKey prefix behavior.
+24. **fix/config-package-json-pollution** (5b2a8840f2) - Clean merge, no conflicts.
+25. **fix/session-list-viewport-jumping** (1e2a354179) - Clean merge, no conflicts.
+26. **fix/merging-multiple-configs** (133b9837c3) - Clean merge plus follow-up fix replacing undefined RawInfo with Info during config parsing.
+27. **fix/markdown-codeblock-theme-property** (99179e6768) - Clean merge, no conflicts.
+28. **fix/persist-sidebar** (3fd442791f) - Conflicts in prompt/index.tsx. Kept sinister placeholders, list continuation, prompt keybinding filtering, and placeholder resize effect while preserving persistent sidebar behavior.
+29. **feat/persist-sidebar-group-folding-states** (d7bd4cde89) - Clean merge, no conflicts.

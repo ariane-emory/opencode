@@ -38,7 +38,7 @@
 | ☑ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | 58a1349960 | Conflict in session/index.tsx; kept header toggle only in Session and preserved System palette deduplication |
 | ☑ | 33 | refactor/shared-substitute | origin | a9cea1022a | Conflicts in substitute.ts and prompt.ts; kept full shared substitute feature set with whitespace normalization |
 | ☑ | 34 | feat/session-id-in-status | origin | 7cf71aaa68 | Clean merge |
-| ☐ | 35 | feat/opeoginni--display-message-tps | origin | TBD | |
+| ☑ | 35 | feat/opeoginni--display-message-tps | origin | 9960c99b04 | Conflict in app.tsx; kept sidebar overlay + added TPS toggle and terminal title toggle |
 | ☐ | 36 | feat/kv-diff-style-clean | origin | TBD | |
 | ☐ | 37 | feat/global-compaction-threshold | origin | TBD | |
 | ☐ | 38 | feat/configurable-message-and-session-limit | origin | TBD | Both experimental._message__limit and experimental.session_list_limit should accept positive integers or "none" |
@@ -121,3 +121,4 @@
 32. **feat/persistant-sidebar-overlay-behaviour** (58a1349960) - Conflict in session/index.tsx plus follow-up header.tsx fix. Kept only the new Session header toggle, while preserving System ownership of timestamps/thinking/tool-details/scrollbar/generic-output toggles and using `project.workspace.get(...)` in header workspace rendering.
 33. **refactor/shared-substitute** (a9cea1022a) - Conflicts in substitute.ts and prompt.ts. Kept full range/default/chained-fallback substitute behavior, added shared whitespace normalization, and removed redundant local prompt-side substitute details.
 34. **feat/session-id-in-status** (7cf71aaa68) - Clean merge, no conflicts.
+35. **feat/opeoginni--display-message-tps** (9960c99b04) - Conflict in app.tsx command palette. Kept sidebar overlay from HEAD and added TPS toggle + terminal title toggle from feature branch as separate System palette items.

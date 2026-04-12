@@ -1,4 +1,4 @@
-import { PlanExitTool } from "./plan"
+import { PlanExitTool, PlanEnterTool } from "./plan"
 import { Session } from "../session"
 import { QuestionTool } from "./question"
 import { BashTool } from "./bash"
@@ -112,7 +112,8 @@ export namespace ToolRegistry {
       const question = yield* QuestionTool
       const todo = yield* TodoWriteTool
       const lsptool = yield* LspTool
-      const plan = yield* PlanExitTool
+      const planExit = yield* PlanExitTool
+      const planEnter = yield* PlanEnterTool
       const webfetch = yield* WebFetchTool
       const websearch = yield* WebSearchTool
       const bash = yield* BashTool
@@ -201,7 +202,8 @@ export namespace ToolRegistry {
             patch: Tool.init(patchtool),
             question: Tool.init(question),
             lsp: Tool.init(lsptool),
-            plan: Tool.init(plan),
+            planExit: Tool.init(planExit),
+            planEnter: Tool.init(planEnter),
           })
 
           return {
@@ -224,7 +226,9 @@ export namespace ToolRegistry {
               tool.bookmark,
               tool.patch,
               ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [tool.lsp] : []),
-              ...(Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE && Flag.OPENCODE_CLIENT === "cli" ? [tool.plan] : []),
+              ...((Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE || (yield* config.experimentalPlanMode())) && Flag.OPENCODE_CLIENT === "cli"
+                ? [tool.planExit, tool.planEnter]
+                : []),
             ],
             task: tool.task,
             read: tool.read,

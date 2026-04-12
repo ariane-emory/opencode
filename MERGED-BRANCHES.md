@@ -40,7 +40,7 @@
 | ☑ | 34 | feat/session-id-in-status | origin | 7cf71aaa68 | Clean merge |
 | ☑ | 35 | feat/opeoginni--display-message-tps | origin | 9960c99b04 | Conflict in app.tsx; kept sidebar overlay + added TPS toggle and terminal title toggle |
 | ☑ | 36 | feat/kv-diff-style-clean | origin | 3581b11867 | Auto-merged but needed fix: duplicate useKV import + missing tuiConfig in permission.tsx |
-| ☐ | 37 | feat/global-compaction-threshold | origin | TBD | |
+| ☑ | 37 | feat/global-compaction-threshold | origin | 7b4b0937f7 | Clean merge |
 | ☐ | 38 | feat/configurable-message-and-session-limit | origin | TBD | Both experimental._message__limit and experimental.session_list_limit should accept positive integers or "none" |
 | ☐ | 39 | feat/experimental-dont-cache-command-markdown | origin | TBD | |
 | ☐ | 40 | feat/jsonc-user-themes | origin | TBD | |
@@ -123,3 +123,4 @@
 34. **feat/session-id-in-status** (7cf71aaa68) - Clean merge, no conflicts.
 35. **feat/opeoginni--display-message-tps** (9960c99b04) - Conflict in app.tsx command palette. Kept sidebar overlay from HEAD and added TPS toggle + terminal title toggle from feature branch as separate System palette items.
 36. **feat/kv-diff-style-clean** (3581b11867) - Auto-merged but had duplicate useKV import and missing tuiConfig variable in permission.tsx. Fixed by removing duplicate import, adding useTuiConfig() call, and correcting getScrollAcceleration argument.
+37. **feat/global-compaction-threshold** (7b4b0937f7) - Clean merge, no conflicts.

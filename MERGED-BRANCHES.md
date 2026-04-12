@@ -10,7 +10,7 @@
 | ☑ | 4 | feat/thinking-indicator-hidden | rcdailey | eb31c9f763 | Clean merge |
 | ☑ | 5 | feat/session-grouping | origin | 563f7082e0 | Clean merge |
 | ☑ | 6 | feat/session-bookmarks | origin | 4821045da6 | Conflicts in dialog-session-list.tsx and locale.ts; combined grouping+bookmarks logic |
-| ☐ | 7 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks |
+| ☑ | 7 | fix/dialog-datetime-alignment | origin | 02ce02f940 | Clean merge |
 | ☐ | 8 | feat/keybindable-commands | origin | TBD | |
 | ☐ | 9 | feat/automatic-list-continuation | origin | TBD | |
 | ☐ | 10 | feat/continue-command | origin | TBD | |
@@ -93,3 +93,4 @@
 4. **feat/thinking-indicator-hidden** (eb31c9f763) - Clean merge, no conflicts.
 5. **feat/session-grouping** (563f7082e0) - Clean merge, no conflicts.
 6. **feat/session-bookmarks** (4821045da6) - Conflicts in dialog-session-list.tsx and locale.ts. Combined session-grouping logic (grouped/plain split, parseSessionTitleParts) with session-bookmarks logic (pinned/unpinned, Bookmarks: category). Kept HEAD's locale.ts (today check). Order: Bookmarks -> Grouped -> Unpinned.
+7. **fix/dialog-datetime-alignment** (02ce02f940) - Clean merge, no conflicts.

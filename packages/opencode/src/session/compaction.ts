@@ -5,6 +5,7 @@ import { SessionID, MessageID, PartID } from "./schema"
 import { Instance } from "../project/instance"
 import { Provider } from "../provider/provider"
 import { MessageV2 } from "./message-v2"
+import { Config } from "../config/config"
 import z from "zod"
 import { Token } from "../util/token"
 import { Log } from "../util/log"
@@ -12,7 +13,6 @@ import { SessionProcessor } from "./processor"
 import { fn } from "@/util/fn"
 import { Agent } from "@/agent/agent"
 import { Plugin } from "@/plugin"
-import { Config } from "@/config/config"
 import { NotFoundError } from "@/storage/db"
 import { ModelID, ProviderID } from "@/provider/schema"
 import { Effect, Layer, Context } from "effect"
@@ -31,6 +31,8 @@ export namespace SessionCompaction {
       }),
     ),
   }
+
+
 
   export const PRUNE_MINIMUM = 20_000
   export const PRUNE_PROTECT = 40_000

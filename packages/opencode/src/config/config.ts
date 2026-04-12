@@ -1147,6 +1147,7 @@ export namespace Config {
             .optional()
             .describe("Tools that should only be available to primary agents."),
           continue_loop_on_deny: z.boolean().optional().describe("Continue the agent loop when a tool call is denied"),
+          context_compaction_threshold: z.number().min(10).max(100).optional().describe("Percentage of usable context space at which to trigger compaction (10-100)"),
           mcp_timeout: z
             .number()
             .int()

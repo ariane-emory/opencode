@@ -767,7 +767,7 @@ export namespace Config {
       plugin_manager: z.string().optional().default("none").describe("Open plugin manager dialog"),
       display_thinking: z.string().optional().default("none").describe("Toggle thinking blocks visibility"),
     })
-    .strict()
+    .catchall(z.string())
     .meta({
       ref: "KeybindsConfig",
     })

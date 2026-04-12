@@ -7,7 +7,7 @@
 | ☑ | 1 | feat/base-one-rebrand | origin | c00ef72d25 | Clean merge |
 | ☑ | 2 | feat/sinister-quotes | origin | 3da0345360 | Clean merge; SINISTER_PLACEHOLDERS in packages/ui/src/constants/placeholders.ts |
 | ☑ | 3 | feat/markdown-renderer | gignit | 662868dad9 | Conflicts in index.tsx resolved by combining imports |
-| ☐ | 4 | feat/thinking-indicator-hidden | rcdailey | TBD | |
+| ☑ | 4 | feat/thinking-indicator-hidden | rcdailey | eb31c9f763 | Clean merge |
 | ☐ | 5 | feat/session-grouping | origin | TBD | |
 | ☐ | 6 | feat/session-bookmarks | origin | TBD | |
 | ☐ | 7 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks |
@@ -90,3 +90,4 @@
 1. **feat/base-one-rebrand** (c00ef72d25) - Clean merge, no conflicts.
 2. **feat/sinister-quotes** (3da0345360) - Clean merge, no conflicts.
 3. **feat/markdown-renderer** (662868dad9) - Conflicts in session/index.tsx: combined imports (StyledText, SyntaxStyle, MacOSScrollAccel from markdown-renderer with existing imports), kept both scroll-acceleration and markdown-renderer imports.
+4. **feat/thinking-indicator-hidden** (eb31c9f763) - Clean merge, no conflicts.

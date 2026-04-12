@@ -26,7 +26,7 @@
 | ☑ | 20 | fix/history-navigation-key-commands | origin | 9de34aa2db | Clean merge |
 | ☑ | 21 | fix/build-with-short-version | origin | 8414afb4f8 | Clean merge |
 | ☑ | 22 | fix/autocompletion-filtered-order | origin | ff2f89981e | Conflicts in prompt/index.tsx; kept SINISTER_PLACEHOLDERS, listContinuation, placeholder effect |
-| ☐ | 23 | fix/modal-menus-filtered-order | origin | TBD | |
+| ☑ | 23 | fix/modal-menus-filtered-order | origin | 95782d8d89 | Conflicts in autocomplete.tsx, dialog-select.tsx, use-filtered-list.tsx; combined fuzzysort + sortKey prefix sorting |
 | ☐ | 24 | fix/config-package-json-pollution | origin | TBD | Prevents package.json pollution with non-SemVer versions |
 | ☐ | 25 | fix/session-list-viewport-jumping | origin | TBD | |
 | ☐ | 26 | fix/merging-multiple-configs | origin | TBD | |

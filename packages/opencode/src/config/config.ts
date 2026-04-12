@@ -1098,6 +1098,10 @@ export namespace Config {
             .optional()
             .describe("Timeout in milliseconds for model context protocol (MCP) requests"),
           plan_mode: z.boolean().optional().describe("Enable experimental plan mode"),
+          enable_exa: z
+            .boolean()
+            .optional()
+            .describe("Enable experimental Exa features"),
         })
         .optional(),
     })
@@ -1675,5 +1679,11 @@ export namespace Config {
 
   export async function experimentalPlanMode() {
     return runPromise((svc) => svc.experimentalPlanMode())
+  }
+
+  export async function experimentalEnableExa(): Promise<boolean> {
+    if (Flag.OPENCODE_ENABLE_EXA) return true
+    const config = await get()
+    return config.experimental?.enable_exa === true
   }
 }

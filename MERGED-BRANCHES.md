@@ -21,7 +21,7 @@
 | ☑ | 15 | feat/permission-spinner | origin | 1fa4beb230 | Clean merge |
 | ☑ | 16 | feat/opencode-expand | origin | a8a6bfada0 | Conflict in prompt.ts; kept both Config and substituteArguments imports |
 | ☑ | 17 | feat/argument-range-syntax | origin | a461fe96d6 | Conflicts in substitute.ts and test; took feature branch version (eliminates swallowing, adds range syntax) |
-| ☐ | 18 | feat/default-arguments | origin | TBD | Don't reintroduce swallowing behaviour that feat/argument-range-syntax eliminated |
+| ☑ | 18 | feat/default-arguments | origin | dbc91d387f | Conflicts in substitute.ts/test/prompt.ts. Combined range+default syntax in substitute.ts; prompt.ts reverted to simple wrapper due to incompatible architecture |
 | ☐ | 19 | fix/preserve-quotes-in-arguments | origin | TBD | |
 | ☐ | 20 | fix/history-navigation-key-commands | origin | TBD | |
 | ☐ | 21 | fix/build-with-short-version | origin | TBD | Automatically uses short timestamp version for integration branches |
@@ -104,3 +104,4 @@
 15. **feat/permission-spinner** (1fa4beb230) - Clean merge, no conflicts.
 16. **feat/opencode-expand** (a8a6bfada0) - Conflict in prompt.ts imports: kept both Config and substituteArguments imports.
 17. **feat/argument-range-syntax** (a461fe96d6) - Conflicts in substitute.ts and test. Took feature branch's version: $N no longer swallows, added ${N..M}, ${N..}, ${..M}, ${..} range syntax.
+18. **feat/default-arguments** (dbc91d387f) - Conflicts in substitute.ts/test/prompt.ts. Combined all regex patterns (range syntax + default args with ${N:default}, ${N..M:default}). Prompt.ts expanded command function was incompatible with Effect-based architecture; kept simple wrapper.

@@ -151,7 +151,6 @@ export default function Layout(props: ParentProps) {
   const [state, setState] = createStore({
     autoselect: !initialDirectory,
     busyWorkspaces: {} as Record<string, boolean>,
-    hoverSession: undefined as string | undefined,
     hoverProject: undefined as string | undefined,
     scrollSessionKey: undefined as string | undefined,
     nav: undefined as HTMLElement | undefined,
@@ -195,7 +194,6 @@ export default function Layout(props: ParentProps) {
     onActivate: (directory) => {
       globalSync.child(directory)
       setState("hoverProject", directory)
-      setState("hoverSession", undefined)
     },
   })
 
@@ -232,7 +230,6 @@ export default function Layout(props: ParentProps) {
     aim.reset()
   }
   const clearHoverProjectSoon = () => queueMicrotask(() => setHoverProject(undefined))
-  const setHoverSession = (id: string | undefined) => setState("hoverSession", id)
 
   const disarm = () => {
     if (navLeave.current === undefined) return
@@ -242,7 +239,6 @@ export default function Layout(props: ParentProps) {
 
   const reset = () => {
     disarm()
-    setState("hoverSession", undefined)
     setHoverProject(undefined)
   }
 
@@ -253,7 +249,6 @@ export default function Layout(props: ParentProps) {
     navLeave.current = window.setTimeout(() => {
       navLeave.current = undefined
       setHoverProject(undefined)
-      setState("hoverSession", undefined)
     }, 300)
   }
 
@@ -1973,9 +1968,6 @@ export default function Layout(props: ParentProps) {
     navList: currentSessions,
     sidebarExpanded,
     sidebarHovering,
-    nav: () => state.nav,
-    hoverSession: () => state.hoverSession,
-    setHoverSession,
     clearHoverProjectSoon,
     prefetchSession,
     archiveSession,
@@ -2004,7 +1996,6 @@ export default function Layout(props: ParentProps) {
     sidebarOpened: () => layout.sidebar.opened(),
     sidebarHovering,
     hoverProject: () => state.hoverProject,
-    nav: () => state.nav,
     onProjectMouseEnter: (worktree, event) => aim.enter(worktree, event),
     onProjectMouseLeave: (worktree) => aim.leave(worktree),
     onProjectFocus: (worktree) => aim.activate(worktree),
@@ -2023,15 +2014,10 @@ export default function Layout(props: ParentProps) {
     sessionProps: {
       navList: currentSessions,
       sidebarExpanded,
-      sidebarHovering,
-      nav: () => state.nav,
-      hoverSession: () => state.hoverSession,
-      setHoverSession,
       clearHoverProjectSoon,
       prefetchSession,
       archiveSession,
     },
-    setHoverSession,
   }
 
   const SidebarPanel = (panelProps: {
@@ -2042,7 +2028,6 @@ export default function Layout(props: ParentProps) {
     const project = panelProps.project
     const merged = createMemo(() => panelProps.mobile || (panelProps.merged ?? layout.sidebar.opened()))
     const hover = createMemo(() => !panelProps.mobile && panelProps.merged === false && !layout.sidebar.opened())
-    const popover = createMemo(() => !!panelProps.mobile || panelProps.merged === false || layout.sidebar.opened())
     const empty = createMemo(() => !params.dir && layout.projects.list().length === 0)
     const projectName = createMemo(() => {
       const item = project()
@@ -2244,7 +2229,6 @@ export default function Layout(props: ParentProps) {
                         project={project()!}
                         sortNow={sortNow}
                         mobile={panelProps.mobile}
-                        popover={popover()}
                       />
                     </div>
                   </>
@@ -2289,7 +2273,6 @@ export default function Layout(props: ParentProps) {
                                 project={project()!}
                                 sortNow={sortNow}
                                 mobile={panelProps.mobile}
-                                popover={popover()}
                               />
                             )}
                           </For>

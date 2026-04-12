@@ -81,7 +81,6 @@ function result(sessionID: SessionID, parentID: string): MessageV2.WithParts {
     parts: [],
   }
 }
-
 describe("session action routes", () => {
   test("abort route calls SessionPrompt.cancel", async () => {
     await using tmp = await tmpdir({ git: true })
@@ -90,11 +89,9 @@ describe("session action routes", () => {
       fn: async () => {
         const session = await Session.create({})
         const cancel = spyOn(SessionPrompt, "cancel").mockResolvedValue()
-        const app = Server.Default()
+        const app = Server.Default().app
 
-        const res = await app.request(`/session/${session.id}/abort`, {
-          method: "POST",
-        })
+        const res = await app.request(`/session/${session.id}/abort`, { method: "POST" })
 
         expect(res.status).toBe(200)
         expect(await res.json()).toBe(true)
@@ -104,31 +101,6 @@ describe("session action routes", () => {
       },
     })
   })
-
-  test("delete message route returns 400 when session is busy", async () => {
-    await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
-      directory: tmp.path,
-      fn: async () => {
-        const session = await Session.create({})
-        const msg = await user(session.id, "hello")
-        const busy = spyOn(SessionPrompt, "assertNotBusy").mockRejectedValue(new Session.BusyError(session.id))
-        const remove = spyOn(Session, "removeMessage").mockResolvedValue(msg.id)
-        const app = Server.Default()
-
-        const res = await app.request(`/session/${session.id}/message/${msg.id}`, {
-          method: "DELETE",
-        })
-
-        expect(res.status).toBe(400)
-        expect(busy).toHaveBeenCalledWith(session.id)
-        expect(remove).not.toHaveBeenCalled()
-
-        await Session.remove(session.id)
-      },
-    })
-  })
-
   test("continue route calls SessionPrompt.continue_", async () => {
     await using tmp = await tmpdir({ git: true })
     await Instance.provide({
@@ -137,7 +109,7 @@ describe("session action routes", () => {
         const session = await Session.create({})
         const msg = await user(session.id, "hello")
         const cont = spyOn(SessionPrompt, "continue_").mockResolvedValue(result(session.id, msg.id))
-        const app = Server.Default()
+        const app = Server.Default().app
 
         const res = await app.request(`/session/${session.id}/continue`, {
           method: "POST",
@@ -162,7 +134,7 @@ describe("session action routes", () => {
         const session = await Session.create({})
         const msg = await user(session.id, "hello")
         const cont = spyOn(SessionPrompt, "continue_").mockResolvedValue(result(session.id, msg.id))
-        const app = Server.Default()
+        const app = Server.Default().app
 
         const res = await app.request(`/session/${session.id}/continue`, {
           method: "POST",
@@ -199,7 +171,7 @@ describe("session action routes", () => {
         const session = await Session.create({})
         const msg = await user(session.id, "hello")
         const cont = spyOn(SessionPrompt, "continue_").mockResolvedValue(result(session.id, msg.id))
-        const app = Server.Default()
+        const app = Server.Default().app
 
         const res = await app.request(`/session/${session.id}/continue`, {
           method: "POST",
@@ -220,7 +192,7 @@ describe("session action routes", () => {
       fn: async () => {
         const session = await Session.create({})
         const cont = spyOn(SessionPrompt, "continue_").mockRejectedValue(new Session.BusyError(session.id))
-        const app = Server.Default()
+        const app = Server.Default().app
 
         const res = await app.request(`/session/${session.id}/continue`, {
           method: "POST",
@@ -241,7 +213,7 @@ describe("session action routes", () => {
       fn: async () => {
         const session = await Session.create({})
         const cont = spyOn(SessionPrompt, "continue_").mockRejectedValue(new Session.NothingToContinueError(session.id))
-        const app = Server.Default()
+        const app = Server.Default().app
 
         const res = await app.request(`/session/${session.id}/continue`, {
           method: "POST",

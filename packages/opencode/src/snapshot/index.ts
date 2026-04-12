@@ -33,7 +33,7 @@ export namespace Snapshot {
   export type FileDiff = z.infer<typeof FileDiff>
 
   const log = Log.create({ service: "snapshot" })
-  const prune = "7.days"
+  const defaultRetentionDays = 7
   const limit = 2 * 1024 * 1024
   const core = ["-c", "core.longpaths=true", "-c", "core.symlinks=true"]
   const cfg = ["-c", "core.autocrlf=false", ...core]
@@ -123,7 +123,14 @@ export namespace Snapshot {
 
           const enabled = Effect.fnUntraced(function* () {
             if (state.vcs !== "git") return false
-            return (yield* config.get()).snapshot !== false
+            const snapshot = (yield* config.get()).snapshot
+            return snapshot !== false && snapshot !== 0
+          })
+
+          const retentionDays = Effect.fnUntraced(function* () {
+            const snapshot = (yield* config.get()).snapshot
+            if (typeof snapshot === "number") return snapshot
+            return defaultRetentionDays
           })
 
           const excludes = Effect.fnUntraced(function* () {
@@ -207,7 +214,8 @@ export namespace Snapshot {
               Effect.gen(function* () {
                 if (!(yield* enabled())) return
                 if (!(yield* exists(state.gitdir))) return
-                const result = yield* git(args(["gc", `--prune=${prune}`]), { cwd: state.directory })
+                const days = yield* retentionDays()
+                const result = yield* git(args(["gc", `--prune=${days}.days`]), { cwd: state.directory })
                 if (result.code !== 0) {
                   log.warn("cleanup failed", {
                     exitCode: result.code,
@@ -215,7 +223,7 @@ export namespace Snapshot {
                   })
                   return
                 }
-                log.info("cleanup", { prune })
+                log.info("cleanup", { retentionDays: days })
               }),
             )
           })

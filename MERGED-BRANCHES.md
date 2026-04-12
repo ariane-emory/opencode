@@ -47,7 +47,7 @@
 | ☑ | 41 | feat/shell-advice | origin | fed739a810 | Fixed BashTool.init→initBash, added ${shellName} replaceAll, updated test patterns |
 | ☑ | 42 | feat/improve-bash-tool-git-advice | origin | 47ccba0461 | Conflict in bash.txt; kept ${shellName} from HEAD |
 | ☑ | 43 | feat/edit-tool-description | origin | b7559dfe84 | Clean merge |
-| ☐ | 44 | feat/renaming-doesnt-close-session-list | origin | TBD | |
+| ☑ | 44 | feat/renaming-doesnt-close-session-list | origin | 0c2a1c416f | Conflict in dialog-session-list.tsx; kept pinKeybind+defaultSessionID, added initialSessionID support |
 | ☐ | 45 | feat/session-child-toggle-key | origin | TBD | |
 | ☐ | 46 | feat/set-session-title | origin | TBD | |
 | ☐ | 47 | feat/get-session-title | origin | TBD | |
@@ -130,3 +130,4 @@
 41. **feat/shell-advice** (fed739a810) - Tests used old BashTool.init() API; fixed to use initBash(). Added .replaceAll("${shellName}", name) to bash.ts to properly substitute the new template variable. Updated test patterns to match current description format (Shell: instead of **Shell**:).
 42. **feat/improve-bash-tool-git-advice** (47ccba0461) - Conflict in bash.txt PR creation section; kept HEAD's ${shellName} template variable over feature branch's hardcoded "bash".
 43. **feat/edit-tool-description** (b7559dfe84) - Clean merge, no conflicts.
+44. **feat/renaming-doesnt-close-session-list** (0c2a1c416f) - Conflict in dialog-session-list.tsx. Kept pinKeybind, pinned-aware defaultSessionID sorting, and search-based sessions memo. Added initialSessionID prop support from feature branch.

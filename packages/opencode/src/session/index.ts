@@ -777,17 +777,17 @@ export namespace Session {
       conditions.push(like(SessionTable.title, `%${input.search}%`))
     }
 
-    const limit = input?.limit ?? 100
-
-    const rows = Database.use((db) =>
-      db
+    const rows = Database.use((db) => {
+      const baseQuery = db
         .select()
         .from(SessionTable)
         .where(and(...conditions))
         .orderBy(desc(SessionTable.time_updated))
-        .limit(limit)
-        .all(),
-    )
+
+      const query = input?.limit !== undefined ? baseQuery.limit(input.limit) : baseQuery
+
+      return query.all()
+    })
     for (const row of rows) {
       yield fromRow(row)
     }

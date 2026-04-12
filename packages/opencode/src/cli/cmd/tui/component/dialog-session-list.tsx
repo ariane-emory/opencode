@@ -79,6 +79,7 @@ export function DialogSessionList() {
   }
 
   const options = createMemo(() => {
+    if (!sync.ready) return []
     const today = new Date().toDateString()
     const all = sessions().filter((x) => x.parentID === undefined)
     const grouped = all.filter((x) => parseSessionTitleParts(x.title).group)
@@ -106,6 +107,9 @@ export function DialogSessionList() {
       }
       return showDate ? Locale.shortDateTime(x.time.updated) : (grouped ? Locale.shortDateTime(x.time.updated) : Locale.time(x.time.updated))
     }
+
+    const sessionsListLimit = sync.data.config.experimental?.session_list_limit
+    const limit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
 
     grouped.sort((a, b) => {
       const ag = parseSessionTitleParts(a.title).group ?? ""
@@ -156,6 +160,7 @@ export function DialogSessionList() {
         }
       }),
     ]
+      .slice(0, limit)
   })
 
   onMount(() => {

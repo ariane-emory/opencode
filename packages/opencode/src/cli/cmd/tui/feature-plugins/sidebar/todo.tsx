@@ -1,5 +1,5 @@
 import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
-import { createMemo, For, Show, createSignal } from "solid-js"
+import { createEffect, createMemo, createSignal, For, Show } from "solid-js"
 import { TodoItem } from "../../component/todo-item"
 
 const id = "internal:sidebar-todo"
@@ -10,10 +10,23 @@ function View(props: { api: TuiPluginApi; session_id: string }) {
   const list = createMemo(() => props.api.state.session.todo(props.session_id))
   const show = createMemo(() => list().length > 0 && list().some((item) => item.status !== "completed"))
 
+  createEffect(() => {
+    if (props.api.kv.ready) {
+      setOpen(props.api.kv.get("sidebar_expanded_todo", true))
+    }
+  })
+
+  const toggle = () => {
+    if (list().length <= 2) return
+    const next = !open()
+    setOpen(next)
+    props.api.kv.set("sidebar_expanded_todo", next)
+  }
+
   return (
     <Show when={show()}>
       <box>
-        <box flexDirection="row" gap={1} onMouseDown={() => list().length > 2 && setOpen((x) => !x)}>
+        <box flexDirection="row" gap={1} onMouseDown={toggle}>
           <Show when={list().length > 2}>
             <text fg={theme().text}>{open() ? "▼" : "▶"}</text>
           </Show>

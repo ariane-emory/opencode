@@ -11,12 +11,12 @@
 | ☑ | 5 | feat/session-grouping | origin | 563f7082e0 | Clean merge |
 | ☑ | 6 | feat/session-bookmarks | origin | 4821045da6 | Conflicts in dialog-session-list.tsx and locale.ts; combined grouping+bookmarks logic |
 | ☑ | 7 | fix/dialog-datetime-alignment | origin | 02ce02f940 | Clean merge |
-| ☐ | 8 | feat/keybindable-commands | origin | TBD | |
-| ☐ | 9 | feat/automatic-list-continuation | origin | TBD | |
-| ☐ | 10 | feat/continue-command | origin | TBD | |
-| ☐ | 11 | feat/configurable-snapshot-lifespan | origin | TBD | |
-| ☐ | 12 | feat/configurable-new-plan-mode | origin | TBD | |
-| ☐ | 13 | feat/enable-exa-setting | origin | TBD | |
+| ☑ | 8 | feat/keybindable-commands | origin | ecac689eb7 | Clean merge |
+| ☑ | 9 | feat/automatic-list-continuation | origin | 95933bacf3 | Clean merge |
+| ☑ | 10 | feat/continue-command | origin | cb5af789cb | Clean merge |
+| ☑ | 11 | feat/configurable-snapshot-lifespan | origin | 0536072e8b | Clean merge |
+| ☑ | 12 | feat/configurable-new-plan-mode | origin | 8a91b599bc | Clean merge |
+| ☑ | 13 | feat/enable-exa-setting | origin | e8e038a022 | Conflict in config.ts; combined plan_mode + enable_exa experimental settings |
 | ☐ | 14 | withheld/feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber; must add new item to command palette |
 | ☐ | 15 | feat/permission-spinner | origin | TBD | |
 | ☐ | 16 | feat/opencode-expand | origin | TBD | |
@@ -94,3 +94,9 @@
 5. **feat/session-grouping** (563f7082e0) - Clean merge, no conflicts.
 6. **feat/session-bookmarks** (4821045da6) - Conflicts in dialog-session-list.tsx and locale.ts. Combined session-grouping logic (grouped/plain split, parseSessionTitleParts) with session-bookmarks logic (pinned/unpinned, Bookmarks: category). Kept HEAD's locale.ts (today check). Order: Bookmarks -> Grouped -> Unpinned.
 7. **fix/dialog-datetime-alignment** (02ce02f940) - Clean merge, no conflicts.
+8. **feat/keybindable-commands** (ecac689eb7) - Clean merge, no conflicts.
+9. **feat/automatic-list-continuation** (95933bacf3) - Clean merge, no conflicts.
+10. **feat/continue-command** (cb5af789cb) - Clean merge, no conflicts.
+11. **feat/configurable-snapshot-lifespan** (0536072e8b) - Clean merge, no conflicts.
+12. **feat/configurable-new-plan-mode** (8a91b599bc) - Clean merge, no conflicts.
+13. **feat/enable-exa-setting** (e8e038a022) - Conflict in config.ts: combined plan_mode and enable_exa experimental settings (both schema fields and accessor functions).

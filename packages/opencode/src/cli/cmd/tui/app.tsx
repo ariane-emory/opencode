@@ -788,6 +788,17 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         dialog.clear()
       },
     },
+    {
+      title: kv.get("markdown_all_messages", false)
+        ? "Render markdown: agent messages only"
+        : "Render markdown: all messages",
+      value: "app.toggle.markdown_all",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("markdown_all_messages", !kv.get("markdown_all_messages", false))
+        dialog.clear()
+      },
+    },
   ])
 
   event.on(TuiEvent.CommandExecute.type, (evt) => {

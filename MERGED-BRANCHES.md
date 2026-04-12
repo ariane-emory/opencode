@@ -36,7 +36,7 @@
 | ☑ | 30 | feat/permission-indicator-in-sidebar | origin | 84a45be70f | Conflict in sidebar.tsx; kept grouped title formatting and permission indicator |
 | ☑ | 31 | feat/command-palette-consistency | origin | 3ccf770cbe | Moved palette items to System without duplication; synthesized sidebar toggle with persist-sidebar behavior |
 | ☑ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | 58a1349960 | Conflict in session/index.tsx; kept header toggle only in Session and preserved System palette deduplication |
-| ☐ | 33 | refactor/shared-substitute | origin | TBD | |
+| ☑ | 33 | refactor/shared-substitute | origin | a9cea1022a | Conflicts in substitute.ts and prompt.ts; kept full shared substitute feature set with whitespace normalization |
 | ☐ | 34 | feat/session-id-in-status | origin | TBD | |
 | ☐ | 35 | feat/opeoginni--display-message-tps | origin | TBD | |
 | ☐ | 36 | feat/kv-diff-style-clean | origin | TBD | |
@@ -119,3 +119,4 @@
 30. **feat/permission-indicator-in-sidebar** (84a45be70f) - Conflict in sidebar.tsx. Kept both grouped session title parsing and permission indicator memo.
 31. **feat/command-palette-consistency** (3ccf770cbe) - Conflicts in app.tsx and session/index.tsx. Moved palette items to System without duplicating them in Session, and kept persistent-sidebar show/hide behavior in the System sidebar toggle.
 32. **feat/persistant-sidebar-overlay-behaviour** (58a1349960) - Conflict in session/index.tsx plus follow-up header.tsx fix. Kept only the new Session header toggle, while preserving System ownership of timestamps/thinking/tool-details/scrollbar/generic-output toggles and using `project.workspace.get(...)` in header workspace rendering.
+33. **refactor/shared-substitute** (a9cea1022a) - Conflicts in substitute.ts and prompt.ts. Kept full range/default/chained-fallback substitute behavior, added shared whitespace normalization, and removed redundant local prompt-side substitute details.

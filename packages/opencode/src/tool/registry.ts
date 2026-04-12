@@ -28,6 +28,7 @@ import { Truncate } from "./truncate"
 import { SetCurrentSessionTitleTool } from "./set-current-session-title"
 import { ApplyPatchTool } from "./apply_patch"
 import { BookmarkCurrentSessionTool } from "./bookmark"
+import { GetCurrentSessionTitleTool } from "./session-title"
 import { Glob } from "../util/glob"
 import path from "path"
 import { pathToFileURL } from "url"
@@ -127,6 +128,7 @@ export namespace ToolRegistry {
       const skilltool = yield* SkillTool
       const bookmarktool = yield* BookmarkCurrentSessionTool
       const sessiontitletool = yield* SetCurrentSessionTitleTool
+      const getsessiontitletool = yield* GetCurrentSessionTitleTool
 
       const state = yield* InstanceState.make<State>(
         Effect.fn("ToolRegistry.state")(function* (ctx) {
@@ -202,11 +204,12 @@ export namespace ToolRegistry {
             skill: Tool.init(skilltool),
             bookmark: Tool.init(bookmarktool),
             patch: Tool.init(patchtool),
+            sessiontitle: Tool.init(sessiontitletool),
+            getsessiontitle: Tool.init(getsessiontitletool),
             question: Tool.init(question),
             lsp: Tool.init(lsptool),
             planExit: Tool.init(planExit),
             planEnter: Tool.init(planEnter),
-            sessiontitle: Tool.init(sessiontitletool),
           })
 
           return {
@@ -228,11 +231,12 @@ export namespace ToolRegistry {
               tool.skill,
               tool.bookmark,
               tool.patch,
+              tool.sessiontitle,
               ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [tool.lsp] : []),
               ...((Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE || (yield* config.experimentalPlanMode())) && Flag.OPENCODE_CLIENT === "cli"
                 ? [tool.planExit, tool.planEnter]
                 : []),
-              tool.sessiontitle,
+              tool.getsessiontitle,
             ],
             task: tool.task,
             read: tool.read,

@@ -923,10 +923,10 @@ export namespace Config {
         })
         .optional(),
       snapshot: z
-        .boolean()
+        .union([z.boolean(), z.number().int().nonnegative()])
         .optional()
         .describe(
-          "Enable or disable snapshot tracking. When false, filesystem snapshots are not recorded and undoing or reverting will not undo/redo file changes. Defaults to true.",
+          "Enable or disable snapshot tracking. When false, filesystem snapshots are not recorded and undoing or reverting will not undo/redo file changes. Defaults to true. Can also be set to a number to specify how many days snapshots should be retained for.",
         ),
       plugin: PluginSpec.array().optional(),
       share: z
@@ -1431,9 +1431,10 @@ export namespace Config {
             yield* track(dir, list)
           }
 
-          if (process.env.OPENCODE_CONFIG_CONTENT) {
+          const content = process.env.BASEONE_CONFIG_CONTENT ?? process.env.OPENCODE_CONFIG_CONTENT
+          if (content) {
             const source = "OPENCODE_CONFIG_CONTENT"
-            const next = yield* loadConfig(process.env.OPENCODE_CONFIG_CONTENT, {
+            const next = yield* loadConfig(content, {
               dir: ctx.directory,
               source,
             })

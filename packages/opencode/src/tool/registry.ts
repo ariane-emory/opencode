@@ -25,6 +25,7 @@ import { Flag } from "@/flag/flag"
 import { Log } from "@/util/log"
 import { LspTool } from "./lsp"
 import { Truncate } from "./truncate"
+import { SetCurrentSessionTitleTool } from "./set-current-session-title"
 import { ApplyPatchTool } from "./apply_patch"
 import { BookmarkCurrentSessionTool } from "./bookmark"
 import { Glob } from "../util/glob"
@@ -125,6 +126,7 @@ export namespace ToolRegistry {
       const patchtool = yield* ApplyPatchTool
       const skilltool = yield* SkillTool
       const bookmarktool = yield* BookmarkCurrentSessionTool
+      const sessiontitletool = yield* SetCurrentSessionTitleTool
 
       const state = yield* InstanceState.make<State>(
         Effect.fn("ToolRegistry.state")(function* (ctx) {
@@ -204,6 +206,7 @@ export namespace ToolRegistry {
             lsp: Tool.init(lsptool),
             planExit: Tool.init(planExit),
             planEnter: Tool.init(planEnter),
+            sessiontitle: Tool.init(sessiontitletool),
           })
 
           return {
@@ -229,6 +232,7 @@ export namespace ToolRegistry {
               ...((Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE || (yield* config.experimentalPlanMode())) && Flag.OPENCODE_CLIENT === "cli"
                 ? [tool.planExit, tool.planEnter]
                 : []),
+              tool.sessiontitle,
             ],
             task: tool.task,
             read: tool.read,

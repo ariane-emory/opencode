@@ -15,7 +15,7 @@ import { Agent } from "@/agent/agent"
 import { Plugin } from "@/plugin"
 import { NotFoundError } from "@/storage/db"
 import { ModelID, ProviderID } from "@/provider/schema"
-import { Effect, Layer, ServiceMap } from "effect"
+import { Effect, Layer, Context } from "effect"
 import { makeRuntime } from "@/effect/run-service"
 import { InstanceState } from "@/effect/instance-state"
 import { isOverflow as overflow } from "./overflow"
@@ -60,7 +60,7 @@ export namespace SessionCompaction {
     }) => Effect.Effect<void>
   }
 
-  export class Service extends ServiceMap.Service<Service, Interface>()("@opencode/SessionCompaction") {}
+  export class Service extends Context.Service<Service, Interface>()("@opencode/SessionCompaction") {}
 
   export const layer: Layer.Layer<
     Service,
@@ -230,7 +230,7 @@ When constructing the summary, try to stick to this template:
           sessionID: input.sessionID,
           mode: "compaction",
           agent: "compaction",
-          variant: userMessage.variant,
+          variant: userMessage.model.variant,
           summary: true,
           path: {
             cwd: ctx.directory,
@@ -255,23 +255,21 @@ When constructing the summary, try to stick to this template:
           sessionID: input.sessionID,
           model,
         })
-        const result = yield* processor
-          .process({
-            user: userMessage,
-            agent,
-            sessionID: input.sessionID,
-            tools: {},
-            system: [],
-            messages: [
-              ...modelMessages,
-              {
-                role: "user",
-                content: [{ type: "text", text: prompt }],
-              },
-            ],
-            model,
-          })
-          .pipe(Effect.onInterrupt(() => processor.abort()))
+        const result = yield* processor.process({
+          user: userMessage,
+          agent,
+          sessionID: input.sessionID,
+          tools: {},
+          system: [],
+          messages: [
+            ...modelMessages,
+            {
+              role: "user",
+              content: [{ type: "text", text: prompt }],
+            },
+          ],
+          model,
+        })
 
         if (result === "compact") {
           processor.message.error = new MessageV2.ContextOverflowError({
@@ -297,7 +295,6 @@ When constructing the summary, try to stick to this template:
               format: original.format,
               tools: original.tools,
               system: original.system,
-              variant: original.variant,
             })
             for (const part of replay.parts) {
               if (part.type === "compaction") continue
@@ -382,17 +379,15 @@ When constructing the summary, try to stick to this template:
     }),
   )
 
-  export const defaultLayer = Layer.unwrap(
-    Effect.sync(() =>
-      layer.pipe(
-        Layer.provide(Provider.defaultLayer),
-        Layer.provide(Session.defaultLayer),
-        Layer.provide(SessionProcessor.defaultLayer),
-        Layer.provide(Agent.defaultLayer),
-        Layer.provide(Plugin.defaultLayer),
-        Layer.provide(Bus.layer),
-        Layer.provide(Config.defaultLayer),
-      ),
+  export const defaultLayer = Layer.suspend(() =>
+    layer.pipe(
+      Layer.provide(Provider.defaultLayer),
+      Layer.provide(Session.defaultLayer),
+      Layer.provide(SessionProcessor.defaultLayer),
+      Layer.provide(Agent.defaultLayer),
+      Layer.provide(Plugin.defaultLayer),
+      Layer.provide(Bus.layer),
+      Layer.provide(Config.defaultLayer),
     ),
   )
 
@@ -405,17 +400,6 @@ When constructing the summary, try to stick to this template:
   export async function prune(input: { sessionID: SessionID }) {
     return runPromise((svc) => svc.prune(input))
   }
-
-  export const process = fn(
-    z.object({
-      parentID: MessageID.zod,
-      messages: z.custom<MessageV2.WithParts[]>(),
-      sessionID: SessionID.zod,
-      auto: z.boolean(),
-      overflow: z.boolean().optional(),
-    }),
-    (input) => runPromise((svc) => svc.process(input)),
-  )
 
   export const create = fn(
     z.object({

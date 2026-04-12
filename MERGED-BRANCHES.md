@@ -34,7 +34,7 @@
 | ☑ | 28 | fix/persist-sidebar | origin | 3fd442791f | Conflicts in prompt/index.tsx; kept PLACEHOLDERS, listContinuation, placeholder effect |
 | ☑ | 29 | feat/persist-sidebar-group-folding-states | origin | d7bd4cde89 | Clean merge; preserves sidebar group folding state persistence |
 | ☑ | 30 | feat/permission-indicator-in-sidebar | origin | 84a45be70f | Conflict in sidebar.tsx; kept grouped title formatting and permission indicator |
-| ☐ | 31 | feat/command-palette-consistency | origin | TBD | Moves items from Session to System category; do not duplicate into both categories |
+| ☑ | 31 | feat/command-palette-consistency | origin | 3ccf770cbe | Moved palette items to System without duplication; synthesized sidebar toggle with persist-sidebar behavior |
 | ☐ | 32 | feat/persistant-sidebar-overlay-behaviour | origin | TBD | |
 | ☐ | 33 | refactor/shared-substitute | origin | TBD | |
 | ☐ | 34 | feat/session-id-in-status | origin | TBD | |
@@ -117,3 +117,4 @@
 28. **fix/persist-sidebar** (3fd442791f) - Conflicts in prompt/index.tsx. Kept sinister placeholders, list continuation, prompt keybinding filtering, and placeholder resize effect while preserving persistent sidebar behavior.
 29. **feat/persist-sidebar-group-folding-states** (d7bd4cde89) - Clean merge, no conflicts.
 30. **feat/permission-indicator-in-sidebar** (84a45be70f) - Conflict in sidebar.tsx. Kept both grouped session title parsing and permission indicator memo.
+31. **feat/command-palette-consistency** (3ccf770cbe) - Conflicts in app.tsx and session/index.tsx. Moved palette items to System without duplicating them in Session, and kept persistent-sidebar show/hide behavior in the System sidebar toggle.

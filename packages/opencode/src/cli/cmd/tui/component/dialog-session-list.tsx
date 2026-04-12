@@ -2,26 +2,31 @@ import { useDialog } from "@tui/ui/dialog"
 import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { useRoute } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
-import { createEffect, createMemo, createSignal, createResource, onMount } from "solid-js"
+import { createEffect, createMemo, createResource, createSignal, onMount } from "solid-js"
 import { Locale } from "@/util/locale"
+import { useProject } from "@tui/context/project"
 import { useKeybind } from "../context/keybind"
-import { Keybind } from "@/util/keybind"
 import { useTheme } from "../context/theme"
 import { useSDK } from "../context/sdk"
+import { Flag } from "@/flag/flag"
 import { DialogSessionRename } from "./dialog-session-rename"
-import { useKV } from "../context/kv"
+import { Keybind } from "@/util/keybind"
 import { createDebouncedSignal } from "../util/signal"
+import { useToast } from "../ui/toast"
+import { DialogWorkspaceCreate, openWorkspaceSession } from "./dialog-workspace-create"
 import { Spinner } from "./spinner"
+import { useKV } from "../context/kv"
 
 export function DialogSessionList() {
   const dialog = useDialog()
   const route = useRoute()
   const sync = useSync()
+  const project = useProject()
   const keybind = useKeybind()
   const { theme } = useTheme()
   const sdk = useSDK()
+  const toast = useToast()
   const kv = useKV()
-
   const [toDelete, setToDelete] = createSignal<string>()
   const [search, setSearch] = createDebouncedSignal("", 150)
   const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()
@@ -37,65 +42,87 @@ export function DialogSessionList() {
 
   const sessions = createMemo(() => {
     const results = searchResults()
-    if (!results) return sync.data.session
-    return results.map((result) => {
-      const live = sync.data.session.find((s) => s.id === result.id)
-      return live ?? result
-    })
+    if (results === undefined) return sync.data.session
+    return results.map((result) => sync.data.session.find((s) => s.id === result.id) ?? result)
   })
 
   const defaultSessionID = createMemo(() => {
-    const lastSessionID = kv.getEphemeral("last_session_id")
-
-    // First try last session we were in (ephemeral, per-process)
-    if (lastSessionID) {
-      const session = sessions().find((s) => s.id === lastSessionID)
+    const last = kv.getEphemeral("last_session_id")
+    if (last) {
+      const session = sessions().find((s) => s.id === last)
       if (session) return session.id
     }
 
-    // Fallback to most recently updated non-bookmarked session
-    const allSessions = sessions().filter((x) => x.parentID === undefined)
-    const unpinned = allSessions.filter((x) => x.time.pinned === undefined)
-    const sorted = unpinned.toSorted((a, b) => b.time.updated - a.time.updated)
-    // Fall back to bookmarked sessions only if no non-bookmarked sessions exist
-    return sorted[0]?.id ?? allSessions.toSorted((a, b) => b.time.updated - a.time.updated)[0]?.id
+    const all = sessions().filter((x) => x.parentID === undefined)
+    const sorted = all.filter((x) => x.time.pinned === undefined).toSorted((a, b) => b.time.updated - a.time.updated)
+    return sorted[0]?.id ?? all.toSorted((a, b) => b.time.updated - a.time.updated)[0]?.id
   })
+
+  function createWorkspace() {
+    dialog.replace(() => (
+      <DialogWorkspaceCreate
+        onSelect={(workspaceID) =>
+          openWorkspaceSession({
+            dialog,
+            route,
+            sdk,
+            sync,
+            toast,
+            workspaceID,
+          })
+        }
+      />
+    ))
+  }
 
   const options = createMemo(() => {
     const today = new Date().toDateString()
-    const allSessions = sessions().filter((x) => x.parentID === undefined)
+    const all = sessions().filter((x) => x.parentID === undefined)
+    const pinned = all.filter((x) => x.time.pinned !== undefined).toSorted((a, b) => (b.time.pinned ?? 0) - (a.time.pinned ?? 0))
+    const unpinned = all.filter((x) => x.time.pinned === undefined).toSorted((a, b) => b.time.updated - a.time.updated)
 
-    const pinned = allSessions
-      .filter((x) => x.time.pinned !== undefined)
-      .toSorted((a, b) => (b.time.pinned ?? 0) - (a.time.pinned ?? 0))
+    const foot = (session: (typeof all)[number], showDate: boolean) => {
+      if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES && session.workspaceID) {
+        const workspace = project.workspace.get(session.workspaceID)
+        const status = project.workspace.status(session.workspaceID) || "error"
+        const desc = workspace ? `${workspace.type}: ${workspace.name}` : "unknown"
+        return (
+          <>
+            {desc}{" "}
+            <span
+              style={{
+                fg: status === "error" ? theme.error : status === "disconnected" ? theme.textMuted : theme.success,
+              }}
+            >
+              ■
+            </span>
+          </>
+        )
+      }
 
-    const unpinned = allSessions
-      .filter((x) => x.time.pinned === undefined)
-      .toSorted((a, b) => b.time.updated - a.time.updated)
+      return showDate ? Locale.shortDateTime(session.time.updated) : Locale.time(session.time.updated)
+    }
 
-    const mapSession = (session: typeof allSessions[number], category: string, showDate: boolean) => {
-      const isDeleting = toDelete() === session.id
+    const item = (session: (typeof all)[number], category: string, showDate: boolean) => {
+      const deleting = toDelete() === session.id
       const status = sync.data.session_status?.[session.id]
-      const isWorking = status?.type === "busy"
       return {
-        title: isDeleting ? `Press ${keybind.print("session_delete")} again to confirm` : session.title,
-        bg: isDeleting ? theme.error : undefined,
+        title: deleting ? `Press ${keybind.print("session_delete")} again to confirm` : session.title,
+        bg: deleting ? theme.error : undefined,
         value: session.id,
         category,
-        footer: showDate ? Locale.shortDateTime(session.time.updated) : Locale.time(session.time.updated),
-        gutter: isWorking ? <Spinner /> : undefined,
+        footer: foot(session, showDate),
+        gutter: status?.type === "busy" ? <Spinner /> : undefined,
       }
     }
 
-    const pinnedOptions = pinned.map((x) => mapSession(x, "Bookmarks:", true))
-
-    const unpinnedOptions = unpinned.map((x) => {
-      const date = new Date(x.time.updated)
-      const category = date.toDateString() === today ? "Today" : date.toDateString()
-      return mapSession(x, category, false)
-    })
-
-    return [...pinnedOptions, ...unpinnedOptions]
+    return [
+      ...pinned.map((x) => item(x, "Bookmarks:", true)),
+      ...unpinned.map((x) => {
+        const date = new Date(x.time.updated)
+        return item(x, date.toDateString() === today ? "Today" : date.toDateString(), false)
+      }),
+    ]
   })
 
   createEffect(() => {
@@ -157,12 +184,20 @@ export function DialogSessionList() {
           onTrigger: async (option) => {
             const session = sessions().find((s) => s.id === option.value)
             if (!session) return
-            const isPinned = session.time.pinned !== undefined
             await sdk.client.session.update({
               sessionID: option.value,
-              time: { pinned: isPinned ? null : Date.now() },
+              time: { pinned: session.time.pinned === undefined ? Date.now() : null },
             })
             setTimeout(() => selectRef()?.scrollToValue(option.value, true), 0)
+          },
+        },
+        {
+          keybind: Keybind.parse("ctrl+w")[0],
+          title: "new workspace",
+          side: "right",
+          disabled: !Flag.OPENCODE_EXPERIMENTAL_WORKSPACES,
+          onTrigger: () => {
+            createWorkspace()
           },
         },
       ]}

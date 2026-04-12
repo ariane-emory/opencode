@@ -1,4 +1,5 @@
 import z from "zod"
+import { Effect } from "effect"
 import { Tool } from "./tool"
 import { Session } from "../session"
 
@@ -12,28 +13,32 @@ Usage notes:
 - Bookmarked sessions appear in the "Bookmarks" category at the top of the session list
 `
 
-export const BookmarkCurrentSessionTool = Tool.define("bookmark_current_session", {
-  description: DESCRIPTION,
-  parameters: z.object({
-    _confirm: z.string().describe("Enter 'yes' to proceed"),
+export const BookmarkCurrentSessionTool = Tool.define(
+  "bookmark_current_session",
+  Effect.succeed({
+    description: DESCRIPTION,
+    parameters: z.object({
+      _confirm: z.string().describe("Enter 'yes' to proceed"),
+    }),
+    execute: (_params, ctx) =>
+      Effect.gen(function* () {
+        const session = yield* Effect.promise(() => Session.get(ctx.sessionID))
+
+        if (session.time.pinned !== undefined) {
+          return {
+            title: "Session already bookmarked",
+            output: `The current session "${session.title}" is already bookmarked.`,
+            metadata: {},
+          }
+        }
+
+        yield* Effect.promise(() => Session.setPinned({ sessionID: ctx.sessionID, time: Date.now() }))
+
+        return {
+          title: "Session bookmarked",
+          output: `Successfully bookmarked the current session "${session.title}". It will now appear in the Bookmarks section at the top of the session list.`,
+          metadata: {},
+        }
+      }).pipe(Effect.orDie),
   }),
-  async execute(params, ctx) {
-    const session = await Session.get(ctx.sessionID)
-
-    if (session.time.pinned !== undefined) {
-      return {
-        title: "Session already bookmarked",
-        output: `The current session "${session.title}" is already bookmarked.`,
-        metadata: {},
-      }
-    }
-
-    await Session.setPinned({ sessionID: ctx.sessionID, time: Date.now() })
-
-    return {
-      title: "Session bookmarked",
-      output: `Successfully bookmarked the current session "${session.title}". It will now appear in the Bookmarks section at the top of the session list.`,
-      metadata: {},
-    }
-  },
-})
+)

@@ -762,6 +762,31 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
     },
     {
+      title: kv.get("tps_visibility", false) ? "Hide message TPS" : "Show message TPS",
+      value: "system.toggle.tps",
+      keybind: "tps_toggle",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("tps_visibility", !kv.get("tps_visibility", false))
+        dialog.clear()
+      },
+    },
+    {
+      title: terminalTitleEnabled() ? "Disable terminal title" : "Enable terminal title",
+      value: "terminal.title.toggle",
+      keybind: "terminal_title_toggle",
+      category: "System",
+      onSelect: (dialog) => {
+        setTerminalTitleEnabled((prev) => {
+          const next = !prev
+          kv.set("terminal_title_enabled", next)
+          if (!next) renderer.setTerminalTitle("")
+          return next
+        })
+        dialog.clear()
+      },
+    },
+    {
       title: kv.get("sidebar_overlay", true) ? "Disable sidebar overlay" : "Enable sidebar overlay",
       value: "sidebar_overlay",
       category: "System",

@@ -80,6 +80,7 @@ export namespace Session {
         updated: row.time_updated,
         compacting: row.time_compacting ?? undefined,
         archived: row.time_archived ?? undefined,
+        pinned: row.time_pinned ?? undefined,
       },
     }
   }
@@ -105,6 +106,7 @@ export namespace Session {
       time_updated: info.time.updated,
       time_compacting: info.time.compacting,
       time_archived: info.time.archived,
+      time_pinned: info.time.pinned ?? null,
     }
   }
 
@@ -146,6 +148,7 @@ export namespace Session {
         updated: z.number(),
         compacting: z.number().optional(),
         archived: z.number().optional(),
+        pinned: z.number().optional(),
       }),
       permission: Permission.Ruleset.optional(),
       revert: z
@@ -320,6 +323,7 @@ export namespace Session {
     readonly get: (id: SessionID) => Effect.Effect<Info>
     readonly setTitle: (input: { sessionID: SessionID; title: string }) => Effect.Effect<void>
     readonly setArchived: (input: { sessionID: SessionID; time?: number }) => Effect.Effect<void>
+    readonly setPinned: (input: { sessionID: SessionID; time?: number | null }) => Effect.Effect<void>
     readonly setPermission: (input: { sessionID: SessionID; permission: Permission.Ruleset }) => Effect.Effect<void>
     readonly setRevert: (input: {
       sessionID: SessionID
@@ -546,6 +550,9 @@ export namespace Session {
             })
           }
         }
+        if (original.time.pinned !== undefined) {
+          yield* setPinned({ sessionID: session.id, time: original.time.pinned })
+        }
         return session
       })
 
@@ -562,6 +569,10 @@ export namespace Session {
 
       const setArchived = Effect.fn("Session.setArchived")(function* (input: { sessionID: SessionID; time?: number }) {
         yield* patch(input.sessionID, { time: { archived: input.time } })
+      })
+
+      const setPinned = Effect.fn("Session.setPinned")(function* (input: { sessionID: SessionID; time?: number | null }) {
+        yield* patch(input.sessionID, { time: { pinned: input.time } })
       })
 
       const setPermission = Effect.fn("Session.setPermission")(function* (input: {
@@ -659,6 +670,7 @@ export namespace Session {
         get,
         setTitle,
         setArchived,
+        setPinned,
         setPermission,
         setRevert,
         clearRevert,
@@ -706,6 +718,10 @@ export namespace Session {
 
   export const setArchived = fn(z.object({ sessionID: SessionID.zod, time: z.number().optional() }), (input) =>
     runPromise((svc) => svc.setArchived(input)),
+  )
+
+  export const setPinned = fn(z.object({ sessionID: SessionID.zod, time: z.number().nullable().optional() }), (input) =>
+    runPromise((svc) => svc.setPinned(input)),
   )
 
   export const setPermission = fn(z.object({ sessionID: SessionID.zod, permission: Permission.Ruleset }), (input) =>

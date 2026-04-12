@@ -1,168 +1,184 @@
-import { describe, expect, test } from "bun:test"
+import { describe, expect } from "bun:test"
+import { Effect, Exit, Layer } from "effect"
 import { SetCurrentSessionTitleTool } from "../../src/tool/set-current-session-title"
-import { Instance } from "../../src/project/instance"
 import { Session } from "../../src/session"
 import { MessageID } from "../../src/session/schema"
-import { tmpdir } from "../fixture/fixture"
+import { Agent } from "../../src/agent/agent"
+import { Truncate } from "../../src/tool/truncate"
+import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"
+import { provideTmpdirInstance } from "../fixture/fixture"
+import { testEffect } from "../lib/effect"
+
+const it = testEffect(
+  Layer.mergeAll(
+    Session.defaultLayer,
+    CrossSpawnSpawner.defaultLayer,
+    Truncate.defaultLayer,
+    Agent.defaultLayer,
+  ),
+)
 
 describe("tool.set_current_session_title", () => {
-  test("updates session title", async () => {
-    await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
-      directory: tmp.path,
-      fn: async () => {
-        const session = await Session.create({})
-        const tool = await SetCurrentSessionTitleTool.init()
+  it.live("updates session title", () =>
+    provideTmpdirInstance(() =>
+      Effect.gen(function* () {
+        const session = yield* Session.Service
+        const info = yield* session.create({})
+        const toolInfo = yield* SetCurrentSessionTitleTool
+        const tool = yield* toolInfo.init()
         const ctx = {
-          sessionID: session.id,
+          sessionID: info.id,
           messageID: MessageID.make(""),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
           messages: [],
-          metadata: () => {},
-          ask: async () => {},
+          metadata: () => Effect.void,
+          ask: () => Effect.void,
         }
 
-        const result = await tool.execute({ title: "My Test Session" }, ctx)
+        const result = yield* tool.execute({ title: "My Test Session" }, ctx)
 
         expect(result.title).toBe("My Test Session")
         expect(result.output).toContain("My Test Session")
 
-        const updated = await Session.get(session.id)
+        const updated = yield* session.get(info.id)
         expect(updated.title).toBe("My Test Session")
-      },
-    })
-  })
+      }),
+    ),
+  )
 
-  test("rejects empty title", async () => {
-    await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
-      directory: tmp.path,
-      fn: async () => {
-        const session = await Session.create({})
-        const tool = await SetCurrentSessionTitleTool.init()
+  it.live("rejects empty title", () =>
+    provideTmpdirInstance(() =>
+      Effect.gen(function* () {
+        const session = yield* Session.Service
+        const info = yield* session.create({})
+        const toolInfo = yield* SetCurrentSessionTitleTool
+        const tool = yield* toolInfo.init()
         const ctx = {
-          sessionID: session.id,
+          sessionID: info.id,
           messageID: MessageID.make(""),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
           messages: [],
-          metadata: () => {},
-          ask: async () => {},
+          metadata: () => Effect.void,
+          ask: () => Effect.void,
         }
 
-        await expect(tool.execute({ title: "" }, ctx)).rejects.toThrow()
-      },
-    })
-  })
+        const exit = yield* tool.execute({ title: "" }, ctx).pipe(Effect.exit)
+        expect(Exit.isFailure(exit)).toBe(true)
+      }),
+    ),
+  )
 
-  test("rejects title exceeding 255 characters", async () => {
-    await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
-      directory: tmp.path,
-      fn: async () => {
-        const session = await Session.create({})
-        const tool = await SetCurrentSessionTitleTool.init()
+  it.live("rejects title exceeding 255 characters", () =>
+    provideTmpdirInstance(() =>
+      Effect.gen(function* () {
+        const session = yield* Session.Service
+        const info = yield* session.create({})
+        const toolInfo = yield* SetCurrentSessionTitleTool
+        const tool = yield* toolInfo.init()
         const ctx = {
-          sessionID: session.id,
+          sessionID: info.id,
           messageID: MessageID.make(""),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
           messages: [],
-          metadata: () => {},
-          ask: async () => {},
+          metadata: () => Effect.void,
+          ask: () => Effect.void,
         }
 
         const longTitle = "a".repeat(256)
-        await expect(tool.execute({ title: longTitle }, ctx)).rejects.toThrow()
-      },
-    })
-  })
+        const exit = yield* tool.execute({ title: longTitle }, ctx).pipe(Effect.exit)
+        expect(Exit.isFailure(exit)).toBe(true)
+      }),
+    ),
+  )
 
-  test("accepts title with exactly 255 characters", async () => {
-    await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
-      directory: tmp.path,
-      fn: async () => {
-        const session = await Session.create({})
-        const tool = await SetCurrentSessionTitleTool.init()
+  it.live("accepts title with exactly 255 characters", () =>
+    provideTmpdirInstance(() =>
+      Effect.gen(function* () {
+        const session = yield* Session.Service
+        const info = yield* session.create({})
+        const toolInfo = yield* SetCurrentSessionTitleTool
+        const tool = yield* toolInfo.init()
         const ctx = {
-          sessionID: session.id,
+          sessionID: info.id,
           messageID: MessageID.make(""),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
           messages: [],
-          metadata: () => {},
-          ask: async () => {},
+          metadata: () => Effect.void,
+          ask: () => Effect.void,
         }
 
         const maxTitle = "a".repeat(255)
-        const result = await tool.execute({ title: maxTitle }, ctx)
+        const result = yield* tool.execute({ title: maxTitle }, ctx)
 
         expect(result.title).toBe(maxTitle)
-        const updated = await Session.get(session.id)
+        const updated = yield* session.get(info.id)
         expect(updated.title).toBe(maxTitle)
-      },
-    })
-  })
+      }),
+    ),
+  )
 
-  test("accepts single character title", async () => {
-    await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
-      directory: tmp.path,
-      fn: async () => {
-        const session = await Session.create({})
-        const tool = await SetCurrentSessionTitleTool.init()
+  it.live("accepts single character title", () =>
+    provideTmpdirInstance(() =>
+      Effect.gen(function* () {
+        const session = yield* Session.Service
+        const info = yield* session.create({})
+        const toolInfo = yield* SetCurrentSessionTitleTool
+        const tool = yield* toolInfo.init()
         const ctx = {
-          sessionID: session.id,
+          sessionID: info.id,
           messageID: MessageID.make(""),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
           messages: [],
-          metadata: () => {},
-          ask: async () => {},
+          metadata: () => Effect.void,
+          ask: () => Effect.void,
         }
 
-        const result = await tool.execute({ title: "X" }, ctx)
+        const result = yield* tool.execute({ title: "X" }, ctx)
 
         expect(result.title).toBe("X")
-        const updated = await Session.get(session.id)
+        const updated = yield* session.get(info.id)
         expect(updated.title).toBe("X")
-      },
-    })
-  })
+      }),
+    ),
+  )
 
-  test("asks for permission", async () => {
-    await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
-      directory: tmp.path,
-      fn: async () => {
-        const session = await Session.create({})
-        const tool = await SetCurrentSessionTitleTool.init()
+  it.live("asks for permission", () =>
+    provideTmpdirInstance(() =>
+      Effect.gen(function* () {
+        const session = yield* Session.Service
+        const info = yield* session.create({})
+        const toolInfo = yield* SetCurrentSessionTitleTool
+        const tool = yield* toolInfo.init()
         const requests: Array<{ permission: string }> = []
         const ctx = {
-          sessionID: session.id,
+          sessionID: info.id,
           messageID: MessageID.make(""),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
           messages: [],
-          metadata: () => {},
-          ask: async (req: { permission: string }) => {
-            requests.push(req)
-          },
+          metadata: () => Effect.void,
+          ask: (req: { permission: string }) =>
+            Effect.sync(() => {
+              requests.push(req)
+            }),
         }
 
-        await tool.execute({ title: "Test Title" }, ctx)
+        yield* tool.execute({ title: "Test Title" }, ctx)
 
         expect(requests.length).toBe(1)
         expect(requests[0].permission).toBe("set_current_session_title")
-      },
-    })
-  })
+      }),
+    ),
+  )
 })

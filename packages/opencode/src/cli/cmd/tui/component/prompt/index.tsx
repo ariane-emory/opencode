@@ -117,7 +117,6 @@ export function Prompt(props: PromptProps) {
   const textareaKeybindings = useTextareaKeybindings()
   const listContinuation = useListContinuation()
 
-  // Filter out newline from keybindings so we can handle it in onKeyDown with list continuation
   const promptKeybindings = createMemo(() => textareaKeybindings().filter((b) => b.action !== "newline"))
 
   const fileStyleId = syntax().getStyleId("extmark.file")!
@@ -143,10 +142,8 @@ export function Prompt(props: PromptProps) {
     if (!props.disabled) input.cursorColor = theme.text
   })
 
-  // Resize textarea when placeholder changes (e.g., when switching sessions or when placeholder index changes)
   createEffect(() => {
     const placeholderText = props.sessionID ? undefined : PLACEHOLDERS[store.placeholder]
-    // Track both the placeholder text and sessionID changes
     if (input) {
       setTimeout(() => {
         input.getLayoutNode().markDirty()

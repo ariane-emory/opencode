@@ -22,8 +22,8 @@
 | ☑ | 16 | feat/opencode-expand | origin | a8a6bfada0 | Conflict in prompt.ts; kept both Config and substituteArguments imports |
 | ☑ | 17 | feat/argument-range-syntax | origin | a461fe96d6 | Conflicts in substitute.ts and test; took feature branch version (eliminates swallowing, adds range syntax) |
 | ☑ | 18 | feat/default-arguments | origin | dbc91d387f | Conflicts in substitute.ts/test/prompt.ts. Combined range+default syntax in substitute.ts; prompt.ts reverted to simple wrapper due to incompatible architecture |
-| ☐ | 19 | fix/preserve-quotes-in-arguments | origin | TBD | |
-| ☐ | 20 | fix/history-navigation-key-commands | origin | TBD | |
+| ☑ | 19 | fix/preserve-quotes-in-arguments | origin | 0fc87634cf | Conflict in prompt.ts; kept all exports + added placeholderRegex |
+| ☑ | 20 | fix/history-navigation-key-commands | origin | 9de34aa2db | Clean merge |
 | ☐ | 21 | fix/build-with-short-version | origin | TBD | Automatically uses short timestamp version for integration branches |
 | ☐ | 22 | fix/autocompletion-filtered-order | origin | TBD | |
 | ☐ | 23 | fix/modal-menus-filtered-order | origin | TBD | |

@@ -46,7 +46,7 @@
 | ☑ | 40 | feat/jsonc-user-themes | origin | 9b0a2983ed | Clean merge |
 | ☑ | 41 | feat/shell-advice | origin | fed739a810 | Fixed BashTool.init→initBash, added ${shellName} replaceAll, updated test patterns |
 | ☑ | 42 | feat/improve-bash-tool-git-advice | origin | 47ccba0461 | Conflict in bash.txt; kept ${shellName} from HEAD |
-| ☐ | 43 | feat/edit-tool-description | origin | TBD | |
+| ☑ | 43 | feat/edit-tool-description | origin | b7559dfe84 | Clean merge |
 | ☐ | 44 | feat/renaming-doesnt-close-session-list | origin | TBD | |
 | ☐ | 45 | feat/session-child-toggle-key | origin | TBD | |
 | ☐ | 46 | feat/set-session-title | origin | TBD | |
@@ -129,3 +129,4 @@
 40. **feat/jsonc-user-themes** (9b0a2983ed) - Clean merge, no conflicts.
 41. **feat/shell-advice** (fed739a810) - Tests used old BashTool.init() API; fixed to use initBash(). Added .replaceAll("${shellName}", name) to bash.ts to properly substitute the new template variable. Updated test patterns to match current description format (Shell: instead of **Shell**:).
 42. **feat/improve-bash-tool-git-advice** (47ccba0461) - Conflict in bash.txt PR creation section; kept HEAD's ${shellName} template variable over feature branch's hardcoded "bash".
+43. **feat/edit-tool-description** (b7559dfe84) - Clean merge, no conflicts.

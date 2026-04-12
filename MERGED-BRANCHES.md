@@ -5,7 +5,7 @@
 | Status | # | Branch Name | Remote | Commit Hash | Description |
 |--------|---|-------------|--------|-------------|-------------|
 | ☑ | 1 | feat/base-one-rebrand | origin | c00ef72d25 | Clean merge |
-| ☐ | 2 | feat/sinister-quotes | origin | TBD | Placeholders MUST be SINISTER_PLACEHOLDERS array |
+| ☑ | 2 | feat/sinister-quotes | origin | 3da0345360 | Clean merge; SINISTER_PLACEHOLDERS in packages/ui/src/constants/placeholders.ts |
 | ☐ | 3 | feat/markdown-renderer | gignit | TBD | |
 | ☐ | 4 | feat/thinking-indicator-hidden | rcdailey | TBD | |
 | ☐ | 5 | feat/session-grouping | origin | TBD | |
@@ -88,3 +88,4 @@
 ## Merge Log
 
 1. **feat/base-one-rebrand** (c00ef72d25) - Clean merge, no conflicts.
+2. **feat/sinister-quotes** (3da0345360) - Clean merge, no conflicts.

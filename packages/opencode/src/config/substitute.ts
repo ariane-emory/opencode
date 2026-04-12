@@ -1,24 +1,20 @@
 const placeholderRegex = /\$(\d+)/g
-// Matches: ${N}, ${N..M}, ${..M}, ${N..}, ${..}
 const extendedPlaceholderRegex = /\$\{(\d*)(\.\.\d*)?\}/g
-// Matches: ${N:default} and ${N..M:default}
 const defaultPlaceholderRegex = /\$\{(\d+):([^}]*)\}/g
 const rangeWithDefaultRegex = /\$\{(\d*)(\.\.\d*):([^}]*)\}/g
 
-function resolveChainedDefault(expr: string, defaultVal: string, args: string[]): string {
-  const parts = defaultVal.split(":")
+function split(args: string[]) {
+  return args.flatMap((arg) => arg.split(/\s+/).filter((x) => x.length > 0))
+}
+
+function resolve(expr: string, def: string, args: string[]) {
+  const parts = def.split(":")
   for (const part of parts) {
     if (part === "") return expr
     const match = part.match(/^\$(\d+)$/)
-    if (match) {
-      const argIndex = Number(match[1]) - 1
-      if (argIndex < args.length) {
-        const arg = args[argIndex]
-        if (arg.trim() !== "") return arg
-      }
-    } else {
-      return part
-    }
+    if (!match) return part
+    const i = Number(match[1]) - 1
+    if (i < args.length && args[i].trim() !== "") return args[i]
   }
   return ""
 }
@@ -27,61 +23,54 @@ export function substituteArguments(
   template: string,
   args: string[],
 ): { result: string; hasPlaceholders: boolean } {
-  const simplePlaceholders = template.match(placeholderRegex) ?? []
-  const extendedPlaceholders = template.match(extendedPlaceholderRegex) ?? []
-  const defaultPlaceholders = template.match(defaultPlaceholderRegex) ?? []
-  const rangeWithDefaultPlaceholders = template.match(rangeWithDefaultRegex) ?? []
+  args = split(args)
 
-  let result = template.replaceAll(rangeWithDefaultRegex, (expr, start, dotsAndEnd, defaultVal) => {
-    const startIndex = start ? Number(start) : 1
-    const endIndex = dotsAndEnd && dotsAndEnd.length > 2 ? Number(dotsAndEnd.slice(2)) : undefined
-    const argStart = startIndex - 1
-    if (argStart < args.length) {
-      const slice = endIndex !== undefined
-        ? args.slice(argStart, endIndex)
-        : args.slice(argStart)
-      const nonEmpty = slice.filter(arg => arg.trim() !== "")
-      if (nonEmpty.length > 0) return nonEmpty.join(" ")
+  const simple = template.match(placeholderRegex) ?? []
+  const extended = template.match(extendedPlaceholderRegex) ?? []
+  const defaults = template.match(defaultPlaceholderRegex) ?? []
+  const ranged = template.match(rangeWithDefaultRegex) ?? []
+
+  let result = template.replaceAll(rangeWithDefaultRegex, (expr, start, dotsAndEnd, def) => {
+    const from = start ? Number(start) : 1
+    const to = dotsAndEnd && dotsAndEnd.length > 2 ? Number(dotsAndEnd.slice(2)) : undefined
+    const i = from - 1
+    if (i < args.length) {
+      const slice = to === undefined ? args.slice(i) : args.slice(i, to)
+      const vals = slice.filter((arg) => arg.trim() !== "")
+      if (vals.length > 0) return vals.join(" ")
     }
-    return resolveChainedDefault(expr, defaultVal, args)
+    return resolve(expr, def, args)
   })
 
-  result = result.replaceAll(defaultPlaceholderRegex, (expr, position, defaultVal) => {
-    const argIndex = Number(position) - 1
-    if (argIndex < args.length) {
-      const arg = args[argIndex]
-      if (arg.trim() !== "") return arg
-    }
-    return resolveChainedDefault(expr, defaultVal, args)
+  result = result.replaceAll(defaultPlaceholderRegex, (expr, pos, def) => {
+    const i = Number(pos) - 1
+    if (i < args.length && args[i].trim() !== "") return args[i]
+    return resolve(expr, def, args)
   })
 
   result = result.replaceAll(extendedPlaceholderRegex, (_, start, dotsAndEnd) => {
-    const startIndex = start ? Number(start) : 1
+    const from = start ? Number(start) : 1
     const hasDots = dotsAndEnd !== undefined
-    const endIndex = hasDots
-      ? dotsAndEnd.length > 2
-        ? Number(dotsAndEnd.slice(2))
-        : undefined
-      : undefined
-    const argStart = startIndex - 1
-    if (argStart >= args.length) return ""
-    const actualEndIndex = hasDots ? endIndex : startIndex
-    const slice = args.slice(argStart, actualEndIndex)
-    const nonEmpty = slice.filter((arg) => arg.trim() !== "")
-    return nonEmpty.join(" ")
+    const to = hasDots ? (dotsAndEnd.length > 2 ? Number(dotsAndEnd.slice(2)) : undefined) : undefined
+    const i = from - 1
+    if (i >= args.length) return ""
+    const end = hasDots ? to : from
+    return args.slice(i, end).filter((arg) => arg.trim() !== "").join(" ")
   })
 
   result = result.replaceAll(placeholderRegex, (_, index) => {
-    const argIndex = Number(index) - 1
-    if (argIndex >= args.length) return ""
-    return args[argIndex]
+    const i = Number(index) - 1
+    if (i >= args.length) return ""
+    return args[i]
   })
 
   result = result.replace(/\$ARGUMENTS\b/g, args.join(" "))
 
   const hasPlaceholders =
-    simplePlaceholders.length > 0 || extendedPlaceholders.length > 0 ||
-    defaultPlaceholders.length > 0 || rangeWithDefaultPlaceholders.length > 0 ||
+    simple.length > 0 ||
+    extended.length > 0 ||
+    defaults.length > 0 ||
+    ranged.length > 0 ||
     template.includes("$ARGUMENTS")
 
   return { result, hasPlaceholders }

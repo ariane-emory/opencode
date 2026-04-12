@@ -1577,11 +1577,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
         const args = input.arguments.match(argsRegex) ?? []
         const templateCommand = yield* Effect.promise(async () => cmd.template)
 
-        const { result: withArgs, hasPlaceholders } = substituteArguments(
-          templateCommand,
-          args,
-        )
-
+        const { result: withArgs, hasPlaceholders } = substituteArguments(templateCommand, args)
         const usesArgumentsPlaceholder = templateCommand.includes("$ARGUMENTS")
         let template = withArgs.replaceAll("$ARGUMENTS", input.arguments)
 
@@ -1944,7 +1940,6 @@ NOTE: At any point in time through this workflow you should feel free to ask the
   export const substituteArguments = _substituteArguments
 
   const quoteTrimRegex = /^["']|["']$/g
-  const placeholderRegex = /\$(\d+)/g
 
   export async function command(input: CommandInput) {
     return runPromise((svc) => svc.command(CommandInput.parse(input)))

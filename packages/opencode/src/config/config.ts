@@ -1236,7 +1236,7 @@ export namespace Config {
       })
     }
 
-    const parsed = RawInfo.safeParse(data)
+    const parsed = Info.safeParse(data)
     if (parsed.success) return parsed.data as Info
 
     throw new InvalidError({

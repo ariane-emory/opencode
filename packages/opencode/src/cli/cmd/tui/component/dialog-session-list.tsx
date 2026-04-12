@@ -15,6 +15,7 @@ import { createDebouncedSignal } from "../util/signal"
 import { useToast } from "../ui/toast"
 import { DialogWorkspaceCreate, openWorkspaceSession } from "./dialog-workspace-create"
 import { Spinner } from "./spinner"
+import { parseSessionTitleParts } from "@tui/util/session-title"
 
 type WorkspaceStatus = "connected" | "connecting" | "disconnected" | "error"
 
@@ -58,64 +59,70 @@ export function DialogSessionList() {
 
   const options = createMemo(() => {
     const today = new Date().toDateString()
-    return sessions()
-      .filter((x) => x.parentID === undefined)
-      .toSorted((a, b) => b.time.updated - a.time.updated)
-      .map((x) => {
-        const workspace = x.workspaceID ? project.workspace.get(x.workspaceID) : undefined
+    const all = sessions().filter((x) => x.parentID === undefined)
+    const grouped = all.filter((x) => parseSessionTitleParts(x.title).group)
+    const plain = all.filter((x) => !parseSessionTitleParts(x.title).group)
 
-        let workspaceStatus: WorkspaceStatus | null = null
-        if (x.workspaceID) {
-          workspaceStatus = project.workspace.status(x.workspaceID) || "error"
-        }
+    const footer = (x: (typeof all)[number], grouped: boolean) => {
+      if (!Flag.OPENCODE_EXPERIMENTAL_WORKSPACES || !x.workspaceID) {
+        return grouped ? Locale.shortDateTime(x.time.updated) : Locale.time(x.time.updated)
+      }
 
-        let footer = ""
-        if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES) {
-          if (x.workspaceID) {
-            let desc = "unknown"
-            if (workspace) {
-              desc = `${workspace.type}: ${workspace.name}`
-            }
+      const workspace = project.workspace.get(x.workspaceID)
+      const status = (project.workspace.status(x.workspaceID) || "error") as WorkspaceStatus
+      const desc = workspace ? `${workspace.type}: ${workspace.name}` : "unknown"
 
-            footer = (
-              <>
-                {desc}{" "}
-                <span
-                  style={{
-                    fg:
-                      workspaceStatus === "error"
-                        ? theme.error
-                        : workspaceStatus === "disconnected"
-                          ? theme.textMuted
-                          : theme.success,
-                  }}
-                >
-                  ■
-                </span>
-              </>
-            )
-          }
-        } else {
-          footer = Locale.time(x.time.updated)
-        }
+      return (
+        <>
+          {desc}{" "}
+          <span
+            style={{
+              fg: status === "error" ? theme.error : status === "disconnected" ? theme.textMuted : theme.success,
+            }}
+          >
+            ■
+          </span>
+        </>
+      )
+    }
 
-        const date = new Date(x.time.updated)
-        let category = date.toDateString()
-        if (category === today) {
-          category = "Today"
-        }
-        const isDeleting = toDelete() === x.id
+    grouped.sort((a, b) => {
+      const ag = parseSessionTitleParts(a.title).group ?? ""
+      const bg = parseSessionTitleParts(b.title).group ?? ""
+      const cmp = ag.localeCompare(bg)
+      if (cmp !== 0) return cmp
+      return b.time.updated - a.time.updated
+    })
+    plain.sort((a, b) => b.time.updated - a.time.updated)
+
+    return [
+      ...grouped.map((x) => {
+        const parts = parseSessionTitleParts(x.title)
         const status = sync.data.session_status?.[x.id]
-        const isWorking = status?.type === "busy"
+        const deleting = toDelete() === x.id
         return {
-          title: isDeleting ? `Press ${keybind.print("session_delete")} again to confirm` : x.title,
-          bg: isDeleting ? theme.error : undefined,
+          title: deleting ? `Press ${keybind.print("session_delete")} again to confirm` : parts.rest,
+          bg: deleting ? theme.error : undefined,
           value: x.id,
-          category,
-          footer,
-          gutter: isWorking ? <Spinner /> : undefined,
+          category: parts.group,
+          footer: footer(x, true),
+          gutter: status?.type === "busy" ? <Spinner /> : undefined,
         }
-      })
+      }),
+      ...plain.map((x) => {
+        const date = new Date(x.time.updated)
+        const status = sync.data.session_status?.[x.id]
+        const deleting = toDelete() === x.id
+        return {
+          title: deleting ? `Press ${keybind.print("session_delete")} again to confirm` : x.title,
+          bg: deleting ? theme.error : undefined,
+          value: x.id,
+          category: date.toDateString() === today ? "Today" : date.toDateString(),
+          footer: footer(x, false),
+          gutter: status?.type === "busy" ? <Spinner /> : undefined,
+        }
+      }),
+    ]
   })
 
   onMount(() => {

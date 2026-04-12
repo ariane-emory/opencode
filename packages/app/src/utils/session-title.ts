@@ -5,3 +5,12 @@ export function sessionTitle(title?: string) {
   const match = title.match(pattern)
   return match?.[1] ?? title
 }
+
+export function formatSessionTitle(title: string): string {
+  const pipe = title.indexOf("|")
+  if (pipe === -1) return sessionTitle(title) ?? title
+  const group = title.slice(0, pipe).trim()
+  const rest = sessionTitle(title.slice(pipe + 1).trim()) ?? ""
+  if (!group) return rest
+  return `${group.charAt(0).toUpperCase() + group.slice(1)}: ${rest}`
+}

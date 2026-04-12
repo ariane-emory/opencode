@@ -44,7 +44,7 @@
 | ☑ | 38 | feat/configurable-message-and-session-limit | origin | ad7ab9ee4e | Conflicts in config.ts, dialog-session-list.tsx, types.gen.ts; combined grouping+bookmarks with session_list_limit |
 | ☑ | 39 | feat/experimental-dont-cache-command-markdown | origin | 2fa3196e3d | Major rewrite of command/index.ts; added mtime-based command cache with cache bypass |
 | ☑ | 40 | feat/jsonc-user-themes | origin | 9b0a2983ed | Clean merge |
-| ☐ | 41 | feat/shell-advice | origin | TBD | Combine with feat/improve-bash-tool-git-advice bash tool description changes |
+| ☑ | 41 | feat/shell-advice | origin | fed739a810 | Fixed BashTool.init→initBash, added ${shellName} replaceAll, updated test patterns |
 | ☐ | 42 | feat/improve-bash-tool-git-advice | origin | TBD | Combine with feat/shell-advice bash tool description changes |
 | ☐ | 43 | feat/edit-tool-description | origin | TBD | |
 | ☐ | 44 | feat/renaming-doesnt-close-session-list | origin | TBD | |
@@ -127,3 +127,4 @@
 38. **feat/configurable-message-and-session-limit** (ad7ab9ee4e) - Conflicts in config.ts (combined plan_mode+enable_exa+diff_style with messages_limit+session_list_limit), dialog-session-list.tsx (combined bookmarks+grouping display with session_list_limit), and SDK types.gen.ts (restored HEAD version and added messages_limit+session_list_limit to experimental section).
 39. **feat/experimental-dont-cache-command-markdown** (2fa3196e3d) - Conflicts in config.ts (combined experimentalPlanMode+experimentalEnableExa with reloadCommands re-export) and command/index.ts (auto-merge produced broken code; manually rewrote to add mtime-based command cache, findCommandFile, loadSingleCommand, loadFreshCommandsWithMtime helpers, and cache bypass in get/list). Removed .default(true) from cache_command_markdown_files schema to fix test type errors.
 40. **feat/jsonc-user-themes** (9b0a2983ed) - Clean merge, no conflicts.
+41. **feat/shell-advice** (fed739a810) - Tests used old BashTool.init() API; fixed to use initBash(). Added .replaceAll("${shellName}", name) to bash.ts to properly substitute the new template variable. Updated test patterns to match current description format (Shell: instead of **Shell**:).

@@ -1,8 +1,9 @@
 import { BusEvent } from "@/bus/bus-event"
 import { InstanceState } from "@/effect/instance-state"
-import { makeRuntime } from "@/effect/run-service"
+import type { InstanceContext } from "@/project/instance"
 import { SessionID, MessageID } from "@/session/schema"
-import { Effect, Layer, ServiceMap } from "effect"
+import { Effect, Layer, Context } from "effect"
+import { EffectLogger } from "@/effect/logger"
 import z from "zod"
 import path from "path"
 import fs from "fs/promises"
@@ -274,7 +275,7 @@ export namespace Command {
     readonly list: () => Effect.Effect<Info[]>
   }
 
-  export class Service extends ServiceMap.Service<Service, Interface>()("@opencode/Command") {}
+  export class Service extends Context.Service<Service, Interface>()("@opencode/Command") {}
 
   export const layer = Layer.effect(
     Service,
@@ -283,7 +284,7 @@ export namespace Command {
       const mcp = yield* MCP.Service
       const skill = yield* Skill.Service
 
-      const init = Effect.fn("Command.state")(function* (ctx) {
+      const init = Effect.fn("Command.state")(function* (ctx: InstanceContext) {
         const cfg = yield* config.get()
         const commands: Record<string, Info> = {}
 
@@ -344,6 +345,7 @@ export namespace Command {
                           .map((message) => (message.content.type === "text" ? message.content.text : ""))
                           .join("\n") || "",
                     ),
+                    Effect.provide(EffectLogger.layer),
                   ),
               )
             },
@@ -433,10 +435,4 @@ export namespace Command {
     Layer.provide(MCP.defaultLayer),
     Layer.provide(Skill.defaultLayer),
   )
-
-  const { runPromise } = makeRuntime(Service, defaultLayer)
-
-  export async function list() {
-    return runPromise((svc) => svc.list())
-  }
 }

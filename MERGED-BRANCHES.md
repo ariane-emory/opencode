@@ -18,8 +18,8 @@
 | ☑ | 12 | feat/configurable-new-plan-mode | origin | 8a91b599bc | Clean merge |
 | ☑ | 13 | feat/enable-exa-setting | origin | e8e038a022 | Conflict in config.ts; combined plan_mode + enable_exa experimental settings |
 | ☑ | 14 | withheld/feat/canceled-prompts-in-history | origin | be6b9c61df | Conflict in app.tsx; added both markdown toggle and cleared-prompt-history items to command palette |
-| ☐ | 15 | feat/permission-spinner | origin | TBD | |
-| ☐ | 16 | feat/opencode-expand | origin | TBD | |
+| ☑ | 15 | feat/permission-spinner | origin | 1fa4beb230 | Clean merge |
+| ☑ | 16 | feat/opencode-expand | origin | a8a6bfada0 | Conflict in prompt.ts; kept both Config and substituteArguments imports |
 | ☐ | 17 | feat/argument-range-syntax | origin | TBD | |
 | ☐ | 18 | feat/default-arguments | origin | TBD | Don't reintroduce swallowing behaviour that feat/argument-range-syntax eliminated |
 | ☐ | 19 | fix/preserve-quotes-in-arguments | origin | TBD | |
@@ -101,3 +101,5 @@
 12. **feat/configurable-new-plan-mode** (8a91b599bc) - Clean merge, no conflicts.
 13. **feat/enable-exa-setting** (e8e038a022) - Conflict in config.ts: combined plan_mode and enable_exa experimental settings (both schema fields and accessor functions).
 14. **withheld/feat/canceled-prompts-in-history** (be6b9c61df) - Conflict in app.tsx command palette: kept both markdown_all toggle and cleared-prompt-history toggle as separate items.
+15. **feat/permission-spinner** (1fa4beb230) - Clean merge, no conflicts.
+16. **feat/opencode-expand** (a8a6bfada0) - Conflict in prompt.ts imports: kept both Config and substituteArguments imports.

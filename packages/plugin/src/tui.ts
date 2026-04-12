@@ -273,10 +273,6 @@ export type TuiState = {
     directory: string
   }
   readonly vcs: { branch?: string } | undefined
-  readonly workspace: {
-    list: () => ReadonlyArray<Workspace>
-    get: (workspaceID: string) => Workspace | undefined
-  }
   session: {
     count: () => number
     diff: (sessionID: string) => ReadonlyArray<TuiSidebarFileItem>
@@ -485,8 +481,6 @@ export type TuiPluginApi = {
   state: TuiState
   theme: TuiTheme
   client: OpencodeClient
-  scopedClient: (workspaceID?: string) => OpencodeClient
-  workspace: TuiWorkspace
   event: TuiEventBus
   renderer: CliRenderer
   slots: TuiSlots

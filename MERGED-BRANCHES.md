@@ -48,7 +48,7 @@
 | ☑ | 42 | feat/improve-bash-tool-git-advice | origin | 47ccba0461 | Conflict in bash.txt; kept ${shellName} from HEAD |
 | ☑ | 43 | feat/edit-tool-description | origin | b7559dfe84 | Clean merge |
 | ☑ | 44 | feat/renaming-doesnt-close-session-list | origin | 0c2a1c416f | Conflict in dialog-session-list.tsx; kept pinKeybind+defaultSessionID, added initialSessionID support |
-| ☐ | 45 | feat/session-child-toggle-key | origin | TBD | |
+| ☑ | 45 | feat/session-child-toggle-key | origin | db0c1da68d | Conflict in config.ts; kept session_continue + added session_child_toggle |
 | ☐ | 46 | feat/set-session-title | origin | TBD | |
 | ☐ | 47 | feat/get-session-title | origin | TBD | |
 | ☐ | 48 | feat/no-disabled-lsps-in-sidebar | origin | TBD | |
@@ -131,3 +131,4 @@
 42. **feat/improve-bash-tool-git-advice** (47ccba0461) - Conflict in bash.txt PR creation section; kept HEAD's ${shellName} template variable over feature branch's hardcoded "bash".
 43. **feat/edit-tool-description** (b7559dfe84) - Clean merge, no conflicts.
 44. **feat/renaming-doesnt-close-session-list** (0c2a1c416f) - Conflict in dialog-session-list.tsx. Kept pinKeybind, pinned-aware defaultSessionID sorting, and search-based sessions memo. Added initialSessionID prop support from feature branch.
+45. **feat/session-child-toggle-key** (db0c1da68d) - Conflict in config.ts keybinds. Kept session_continue from HEAD and added session_child_toggle from feature branch.

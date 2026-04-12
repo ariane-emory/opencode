@@ -17,7 +17,7 @@
 | ☑ | 11 | feat/configurable-snapshot-lifespan | origin | 0536072e8b | Clean merge |
 | ☑ | 12 | feat/configurable-new-plan-mode | origin | 8a91b599bc | Clean merge |
 | ☑ | 13 | feat/enable-exa-setting | origin | e8e038a022 | Conflict in config.ts; combined plan_mode + enable_exa experimental settings |
-| ☐ | 14 | withheld/feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber; must add new item to command palette |
+| ☑ | 14 | withheld/feat/canceled-prompts-in-history | origin | be6b9c61df | Conflict in app.tsx; added both markdown toggle and cleared-prompt-history items to command palette |
 | ☐ | 15 | feat/permission-spinner | origin | TBD | |
 | ☐ | 16 | feat/opencode-expand | origin | TBD | |
 | ☐ | 17 | feat/argument-range-syntax | origin | TBD | |
@@ -100,3 +100,4 @@
 11. **feat/configurable-snapshot-lifespan** (0536072e8b) - Clean merge, no conflicts.
 12. **feat/configurable-new-plan-mode** (8a91b599bc) - Clean merge, no conflicts.
 13. **feat/enable-exa-setting** (e8e038a022) - Conflict in config.ts: combined plan_mode and enable_exa experimental settings (both schema fields and accessor functions).
+14. **withheld/feat/canceled-prompts-in-history** (be6b9c61df) - Conflict in app.tsx command palette: kept both markdown_all toggle and cleared-prompt-history toggle as separate items.

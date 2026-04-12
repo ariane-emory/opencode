@@ -27,11 +27,11 @@
 | ☑ | 21 | fix/build-with-short-version | origin | 8414afb4f8 | Clean merge |
 | ☑ | 22 | fix/autocompletion-filtered-order | origin | ff2f89981e | Conflicts in prompt/index.tsx; kept SINISTER_PLACEHOLDERS, listContinuation, placeholder effect |
 | ☑ | 23 | fix/modal-menus-filtered-order | origin | 95782d8d89 | Conflicts in autocomplete.tsx, dialog-select.tsx, use-filtered-list.tsx; combined fuzzysort + sortKey prefix sorting |
-| ☐ | 24 | fix/config-package-json-pollution | origin | TBD | Prevents package.json pollution with non-SemVer versions |
-| ☐ | 25 | fix/session-list-viewport-jumping | origin | TBD | |
-| ☐ | 26 | fix/merging-multiple-configs | origin | TBD | |
-| ☐ | 27 | fix/markdown-codeblock-theme-property | origin | TBD | |
-| ☐ | 28 | fix/persist-sidebar | origin | TBD | Makes sidebar display state persistent; removes auto-hide on narrow terminal; no return to auto state after show/hide |
+| ☑ | 24 | fix/config-package-json-pollution | origin | 5b2a8840f2 | Clean merge |
+| ☑ | 25 | fix/session-list-viewport-jumping | origin | 1e2a354179 | Clean merge |
+| ☑ | 26 | fix/merging-multiple-configs | origin | 133b9837c3 | RawInfo -> Info fix |
+| ☑ | 27 | fix/markdown-codeblock-theme-property | origin | 99179e6768 | Clean merge |
+| ☑ | 28 | fix/persist-sidebar | origin | 3fd442791f | Conflicts in prompt/index.tsx; kept PLACEHOLDERS, listContinuation, placeholder effect |
 | ☐ | 29 | feat/persist-sidebar-group-folding-states | origin | TBD | Be sure not to let this get clobbered by subsequent merges |
 | ☐ | 30 | feat/permission-indicator-in-sidebar | origin | TBD | |
 | ☐ | 31 | feat/command-palette-consistency | origin | TBD | Moves items from Session to System category; do not duplicate into both categories |

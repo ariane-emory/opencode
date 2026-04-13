@@ -68,7 +68,7 @@
 | ☑ | 62 | feat/clickable-dialogue-mcps | origin | 60fbc432b1 | Clean merge |
 | ☑ | 63 | feat/clickable-status-mcps | origin | 39c223ed7d | Conflict in dialog-status.tsx; combined sessionID memo with clickable MCP toggle |
 | ☑ | 64 | feat/ignored-commands | origin | a611d74d46 | Conflict in config.ts; added ignored field + kept catchall(z.any()) |
-| ☐ | 65 | feat/dialogue-background-overlay-setting | origin | TBD | |
+| ☑ | 65 | feat/dialogue-background-overlay-setting | origin | a21421022a | Conflicts in config.ts + SDK types; combined all experimental fields + added dialog_background_overlay |
 | ☐ | 66 | fix/no-split-database | origin | TBD | |
 | ☐ | 67 | feat/elapsed-timer | origin | TBD | |
 | ☐ | 68 | fix/rfc2119-question-tool | origin | TBD | |
@@ -150,3 +150,4 @@
 61. **feat/clickable-sidebar-mcps** (8954fd364c) - Conflict in sidebar/mcp.tsx. Kept HEAD's folding persistence (sidebar_expanded_mcp kv) and added loading signal from feature branch for clickable MCP tool calls.
 152. **feat/clickable-status-mcps** (39c223ed7d) - Conflict in dialog-status.tsx. Combined HEAD's useRoute/sessionID memo with feature's useLocal/useSDK/loading signal/handleToggle for clickable MCP toggle in status dialog.
 153. **feat/ignored-commands** (a611d74d46) - Conflict in config.ts Command schema. Added `ignored: z.boolean().optional()` from feature branch while keeping `.catchall(z.any())` from HEAD. Auto-merged command/index.ts, prompt.ts, and SDK types cleanly.
+154. **feat/dialogue-background-overlay-setting** (a21421022a) - Conflicts in config.ts and SDK types.gen.ts. Kept all HEAD experimental fields (plan_mode, enable_exa, messages_limit, session_list_limit, max_prompt_input_lines) and added dialog_background_overlay enum from feature branch.

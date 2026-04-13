@@ -59,7 +59,7 @@
 | ☑ | 53 | feat/add-arianes-themes | origin | 47d6511f96 | Clean merge, 54 theme JSON files added |
 | ☑ | 54 | feat/aspiers--readline-additions | origin | 26aba7b42d | Conflict in SDK types; added readline keybinds, kept index signature |
 | ☑ | 55 | feat/sidebar-clock | origin | 75e30d3ce5 | Conflicts in app.tsx + sidebar.tsx; kept BaseOne branding, added clock toggle |
-| ☐ | 56 | feat/alphabetical-message-modal | origin | TBD | |
+| ☑ | 56 | feat/alphabetical-message-modal | origin | c4965ee05f | Conflict in dialog-select.tsx; kept smartCompare, added store.filter bypass |
 | ☐ | 57 | feat/toggle-sidebar-scrollbar | origin | TBD | |
 | ☐ | 58 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | TBD | |
 | ☐ | 59 | feat/configurable-maximum-prompt-input-size | origin | TBD | |
@@ -142,3 +142,4 @@
 53. **feat/add-arianes-themes** (47d6511f96) - Clean merge. Added 54 theme JSON files and theme registration in theme.tsx.
 54. **feat/aspiers--readline-additions** (26aba7b42d) - Conflict in SDK types.gen.ts. Added readline keybinds (input_lowercase_word, input_uppercase_word, input_capitalize_word, input_yank) and kept [key: string] index signature.
 55. **feat/sidebar-clock** (75e30d3ce5) - Conflicts in app.tsx and sidebar.tsx. Kept BaseOne branding in sidebar footer, added sidebar clock toggle as System palette item. Added useKV import and clock display with showSidebarClock memo.
+56. **feat/alphabetical-message-modal** (c4965ee05f) - Conflict in dialog-select.tsx. Kept HEAD's smartCompare sorting but added `store.filter` bypass from feature branch (skip sorting when filter is active). Removed duplicate sort prop.

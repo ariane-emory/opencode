@@ -65,7 +65,7 @@ export function DialogSessionList() {
 
     const footer = (x: (typeof all)[number], grouped: boolean) => {
       if (!Flag.OPENCODE_EXPERIMENTAL_WORKSPACES || !x.workspaceID) {
-        return grouped ? Locale.shortDateTime(x.time.updated) : Locale.time(x.time.updated)
+        return grouped ? Locale.todayTimeOrDateTime(x.time.updated) : Locale.time(x.time.updated)
       }
 
       const workspace = project.workspace.get(x.workspaceID)

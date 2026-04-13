@@ -11,7 +11,7 @@ import { Installation } from "../installation"
 import { Database, NotFoundError, eq, and, gte, isNull, desc, like, inArray, lt } from "../storage/db"
 import { SyncEvent } from "../sync"
 import type { SQL } from "../storage/db"
-import { PartTable, SessionTable } from "./session.sql"
+import { MessageTable, PartTable, SessionTable } from "./session.sql"
 import { ProjectTable } from "../project/project.sql"
 import { Storage } from "@/storage/storage"
 import { Log } from "../util/log"
@@ -31,6 +31,7 @@ import { Global } from "@/global"
 import type { LanguageModelV2Usage } from "@ai-sdk/provider"
 import { Effect, Layer, Option, Context } from "effect"
 import { makeRuntime } from "@/effect/run-service"
+import { SessionRunState } from "./run-state"
 
 export namespace Session {
   const log = Log.create({ service: "session" })
@@ -716,6 +717,29 @@ export namespace Session {
       })
       .optional(),
     (input) => runPromise((svc) => svc.create(input)),
+  )
+
+  const rewindRuntime = makeRuntime(SessionRunState.Service, SessionRunState.defaultLayer)
+
+  export const rewind = fn(
+    z.object({
+      sessionID: SessionID.zod,
+      messageID: MessageID.zod,
+    }),
+    async (input) => {
+      await rewindRuntime.runPromise((svc) => svc.assertNotBusy(input.sessionID))
+      const msgs = await messages({ sessionID: input.sessionID })
+      for (const msg of msgs) {
+        if (msg.info.id >= input.messageID) {
+          Database.use((db) => db.delete(MessageTable).where(eq(MessageTable.id, msg.info.id)).run())
+          Bus.publish(MessageV2.Event.Removed, {
+            sessionID: input.sessionID,
+            messageID: msg.info.id,
+          })
+        }
+      }
+      return get(input.sessionID)
+    },
   )
 
   export const fork = fn(z.object({ sessionID: SessionID.zod, messageID: MessageID.zod.optional() }), (input) =>

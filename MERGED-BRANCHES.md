@@ -81,7 +81,7 @@
 | ☑ | 75 | fix/restore-footer | origin | b74802e468 | Auto-merged but needed fix: added missing Footer import |
 | ☑ | 76 | feat/remove-canned-jokes | origin | 1609033cb2 | Clean merge |
 | ☑ | 77 | fix/session-list-delete-selection | origin | c8328acaca | Conflicts in dialog-select.tsx (kept scrollToValue + moveTo) + dialog-session-list.tsx (trivial) |
-| ☐ | 78 | feat/kimi-with-claude-system-prompt | origin | TBD | |
+| ☑ | 78 | feat/kimi-with-claude-system-prompt | origin | 4be5db69b8 | Clean merge |
 | ☐ | 79 | fix/less-bottom-padding | origin | TBD | |
 | ☐ | 80 | fix/no-footer-context-when-sidebar | origin | TBD | |
 
@@ -163,3 +163,4 @@
 164. **fix/restore-footer** (b74802e468) - Auto-merged but had missing `Footer` import. Added `import { Footer } from "./footer.tsx"` to fix typecheck.
 165. **feat/remove-canned-jokes** (1609033cb2) - Clean merge, no conflicts.
 166. **fix/session-list-delete-selection** (c8328acaca) - Conflicts in dialog-select.tsx (kept both scrollToValue and moveTo in ref type and implementation) and dialog-session-list.tsx (trivial whitespace).
+167. **feat/kimi-with-claude-system-prompt** (4be5db69b8) - Clean merge, no conflicts.

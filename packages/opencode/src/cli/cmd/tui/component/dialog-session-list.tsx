@@ -82,10 +82,10 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
     if (!sync.ready) return []
     const today = new Date().toDateString()
     const all = sessions().filter((x) => x.parentID === undefined)
-    const grouped = all.filter((x) => parseSessionTitleParts(x.title).group)
-    const plain = all.filter((x) => !parseSessionTitleParts(x.title).group)
-    const pinned = plain.filter((x) => x.time.pinned !== undefined).toSorted((a, b) => (b.time.pinned ?? 0) - (a.time.pinned ?? 0))
-    const unpinned = plain.filter((x) => x.time.pinned === undefined)
+    const pinned = all.filter((x) => x.time.pinned !== undefined).toSorted((a, b) => (b.time.pinned ?? 0) - (a.time.pinned ?? 0))
+    const unpinned = all.filter((x) => x.time.pinned === undefined)
+    const grouped = unpinned.filter((x) => parseSessionTitleParts(x.title).group)
+    const plain = unpinned.filter((x) => !parseSessionTitleParts(x.title).group)
 
     const footer = (x: (typeof all)[number], grouped: boolean, showDate: boolean) => {
       if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES && x.workspaceID) {
@@ -118,7 +118,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
       if (cmp !== 0) return cmp
       return b.time.updated - a.time.updated
     })
-    unpinned.sort((a, b) => b.time.updated - a.time.updated)
+    plain.sort((a, b) => b.time.updated - a.time.updated)
 
     return [
       ...pinned.map((x) => {
@@ -146,7 +146,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
           gutter: status?.type === "busy" ? <Spinner /> : undefined,
         }
       }),
-      ...unpinned.map((x) => {
+      ...plain.map((x) => {
         const date = new Date(x.time.updated)
         const status = sync.data.session_status?.[x.id]
         const deleting = toDelete() === x.id

@@ -703,6 +703,19 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       category: "System",
     },
     {
+      title: kv.get("agent_timestamps", "hide") === "show" ? "Hide agent timestamps" : "Show agent timestamps",
+      value: "session.toggle.agent_timestamps_global",
+      category: "System",
+      slash: {
+        name: "agent-timestamps",
+      },
+      onSelect: (dialog) => {
+        const current = kv.get("agent_timestamps", "hide")
+        kv.set("agent_timestamps", current === "show" ? "hide" : "show")
+        dialog.clear()
+      },
+    },
+    {
       title: "Exit the app",
       value: "app.exit",
       slash: {

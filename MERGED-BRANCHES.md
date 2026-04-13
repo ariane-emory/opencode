@@ -53,7 +53,7 @@
 | ☑ | 47 | feat/get-session-title | origin | b9005be510 | Conflicts in registry.ts; kept bookmark+set-session-title, added get-session-title tool |
 | ☑ | 48 | feat/no-disabled-lsps-in-sidebar | origin | fa41989296 | Conflict in sidebar/lsp.tsx; hid LSP section when disabled |
 | ☑ | 49 | feat/agent-timestamps | origin | 2645419940 | Conflict in session/index.tsx; kept sidebarOverlay fix + added showAgentTimestamps |
-| ☐ | 50 | feat/rewind-modal-option | origin | TBD | |
+| ☑ | 50 | feat/rewind-modal-option | origin | abe88f82ec | Clean merge |
 | ☐ | 51 | feat/alphabetize-command-palette-groups | origin | TBD | |
 | ☐ | 52 | feat/taller-dialogs | origin | TBD | |
 | ☐ | 53 | feat/add-arianes-themes | origin | TBD | |
@@ -136,3 +136,4 @@
 47. **feat/get-session-title** (b9005be510) - Conflicts in registry.ts imports and tool map. Added GetCurrentSessionTitleTool as getsessiontitle (separate key from sessiontitle which is SetCurrentSessionTitleTool). Both tools registered in builtin list.
 48. **feat/no-disabled-lsps-in-sidebar** (fa41989296) - Conflict in sidebar/lsp.tsx. Took feature branch's approach: wraps LSP section in `<Show when={!off()}>` to hide entirely when LSPs disabled. Removed unused toggle function.
 49. **feat/agent-timestamps** (2645419940) - Conflict in session/index.tsx. Kept HEAD's sidebarOverlay-aware contentWidth and added showAgentTimestamps memo from feature branch.
+50. **feat/rewind-modal-option** (abe88f82ec) - Clean merge, no conflicts.

@@ -587,13 +587,7 @@ export function Autocomplete(props: {
           }
           if (name === "return") {
             select()
-            // After selection, autocomplete is hidden. If the key that triggered
-            // this is also the submit keybinding, we need to let the event
-            // propagate so the prompt can handle submission.
-            // Only prevent default if autocomplete is still visible (selection failed).
-            if (store.visible) {
-              e.preventDefault()
-            }
+            e.preventDefault()
             return
           }
           if (name === "tab") {

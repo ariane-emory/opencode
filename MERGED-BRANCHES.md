@@ -172,3 +172,7 @@
 - **Hardcoded VERSION**: Changed `meta.ts` fallback from `"local"` to `"2026-04-12-16-07"`
 - **Fixed SemVer validation**: Wrapped `getReleaseType()` in installation/index.ts with try-catch to handle non-semver version strings
 - **Set CHANNEL to "local"**: Changed `OPENCODE_CHANNEL` in build.ts from `Script.channel` to `'local'`
+
+## Post-Integration Fixes
+
+- **feat/session-grouping** updated on origin after integration: commit `343898ffbb` restored full datetime for grouped sessions when the session is not from the current day. Re-merged into this integration branch in commit `094f2e70a4`.

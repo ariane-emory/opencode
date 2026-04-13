@@ -61,7 +61,7 @@
 | ☑ | 55 | feat/sidebar-clock | origin | 75e30d3ce5 | Conflicts in app.tsx + sidebar.tsx; kept BaseOne branding, added clock toggle |
 | ☑ | 56 | feat/alphabetical-message-modal | origin | c4965ee05f | Conflict in dialog-select.tsx; kept smartCompare, added store.filter bypass |
 | ☑ | 57 | feat/toggle-sidebar-scrollbar | origin | ee07e1bd25 | Conflicts in app.tsx, session/index.tsx, sidebar.tsx; added sidebar scrollbar toggle |
-| ☐ | 58 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | TBD | |
+| ☑ | 58 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | c00eed947a | Conflict in locale.ts; took feature's MONTHS+padding approach |
 | ☐ | 59 | feat/configurable-maximum-prompt-input-size | origin | TBD | |
 | ☐ | 60 | fix/always-allow-folding-sidebar-mcps | origin | TBD | |
 | ☐ | 61 | feat/clickable-sidebar-mcps | origin | TBD | |
@@ -144,3 +144,4 @@
 55. **feat/sidebar-clock** (75e30d3ce5) - Conflicts in app.tsx and sidebar.tsx. Kept BaseOne branding in sidebar footer, added sidebar clock toggle as System palette item. Added useKV import and clock display with showSidebarClock memo.
 56. **feat/alphabetical-message-modal** (c4965ee05f) - Conflict in dialog-select.tsx. Kept HEAD's smartCompare sorting but added `store.filter` bypass from feature branch (skip sorting when filter is active). Removed duplicate sort prop.
 57. **feat/toggle-sidebar-scrollbar** (ee07e1bd25) - Conflicts in app.tsx, session/index.tsx, sidebar.tsx. Added showSidebarScrollbar signal, showScrollbar prop on Sidebar component, and sidebar_scrollbar toggle in System palette. Kept HEAD's sidebarOverlay condition for sidebar visibility.
+58. **feat/full-datetimes-in-fork-and-timeline-dialogues** (c00eed947a) - Conflict in locale.ts. Took feature branch's explicit MONTHS array with day padding instead of toLocaleDateString for consistent alignment.

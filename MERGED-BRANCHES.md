@@ -72,7 +72,7 @@
 | ☑ | 66 | fix/no-split-database | origin | 867fe2cda2 | Clean merge |
 | ☑ | 67 | feat/elapsed-timer | origin | 19a91549b3 | Trivial conflicts in session/index.tsx (import formatting + theme destructuring) |
 | ☑ | 68 | fix/rfc2119-question-tool | origin | 4e123da972 | Clean merge |
-| ☐ | 69 | feat/sidebar-header-accent-colours | origin | TBD | |
+| ☑ | 69 | feat/sidebar-header-accent-colours | origin | c0e44608db | Conflict in sidebar/lsp.tsx; kept Show+disabled guard + used accent colour |
 | ☐ | 70 | feat/distinct-title-colour | origin | TBD | Compatible with feat/session-grouping title formatting; both distinct colour AND grouped session formatting |
 | ☐ | 71 | feat/tool-output-colour | origin | TBD | |
 | ☐ | 72 | feat/improve-experimental-plan-mode-prompt | origin | TBD | |
@@ -154,3 +154,4 @@
 155. **fix/no-split-database** (867fe2cda2) - Clean merge, no conflicts.
 156. **feat/elapsed-timer** (19a91549b3) - Trivial conflicts in session/index.tsx: import formatting (single-line vs multi-line) and theme destructuring style. Kept HEAD's style for both.
 157. **fix/rfc2119-question-tool** (4e123da972) - Clean merge, no conflicts.
+158. **feat/sidebar-header-accent-colours** (c0e44608db) - Conflict in sidebar/lsp.tsx. Kept HEAD's `<Show when={!off()}>` wrapper with disabled message, used feature's `theme().accent` for header colour.

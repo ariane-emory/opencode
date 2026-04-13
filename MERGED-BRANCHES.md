@@ -166,3 +166,9 @@
 167. **feat/kimi-with-claude-system-prompt** (4be5db69b8) - Clean merge, no conflicts.
 168. **fix/less-bottom-padding** (161435649a) - Conflict in session/index.tsx. Took feature's approach: added height="100%" minHeight={0} to row, removed paddingTop/paddingBottom from inner box, added minHeight={0}.
 169. **fix/no-footer-context-when-sidebar** (2d33da7cdf) - Clean merge, no conflicts.
+
+## Finishing Tasks
+
+- **Hardcoded VERSION**: Changed `meta.ts` fallback from `"local"` to `"2026-04-12-16-07"`
+- **Fixed SemVer validation**: Wrapped `getReleaseType()` in installation/index.ts with try-catch to handle non-semver version strings
+- **Set CHANNEL to "local"**: Changed `OPENCODE_CHANNEL` in build.ts from `Script.channel` to `'local'`

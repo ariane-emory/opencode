@@ -176,3 +176,4 @@
 ## Post-Integration Fixes
 
 - **feat/session-grouping** updated on origin after integration: commit `343898ffbb` restored full datetime for grouped sessions when the session is not from the current day. Re-merged into this integration branch in commit `094f2e70a4`.
+- **bookmark/group precedence** corrected on integration branch: commit `c46333a6e7` restored `Bookmarks -> Grouped -> Unpinned` ordering so bookmarked grouped sessions appear in `Bookmarks:` rather than grouped sections.

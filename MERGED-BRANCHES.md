@@ -77,7 +77,7 @@
 | ☑ | 71 | feat/tool-output-colour | origin | d27f940c1f | Conflicts in theme.tsx; combined sessionTitle + toolOutput optional colour overrides |
 | ☑ | 72 | feat/improve-experimental-plan-mode-prompt | origin | ebcaa4d932 | Clean merge |
 | ☑ | 73 | fix/input-enter-keybindings | origin | 450b14d306 | Clean merge |
-| ☐ | 74 | fix/escape-from-status | origin | TBD | |
+| ☑ | 74 | fix/escape-from-status | origin | 68900f7d81 | Clean merge |
 | ☐ | 75 | fix/restore-footer | origin | TBD | Restores footer that was removed; must not be clobbered |
 | ☐ | 76 | feat/remove-canned-jokes | origin | TBD | |
 | ☐ | 77 | fix/session-list-delete-selection | origin | TBD | |
@@ -159,3 +159,4 @@
 160. **feat/tool-output-colour** (d27f940c1f) - Conflicts in theme.tsx. Combined both sessionTitle and toolOutput as optional colour overrides in ThemeJson type, filter, and fallback resolution.
 161. **feat/improve-experimental-plan-mode-prompt** (ebcaa4d932) - Clean merge, no conflicts.
 162. **fix/input-enter-keybindings** (450b14d306) - Clean merge, no conflicts.
+163. **fix/escape-from-status** (68900f7d81) - Clean merge, no conflicts.

@@ -64,7 +64,7 @@
 | ☑ | 58 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | c00eed947a | Conflict in locale.ts; took feature's MONTHS+padding approach |
 | ☑ | 59 | feat/configurable-maximum-prompt-input-size | origin | 5777f582c2 | Conflicts in config.ts + SDK types; kept all experimental fields, added max_prompt_input_lines |
 | ☑ | 60 | fix/always-allow-folding-sidebar-mcps | origin | a61a11e912 | Clean merge |
-| ☐ | 61 | feat/clickable-sidebar-mcps | origin | TBD | |
+| ☑ | 61 | feat/clickable-sidebar-mcps | origin | 8954fd364c | Conflict in sidebar/mcp.tsx; kept folding persistence + added loading signal |
 | ☐ | 62 | feat/clickable-dialogue-mcps | origin | TBD | |
 | ☐ | 63 | feat/clickable-status-mcps | origin | TBD | |
 | ☐ | 64 | feat/ignored-commands | origin | TBD | |
@@ -147,3 +147,4 @@
 58. **feat/full-datetimes-in-fork-and-timeline-dialogues** (c00eed947a) - Conflict in locale.ts. Took feature branch's explicit MONTHS array with day padding instead of toLocaleDateString for consistent alignment.
 59. **feat/configurable-maximum-prompt-input-size** (5777f582c2) - Conflicts in config.ts and SDK types. Kept all existing experimental fields and added max_prompt_input_lines. Removed .default(6) to avoid test type errors.
 60. **fix/always-allow-folding-sidebar-mcps** (a61a11e912) - Clean merge, no conflicts.
+61. **feat/clickable-sidebar-mcps** (8954fd364c) - Conflict in sidebar/mcp.tsx. Kept HEAD's folding persistence (sidebar_expanded_mcp kv) and added loading signal from feature branch for clickable MCP tool calls.

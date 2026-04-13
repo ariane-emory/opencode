@@ -79,7 +79,7 @@
 | ☑ | 73 | fix/input-enter-keybindings | origin | 450b14d306 | Clean merge |
 | ☑ | 74 | fix/escape-from-status | origin | 68900f7d81 | Clean merge |
 | ☑ | 75 | fix/restore-footer | origin | b74802e468 | Auto-merged but needed fix: added missing Footer import |
-| ☐ | 76 | feat/remove-canned-jokes | origin | TBD | |
+| ☑ | 76 | feat/remove-canned-jokes | origin | 1609033cb2 | Clean merge |
 | ☐ | 77 | fix/session-list-delete-selection | origin | TBD | |
 | ☐ | 78 | feat/kimi-with-claude-system-prompt | origin | TBD | |
 | ☐ | 79 | fix/less-bottom-padding | origin | TBD | |
@@ -161,3 +161,4 @@
 162. **fix/input-enter-keybindings** (450b14d306) - Clean merge, no conflicts.
 163. **fix/escape-from-status** (68900f7d81) - Clean merge, no conflicts.
 164. **fix/restore-footer** (b74802e468) - Auto-merged but had missing `Footer` import. Added `import { Footer } from "./footer.tsx"` to fix typecheck.
+165. **feat/remove-canned-jokes** (1609033cb2) - Clean merge, no conflicts.

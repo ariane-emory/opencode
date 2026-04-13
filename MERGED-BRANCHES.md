@@ -52,7 +52,7 @@
 | ☑ | 46 | feat/set-session-title | origin | e0a67eb179 | Conflicts in registry.ts; kept planExit+planEnter and added sessiontitle tool |
 | ☑ | 47 | feat/get-session-title | origin | b9005be510 | Conflicts in registry.ts; kept bookmark+set-session-title, added get-session-title tool |
 | ☑ | 48 | feat/no-disabled-lsps-in-sidebar | origin | fa41989296 | Conflict in sidebar/lsp.tsx; hid LSP section when disabled |
-| ☐ | 49 | feat/agent-timestamps | origin | TBD | |
+| ☑ | 49 | feat/agent-timestamps | origin | 2645419940 | Conflict in session/index.tsx; kept sidebarOverlay fix + added showAgentTimestamps |
 | ☐ | 50 | feat/rewind-modal-option | origin | TBD | |
 | ☐ | 51 | feat/alphabetize-command-palette-groups | origin | TBD | |
 | ☐ | 52 | feat/taller-dialogs | origin | TBD | |
@@ -135,3 +135,4 @@
 46. **feat/set-session-title** (e0a67eb179) - Conflicts in registry.ts. Kept planExit+planEnter from HEAD (configurable plan mode) and added sessiontitle tool from feature branch. Both bookmarktool and sessiontitletool are now yielded.
 47. **feat/get-session-title** (b9005be510) - Conflicts in registry.ts imports and tool map. Added GetCurrentSessionTitleTool as getsessiontitle (separate key from sessiontitle which is SetCurrentSessionTitleTool). Both tools registered in builtin list.
 48. **feat/no-disabled-lsps-in-sidebar** (fa41989296) - Conflict in sidebar/lsp.tsx. Took feature branch's approach: wraps LSP section in `<Show when={!off()}>` to hide entirely when LSPs disabled. Removed unused toggle function.
+49. **feat/agent-timestamps** (2645419940) - Conflict in session/index.tsx. Kept HEAD's sidebarOverlay-aware contentWidth and added showAgentTimestamps memo from feature branch.

@@ -83,7 +83,7 @@
 | ☑ | 77 | fix/session-list-delete-selection | origin | c8328acaca | Conflicts in dialog-select.tsx (kept scrollToValue + moveTo) + dialog-session-list.tsx (trivial) |
 | ☑ | 78 | feat/kimi-with-claude-system-prompt | origin | 4be5db69b8 | Clean merge |
 | ☑ | 79 | fix/less-bottom-padding | origin | 161435649a | Conflict in session/index.tsx; took feature's reduced padding + height constraints |
-| ☐ | 80 | fix/no-footer-context-when-sidebar | origin | TBD | |
+| ☑ | 80 | fix/no-footer-context-when-sidebar | origin | 2d33da7cdf | Clean merge |
 
 ## Merge Log
 
@@ -165,3 +165,4 @@
 166. **fix/session-list-delete-selection** (c8328acaca) - Conflicts in dialog-select.tsx (kept both scrollToValue and moveTo in ref type and implementation) and dialog-session-list.tsx (trivial whitespace).
 167. **feat/kimi-with-claude-system-prompt** (4be5db69b8) - Clean merge, no conflicts.
 168. **fix/less-bottom-padding** (161435649a) - Conflict in session/index.tsx. Took feature's approach: added height="100%" minHeight={0} to row, removed paddingTop/paddingBottom from inner box, added minHeight={0}.
+169. **fix/no-footer-context-when-sidebar** (2d33da7cdf) - Clean merge, no conflicts.

@@ -91,7 +91,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
       if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES && x.workspaceID) {
         const workspace = project.workspace.get(x.workspaceID)
         const status = (project.workspace.status(x.workspaceID) || "error") as WorkspaceStatus
-        const desc = workspace ? `: ` : "unknown"
+        const desc = workspace ? `${workspace.type}: ${workspace.name}` : "unknown"
         return (
           <>
             {desc}{" "}
@@ -105,7 +105,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
           </>
         )
       }
-      return grouped ? Locale.todayTimeOrDateTime(x.time.updated) : (showDate ? Locale.shortDateTime(x.time.updated) : Locale.time(x.time.updated))
+      return grouped ? Locale.shortDateTime(x.time.updated) : (showDate ? Locale.shortDateTime(x.time.updated) : Locale.time(x.time.updated))
     }
 
     const sessionsListLimit = sync.data.config.experimental?.session_list_limit

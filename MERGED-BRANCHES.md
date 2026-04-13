@@ -57,7 +57,7 @@
 | ☑ | 51 | feat/alphabetize-command-palette-groups | origin | f8fa5eee34 | Conflicts in dialog-select.tsx; kept smartCompare, removed duplicate sort prop |
 | ☑ | 52 | feat/taller-dialogs | origin | 0b17150c65 | Clean merge |
 | ☑ | 53 | feat/add-arianes-themes | origin | 47d6511f96 | Clean merge, 54 theme JSON files added |
-| ☐ | 54 | feat/aspiers--readline-additions | origin | TBD | |
+| ☑ | 54 | feat/aspiers--readline-additions | origin | 26aba7b42d | Conflict in SDK types; added readline keybinds, kept index signature |
 | ☐ | 55 | feat/sidebar-clock | origin | TBD | |
 | ☐ | 56 | feat/alphabetical-message-modal | origin | TBD | |
 | ☐ | 57 | feat/toggle-sidebar-scrollbar | origin | TBD | |
@@ -140,3 +140,4 @@
 51. **feat/alphabetize-command-palette-groups** (f8fa5eee34) - Conflicts in dialog-select.tsx. Kept HEAD's smartCompare sorting. Removed duplicate sort prop from auto-merge.
 52. **feat/taller-dialogs** (0b17150c65) - Clean merge, no conflicts.
 53. **feat/add-arianes-themes** (47d6511f96) - Clean merge. Added 54 theme JSON files and theme registration in theme.tsx.
+54. **feat/aspiers--readline-additions** (26aba7b42d) - Conflict in SDK types.gen.ts. Added readline keybinds (input_lowercase_word, input_uppercase_word, input_capitalize_word, input_yank) and kept [key: string] index signature.

@@ -71,7 +71,7 @@
 | ☑ | 65 | feat/dialogue-background-overlay-setting | origin | a21421022a | Conflicts in config.ts + SDK types; combined all experimental fields + added dialog_background_overlay |
 | ☑ | 66 | fix/no-split-database | origin | 867fe2cda2 | Clean merge |
 | ☑ | 67 | feat/elapsed-timer | origin | 19a91549b3 | Trivial conflicts in session/index.tsx (import formatting + theme destructuring) |
-| ☐ | 68 | fix/rfc2119-question-tool | origin | TBD | |
+| ☑ | 68 | fix/rfc2119-question-tool | origin | 4e123da972 | Clean merge |
 | ☐ | 69 | feat/sidebar-header-accent-colours | origin | TBD | |
 | ☐ | 70 | feat/distinct-title-colour | origin | TBD | Compatible with feat/session-grouping title formatting; both distinct colour AND grouped session formatting |
 | ☐ | 71 | feat/tool-output-colour | origin | TBD | |
@@ -153,3 +153,4 @@
 154. **feat/dialogue-background-overlay-setting** (a21421022a) - Conflicts in config.ts and SDK types.gen.ts. Kept all HEAD experimental fields (plan_mode, enable_exa, messages_limit, session_list_limit, max_prompt_input_lines) and added dialog_background_overlay enum from feature branch.
 155. **fix/no-split-database** (867fe2cda2) - Clean merge, no conflicts.
 156. **feat/elapsed-timer** (19a91549b3) - Trivial conflicts in session/index.tsx: import formatting (single-line vs multi-line) and theme destructuring style. Kept HEAD's style for both.
+157. **fix/rfc2119-question-tool** (4e123da972) - Clean merge, no conflicts.

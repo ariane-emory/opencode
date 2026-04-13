@@ -378,6 +378,7 @@ describe("tool.task", () => {
             },
           },
           experimental: {
+            max_prompt_input_lines: 6,
             primary_tools: ["bash", "read"],
           },
         },

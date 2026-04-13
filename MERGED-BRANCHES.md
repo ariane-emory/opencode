@@ -74,7 +74,7 @@
 | ☑ | 68 | fix/rfc2119-question-tool | origin | 4e123da972 | Clean merge |
 | ☑ | 69 | feat/sidebar-header-accent-colours | origin | c0e44608db | Conflict in sidebar/lsp.tsx; kept Show+disabled guard + used accent colour |
 | ☑ | 70 | feat/distinct-title-colour | origin | 9c61475438 | Conflict in sidebar.tsx; kept grouped title formatting + used theme.sessionTitle colour |
-| ☐ | 71 | feat/tool-output-colour | origin | TBD | |
+| ☑ | 71 | feat/tool-output-colour | origin | d27f940c1f | Conflicts in theme.tsx; combined sessionTitle + toolOutput optional colour overrides |
 | ☐ | 72 | feat/improve-experimental-plan-mode-prompt | origin | TBD | |
 | ☐ | 73 | fix/input-enter-keybindings | origin | TBD | |
 | ☐ | 74 | fix/escape-from-status | origin | TBD | |
@@ -156,3 +156,4 @@
 157. **fix/rfc2119-question-tool** (4e123da972) - Clean merge, no conflicts.
 158. **feat/sidebar-header-accent-colours** (c0e44608db) - Conflict in sidebar/lsp.tsx. Kept HEAD's `<Show when={!off()}>` wrapper with disabled message, used feature's `theme().accent` for header colour.
 159. **feat/distinct-title-colour** (9c61475438) - Conflict in sidebar.tsx. Combined HEAD's grouped title formatting (titleParts with group/rest) with feature's `theme.sessionTitle` colour instead of `theme.text`.
+160. **feat/tool-output-colour** (d27f940c1f) - Conflicts in theme.tsx. Combined both sessionTitle and toolOutput as optional colour overrides in ThemeJson type, filter, and fallback resolution.

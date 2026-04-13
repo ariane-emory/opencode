@@ -67,7 +67,7 @@
 | ☑ | 61 | feat/clickable-sidebar-mcps | origin | 8954fd364c | Conflict in sidebar/mcp.tsx; kept folding persistence + added loading signal |
 | ☑ | 62 | feat/clickable-dialogue-mcps | origin | 60fbc432b1 | Clean merge |
 | ☑ | 63 | feat/clickable-status-mcps | origin | 39c223ed7d | Conflict in dialog-status.tsx; combined sessionID memo with clickable MCP toggle |
-| ☐ | 64 | feat/ignored-commands | origin | TBD | |
+| ☑ | 64 | feat/ignored-commands | origin | a611d74d46 | Conflict in config.ts; added ignored field + kept catchall(z.any()) |
 | ☐ | 65 | feat/dialogue-background-overlay-setting | origin | TBD | |
 | ☐ | 66 | fix/no-split-database | origin | TBD | |
 | ☐ | 67 | feat/elapsed-timer | origin | TBD | |
@@ -149,3 +149,4 @@
 60. **fix/always-allow-folding-sidebar-mcps** (a61a11e912) - Clean merge, no conflicts.
 61. **feat/clickable-sidebar-mcps** (8954fd364c) - Conflict in sidebar/mcp.tsx. Kept HEAD's folding persistence (sidebar_expanded_mcp kv) and added loading signal from feature branch for clickable MCP tool calls.
 152. **feat/clickable-status-mcps** (39c223ed7d) - Conflict in dialog-status.tsx. Combined HEAD's useRoute/sessionID memo with feature's useLocal/useSDK/loading signal/handleToggle for clickable MCP toggle in status dialog.
+153. **feat/ignored-commands** (a611d74d46) - Conflict in config.ts Command schema. Added `ignored: z.boolean().optional()` from feature branch while keeping `.catchall(z.any())` from HEAD. Auto-merged command/index.ts, prompt.ts, and SDK types cleanly.

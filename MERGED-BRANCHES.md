@@ -55,7 +55,7 @@
 | ☑ | 49 | feat/agent-timestamps | origin | 2645419940 | Conflict in session/index.tsx; kept sidebarOverlay fix + added showAgentTimestamps |
 | ☑ | 50 | feat/rewind-modal-option | origin | abe88f82ec | Clean merge |
 | ☑ | 51 | feat/alphabetize-command-palette-groups | origin | f8fa5eee34 | Conflicts in dialog-select.tsx; kept smartCompare, removed duplicate sort prop |
-| ☐ | 52 | feat/taller-dialogs | origin | TBD | |
+| ☑ | 52 | feat/taller-dialogs | origin | 0b17150c65 | Clean merge |
 | ☐ | 53 | feat/add-arianes-themes | origin | TBD | |
 | ☐ | 54 | feat/aspiers--readline-additions | origin | TBD | |
 | ☐ | 55 | feat/sidebar-clock | origin | TBD | |
@@ -138,3 +138,4 @@
 49. **feat/agent-timestamps** (2645419940) - Conflict in session/index.tsx. Kept HEAD's sidebarOverlay-aware contentWidth and added showAgentTimestamps memo from feature branch.
 50. **feat/rewind-modal-option** (abe88f82ec) - Clean merge, no conflicts.
 51. **feat/alphabetize-command-palette-groups** (f8fa5eee34) - Conflicts in dialog-select.tsx. Kept HEAD's smartCompare sorting. Removed duplicate sort prop from auto-merge.
+52. **feat/taller-dialogs** (0b17150c65) - Clean merge, no conflicts.

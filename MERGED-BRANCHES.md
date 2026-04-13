@@ -54,7 +54,7 @@
 | ☑ | 48 | feat/no-disabled-lsps-in-sidebar | origin | fa41989296 | Conflict in sidebar/lsp.tsx; hid LSP section when disabled |
 | ☑ | 49 | feat/agent-timestamps | origin | 2645419940 | Conflict in session/index.tsx; kept sidebarOverlay fix + added showAgentTimestamps |
 | ☑ | 50 | feat/rewind-modal-option | origin | abe88f82ec | Clean merge |
-| ☐ | 51 | feat/alphabetize-command-palette-groups | origin | TBD | |
+| ☑ | 51 | feat/alphabetize-command-palette-groups | origin | f8fa5eee34 | Conflicts in dialog-select.tsx; kept smartCompare, removed duplicate sort prop |
 | ☐ | 52 | feat/taller-dialogs | origin | TBD | |
 | ☐ | 53 | feat/add-arianes-themes | origin | TBD | |
 | ☐ | 54 | feat/aspiers--readline-additions | origin | TBD | |
@@ -137,3 +137,4 @@
 48. **feat/no-disabled-lsps-in-sidebar** (fa41989296) - Conflict in sidebar/lsp.tsx. Took feature branch's approach: wraps LSP section in `<Show when={!off()}>` to hide entirely when LSPs disabled. Removed unused toggle function.
 49. **feat/agent-timestamps** (2645419940) - Conflict in session/index.tsx. Kept HEAD's sidebarOverlay-aware contentWidth and added showAgentTimestamps memo from feature branch.
 50. **feat/rewind-modal-option** (abe88f82ec) - Clean merge, no conflicts.
+51. **feat/alphabetize-command-palette-groups** (f8fa5eee34) - Conflicts in dialog-select.tsx. Kept HEAD's smartCompare sorting. Removed duplicate sort prop from auto-merge.

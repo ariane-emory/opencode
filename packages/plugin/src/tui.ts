@@ -198,6 +198,7 @@ export type TuiThemeCurrent = {
   readonly success: RGBA
   readonly info: RGBA
   readonly text: RGBA
+  readonly sessionTitle: RGBA
   readonly textMuted: RGBA
   readonly selectedListItemText: RGBA
   readonly background: RGBA

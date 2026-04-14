@@ -539,6 +539,7 @@ function pluginApi(runtime: RuntimeState, plugin: PluginEntry, scope: PluginScop
     tuiConfig: api.tuiConfig,
     kv: api.kv,
     state: api.state,
+    refresh: api.refresh,
     theme,
     get client() {
       return api.client

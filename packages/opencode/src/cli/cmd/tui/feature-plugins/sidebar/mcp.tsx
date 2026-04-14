@@ -49,6 +49,7 @@ function View(props: { api: TuiPluginApi }) {
       } else {
         await props.api.client.mcp.connect({ name })
       }
+      await props.api.refresh.mcp()
     } catch {
       // silently ignore toggle errors
     } finally {

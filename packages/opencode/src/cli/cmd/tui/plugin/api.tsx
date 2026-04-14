@@ -20,6 +20,7 @@ import { Slot as HostSlot } from "./slots"
 import type { useToast } from "../ui/toast"
 import { Installation } from "@/installation"
 import { type OpencodeClient } from "@opencode-ai/sdk/v2"
+import { reconcile } from "solid-js/store"
 
 type RouteEntry = {
   key: symbol
@@ -333,6 +334,12 @@ export function createTuiApi(input: Input): TuiPluginApi {
       },
     },
     state: stateApi(input.sync),
+    refresh: {
+      async mcp() {
+        const status = await input.sdk.client.mcp.status()
+        if (status.data) input.sync.set("mcp", reconcile(status.data))
+      },
+    },
     get client() {
       return input.sdk.client
     },

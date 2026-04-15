@@ -70,32 +70,6 @@ export const dict = {
   "ui.messagePart.context.read.other": "{{count}} Lesevorgänge",
   "ui.messagePart.context.search.one": "{{count}} Suche",
   "ui.messagePart.context.search.other": "{{count}} Suchen",
-  "ui.messagePart.context.list.one": "{{count}} Liste",
-  "ui.messagePart.context.list.other": "{{count}} Listen",
-  "ui.messagePart.diagnostic.error": "Fehler",
-  "ui.messagePart.title.edit": "Bearbeiten",
-  "ui.messagePart.title.write": "Schreiben",
-  "ui.messagePart.option.typeOwnAnswer": "Eigene Antwort eingeben",
-  "ui.messagePart.review.title": "Antworten überprüfen",
-
-  "ui.list.loading": "Laden",
-  "ui.list.empty": "Keine Ergebnisse",
-  "ui.list.clearFilter": "Filter löschen",
-  "ui.list.emptyWithFilter.prefix": "Keine Ergebnisse für",
-  "ui.list.emptyWithFilter.suffix": "",
-
-  "ui.messageNav.newMessage": "Neue Nachricht",
-
-  "ui.textField.copyToClipboard": "In die Zwischenablage kopieren",
-  "ui.textField.copyLink": "Link kopieren",
-  "ui.textField.copied": "Kopiert",
-
-  "ui.imagePreview.alt": "Bildvorschau",
-  "ui.scrollView.ariaLabel": "scrollbarer Inhalt",
-
-  "ui.tool.read": "Lesen",
-  "ui.tool.loaded": "Geladen",
-  "ui.tool.list": "Auflisten",
   "ui.tool.glob": "Glob",
   "ui.tool.grep": "Grep",
   "ui.tool.webfetch": "Webabruf",

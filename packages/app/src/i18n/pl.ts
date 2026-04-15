@@ -708,8 +708,6 @@ export const dict = {
   "settings.permissions.tool.glob.description": "Dopasowywanie plików za pomocą wzorców glob",
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description": "Przeszukiwanie zawartości plików za pomocą wyrażeń regularnych",
-  "settings.permissions.tool.list.title": "Lista",
-  "settings.permissions.tool.list.description": "Wyświetlanie listy plików w katalogu",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "Uruchamianie poleceń powłoki",
   "settings.permissions.tool.task.title": "Zadanie",

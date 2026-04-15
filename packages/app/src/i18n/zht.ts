@@ -769,8 +769,6 @@ export const dict = {
   "settings.permissions.tool.glob.description": "使用 glob 模式符合檔案",
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description": "使用正規表示式搜尋檔案內容",
-  "settings.permissions.tool.list.title": "清單",
-  "settings.permissions.tool.list.description": "列出目錄中的檔案",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "執行 shell 命令",
   "settings.permissions.tool.task.title": "Task",

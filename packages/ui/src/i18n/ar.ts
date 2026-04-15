@@ -65,32 +65,6 @@ export const dict = {
   "ui.messagePart.context.read.other": "{{count}} قراءات",
   "ui.messagePart.context.search.one": "{{count}} بحث",
   "ui.messagePart.context.search.other": "{{count}} عمليات بحث",
-  "ui.messagePart.context.list.one": "{{count}} قائمة",
-  "ui.messagePart.context.list.other": "{{count}} قوائم",
-  "ui.messagePart.diagnostic.error": "خطأ",
-  "ui.messagePart.title.edit": "تحرير",
-  "ui.messagePart.title.write": "كتابة",
-  "ui.messagePart.option.typeOwnAnswer": "اكتب إجابتك الخاصة",
-  "ui.messagePart.review.title": "مراجعة إجاباتك",
-
-  "ui.list.loading": "جارٍ التحميل",
-  "ui.list.empty": "لا توجد نتائج",
-  "ui.list.clearFilter": "مسح عامل التصفية",
-  "ui.list.emptyWithFilter.prefix": "لا توجد نتائج لـ",
-  "ui.list.emptyWithFilter.suffix": "",
-
-  "ui.messageNav.newMessage": "رسالة جديدة",
-
-  "ui.textField.copyToClipboard": "نسخ إلى الحافظة",
-  "ui.textField.copyLink": "نسخ الرابط",
-  "ui.textField.copied": "تم النسخ",
-
-  "ui.imagePreview.alt": "معاينة الصورة",
-  "ui.scrollView.ariaLabel": "محتوى قابل للتمرير",
-
-  "ui.tool.read": "قراءة",
-  "ui.tool.loaded": "تم التحميل",
-  "ui.tool.list": "قائمة",
   "ui.tool.glob": "Glob",
   "ui.tool.grep": "Grep",
   "ui.tool.webfetch": "جلب الويب",

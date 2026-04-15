@@ -775,8 +775,6 @@ export const dict = {
   "settings.permissions.tool.glob.description": "จับคู่ไฟล์โดยใช้รูปแบบ glob",
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description": "ค้นหาเนื้อหาไฟล์โดยใช้นิพจน์ทั่วไป",
-  "settings.permissions.tool.list.title": "รายการ",
-  "settings.permissions.tool.list.description": "แสดงรายการไฟล์ภายในไดเรกทอรี",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "เรียกใช้คำสั่งเชลล์",
   "settings.permissions.tool.task.title": "งาน",

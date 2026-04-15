@@ -151,22 +151,6 @@ description: จัดการเครื่องมือที่ LLM ส�
 
 ---
 
-### list
-
-แสดงรายการไฟล์และไดเร็กทอรีในพาธที่กำหนด
-
-```json title="opencode.json" {4}
-{
-  "$schema": "https://opencode.ai/config.json",
-  "permission": {
-    "list": "allow"
-  }
-}
-```
-
-เครื่องมือนี้แสดงรายการเนื้อหาไดเร็กทอรี ยอมรับรูปแบบ glob เพื่อกรองผลลัพธ์
-
----
 
 ### lsp (ขั้นทดลอง)
 
@@ -341,7 +325,7 @@ OPENCODE_ENABLE_EXA=1 opencode
 
 ## ภายใน
 
-ภายใน เครื่องมือต่างๆ เช่น `grep`, `glob` และ `list` ใช้ [ripgrep](https://github.com/BurntSushi/ripgrep) ภายใต้ประทุน ตามค่าเริ่มต้น ripgrep เคารพรูปแบบ `.gitignore` ซึ่งหมายความว่าไฟล์และไดเร็กทอรีที่อยู่ใน `.gitignore` ของคุณจะถูกแยกออกจากการค้นหาและรายการ
+ภายใน เครื่องมือต่างๆ เช่น `grep` และ `glob` ใช้ [ripgrep](https://github.com/BurntSushi/ripgrep) ภายใต้ประทุน ตามค่าเริ่มต้น ripgrep เคารพรูปแบบ `.gitignore` ซึ่งหมายความว่าไฟล์และไดเร็กทอรีที่อยู่ใน `.gitignore` ของคุณจะถูกแยกออกจากการค้นหา
 
 ---
 

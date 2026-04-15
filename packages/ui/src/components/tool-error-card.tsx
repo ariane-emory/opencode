@@ -27,7 +27,6 @@ export function ToolErrorCard(props: ToolErrorCardProps) {
   const name = createMemo(() => {
     const map: Record<string, string> = {
       read: "ui.tool.read",
-      list: "ui.tool.list",
       glob: "ui.tool.glob",
       grep: "ui.tool.grep",
       task: "ui.tool.task",

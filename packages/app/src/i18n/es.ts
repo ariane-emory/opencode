@@ -792,8 +792,6 @@ export const dict = {
   "settings.permissions.tool.glob.description": "Coincidir archivos usando patrones glob",
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description": "Buscar contenidos de archivo usando expresiones regulares",
-  "settings.permissions.tool.list.title": "Listar",
-  "settings.permissions.tool.list.description": "Listar archivos dentro de un directorio",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "Ejecutar comandos de shell",
   "settings.permissions.tool.task.title": "Tarea",

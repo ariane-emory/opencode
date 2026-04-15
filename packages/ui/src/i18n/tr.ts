@@ -71,32 +71,6 @@ export const dict = {
   "ui.messagePart.context.read.other": "{{count}} okuma",
   "ui.messagePart.context.search.one": "{{count}} arama",
   "ui.messagePart.context.search.other": "{{count}} arama",
-  "ui.messagePart.context.list.one": "{{count}} liste",
-  "ui.messagePart.context.list.other": "{{count}} liste",
-  "ui.messagePart.diagnostic.error": "Hata",
-  "ui.messagePart.title.edit": "Düzenle",
-  "ui.messagePart.title.write": "Yaz",
-  "ui.messagePart.option.typeOwnAnswer": "Kendi cevabınızı yazın",
-  "ui.messagePart.review.title": "Cevapları inceleyin",
-
-  "ui.list.loading": "Yükleniyor",
-  "ui.list.empty": "Sonuç bulunamadı",
-  "ui.list.clearFilter": "Filtreyi temizle",
-  "ui.list.emptyWithFilter.prefix": "Sonuç bulunamadı:",
-  "ui.list.emptyWithFilter.suffix": "",
-
-  "ui.messageNav.newMessage": "Yeni mesaj",
-
-  "ui.textField.copyToClipboard": "Panoya kopyala",
-  "ui.textField.copyLink": "Bağlantı kopyala",
-  "ui.textField.copied": "Kopyalandı",
-
-  "ui.imagePreview.alt": "Görsel önizleme",
-  "ui.scrollView.ariaLabel": "kaydırılabilir içerik",
-
-  "ui.tool.read": "Oku",
-  "ui.tool.loaded": "Yüklendi",
-  "ui.tool.list": "Listele",
   "ui.tool.glob": "Glob",
   "ui.tool.grep": "Grep",
   "ui.tool.webfetch": "Web getir",

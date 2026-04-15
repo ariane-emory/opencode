@@ -69,32 +69,6 @@ export const dict = {
   "ui.messagePart.context.read.other": "{{count}} čitanja",
   "ui.messagePart.context.search.one": "{{count}} pretraga",
   "ui.messagePart.context.search.other": "{{count}} pretrage",
-  "ui.messagePart.context.list.one": "{{count}} lista",
-  "ui.messagePart.context.list.other": "{{count}} liste",
-  "ui.messagePart.diagnostic.error": "Greška",
-  "ui.messagePart.title.edit": "Uredi",
-  "ui.messagePart.title.write": "Napiši",
-  "ui.messagePart.option.typeOwnAnswer": "Unesi svoj odgovor",
-  "ui.messagePart.review.title": "Pregledaj svoje odgovore",
-
-  "ui.list.loading": "Učitavanje",
-  "ui.list.empty": "Nema rezultata",
-  "ui.list.clearFilter": "Očisti filter",
-  "ui.list.emptyWithFilter.prefix": "Nema rezultata za",
-  "ui.list.emptyWithFilter.suffix": "",
-
-  "ui.messageNav.newMessage": "Nova poruka",
-
-  "ui.textField.copyToClipboard": "Kopiraj u međuspremnik",
-  "ui.textField.copyLink": "Kopiraj link",
-  "ui.textField.copied": "Kopirano",
-
-  "ui.imagePreview.alt": "Pregled slike",
-  "ui.scrollView.ariaLabel": "sadržaj za pomjeranje",
-
-  "ui.tool.read": "Čitanje",
-  "ui.tool.loaded": "Učitano",
-  "ui.tool.list": "Listanje",
   "ui.tool.glob": "Glob",
   "ui.tool.grep": "Grep",
   "ui.tool.webfetch": "Web preuzimanje",

@@ -65,32 +65,6 @@ export const dict = {
   "ui.messagePart.context.read.other": "{{count}}개 읽음",
   "ui.messagePart.context.search.one": "{{count}}개 검색",
   "ui.messagePart.context.search.other": "{{count}}개 검색",
-  "ui.messagePart.context.list.one": "{{count}}개 목록",
-  "ui.messagePart.context.list.other": "{{count}}개 목록",
-  "ui.messagePart.diagnostic.error": "오류",
-  "ui.messagePart.title.edit": "편집",
-  "ui.messagePart.title.write": "작성",
-  "ui.messagePart.option.typeOwnAnswer": "직접 답변 입력",
-  "ui.messagePart.review.title": "답변 검토",
-
-  "ui.list.loading": "로딩 중",
-  "ui.list.empty": "결과 없음",
-  "ui.list.clearFilter": "필터 지우기",
-  "ui.list.emptyWithFilter.prefix": "다음에 대한 결과 없음: ",
-  "ui.list.emptyWithFilter.suffix": "",
-
-  "ui.messageNav.newMessage": "새 메시지",
-
-  "ui.textField.copyToClipboard": "클립보드에 복사",
-  "ui.textField.copyLink": "링크 복사",
-  "ui.textField.copied": "복사됨",
-
-  "ui.imagePreview.alt": "이미지 미리보기",
-  "ui.scrollView.ariaLabel": "스크롤 가능한 콘텐츠",
-
-  "ui.tool.read": "읽기",
-  "ui.tool.loaded": "로드됨",
-  "ui.tool.list": "목록",
   "ui.tool.glob": "Glob",
   "ui.tool.grep": "Grep",
   "ui.tool.webfetch": "웹 가져오기",

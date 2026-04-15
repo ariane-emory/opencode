@@ -711,8 +711,6 @@ export const dict = {
   "settings.permissions.tool.glob.description": "Corresponder arquivos usando padrões glob",
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description": "Buscar conteúdo de arquivos usando expressões regulares",
-  "settings.permissions.tool.list.title": "Listar",
-  "settings.permissions.tool.list.description": "Listar arquivos dentro de um diretório",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "Executar comandos shell",
   "settings.permissions.tool.task.title": "Tarefa",

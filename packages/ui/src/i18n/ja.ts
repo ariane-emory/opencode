@@ -64,32 +64,6 @@ export const dict = {
   "ui.messagePart.context.read.other": "{{count}} 件の読み取り",
   "ui.messagePart.context.search.one": "{{count}} 件の検索",
   "ui.messagePart.context.search.other": "{{count}} 件の検索",
-  "ui.messagePart.context.list.one": "{{count}} 件のリスト",
-  "ui.messagePart.context.list.other": "{{count}} 件のリスト",
-  "ui.messagePart.diagnostic.error": "エラー",
-  "ui.messagePart.title.edit": "編集",
-  "ui.messagePart.title.write": "作成",
-  "ui.messagePart.option.typeOwnAnswer": "自分の回答を入力",
-  "ui.messagePart.review.title": "回答を確認",
-
-  "ui.list.loading": "読み込み中",
-  "ui.list.empty": "結果なし",
-  "ui.list.clearFilter": "フィルターをクリア",
-  "ui.list.emptyWithFilter.prefix": "次の検索結果はありません: ",
-  "ui.list.emptyWithFilter.suffix": "",
-
-  "ui.messageNav.newMessage": "新しいメッセージ",
-
-  "ui.textField.copyToClipboard": "クリップボードにコピー",
-  "ui.textField.copyLink": "リンクをコピー",
-  "ui.textField.copied": "コピーしました",
-
-  "ui.imagePreview.alt": "画像プレビュー",
-  "ui.scrollView.ariaLabel": "スクロール可能なコンテンツ",
-
-  "ui.tool.read": "読み込み",
-  "ui.tool.loaded": "読み込み済み",
-  "ui.tool.list": "リスト",
   "ui.tool.glob": "Glob",
   "ui.tool.grep": "Grep",
   "ui.tool.webfetch": "Webfetch",

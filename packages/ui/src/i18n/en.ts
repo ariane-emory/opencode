@@ -77,32 +77,6 @@ export const dict: Record<string, string> = {
   "ui.messagePart.context.read.other": "{{count}} reads",
   "ui.messagePart.context.search.one": "{{count}} search",
   "ui.messagePart.context.search.other": "{{count}} searches",
-  "ui.messagePart.context.list.one": "{{count}} list",
-  "ui.messagePart.context.list.other": "{{count}} lists",
-
-  "ui.list.loading": "Loading",
-  "ui.list.empty": "No results",
-  "ui.list.clearFilter": "Clear filter",
-  "ui.list.emptyWithFilter.prefix": "No results for",
-  "ui.list.emptyWithFilter.suffix": "",
-
-  "ui.fileSearch.placeholder": "Find",
-  "ui.fileSearch.previousMatch": "Previous match",
-  "ui.fileSearch.nextMatch": "Next match",
-  "ui.fileSearch.close": "Close search",
-
-  "ui.messageNav.newMessage": "New message",
-
-  "ui.textField.copyToClipboard": "Copy to clipboard",
-  "ui.textField.copyLink": "Copy link",
-  "ui.textField.copied": "Copied",
-
-  "ui.imagePreview.alt": "Image preview",
-  "ui.scrollView.ariaLabel": "scrollable content",
-
-  "ui.tool.read": "Read",
-  "ui.tool.loaded": "Loaded",
-  "ui.tool.list": "List",
   "ui.tool.glob": "Glob",
   "ui.tool.grep": "Grep",
   "ui.tool.task": "Task",

@@ -785,8 +785,6 @@ export const dict = {
   "settings.permissions.tool.glob.description": "Podudaranje datoteka pomoću glob šablona",
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description": "Pretraživanje sadržaja datoteka pomoću regularnih izraza",
-  "settings.permissions.tool.list.title": "Lista",
-  "settings.permissions.tool.list.description": "Listanje datoteka unutar direktorija",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "Pokretanje shell komandi",
   "settings.permissions.tool.task.title": "Zadatak",

@@ -794,8 +794,6 @@ export const dict = {
   "settings.permissions.tool.glob.description": "Glob kalıpları kullanarak dosyaları eşle",
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description": "Düzenli ifadeler kullanarak dosya içerikleri ara",
-  "settings.permissions.tool.list.title": "Listele",
-  "settings.permissions.tool.list.description": "Bir dizindeki dosyaları listele",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "Kabuk komutları çalıştır",
   "settings.permissions.tool.task.title": "Görev",

@@ -105,9 +105,6 @@ export function Part(props: PartProps) {
               <Match when={props.part.type === "tool" && props.part.tool === "grep"}>
                 <IconDocumentMagnifyingGlass width={18} height={18} />
               </Match>
-              <Match when={props.part.type === "tool" && props.part.tool === "list"}>
-                <IconRectangleStack width={18} height={18} />
-              </Match>
               <Match when={props.part.type === "tool" && props.part.tool === "glob"}>
                 <IconMagnifyingGlass width={18} height={18} />
               </Match>
@@ -202,14 +199,6 @@ export function Part(props: PartProps) {
                   </Match>
                   <Match when={props.part.tool === "glob"}>
                     <GlobTool
-                      message={props.message}
-                      id={props.part.id}
-                      tool={props.part.tool}
-                      state={props.part.state}
-                    />
-                  </Match>
-                  <Match when={props.part.tool === "list"}>
-                    <ListTool
                       message={props.message}
                       id={props.part.id}
                       tool={props.part.tool}
@@ -450,34 +439,6 @@ export function GrepTool(props: ToolProps) {
           </Match>
           <Match when={props.state.output}>
             <ContentText expand compact text={props.state.output} data-size="sm" data-color="dimmed" />
-          </Match>
-        </Switch>
-      </div>
-    </>
-  )
-}
-
-export function ListTool(props: ToolProps) {
-  const path = createMemo(() =>
-    props.state.input?.path !== props.message.path.cwd
-      ? stripWorkingDirectory(props.state.input?.path, props.message.path.cwd)
-      : props.state.input?.path,
-  )
-
-  return (
-    <>
-      <div data-component="tool-title">
-        <span data-slot="name">LS</span>
-        <span data-slot="target" title={props.state.input?.path}>
-          {path()}
-        </span>
-      </div>
-      <div data-component="tool-result">
-        <Switch>
-          <Match when={props.state.output}>
-            <ResultsButton>
-              <ContentText expand compact text={props.state.output} />
-            </ResultsButton>
           </Match>
         </Switch>
       </div>

@@ -65,32 +65,6 @@ export const dict = {
   "ui.messagePart.context.read.other": "{{count}} lecturas",
   "ui.messagePart.context.search.one": "{{count}} búsqueda",
   "ui.messagePart.context.search.other": "{{count}} búsquedas",
-  "ui.messagePart.context.list.one": "{{count}} lista",
-  "ui.messagePart.context.list.other": "{{count}} listas",
-  "ui.messagePart.diagnostic.error": "Error",
-  "ui.messagePart.title.edit": "Editar",
-  "ui.messagePart.title.write": "Escribir",
-  "ui.messagePart.option.typeOwnAnswer": "Escribe tu propia respuesta",
-  "ui.messagePart.review.title": "Revisa tus respuestas",
-
-  "ui.list.loading": "Cargando",
-  "ui.list.empty": "Sin resultados",
-  "ui.list.clearFilter": "Borrar filtro",
-  "ui.list.emptyWithFilter.prefix": "Sin resultados para",
-  "ui.list.emptyWithFilter.suffix": "",
-
-  "ui.messageNav.newMessage": "Nuevo mensaje",
-
-  "ui.textField.copyToClipboard": "Copiar al portapapeles",
-  "ui.textField.copyLink": "Copiar enlace",
-  "ui.textField.copied": "Copiado",
-
-  "ui.imagePreview.alt": "Vista previa de imagen",
-  "ui.scrollView.ariaLabel": "contenido desplazable",
-
-  "ui.tool.read": "Leer",
-  "ui.tool.loaded": "Cargado",
-  "ui.tool.list": "Listar",
   "ui.tool.glob": "Glob",
   "ui.tool.grep": "Grep",
   "ui.tool.webfetch": "Webfetch",

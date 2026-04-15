@@ -27,7 +27,6 @@ const TEXT = {
   done: "Explored",
   read: { one: "{{count}} read", other: "{{count}} reads" },
   search: { one: "{{count}} search", other: "{{count}} searches" },
-  list: { one: "{{count}} list", other: "{{count}} lists" },
 } as const
 
 function rand(min: number, max: number) {
@@ -61,13 +60,11 @@ export const Playground = {
     const [state, setState] = createStore({
       reads: 0,
       searches: 0,
-      lists: 0,
       active: false,
       reducedMotion: false,
     })
     const reads = () => state.reads
     const searches = () => state.searches
-    const lists = () => state.lists
     const active = () => state.active
     const reducedMotion = () => state.reducedMotion
 
@@ -84,7 +81,6 @@ export const Playground = {
       clearAll()
       setState("reads", 0)
       setState("searches", 0)
-      setState("lists", 0)
       setState("active", true)
       const steps = rand(3, 10)
       let elapsed = 0
@@ -93,10 +89,9 @@ export const Playground = {
         const delay = rand(300, 800)
         elapsed += delay
         const t = setTimeout(() => {
-          const pick = rand(0, 2)
+          const pick = rand(0, 1)
           if (pick === 0) setState("reads", (value) => value + 1)
-          else if (pick === 1) setState("searches", (value) => value + 1)
-          else setState("lists", (value) => value + 1)
+          else setState("searches", (value) => value + 1)
         }, elapsed)
         timeouts.push(t)
       }
@@ -114,13 +109,11 @@ export const Playground = {
       stopSim()
       setState("reads", 0)
       setState("searches", 0)
-      setState("lists", 0)
     }
 
     const items = (): CountItem[] => [
       { key: "read", count: reads(), one: TEXT.read.one, other: TEXT.read.other },
       { key: "search", count: searches(), one: TEXT.search.one, other: TEXT.search.other },
-      { key: "list", count: lists(), one: TEXT.list.one, other: TEXT.list.other },
     ]
 
     return (

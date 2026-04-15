@@ -720,8 +720,6 @@ export const dict = {
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description":
     "Rechercher dans le contenu des fichiers à l'aide d'expressions régulières",
-  "settings.permissions.tool.list.title": "Lister",
-  "settings.permissions.tool.list.description": "Lister les fichiers dans un répertoire",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "Exécuter des commandes shell",
   "settings.permissions.tool.task.title": "Tâche",

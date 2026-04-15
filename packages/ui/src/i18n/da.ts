@@ -64,32 +64,6 @@ export const dict = {
   "ui.messagePart.context.read.other": "{{count}} læsninger",
   "ui.messagePart.context.search.one": "{{count}} søgning",
   "ui.messagePart.context.search.other": "{{count}} søgninger",
-  "ui.messagePart.context.list.one": "{{count}} liste",
-  "ui.messagePart.context.list.other": "{{count}} lister",
-  "ui.messagePart.diagnostic.error": "Fejl",
-  "ui.messagePart.title.edit": "Rediger",
-  "ui.messagePart.title.write": "Skriv",
-  "ui.messagePart.option.typeOwnAnswer": "Skriv dit eget svar",
-  "ui.messagePart.review.title": "Gennemgå dine svar",
-
-  "ui.list.loading": "Indlæser",
-  "ui.list.empty": "Ingen resultater",
-  "ui.list.clearFilter": "Ryd filter",
-  "ui.list.emptyWithFilter.prefix": "Ingen resultater for",
-  "ui.list.emptyWithFilter.suffix": "",
-
-  "ui.messageNav.newMessage": "Ny besked",
-
-  "ui.textField.copyToClipboard": "Kopier til udklipsholder",
-  "ui.textField.copyLink": "Kopier link",
-  "ui.textField.copied": "Kopieret",
-
-  "ui.imagePreview.alt": "Billedforhåndsvisning",
-  "ui.scrollView.ariaLabel": "rulbart indhold",
-
-  "ui.tool.read": "Læs",
-  "ui.tool.loaded": "Indlæst",
-  "ui.tool.list": "Liste",
   "ui.tool.glob": "Glob",
   "ui.tool.grep": "Grep",
   "ui.tool.webfetch": "Webhentning",

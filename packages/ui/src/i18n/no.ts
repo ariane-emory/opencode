@@ -68,32 +68,6 @@ export const dict: Record<Keys, string> = {
   "ui.messagePart.context.read.other": "{{count}} lest",
   "ui.messagePart.context.search.one": "{{count}} søk",
   "ui.messagePart.context.search.other": "{{count}} søk",
-  "ui.messagePart.context.list.one": "{{count}} liste",
-  "ui.messagePart.context.list.other": "{{count}} lister",
-  "ui.messagePart.diagnostic.error": "Feil",
-  "ui.messagePart.title.edit": "Rediger",
-  "ui.messagePart.title.write": "Skriv",
-  "ui.messagePart.option.typeOwnAnswer": "Skriv ditt eget svar",
-  "ui.messagePart.review.title": "Gjennomgå svarene dine",
-
-  "ui.list.loading": "Laster",
-  "ui.list.empty": "Ingen resultater",
-  "ui.list.clearFilter": "Tøm filter",
-  "ui.list.emptyWithFilter.prefix": "Ingen resultater for",
-  "ui.list.emptyWithFilter.suffix": "",
-
-  "ui.messageNav.newMessage": "Ny melding",
-
-  "ui.textField.copyToClipboard": "Kopier til utklippstavlen",
-  "ui.textField.copyLink": "Kopier lenke",
-  "ui.textField.copied": "Kopiert",
-
-  "ui.imagePreview.alt": "Bildeforhåndsvisning",
-  "ui.scrollView.ariaLabel": "rullbart innhold",
-
-  "ui.tool.read": "Les",
-  "ui.tool.loaded": "Lastet",
-  "ui.tool.list": "Liste",
   "ui.tool.glob": "Glob",
   "ui.tool.grep": "Grep",
   "ui.tool.webfetch": "Webhenting",

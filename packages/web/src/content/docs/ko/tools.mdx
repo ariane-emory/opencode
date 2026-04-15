@@ -151,22 +151,6 @@ Codebase에서 빠른 콘텐츠 검색. 전체 regex 문법 및 파일 패턴 �
 
 ---
 
-### list
-
-주어진 경로의 파일 및 디렉토리 목록.
-
-```json title="opencode.json" {4}
-{
-  "$schema": "https://opencode.ai/config.json",
-  "permission": {
-    "list": "allow"
-  }
-}
-```
-
-이 도구는 디렉토리 내용을 나열합니다. 그것은 glob 패턴을 필터 결과에 받아들입니다.
-
----
 
 ### lsp (실험적)
 
@@ -341,7 +325,7 @@ MCP 서버 구성에 대한 [Learn more](/docs/mcp-servers).
 
 ## 내부
 
-내부, 도구 `grep`, `glob`, 그리고 `list` 사용 [ripgrep](https://github.com/BurntSushi/ripgrep) 후드 아래에. 기본적으로 ripgrep은 `.gitignore` 패턴을 존중하며 `.gitignore`에 나열된 파일 및 디렉토리를 검색 및 목록에서 제외됩니다.
+내부, 도구 `grep` 및 `glob` 사용 [ripgrep](https://github.com/BurntSushi/ripgrep) 후드 아래에. 기본적으로 ripgrep은 `.gitignore` 패턴을 존중하며 `.gitignore`에 나열된 파일 및 디렉토리를 검색에서 제외됩니다.
 
 ---
 

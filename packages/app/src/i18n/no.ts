@@ -786,8 +786,6 @@ export const dict = {
   "settings.permissions.tool.glob.description": "Match filer ved hjelp av glob-mønstre",
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description": "Søk i filinnhold ved hjelp av regulære uttrykk",
-  "settings.permissions.tool.list.title": "Liste",
-  "settings.permissions.tool.list.description": "List filer i en mappe",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "Kjør shell-kommandoer",
   "settings.permissions.tool.task.title": "Oppgave",

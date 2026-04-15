@@ -706,8 +706,6 @@ export const dict = {
   "settings.permissions.tool.glob.description": "Globパターンを使用したファイルの一致",
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description": "正規表現を使用したファイル内容の検索",
-  "settings.permissions.tool.list.title": "リスト",
-  "settings.permissions.tool.list.description": "ディレクトリ内のファイル一覧表示",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "シェルコマンドの実行",
   "settings.permissions.tool.task.title": "タスク",

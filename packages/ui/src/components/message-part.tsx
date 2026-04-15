@@ -327,12 +327,6 @@ export function getToolInfo(tool: string, input: any = {}): ToolInfo {
         title: i18n.t("ui.tool.read"),
         subtitle: input.filePath ? getFilename(input.filePath) : undefined,
       }
-    case "list":
-      return {
-        icon: "bullet-list",
-        title: i18n.t("ui.tool.list"),
-        subtitle: input.path ? getFilename(input.path) : undefined,
-      }
     case "glob":
       return {
         icon: "magnifying-glass-menu",
@@ -729,11 +723,6 @@ function contextToolTrigger(part: ToolPart, i18n: ReturnType<typeof useI18n>) {
         args,
       }
     }
-    case "list":
-      return {
-        title: i18n.t("ui.tool.list"),
-        subtitle: getDirectory(path),
-      }
     case "glob":
       return {
         title: i18n.t("ui.tool.glob"),
@@ -764,8 +753,7 @@ function contextToolTrigger(part: ToolPart, i18n: ReturnType<typeof useI18n>) {
 function contextToolSummary(parts: ToolPart[]) {
   const read = parts.filter((part) => part.tool === "read").length
   const search = parts.filter((part) => part.tool === "glob" || part.tool === "grep").length
-  const list = parts.filter((part) => part.tool === "list").length
-  return { read, search, list }
+  return { read, search }
 }
 
 function ExaOutput(props: { output?: string }) {
@@ -938,12 +926,6 @@ function ContextToolGroup(props: { parts: ToolPart[]; busy?: boolean }) {
                     count: summary().search,
                     one: i18n.t("ui.messagePart.context.search.one"),
                     other: i18n.t("ui.messagePart.context.search.other"),
-                  },
-                  {
-                    key: "list",
-                    count: summary().list,
-                    one: i18n.t("ui.messagePart.context.list.one"),
-                    other: i18n.t("ui.messagePart.context.list.other"),
                   },
                 ]}
                 fallback=""
@@ -1564,26 +1546,6 @@ ToolRegistry.register({
           )}
         </For>
       </>
-    )
-  },
-})
-
-ToolRegistry.register({
-  name: "list",
-  render(props) {
-    const i18n = useI18n()
-    return (
-      <BasicTool
-        {...props}
-        icon="bullet-list"
-        trigger={{ title: i18n.t("ui.tool.list"), subtitle: getDirectory(props.input.path || "/") }}
-      >
-        <Show when={props.output}>
-          <div data-component="tool-output" data-scrollable>
-            <Markdown text={props.output!} />
-          </div>
-        </Show>
-      </BasicTool>
     )
   },
 })

@@ -64,32 +64,6 @@ export const dict = {
   "ui.messagePart.context.read.other": "{{count}} odczyty",
   "ui.messagePart.context.search.one": "{{count}} wyszukiwanie",
   "ui.messagePart.context.search.other": "{{count}} wyszukiwania",
-  "ui.messagePart.context.list.one": "{{count}} lista",
-  "ui.messagePart.context.list.other": "{{count}} listy",
-  "ui.messagePart.diagnostic.error": "Błąd",
-  "ui.messagePart.title.edit": "Edycja",
-  "ui.messagePart.title.write": "Pisanie",
-  "ui.messagePart.option.typeOwnAnswer": "Wpisz własną odpowiedź",
-  "ui.messagePart.review.title": "Przejrzyj swoje odpowiedzi",
-
-  "ui.list.loading": "Ładowanie",
-  "ui.list.empty": "Brak wyników",
-  "ui.list.clearFilter": "Wyczyść filtr",
-  "ui.list.emptyWithFilter.prefix": "Brak wyników dla",
-  "ui.list.emptyWithFilter.suffix": "",
-
-  "ui.messageNav.newMessage": "Nowa wiadomość",
-
-  "ui.textField.copyToClipboard": "Skopiuj do schowka",
-  "ui.textField.copyLink": "Skopiuj link",
-  "ui.textField.copied": "Skopiowano",
-
-  "ui.imagePreview.alt": "Podgląd obrazu",
-  "ui.scrollView.ariaLabel": "treść przewijana",
-
-  "ui.tool.read": "Odczyt",
-  "ui.tool.loaded": "Załadowano",
-  "ui.tool.list": "Lista",
   "ui.tool.glob": "Glob",
   "ui.tool.grep": "Grep",
   "ui.tool.webfetch": "Pobieranie sieciowe",

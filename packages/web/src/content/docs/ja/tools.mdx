@@ -151,22 +151,6 @@ OpenCode で利用可能なすべての組み込みツールを次に示しま�
 
 ---
 
-### list
-
-指定されたパス内のファイルとディレクトリを一覧表示します。
-
-```json title="opencode.json" {4}
-{
-  "$schema": "https://opencode.ai/config.json",
-  "permission": {
-    "list": "allow"
-  }
-}
-```
-
-このツールはディレクトリの内容を一覧表示します。結果をフィルタリングするための glob パターンを受け入れます。
-
----
 
 ### lsp (実験的)
 
@@ -341,7 +325,7 @@ MCP (Model Context Protocol) サーバーを使用すると、外部ツールと
 
 ## 内部動作
 
-内部的には、`grep`、`glob`、`list` などのツールは内部で [ripgrep](https://github.com/BurntSushi/ripgrep) を使用します。デフォルトでは、ripgrep は `.gitignore` パターンを尊重します。つまり、`.gitignore` にリストされているファイルとディレクトリは検索とリストから除外されます。
+内部的には、`grep` や `glob` などのツールは内部で [ripgrep](https://github.com/BurntSushi/ripgrep) を使用します。デフォルトでは、ripgrep は `.gitignore` パターンを尊重します。つまり、`.gitignore` にリストされているファイルとディレクトリは検索から除外されます。
 
 ---
 

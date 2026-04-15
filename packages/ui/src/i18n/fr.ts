@@ -65,32 +65,6 @@ export const dict = {
   "ui.messagePart.context.read.other": "{{count}} lectures",
   "ui.messagePart.context.search.one": "{{count}} recherche",
   "ui.messagePart.context.search.other": "{{count}} recherches",
-  "ui.messagePart.context.list.one": "{{count}} liste",
-  "ui.messagePart.context.list.other": "{{count}} listes",
-  "ui.messagePart.diagnostic.error": "Erreur",
-  "ui.messagePart.title.edit": "Modifier",
-  "ui.messagePart.title.write": "Écrire",
-  "ui.messagePart.option.typeOwnAnswer": "Tapez votre propre réponse",
-  "ui.messagePart.review.title": "Passez en revue vos réponses",
-
-  "ui.list.loading": "Chargement",
-  "ui.list.empty": "Aucun résultat",
-  "ui.list.clearFilter": "Effacer le filtre",
-  "ui.list.emptyWithFilter.prefix": "Aucun résultat pour",
-  "ui.list.emptyWithFilter.suffix": "",
-
-  "ui.messageNav.newMessage": "Nouveau message",
-
-  "ui.textField.copyToClipboard": "Copier dans le presse-papiers",
-  "ui.textField.copyLink": "Copier le lien",
-  "ui.textField.copied": "Copié",
-
-  "ui.imagePreview.alt": "Aperçu de l'image",
-  "ui.scrollView.ariaLabel": "contenu défilable",
-
-  "ui.tool.read": "Lire",
-  "ui.tool.loaded": "Chargé",
-  "ui.tool.list": "Lister",
   "ui.tool.glob": "Glob",
   "ui.tool.grep": "Grep",
   "ui.tool.webfetch": "Webfetch",

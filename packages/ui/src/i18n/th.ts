@@ -66,32 +66,6 @@ export const dict = {
   "ui.messagePart.context.read.other": "อ่าน {{count}} รายการ",
   "ui.messagePart.context.search.one": "ค้นหา {{count}} รายการ",
   "ui.messagePart.context.search.other": "ค้นหา {{count}} รายการ",
-  "ui.messagePart.context.list.one": "รายการ {{count}} รายการ",
-  "ui.messagePart.context.list.other": "รายการ {{count}} รายการ",
-  "ui.messagePart.diagnostic.error": "ข้อผิดพลาด",
-  "ui.messagePart.title.edit": "แก้ไข",
-  "ui.messagePart.title.write": "เขียน",
-  "ui.messagePart.option.typeOwnAnswer": "พิมพ์คำตอบของคุณเอง",
-  "ui.messagePart.review.title": "ตรวจสอบคำตอบของคุณ",
-
-  "ui.list.loading": "กำลังโหลด",
-  "ui.list.empty": "ไม่มีผลลัพธ์",
-  "ui.list.clearFilter": "ล้างตัวกรอง",
-  "ui.list.emptyWithFilter.prefix": "ไม่มีผลลัพธ์สำหรับ",
-  "ui.list.emptyWithFilter.suffix": "",
-
-  "ui.messageNav.newMessage": "ข้อความใหม่",
-
-  "ui.textField.copyToClipboard": "คัดลอกไปยังคลิปบอร์ด",
-  "ui.textField.copyLink": "คัดลอกลิงก์",
-  "ui.textField.copied": "คัดลอกแล้ว",
-
-  "ui.imagePreview.alt": "ตัวอย่างรูปภาพ",
-  "ui.scrollView.ariaLabel": "เนื้อหาที่เลื่อนได้",
-
-  "ui.tool.read": "อ่าน",
-  "ui.tool.loaded": "โหลดแล้ว",
-  "ui.tool.list": "รายการ",
   "ui.tool.glob": "Glob",
   "ui.tool.grep": "Grep",
   "ui.tool.webfetch": "ดึงจากเว็บ",

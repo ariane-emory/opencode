@@ -773,8 +773,6 @@ export const dict = {
   "settings.permissions.tool.glob.description": "使用 glob 模式匹配文件",
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description": "使用正则表达式搜索文件内容",
-  "settings.permissions.tool.list.title": "列表",
-  "settings.permissions.tool.list.description": "列出目录中的文件",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "运行 shell 命令",
   "settings.permissions.tool.task.title": "任务",

@@ -787,8 +787,6 @@ export const dict = {
   "settings.permissions.tool.glob.description": "Сопоставление файлов по паттернам glob",
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description": "Поиск по содержимому файлов с использованием регулярных выражений",
-  "settings.permissions.tool.list.title": "List",
-  "settings.permissions.tool.list.description": "Список файлов в директории",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "Запуск команд оболочки",
   "settings.permissions.tool.task.title": "Task",

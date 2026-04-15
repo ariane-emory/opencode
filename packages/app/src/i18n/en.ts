@@ -883,8 +883,6 @@ export const dict = {
   "settings.permissions.tool.glob.description": "Match files using glob patterns",
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description": "Search file contents using regular expressions",
-  "settings.permissions.tool.list.title": "List",
-  "settings.permissions.tool.list.description": "List files within a directory",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "Run shell commands",
   "settings.permissions.tool.task.title": "Task",

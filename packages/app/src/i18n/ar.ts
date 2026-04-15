@@ -701,8 +701,6 @@ export const dict = {
   "settings.permissions.tool.glob.description": "مطابقة الملفات باستخدام أنماط glob",
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description": "البحث في محتويات الملف باستخدام التعبيرات العادية",
-  "settings.permissions.tool.list.title": "قائمة",
-  "settings.permissions.tool.list.description": "سرد الملفات داخل دليل",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "تشغيل أوامر shell",
   "settings.permissions.tool.task.title": "مهمة",

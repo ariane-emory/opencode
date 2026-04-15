@@ -722,8 +722,6 @@ export const dict = {
   "settings.permissions.tool.glob.description": "Dateien mithilfe von Glob-Mustern abgleichen",
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description": "Dateiinhalte mit regulären Ausdrücken durchsuchen",
-  "settings.permissions.tool.list.title": "Auflisten",
-  "settings.permissions.tool.list.description": "Dateien in einem Verzeichnis auflisten",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "Shell-Befehle ausführen",
   "settings.permissions.tool.task.title": "Aufgabe",

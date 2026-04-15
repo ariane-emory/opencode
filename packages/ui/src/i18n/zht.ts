@@ -69,32 +69,6 @@ export const dict = {
   "ui.messagePart.context.read.other": "{{count}} 次讀取",
   "ui.messagePart.context.search.one": "{{count}} 次搜尋",
   "ui.messagePart.context.search.other": "{{count}} 次搜尋",
-  "ui.messagePart.context.list.one": "{{count}} 個清單",
-  "ui.messagePart.context.list.other": "{{count}} 個清單",
-  "ui.messagePart.diagnostic.error": "錯誤",
-  "ui.messagePart.title.edit": "編輯",
-  "ui.messagePart.title.write": "寫入",
-  "ui.messagePart.option.typeOwnAnswer": "輸入自己的答案",
-  "ui.messagePart.review.title": "檢查你的答案",
-
-  "ui.list.loading": "載入中",
-  "ui.list.empty": "無結果",
-  "ui.list.clearFilter": "清除篩選",
-  "ui.list.emptyWithFilter.prefix": "沒有關於",
-  "ui.list.emptyWithFilter.suffix": "的結果",
-
-  "ui.messageNav.newMessage": "新訊息",
-
-  "ui.textField.copyToClipboard": "複製到剪貼簿",
-  "ui.textField.copyLink": "複製連結",
-  "ui.textField.copied": "已複製",
-
-  "ui.imagePreview.alt": "圖片預覽",
-  "ui.scrollView.ariaLabel": "可捲動內容",
-
-  "ui.tool.read": "讀取",
-  "ui.tool.loaded": "已載入",
-  "ui.tool.list": "清單",
   "ui.tool.glob": "Glob",
   "ui.tool.grep": "Grep",
   "ui.tool.webfetch": "Webfetch",

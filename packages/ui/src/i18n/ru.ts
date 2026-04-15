@@ -64,32 +64,6 @@ export const dict = {
   "ui.messagePart.context.read.other": "{{count}} чтений",
   "ui.messagePart.context.search.one": "{{count}} поиск",
   "ui.messagePart.context.search.other": "{{count}} поисков",
-  "ui.messagePart.context.list.one": "{{count}} список",
-  "ui.messagePart.context.list.other": "{{count}} списков",
-  "ui.messagePart.diagnostic.error": "Ошибка",
-  "ui.messagePart.title.edit": "Редактировать",
-  "ui.messagePart.title.write": "Написать",
-  "ui.messagePart.option.typeOwnAnswer": "Введите свой ответ",
-  "ui.messagePart.review.title": "Проверьте ваши ответы",
-
-  "ui.list.loading": "Загрузка",
-  "ui.list.empty": "Нет результатов",
-  "ui.list.clearFilter": "Очистить фильтр",
-  "ui.list.emptyWithFilter.prefix": "Нет результатов для",
-  "ui.list.emptyWithFilter.suffix": "",
-
-  "ui.messageNav.newMessage": "Новое сообщение",
-
-  "ui.textField.copyToClipboard": "Копировать в буфер обмена",
-  "ui.textField.copyLink": "Копировать ссылку",
-  "ui.textField.copied": "Скопировано",
-
-  "ui.imagePreview.alt": "Предпросмотр изображения",
-  "ui.scrollView.ariaLabel": "прокручиваемый контент",
-
-  "ui.tool.read": "Чтение",
-  "ui.tool.loaded": "Загружено",
-  "ui.tool.list": "Список",
   "ui.tool.glob": "Glob",
   "ui.tool.grep": "Grep",
   "ui.tool.webfetch": "Webfetch",

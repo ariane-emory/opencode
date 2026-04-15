@@ -705,8 +705,6 @@ export const dict = {
   "settings.permissions.tool.glob.description": "glob 패턴을 사용하여 파일 일치",
   "settings.permissions.tool.grep.title": "Grep",
   "settings.permissions.tool.grep.description": "정규식을 사용하여 파일 내용 검색",
-  "settings.permissions.tool.list.title": "목록",
-  "settings.permissions.tool.list.description": "디렉터리 내 파일 나열",
   "settings.permissions.tool.bash.title": "Bash",
   "settings.permissions.tool.bash.description": "셸 명령어 실행",
   "settings.permissions.tool.task.title": "작업",

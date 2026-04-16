@@ -69,16 +69,12 @@ export function useTextareaKeybindings() {
       mapTextareaKeybindings(keybinds, action),
     )
 
-    // Check if user has configured each action
-    const hasSubmitBinding = userBindings.some((b) => b.action === "submit")
-    const hasNewlineBinding = userBindings.some((b) => b.action === "newline")
-
     // Build defaults array, only adding defaults for unconfigured actions
     const defaults: KeyBinding[] = []
-    if (!hasSubmitBinding) {
+    if (!userBindings.some((b) => b.action === "submit")) {
       defaults.push({ name: "return", action: "submit" })
     }
-    if (!hasNewlineBinding) {
+    if (!userBindings.some((b) => b.action === "newline")) {
       defaults.push({ name: "return", meta: true, action: "newline" })
     }
 

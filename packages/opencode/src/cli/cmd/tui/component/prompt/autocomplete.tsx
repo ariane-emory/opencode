@@ -6,6 +6,7 @@ import { createMemo, createResource, createEffect, onMount, onCleanup, Index, Sh
 import { createStore } from "solid-js/store"
 import { useSDK } from "@tui/context/sdk"
 import { useSync } from "@tui/context/sync"
+import { useKeybind } from "@tui/context/keybind"
 import { getScrollAcceleration } from "../../util/scroll"
 import { useTuiConfig } from "../../context/tui-config"
 import { useTheme, selectedForeground } from "@tui/context/theme"
@@ -65,6 +66,9 @@ export type AutocompleteOption = {
   path?: string
 }
 
+export function accept(match: (key: string, evt: KeyEvent) => boolean, e: KeyEvent) {
+  return match("input_submit", e)
+}
 export function Autocomplete(props: {
   value: string
   sessionID?: string
@@ -79,6 +83,7 @@ export function Autocomplete(props: {
 }) {
   const sdk = useSDK()
   const sync = useSync()
+  const keybind = useKeybind()
   const command = useCommandDialog()
   const { theme } = useTheme()
   const dimensions = useTerminalDimensions()
@@ -567,7 +572,7 @@ export function Autocomplete(props: {
             e.preventDefault()
             return
           }
-          if (name === "return") {
+          if (accept(keybind.match, e)) {
             select()
             e.preventDefault()
             return

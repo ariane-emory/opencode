@@ -66,9 +66,6 @@ export type AutocompleteOption = {
   path?: string
 }
 
-export function accept(match: (key: string, evt: KeyEvent) => boolean, e: KeyEvent) {
-  return match("input_submit", e)
-}
 export function Autocomplete(props: {
   value: string
   sessionID?: string
@@ -572,7 +569,7 @@ export function Autocomplete(props: {
             e.preventDefault()
             return
           }
-          if (accept(keybind.match, e)) {
+          if (keybind.match("input_submit", e)) {
             select()
             e.preventDefault()
             return

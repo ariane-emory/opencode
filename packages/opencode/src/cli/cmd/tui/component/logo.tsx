@@ -642,7 +642,15 @@ export function Logo() {
           <box flexDirection="row" gap={1}>
             <box flexDirection="row">{renderLine(line, index(), theme.textMuted, false, 0, frame(), dusk())}</box>
             <box flexDirection="row">
-              {renderLine(LOGO_RIGHT[index()], index(), theme.text, true, LEFT + GAP, frame(), dusk())}
+              {renderLine(
+                LOGO_RIGHT[index()],
+                index(),
+                index() === 6 ? theme.textMuted : theme.text,
+                index() === 6 ? false : true,
+                LEFT + GAP,
+                frame(),
+                dusk(),
+              )}
             </box>
           </box>
         )}

@@ -25,10 +25,10 @@ import { TaskTool } from "../../tool/task"
 import { SkillTool } from "../../tool/skill"
 import { BashTool } from "../../tool/bash"
 import { TodoWriteTool } from "../../tool/todo"
-import { Locale } from "../../util/locale"
+import { Locale } from "../../util"
 import { loadTheme } from "../theme-loader"
 import type { MarkdownTheme } from "../markdown-renderer"
-import { TuiConfig } from "../../config/tui"
+import { TuiConfig } from "@/cli/cmd/tui/config/tui"
 import { AppRuntime } from "@/effect/app-runtime"
 
 type ToolProps<T> = {
@@ -409,7 +409,7 @@ export const RunCommand = cmd({
     }
 
     async function execute(sdk: OpencodeClient) {
-      const theme: MarkdownTheme | undefined = await TuiConfig.get().then((c) => loadTheme(c.theme)).catch(() => loadTheme())
+      const theme: MarkdownTheme | undefined = await TuiConfig.get().then((c: TuiConfig.Info) => loadTheme(c.theme)).catch(() => loadTheme())
 
       function tool(part: ToolPart) {
         try {

@@ -2,7 +2,6 @@ import { BoxRenderable, MouseButton, MouseEvent, RGBA, TextAttributes } from "@o
 import { For, createMemo, createSignal, onCleanup, type JSX } from "solid-js"
 import { useTheme, tint } from "@tui/context/theme"
 import * as Sound from "@tui/util/sound"
-import { logo } from "@/cli/logo"
 
 // Shadow markers (rendered chars in parens):
 // _ = full shadow cell (space with bg=shadow)
@@ -34,6 +33,26 @@ const TAIL = 1.8
 const TRACE_IN = 200
 const GLOW_OUT = 1600
 const PEAK = RGBA.fromInts(255, 255, 255)
+
+const LOGO_LEFT = [
+  `██████╗  █████╗ ███████╗███████╗     `,
+  `██╔══██╗██╔══██╗██╔════╝██╔════╝    `,
+  `██████╔╝███████║███████╗█████╗      `,
+  `██╔══██╗██╔══██║╚════██║██╔══╝      `,
+  `██████╔╝██║  ██║███████║███████╗    `,
+  `╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝     `,
+  `                                  `,
+]
+
+const LOGO_RIGHT = [
+  `██████╗ ███╗   ██╗███████╗`,
+  `██╔═══██╗████╗  ██║██╔════╝`,
+  `██║   ██║██╔██╗ ██║█████╗  `,
+  `██║   ██║██║╚██╗██║██╔══╝  `,
+  `╚██████╔╝██║ ╚████║███████╗`,
+  `╚═════╝ ╚═╝  ╚═══╝╚══════╝`,
+  `[ A product of Reseune Labs ]`,
+]
 
 type Ring = {
   x: number
@@ -74,8 +93,8 @@ type Frame = {
   spark: number
 }
 
-const LEFT = logo.left[0]?.length ?? 0
-const FULL = logo.left.map((line, i) => line + " ".repeat(GAP) + logo.right[i])
+const LEFT = LOGO_LEFT[0]?.length ?? 0
+const FULL = LOGO_LEFT.map((line, i) => line + " ".repeat(GAP) + LOGO_RIGHT[i])
 const SPAN = Math.hypot(FULL[0]?.length ?? 0, FULL.length * 2) * 0.94
 const NEAR = [
   [1, 0],
@@ -390,26 +409,6 @@ function bloom(x: number, y: number, frame: Frame) {
   return lerp(item.force, item.force * 0.18, p) * lerp(0.72, 1.1, bias) * flash
 }
 
-const LOGO_LEFT = [
-  `██████╗  █████╗ ███████╗███████╗     `,
-  `██╔══██╗██╔══██╗██╔════╝██╔════╝    `,
-  `██████╔╝███████║███████╗█████╗      `,
-  `██╔══██╗██╔══██║╚════██║██╔══╝      `,
-  `██████╔╝██║  ██║███████║███████╗    `,
-  `╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝     `,
-  `                                  `,
-]
-
-const LOGO_RIGHT = [
-  `██████╗ ███╗   ██╗███████╗`,
-  `██╔═══██╗████╗  ██║██╔════╝`,
-  `██║   ██║██╔██╗ ██║█████╗  `,
-  `██║   ██║██║╚██╗██║██╔══╝  `,
-  `╚██████╔╝██║ ╚████║███████╗`,
-  `╚═════╝ ╚═╝  ╚═══╝╚══════╝`,
-  `[ A product of Reseune Labs ]`,
-]
-
 export function Logo() {
   const { theme } = useTheme()
   const [rings, setRings] = createSignal<Ring[]>([])
@@ -638,12 +637,12 @@ export function Logo() {
         zIndex={1}
         onMouse={mouse}
       />
-      <For each={logo.left}>
+      <For each={LOGO_LEFT}>
         {(line, index) => (
           <box flexDirection="row" gap={1}>
             <box flexDirection="row">{renderLine(line, index(), theme.textMuted, false, 0, frame(), dusk())}</box>
             <box flexDirection="row">
-              {renderLine(logo.right[index()], index(), theme.text, true, LEFT + GAP, frame(), dusk())}
+              {renderLine(LOGO_RIGHT[index()], index(), theme.text, true, LEFT + GAP, frame(), dusk())}
             </box>
           </box>
         )}

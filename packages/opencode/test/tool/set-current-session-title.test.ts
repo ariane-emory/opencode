@@ -4,7 +4,7 @@ import { SetCurrentSessionTitleTool } from "../../src/tool/set-current-session-t
 import { Session } from "../../src/session"
 import { MessageID } from "../../src/session/schema"
 import { Agent } from "../../src/agent/agent"
-import { Truncate } from "../../src/tool/truncate"
+import * as Truncate from "../../src/tool/truncate"
 import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"
 import { provideTmpdirInstance } from "../fixture/fixture"
 import { testEffect } from "../lib/effect"

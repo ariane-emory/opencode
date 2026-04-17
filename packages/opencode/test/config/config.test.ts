@@ -1964,7 +1964,7 @@ test("loads experimental.no_sidebar_auto config", async () => {
   await Instance.provide({
     directory: tmp.path,
     fn: async () => {
-      const config = await Config.get()
+      const config = await load()
       expect(config.experimental?.no_sidebar_auto).toBe(true)
     },
   })

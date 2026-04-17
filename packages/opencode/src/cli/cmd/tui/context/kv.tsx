@@ -1,5 +1,5 @@
 import { Global } from "@/global"
-import { Filesystem } from "@/util/filesystem"
+import { Filesystem } from "@/util"
 import { createSignal, type Setter } from "solid-js"
 import { createStore } from "solid-js/store"
 import { createSimpleContext } from "./helper"
@@ -45,7 +45,7 @@ export const { use: useKV, provider: KVProvider } = createSimpleContext({
       },
       set(key: string, value: any) {
         setStore(key, value)
-        Filesystem.writeJson(filePath, store)
+        void Filesystem.writeJson(filePath, store)
       },
       getEphemeral(key: string, defaultValue?: any) {
         return ephemeral[key] ?? defaultValue

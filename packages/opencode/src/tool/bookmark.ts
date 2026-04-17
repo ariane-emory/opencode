@@ -1,6 +1,6 @@
 import z from "zod"
 import { Effect } from "effect"
-import { Tool } from "./tool"
+import * as Tool from "./tool"
 import { Session } from "../session"
 
 const DESCRIPTION = `You MUST always use this tool if asked to bookmark the current session.

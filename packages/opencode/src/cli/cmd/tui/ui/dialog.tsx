@@ -5,7 +5,7 @@ import { MouseButton, Renderable, RGBA } from "@opentui/core"
 import { createStore } from "solid-js/store"
 import { useToast } from "./toast"
 import { Flag } from "@/flag/flag"
-import { Selection } from "@tui/util/selection"
+import * as Selection from "@tui/util/selection"
 import { useSync } from "@tui/context/sync"
 
 export function Dialog(

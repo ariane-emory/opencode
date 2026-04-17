@@ -3,18 +3,20 @@ import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { useRoute } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
 import { createMemo, createResource, createSignal, onMount } from "solid-js"
-import { Locale } from "@/util/locale"
+import { Locale } from "@/util"
 import { useProject } from "@tui/context/project"
 import { useKeybind } from "../context/keybind"
 import { useTheme } from "../context/theme"
 import { useSDK } from "../context/sdk"
 import { Flag } from "@/flag/flag"
 import { DialogSessionRename } from "./dialog-session-rename"
-import { Keybind } from "@/util/keybind"
+import { Keybind } from "@/util"
 import { createDebouncedSignal } from "../util/signal"
 import { useToast } from "../ui/toast"
-import { DialogWorkspaceCreate, openWorkspaceSession } from "./dialog-workspace-create"
+import { DialogWorkspaceCreate, openWorkspaceSession, restoreWorkspaceSession } from "./dialog-workspace-create"
 import { Spinner } from "./spinner"
+import { errorMessage } from "@/util/error"
+import { DialogSessionDeleteFailed } from "./dialog-session-delete-failed"
 
 type WorkspaceStatus = "connected" | "connecting" | "disconnected" | "error"
 
@@ -32,7 +34,7 @@ export function DialogSessionList() {
   const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()
 
 
-  const [searchResults] = createResource(search, async (query) => {
+  const [searchResults, { refetch }] = createResource(search, async (query) => {
     if (!query) return undefined
     const result = await sdk.client.session.list({ search: query, limit: 30 })
     return result.data ?? []
@@ -54,6 +56,57 @@ export function DialogSessionList() {
             workspaceID,
           })
         }
+      />
+    ))
+  }
+
+  function recover(session: NonNullable<ReturnType<typeof sessions>[number]>) {
+    const workspace = project.workspace.get(session.workspaceID!)
+    const list = () => dialog.replace(() => <DialogSessionList />)
+    dialog.replace(() => (
+      <DialogSessionDeleteFailed
+        session={session.title}
+        workspace={workspace?.name ?? session.workspaceID!}
+        onDone={list}
+        onDelete={async () => {
+          const current = currentSessionID()
+          const info = current ? sync.data.session.find((item) => item.id === current) : undefined
+          const result = await sdk.client.experimental.workspace.remove({ id: session.workspaceID! })
+          if (result.error) {
+            toast.show({
+              variant: "error",
+              title: "Failed to delete workspace",
+              message: errorMessage(result.error),
+            })
+            return false
+          }
+          await project.workspace.sync()
+          await sync.session.refresh()
+          if (search()) await refetch()
+          if (info?.workspaceID === session.workspaceID) {
+            route.navigate({ type: "home" })
+          }
+          return true
+        }}
+        onRestore={() => {
+          dialog.replace(() => (
+            <DialogWorkspaceCreate
+              onSelect={(workspaceID) =>
+                restoreWorkspaceSession({
+                  dialog,
+                  sdk,
+                  sync,
+                  project,
+                  toast,
+                  workspaceID,
+                  sessionID: session.id,
+                  done: list,
+                })
+              }
+            />
+          ))
+          return false
+        }}
       />
     ))
   }
@@ -148,20 +201,49 @@ export function DialogSessionList() {
           title: "delete",
           onTrigger: async (option) => {
             if (toDelete() === option.value) {
-              // Find current index before deletion
               const ref = selectRef()
               const currentIndex = ref?.filtered.findIndex((opt) => opt.value === option.value) ?? -1
+              const session = sessions().find((item) => item.id === option.value)
+              const wsStatus = session?.workspaceID ? project.workspace.status(session.workspaceID) : undefined
 
-              sdk.client.session.delete({
-                sessionID: option.value,
-              })
+              try {
+                const result = await sdk.client.session.delete({
+                  sessionID: option.value,
+                })
+                if (result.error) {
+                  if (session?.workspaceID) {
+                    recover(session)
+                  } else {
+                    toast.show({
+                      variant: "error",
+                      title: "Failed to delete session",
+                      message: errorMessage(result.error),
+                    })
+                  }
+                  setToDelete(undefined)
+                  return
+                }
+              } catch (err) {
+                if (session?.workspaceID) {
+                  recover(session)
+                } else {
+                  toast.show({
+                    variant: "error",
+                    title: "Failed to delete session",
+                    message: errorMessage(err),
+                  })
+                }
+                setToDelete(undefined)
+                return
+              }
+              if (wsStatus && wsStatus !== "connected") {
+                await sync.session.refresh()
+              }
+              if (search()) await refetch()
               setToDelete(undefined)
 
-              // Move to adjacent item after deletion
               if (ref && currentIndex >= 0) {
                 setTimeout(() => {
-                  // Try to stay at same index (which will be next item after deletion)
-                  // Or go to previous if we were at the end
                   const newIndex = Math.min(currentIndex, ref.filtered.length - 1)
                   if (newIndex >= 0) {
                     ref.moveTo(newIndex, true)

@@ -1,6 +1,6 @@
 import z from "zod"
 import { EOL } from "os"
-import { NamedError } from "@opencode-ai/util/error"
+import { NamedError } from "@opencode-ai/shared/util/error"
 import { logo as glyphs } from "./logo"
 
 export namespace UI {
@@ -71,13 +71,36 @@ export namespace UI {
       bg: "\x1b[48;5;238m",
     }
     const gap = " "
+    const draw = (line: string, fg: string, shadow: string, bg: string) => {
+      const parts: string[] = []
+      for (const char of line) {
+        if (char === "_") {
+          parts.push(bg, " ", reset)
+          continue
+        }
+        if (char === "^") {
+          parts.push(fg, bg, "▀", reset)
+          continue
+        }
+        if (char === "~") {
+          parts.push(shadow, "▀", reset)
+          continue
+        }
+        if (char === " ") {
+          parts.push(" ")
+          continue
+        }
+        parts.push(fg, char, reset)
+      }
+      return parts.join("")
+    }
 
     glyphs.left.forEach((row, index) => {
       if (pad) result.push(pad)
-      result.push(left.fg, row, reset)
+      result.push(draw(row, left.fg, left.shadow, left.bg))
       result.push(gap)
       const other = glyphs.right[index] ?? ""
-      result.push(right.fg, other, reset)
+      result.push(draw(other, right.fg, right.shadow, right.bg))
       result.push(EOL)
     })
     return result.join("").trimEnd()

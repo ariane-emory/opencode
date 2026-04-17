@@ -9,7 +9,7 @@ import { setTimeout as sleep } from "node:timers/promises"
 const SIGKILL_TIMEOUT_MS = 200
 
 export namespace Shell {
-  const BLACKLIST = new Set(["fish", "nu"])
+  const BLACKLIST = new Set(["nu"])
   const LOGIN = new Set(["bash", "dash", "fish", "ksh", "sh", "zsh"])
   const POSIX = new Set(["bash", "dash", "ksh", "sh", "zsh"])
 

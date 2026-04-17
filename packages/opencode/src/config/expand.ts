@@ -1,6 +1,6 @@
 import { $ } from "bun"
 import matter from "gray-matter"
-import { ConfigMarkdown } from "./markdown"
+import { ConfigMarkdown } from "../config"
 import { substituteArguments } from "./substitute"
 
 export namespace MarkdownExpand {

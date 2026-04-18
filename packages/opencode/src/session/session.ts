@@ -12,7 +12,7 @@ import { InstallationVersion } from "../installation/version"
 import { Database, NotFoundError, eq, and, gte, isNull, desc, like, inArray, lt } from "../storage"
 import { SyncEvent } from "../sync"
 import type { SQL } from "../storage"
-import { PartTable, SessionTable } from "./session.sql"
+import { MessageTable, PartTable, SessionTable } from "./session.sql"
 import { ProjectTable } from "../project/project.sql"
 import { Storage } from "@/storage"
 import { Log } from "../util"
@@ -31,6 +31,9 @@ import { Global } from "@/global"
 import { fn } from "@/util/fn"
 import { makeRuntime } from "@/effect/run-service"
 import { Effect, Layer, Option, Context } from "effect"
+import { makeRuntime } from "@/effect/run-service"
+import { SessionRunState } from "./run-state"
+import { fn } from "@/util/fn"
 
 const log = Log.create({ service: "session" })
 
@@ -724,6 +727,7 @@ export const layer: Layer.Layer<Service, never, Bus.Service | Storage.Service> =
 
 export const defaultLayer = layer.pipe(Layer.provide(Bus.layer), Layer.provide(Storage.defaultLayer))
 
+const rewindRuntime = makeRuntime(SessionRunState.Service, SessionRunState.defaultLayer)
 const { runPromise } = makeRuntime(Service, defaultLayer)
 
 export const create = fn(CreateInput, (input) => runPromise((svc) => svc.create(input)))
@@ -769,6 +773,26 @@ export async function updatePart<T extends MessageV2.Part>(part: T): Promise<T> 
   return runPromise((svc) => svc.updatePart(part))
 }
 
+export const rewind = fn(
+  z.object({
+    sessionID: SessionID.zod,
+    messageID: MessageID.zod,
+  }),
+  async (input) => {
+    await rewindRuntime.runPromise((svc) => svc.assertNotBusy(input.sessionID))
+    const msgs = await runPromise((svc) => svc.messages({ sessionID: input.sessionID }))
+    for (const msg of msgs) {
+      if (msg.info.id >= input.messageID) {
+        Database.use((db) => db.delete(MessageTable).where(eq(MessageTable.id, msg.info.id)).run())
+        Bus.publish(MessageV2.Event.Removed, {
+          sessionID: input.sessionID,
+          messageID: msg.info.id,
+        })
+      }
+    }
+    return runPromise((svc) => svc.get(input.sessionID))
+  },
+)
 export function* list(input?: {
   directory?: string
   workspaceID?: WorkspaceID

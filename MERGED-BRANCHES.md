@@ -80,8 +80,8 @@
 | ☑ | 74 | feat/remove-canned-jokes | origin | 42001aa42c | Clean merge |
 | ☑ | 75 | feat/kimi-with-claude-system-prompt | origin | 42001aa42c | Clean merge |
 | ☐ | 76 | fix/less-bottom-padding | origin | TBD | |
-| ☐ | 77 | fix/session-list-delete-selection | origin | TBD | |
-| ☐ | 78 | fix/no-footer-context-when-sidebar | origin | TBD | |
+| ☑ | 77 | fix/session-list-delete-selection | origin | 47ce002a05 | Resolved conflicts in dialog-select.tsx and dialog-session-list.tsx by preserving core fix while keeping earlier features |
+| ☑ | 78 | fix/no-footer-context-when-sidebar | origin | 0239f4b054 | Clean merge |
 
 ## Merge Log
 

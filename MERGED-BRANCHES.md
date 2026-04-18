@@ -34,7 +34,7 @@
 | ☑ | 28 | fix/persist-sidebar | origin | cac4c1ee83 | This branch is meant not only to make the sidebar display state persistent across restarts of the program but also to remove the normal behaviour where the sidebar is hidden when the terminal is not wide enough! There MUST NOT be a way to return to the auto state after transitioning to the "show" or "hide" state. This change in the sidebar behaviour MUST NOT be clobbered while merging! |
 | ☑ | 29 | feat/persist-sidebar-group-folding-states | origin | 7c1f107f58 | Be sure not to let this feature get clobbered by subsequent merges! |
 | ☑ | 30 | feat/command-palette-consistency | origin | 4ead819351 | This branch is meant to MOVE several items from the Session category to the System category in the command palette. You MUST NOT duplicate them into both categories when resolving merge conflicts! Additionally, if fix/persist-sidebar was merged previously, be sure to properly move the new logic for the sidebar that it added: no return to "auto" after leaving, et cetera |
-| ☐ | 31 | feat/persistant-sidebar-overlay-behaviour | origin | TBD | |
+| ☑ | 31 | feat/persistant-sidebar-overlay-behaviour | origin | 398ddb2743 | |
 | ☐ | 32 | refactor/shared-substitute | origin | TBD | |
 | ☐ | 33 | feat/session-id-in-status | origin | TBD | |
 | ☐ | 34 | feat/opeoginni--display-message-tps | origin | TBD | |

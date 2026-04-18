@@ -1,9 +1,8 @@
 import { BusEvent } from "@/bus/bus-event"
-import { InstanceState } from "@/effect"
-import { EffectBridge } from "@/effect"
+import { EffectBridge, InstanceState } from "@/effect"
 import type { InstanceContext } from "@/project/instance"
-import { SessionID, MessageID } from "@/session/schema"
-import { Effect, Layer, Context } from "effect"
+import { MessageID, SessionID } from "@/session/schema"
+import { Context, Effect, Layer } from "effect"
 import z from "zod"
 import { Config } from "../config"
 import { MCP } from "../mcp"
@@ -52,6 +51,12 @@ export function hints(template: string) {
   const numbered = template.match(/\$\d+/g)
   if (numbered) {
     for (const match of [...new Set(numbered)].sort()) result.push(match)
+  }
+  const extended = template.match(/\$\{(\d+|\d*\.\.\d*)\}/g)
+  if (extended) {
+    for (const match of [...new Set(extended)].sort()) {
+      if (!result.includes(match)) result.push(match)
+    }
   }
   if (template.includes("$ARGUMENTS")) result.push("$ARGUMENTS")
   return result

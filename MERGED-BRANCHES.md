@@ -40,7 +40,7 @@
 | ☑ | 34 | feat/opeoginni--display-message-tps | origin | e3ef8b5590 | |
 | ☑ | 35 | feat/kv-diff-style-clean | origin | 4c2041968f | |
 | ☑ | 36 | feat/global-compaction-threshold | origin | 023116140a | |
-| ☐ | 37 | feat/configurable-message-and-session-limit | origin | TBD | Don't forget that both the `experimental._message__limit` and `experimental.session_list_limit` settings should accept either positive integers or the string value "none"! |
+| ☑ | 37 | feat/configurable-message-and-session-limit | origin | 320a77d95a | Don't forget that both the `experimental._message__limit` and `experimental.session_list_limit` settings should accept either positive integers or the string value "none"! |
 | ☐ | 38 | feat/experimental-dont-cache-command-markdown | origin | TBD | |
 | ☐ | 39 | feat/jsonc-user-themes | origin | TBD | |
 | ☐ | 40 | feat/shell-advice | origin | TBD | Make sure to combine this properly with the changes to the bash tool's description that are made in the feat/improve-bash-tool-git-advice branch, both sets of changes must be synthesized! |

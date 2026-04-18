@@ -42,6 +42,7 @@ interface GitResult {
   readonly stderr: string
 }
 
+const defaultRetentionDays = 7
 type State = Omit<Interface, "init">
 
 export interface Interface {
@@ -181,7 +182,14 @@ export const layer: Layer.Layer<
 
         const enabled = Effect.fnUntraced(function* () {
           if (state.vcs !== "git") return false
-          return (yield* config.get()).snapshot !== false
+          const snapshot = (yield* config.get()).snapshot
+          return snapshot !== false && snapshot !== 0
+        })
+
+        const retentionDays = Effect.fnUntraced(function* () {
+          const snapshot = (yield* config.get()).snapshot
+          if (typeof snapshot === "number") return snapshot
+          return defaultRetentionDays
         })
 
         const excludes = Effect.fnUntraced(function* () {
@@ -277,7 +285,8 @@ export const layer: Layer.Layer<
             Effect.gen(function* () {
               if (!(yield* enabled())) return
               if (!(yield* exists(state.gitdir))) return
-              const result = yield* git(args(["gc", `--prune=${prune}`]), { cwd: state.directory })
+              const days = yield* retentionDays()
+              const result = yield* git(args(["gc", `--prune=${days}.days`]), { cwd: state.directory })
               if (result.code !== 0) {
                 log.warn("cleanup failed", {
                   exitCode: result.code,
@@ -285,7 +294,7 @@ export const layer: Layer.Layer<
                 })
                 return
               }
-              log.info("cleanup", { prune })
+              log.info("cleanup", { retentionDays: days })
             }),
           )
         })

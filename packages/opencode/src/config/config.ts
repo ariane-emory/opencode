@@ -107,10 +107,10 @@ export const Info = z
       })
       .optional(),
     snapshot: z
-      .boolean()
+      .union([z.boolean(), z.number().int().nonnegative()])
       .optional()
       .describe(
-        "Enable or disable snapshot tracking. When false, filesystem snapshots are not recorded and undoing or reverting will not undo/redo file changes. Defaults to true.",
+        "Enable or disable snapshot tracking. When false, filesystem snapshots are not recorded and undoing or reverting will not undo/redo file changes. Defaults to true. Can also be set to a number to specify how many days snapshots should be retained for.",
       ),
     // User-facing plugin config is stored as Specs; provenance gets attached later while configs are merged.
     plugin: ConfigPlugin.Spec.array().optional(),
@@ -201,7 +201,8 @@ export const Info = z
           }),
         ),
       ])
-      .optional(),
+      .optional()
+      .describe("Variant-specific configuration"),
     lsp: z
       .union([
         z.literal(false),

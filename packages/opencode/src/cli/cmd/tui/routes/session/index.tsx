@@ -98,11 +98,11 @@ import * as Model from "../../util/model"
 import { formatTranscript } from "../../util/transcript"
 import { UI } from "@/cli/ui.ts"
 import { useTuiConfig } from "../../context/tui-config"
+import { renderMarkdownThemedStyled, parseMarkdownSegments } from "@/cli/markdown-renderer"
 import { getScrollAcceleration } from "../../util/scroll"
 import { TuiPluginRuntime } from "../../plugin"
 import { DialogGoUpsell } from "../../component/dialog-go-upsell"
 import { SessionRetry } from "@/session/retry"
-import { renderMarkdownThemedStyled, parseMarkdownSegments } from "@/cli/markdown-renderer"
 
 addDefaultParsers(parsers.parsers)
 
@@ -1252,6 +1252,7 @@ function UserMessage(props: {
   const local = useLocal()
   const text = createMemo(() => props.parts.flatMap((x) => (x.type === "text" && !x.synthetic ? [x] : []))[0])
   const files = createMemo(() => props.parts.flatMap((x) => (x.type === "file" ? [x] : [])))
+  const sync = useSync()
   const tui = useTheme()
   const theme = tui.theme
   const [hover, setHover] = createSignal(false)

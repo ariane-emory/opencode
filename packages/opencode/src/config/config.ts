@@ -327,6 +327,11 @@ export const Info = z
           .array(z.string())
           .optional()
           .describe("Tools that should only be available to primary agents."),
+        cache_command_markdown_files: z
+          .boolean()
+          .optional()
+          .default(true)
+          .describe("Cache command markdown files on first load. Set to false to reload command files on every execution."),
         continue_loop_on_deny: z.boolean().optional().describe("Continue the agent loop when a tool call is denied"),
         context_compaction_threshold: z.number().min(10).max(100).optional().describe("Percentage of usable context space at which to trigger compaction (10-100)"),
         mcp_timeout: z

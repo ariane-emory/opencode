@@ -186,7 +186,7 @@ export function DialogSessionList() {
     })
     plain.sort((a, b) => b.time.updated - a.time.updated)
 
-    return [
+    const result = [
       ...pinned.map((x) => item(x, "Bookmarks:", true)),
       ...grouped.map((x) => {
         const parts = parseSessionTitleParts(x.title)

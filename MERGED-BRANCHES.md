@@ -11,7 +11,7 @@
 | ☑ | 5 | feat/session-grouping | origin | c0612b14a8 | |
 | ☑ | 6 | feat/session-bookmarks | origin | 8a3311c373 | |
 | ☑ | 7 | fix/dialog-datetime-alignment | origin | 5e4350dccf | Merge immediately after feat/session-bookmarks |
-| ☐ | 8 | feat/keybindable-commands | origin | TBD | |
+| ☑ | 8 | feat/keybindable-commands | origin | 813a41bb69 | |
 | ☐ | 9 | feat/automatic-list-continuation | origin | TBD | |
 | ☐ | 10 | feat/continue-command | origin | TBD | |
 | ☐ | 11 | feat/configurable-snapshot-lifespan | origin | TBD | |
@@ -92,4 +92,6 @@
 | 3 | feat/markdown-renderer | 90037f2e83 | Conflicts resolved in run.ts and session/index.tsx |
 | 4 | feat/thinking-indicator-hidden | dd036aeddc | Clean merge |
 | 5 | feat/session-grouping | c0612b14a8 | Clean merge |
+| 7 | fix/dialog-datetime-alignment | 5e4350dccf | Minor conflict in locale.ts comment |
+| 8 | feat/keybindable-commands | 813a41bb69 | Import fix: Keybind from @/util instead of @/util/keybind |
 | 6 | feat/session-bookmarks | 8a3311c373 | Conflicts resolved in dialog-session-list.tsx and locale.ts |

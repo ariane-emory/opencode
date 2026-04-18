@@ -36,14 +36,14 @@
 | ☑ | 30 | feat/command-palette-consistency | origin | 4ead819351 | This branch is meant to MOVE several items from the Session category to the System category in the command palette. You MUST NOT duplicate them into both categories when resolving merge conflicts! Additionally, if fix/persist-sidebar was merged previously, be sure to properly move the new logic for the sidebar that it added: no return to "auto" after leaving, et cetera |
 | ☑ | 31 | feat/persistant-sidebar-overlay-behaviour | origin | 398ddb2743 | |
 | ☑ | 32 | refactor/shared-substitute | origin | cf5bc4a5bb | |
-| ☐ | 33 | feat/session-id-in-status | origin | TBD | |
+| ☑ | 33 | feat/session-id-in-status | origin | 5fedc4ae1b | |
 | ☑ | 34 | feat/opeoginni--display-message-tps | origin | e3ef8b5590 | |
 | ☑ | 35 | feat/kv-diff-style-clean | origin | 4c2041968f | |
 | ☑ | 36 | feat/global-compaction-threshold | origin | 023116140a | |
 | ☑ | 37 | feat/configurable-message-and-session-limit | origin | 320a77d95a | Don't forget that both the `experimental._message__limit` and `experimental.session_list_limit` settings should accept either positive integers or the string value "none"! |
 | ☑ | 38 | feat/experimental-dont-cache-command-markdown | origin | 9040bc0fbe | |
 | ☑ | 39 | feat/jsonc-user-themes | origin | 16231b67d5 | |
-| ☐ | 40 | feat/shell-advice | origin | TBD | Make sure to combine this properly with the changes to the bash tool's description that are made in the feat/improve-bash-tool-git-advice branch, both sets of changes must be synthesized! |
+| ☑ | 40 | feat/shell-advice | origin | 77b8757c8a | Make sure to combine this properly with the changes to the bash tool's description that are made in the feat/improve-bash-tool-git-advice branch, both sets of changes must be synthesized! |
 | ☐ | 41 | feat/improve-bash-tool-git-advice | origin | TBD | Make sure to combine this properly with the changes to the bash tool's description that are made in the feat/shell-advice branch, both sets of changes must be synthesized! |
 | ☐ | 42 | feat/edit-tool-description | origin | TBD | |
 | ☐ | 43 | feat/renaming-doesnt-close-session-list | origin | TBD | |

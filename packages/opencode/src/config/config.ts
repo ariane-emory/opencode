@@ -25,8 +25,8 @@ import { AppFileSystem } from "@opencode-ai/shared/filesystem"
 import { InstanceState } from "@/effect"
 import { Context, Duration, Effect, Exit, Fiber, Layer, Option } from "effect"
 import { EffectFlock } from "@opencode-ai/shared/util/effect-flock"
-import { InstanceRef } from "@/effect/instance-ref"
 import { makeRuntime } from "@/effect/run-service"
+import { InstanceRef } from "@/effect/instance-ref"
 import { Npm } from "@opencode-ai/shared/npm"
 import { ConfigAgent } from "./agent"
 import { ConfigMCP } from "./mcp"
@@ -280,6 +280,10 @@ export const Info = z
           .optional()
           .describe("Timeout in milliseconds for model context protocol (MCP) requests"),
         plan_mode: z.boolean().optional().describe("Enable experimental plan mode"),
+        enable_exa: z
+          .boolean()
+          .optional()
+          .describe("Enable experimental Exa features"),
       })
       .optional(),
   })
@@ -856,4 +860,10 @@ export async function directories() {
 
 export async function waitForDependencies() {
   return runPromise((svc) => svc.waitForDependencies())
+}
+
+export async function experimentalEnableExa(): Promise<boolean> {
+  if (Flag.OPENCODE_ENABLE_EXA) return true
+  const config = await runPromise((svc) => svc.get())
+  return config.experimental?.enable_exa === true
 }

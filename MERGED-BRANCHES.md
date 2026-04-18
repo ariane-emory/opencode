@@ -37,7 +37,7 @@
 | ☑ | 31 | feat/persistant-sidebar-overlay-behaviour | origin | 398ddb2743 | |
 | ☑ | 32 | refactor/shared-substitute | origin | cf5bc4a5bb | |
 | ☐ | 33 | feat/session-id-in-status | origin | TBD | |
-| ☐ | 34 | feat/opeoginni--display-message-tps | origin | TBD | |
+| ☑ | 34 | feat/opeoginni--display-message-tps | origin | e3ef8b5590 | |
 | ☐ | 35 | feat/kv-diff-style-clean | origin | TBD | |
 | ☐ | 36 | feat/global-compaction-threshold | origin | TBD | |
 | ☐ | 37 | feat/configurable-message-and-session-limit | origin | TBD | Don't forget that both the `experimental._message__limit` and `experimental.session_list_limit` settings should accept either positive integers or the string value "none"! |

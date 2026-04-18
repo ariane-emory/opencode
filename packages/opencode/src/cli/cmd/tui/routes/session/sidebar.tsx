@@ -1,10 +1,9 @@
 import { useSync } from "@tui/context/sync"
-import { createMemo, Show, createSignal, onMount, onCleanup } from "solid-js"
+import { createMemo, Show } from "solid-js"
 import { useTheme } from "../../context/theme"
 import { useTuiConfig } from "../../context/tui-config"
 import { InstallationVersion } from "@/installation/version"
 import { TuiPluginRuntime } from "../../plugin"
-import { useKV } from "../../context/kv"
 import { getScrollAcceleration } from "../../util/scroll"
 import { parseSessionTitleParts } from "@tui/util/session-title"
 
@@ -16,20 +15,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
   const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
   const titleParts = createMemo(() => parseSessionTitleParts(session()?.title ?? ""))
 
-  const kv = useKV()
-  const showSidebarClock = createMemo(() => kv.get("sidebar_clock_visible", true))
 
-  const formatTime = () => {
-    const now = new Date()
-    return now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false })
-  }
-
-  const [clockTime, setClockTime] = createSignal(formatTime())
-
-  onMount(() => {
-    const interval = setInterval(() => setClockTime(formatTime()), 10000)
-    onCleanup(() => clearInterval(interval))
-  })
 
   return (
     <Show when={session()}>
@@ -77,8 +63,8 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
         </scrollbox>
 
         <box flexShrink={0} gap={1} paddingTop={1}>
-          <box flexDirection="row" justifyContent="space-between">
-            <TuiPluginRuntime.Slot name="sidebar_footer" mode="single_winner" session_id={props.sessionID}>
+          <TuiPluginRuntime.Slot name="sidebar_footer" mode="single_winner" session_id={props.sessionID}>
+            <box flexDirection="row" justifyContent="space-between">
               <text fg={theme.textMuted}>
                 <span style={{ fg: theme.success }}>•</span> <b>Base</b>
                 <span style={{ fg: theme.text }}>
@@ -86,11 +72,8 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                 </span>{" "}
                 <span>{InstallationVersion}</span>
               </text>
-            </TuiPluginRuntime.Slot>
-            <Show when={showSidebarClock()}>
-              <text fg={theme.accent}>🐈 {clockTime()}</text>
-            </Show>
-          </box>
+            </box>
+          </TuiPluginRuntime.Slot>
         </box>
       </box>
     </Show>

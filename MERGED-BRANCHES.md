@@ -47,7 +47,7 @@
 | ☑ | 41 | feat/improve-bash-tool-git-advice | origin | 78fd808664 | Make sure to combine this properly with the changes to the bash tool's description that are made in the feat/shell-advice branch, both sets of changes must be synthesized! |
 | ☑ | 42 | feat/edit-tool-description | origin | a75a38c7ea | |
 | ☑ | 43 | feat/renaming-doesnt-close-session-list | origin | 60396a68fc | |
-| ☐ | 44 | feat/session-child-toggle-key | origin | TBD | |
+| ☑ | 44 | feat/session-child-toggle-key | origin | b524c86798 | |
 | ☐ | 45 | feat/set-session-title | origin | TBD | |
 | ☐ | 46 | feat/get-session-title | origin | TBD | |
 | ☐ | 47 | feat/no-disabled-lsps-in-sidebar | origin | TBD | |

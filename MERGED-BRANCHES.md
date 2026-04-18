@@ -35,7 +35,7 @@
 | ☑ | 29 | feat/persist-sidebar-group-folding-states | origin | 7c1f107f58 | Be sure not to let this feature get clobbered by subsequent merges! |
 | ☑ | 30 | feat/command-palette-consistency | origin | 4ead819351 | This branch is meant to MOVE several items from the Session category to the System category in the command palette. You MUST NOT duplicate them into both categories when resolving merge conflicts! Additionally, if fix/persist-sidebar was merged previously, be sure to properly move the new logic for the sidebar that it added: no return to "auto" after leaving, et cetera |
 | ☑ | 31 | feat/persistant-sidebar-overlay-behaviour | origin | 398ddb2743 | |
-| ☐ | 32 | refactor/shared-substitute | origin | TBD | |
+| ☑ | 32 | refactor/shared-substitute | origin | cf5bc4a5bb | |
 | ☐ | 33 | feat/session-id-in-status | origin | TBD | |
 | ☐ | 34 | feat/opeoginni--display-message-tps | origin | TBD | |
 | ☐ | 35 | feat/kv-diff-style-clean | origin | TBD | |

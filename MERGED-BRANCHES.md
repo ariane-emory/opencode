@@ -55,7 +55,7 @@
 | ☑ | 49 | feat/rewind-modal-option | origin | c45e5ee6e8 | |
 | ☑ | 50 | feat/alphabetize-command-palette-groups | origin | fe31473f32 | |
 | ☑ | 51 | feat/taller-dialogs | origin | d71ec605b5 | |
-| ☐ | 52 | feat/add-arianes-themes | origin | TBD | |
+| ☑ | 52 | feat/add-arianes-themes | origin | 84deedc3be | |
 | ☐ | 53 | feat/aspiers--readline-additions | origin | TBD | |
 | ☐ | 54 | feat/sidebar-clock | origin | TBD | |
 | ☐ | 55 | feat/alphabetical-message-modal | origin | TBD | |

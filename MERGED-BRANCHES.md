@@ -27,7 +27,7 @@
 | ☑ | 21 | fix/build-with-short-version | origin | 42c60f19af | Automatically uses short timestamp version for integration branches without requiring OPENCODE_VERSION to be set |
 | ☑ | 22 | fix/autocompletion-filtered-order | origin | b7786f4bf1 | |
 | ☑ | 23 | fix/modal-menus-filtered-order | origin | 8b109c94f0 | |
-| ☐ | 24 | fix/config-package-json-pollution | origin | TBD | This branch MUST be included in integration branches to prevent package.json pollution with non-SemVer versions |
+| ☑ | 24 | fix/config-package-json-pollution | origin | ad9a839272 | This branch MUST be included in integration branches to prevent package.json pollution with non-SemVer versions |
 | ☐ | 25 | fix/session-list-viewport-jumping | origin | TBD | |
 | ☐ | 26 | fix/merging-multiple-configs | origin | TBD | |
 | ☐ | 27 | fix/markdown-codeblock-theme-property | origin | TBD | |

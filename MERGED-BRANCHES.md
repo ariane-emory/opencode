@@ -58,7 +58,7 @@
 | ☑ | 52 | feat/add-arianes-themes | origin | 84deedc3be | |
 | ☑ | 53 | feat/aspiers--readline-additions | origin | 4e723295cb | |
 | ☑ | 54 | feat/sidebar-clock | origin | f80bea529f | |
-| ☐ | 55 | feat/alphabetical-message-modal | origin | TBD | |
+| ☑ | 55 | feat/alphabetical-message-modal | origin | 988fd4f915 | |
 | ☐ | 56 | feat/toggle-sidebar-scrollbar | origin | TBD | |
 | ☐ | 57 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | TBD | |
 | ☐ | 58 | feat/configurable-maximum-prompt-input-size | origin | TBD | |

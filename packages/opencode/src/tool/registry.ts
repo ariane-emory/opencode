@@ -27,6 +27,7 @@ import { Log } from "@/util"
 import { LspTool } from "./lsp"
 import * as Truncate from "./truncate"
 import { SetCurrentSessionTitleTool } from "./set-current-session-title"
+import { GetCurrentSessionTitleTool } from "./session-title"
 import { ApplyPatchTool } from "./apply_patch"
 import { Glob } from "@opencode-ai/shared/util/glob"
 import path from "path"
@@ -120,7 +121,7 @@ export const layer: Layer.Layer<
     const skilltool = yield* SkillTool
     const bookmarktool = yield* BookmarkCurrentSessionTool
     const sessiontitletool = yield* SetCurrentSessionTitleTool
-    const agent = yield* Agent.Service
+    const sessiontitleget = yield* GetCurrentSessionTitleTool
 
     const state = yield* InstanceState.make<State>(
       Effect.fn("ToolRegistry.state")(function* (ctx) {
@@ -196,11 +197,12 @@ export const layer: Layer.Layer<
           skill: Tool.init(skilltool),
           bookmark: Tool.init(bookmarktool),
           patch: Tool.init(patchtool),
+          sessiontitleset: Tool.init(sessiontitletool),
+          sessiontitleget: Tool.init(sessiontitleget),
           question: Tool.init(question),
           lsp: Tool.init(lsptool),
           plan: Tool.init(plan),
           planEnter: Tool.init(planEnter),
-          sessiontitle: Tool.init(sessiontitletool),
         })
 
         return {
@@ -222,11 +224,12 @@ export const layer: Layer.Layer<
             tool.skill,
             tool.bookmark,
             tool.patch,
+            tool.sessiontitleset,
+            tool.sessiontitleget,
             ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [tool.lsp] : []),
             ...((Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE || (yield* config.experimentalPlanMode())) && Flag.OPENCODE_CLIENT === "cli"
               ? [tool.plan, tool.planEnter]
               : []),
-            tool.sessiontitle,
           ],
           task: tool.task,
           read: tool.read,

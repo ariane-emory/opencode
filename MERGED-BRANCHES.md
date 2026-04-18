@@ -68,7 +68,7 @@
 | ☑ | 62 | feat/ignored-commands | origin | deca82a716 | Manually applied ignored property to Command schemas and prompt.ts due to massive branch divergence from old codebase structure |
 | ☑ | 63 | feat/dialogue-background-overlay-setting | origin | ad641626a0 | Added dialog_background_overlay experimental setting |
 | ☑ | 64 | fix/no-split-database | origin | f3dba410ba | Clean merge |
-| ☐ | 65 | feat/elapsed-timer | origin | TBD | |
+| ☑ | 65 | feat/elapsed-timer | origin | 6bff1091a2 | Resolved conflicts in run.ts (import order) and session/index.tsx (imports and sync addition) |
 | ☐ | 66 | fix/rfc2119-question-tool | origin | TBD | |
 | ☐ | 67 | feat/sidebar-header-accent-colours | origin | TBD | |
 | ☐ | 68 | feat/distinct-title-colour | origin | TBD | Make sure that this change in the title's colouring is made compatible with the reformatting in grouped session titles that comes from the feat/session-grouping branch, BOTH the distinct colour for the titles AND the formatting of grouped sessions' titles |

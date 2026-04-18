@@ -1,4 +1,4 @@
-import { PlanExitTool } from "./plan"
+import { PlanExitTool, PlanEnterTool } from "./plan"
 import { Session } from "../session"
 import { QuestionTool } from "./question"
 import { BashTool } from "./bash"
@@ -106,6 +106,7 @@ export const layer: Layer.Layer<
     const todo = yield* TodoWriteTool
     const lsptool = yield* LspTool
     const plan = yield* PlanExitTool
+    const planEnter = yield* PlanEnterTool
     const webfetch = yield* WebFetchTool
     const websearch = yield* WebSearchTool
     const bash = yield* BashTool
@@ -195,6 +196,7 @@ export const layer: Layer.Layer<
           question: Tool.init(question),
           lsp: Tool.init(lsptool),
           plan: Tool.init(plan),
+          planEnter: Tool.init(planEnter),
         })
 
         return {
@@ -217,7 +219,9 @@ export const layer: Layer.Layer<
             tool.bookmark,
             tool.patch,
             ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [tool.lsp] : []),
-            ...(Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE && Flag.OPENCODE_CLIENT === "cli" ? [tool.plan] : []),
+            ...((Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE || (yield* config.experimentalPlanMode())) && Flag.OPENCODE_CLIENT === "cli"
+              ? [tool.plan, tool.planEnter]
+              : []),
           ],
           task: tool.task,
           read: tool.read,

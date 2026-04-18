@@ -10,7 +10,7 @@
 | ☑ | 4 | feat/thinking-indicator-hidden | rcdailey | dd036aeddc | |
 | ☑ | 5 | feat/session-grouping | origin | c0612b14a8 | |
 | ☑ | 6 | feat/session-bookmarks | origin | 8a3311c373 | |
-| ☐ | 7 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks |
+| ☑ | 7 | fix/dialog-datetime-alignment | origin | 5e4350dccf | Merge immediately after feat/session-bookmarks |
 | ☐ | 8 | feat/keybindable-commands | origin | TBD | |
 | ☐ | 9 | feat/automatic-list-continuation | origin | TBD | |
 | ☐ | 10 | feat/continue-command | origin | TBD | |

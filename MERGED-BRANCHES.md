@@ -52,7 +52,7 @@
 | ☑ | 46 | feat/get-session-title | origin | 0513f7f6b7 | |
 | ☑ | 47 | feat/no-disabled-lsps-in-sidebar | origin | cd72e76a84 | |
 | ☑ | 48 | feat/agent-timestamps | origin | 9e9a34ba19 | |
-| ☐ | 49 | feat/rewind-modal-option | origin | TBD | |
+| ☑ | 49 | feat/rewind-modal-option | origin | c45e5ee6e8 | |
 | ☐ | 50 | feat/alphabetize-command-palette-groups | origin | TBD | |
 | ☐ | 51 | feat/taller-dialogs | origin | TBD | |
 | ☐ | 52 | feat/add-arianes-themes | origin | TBD | |

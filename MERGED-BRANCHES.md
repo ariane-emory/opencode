@@ -17,7 +17,7 @@
 | ☑ | 11 | feat/configurable-snapshot-lifespan | origin | 7414548791 | |
 | ☑ | 12 | feat/configurable-new-plan-mode | origin | b3d4a22a97 | |
 | ☑ | 13 | feat/enable-exa-setting | origin | d751073087 | |
-| ☐ | 14 | feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber this while merging! Merging this branch MUST add the new item to the command palette. |
+| ☑ | 14 | feat/canceled-prompts-in-history | origin | e4725ccf85 | Careful not to clobber this while merging! Merging this branch MUST add the new item to the command palette. |
 | ☐ | 15 | feat/permission-spinner | origin | TBD | |
 | ☐ | 16 | feat/opencode-expand | origin | TBD | |
 | ☐ | 17 | feat/argument-range-syntax | origin | TBD | |
@@ -99,4 +99,5 @@
 | 11 | feat/configurable-snapshot-lifespan | 7414548791 | Clean merge |
 | 12 | feat/configurable-new-plan-mode | b3d4a22a97 | Clean merge |
 | 13 | feat/enable-exa-setting | d751073087 | Conflicts resolved in config.ts (kept both plan_mode and enable_exa settings, removed duplicate import, kept all exported functions) |
+| 14 | feat/canceled-prompts-in-history | e4725ccf85 | Conflicts resolved in app.tsx (kept both markdown toggle and clear prompt history toggle command palette items) |
 | 6 | feat/session-bookmarks | 8a3311c373 | Conflicts resolved in dialog-session-list.tsx and locale.ts |

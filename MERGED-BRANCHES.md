@@ -56,7 +56,7 @@
 | ☑ | 50 | feat/alphabetize-command-palette-groups | origin | fe31473f32 | |
 | ☑ | 51 | feat/taller-dialogs | origin | d71ec605b5 | |
 | ☑ | 52 | feat/add-arianes-themes | origin | 84deedc3be | |
-| ☐ | 53 | feat/aspiers--readline-additions | origin | TBD | |
+| ☑ | 53 | feat/aspiers--readline-additions | origin | 4e723295cb | |
 | ☐ | 54 | feat/sidebar-clock | origin | TBD | |
 | ☐ | 55 | feat/alphabetical-message-modal | origin | TBD | |
 | ☐ | 56 | feat/toggle-sidebar-scrollbar | origin | TBD | |

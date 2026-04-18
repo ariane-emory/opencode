@@ -36,6 +36,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
   const [search, setSearch] = createDebouncedSignal("", 150)
   const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()
 
+
   const [searchResults, { refetch }] = createResource(search, async (query) => {
     if (!query) return undefined
     const result = await sdk.client.session.list({ search: query, limit: 30 })
@@ -231,8 +232,10 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
           title: "delete",
           onTrigger: async (option) => {
             if (toDelete() === option.value) {
+              const ref = selectRef()
+              const currentIndex = ref?.filtered.findIndex((opt) => opt.value === option.value) ?? -1
               const session = sessions().find((item) => item.id === option.value)
-              const status = session?.workspaceID ? project.workspace.status(session.workspaceID) : undefined
+              const wsStatus = session?.workspaceID ? project.workspace.status(session.workspaceID) : undefined
 
               try {
                 const result = await sdk.client.session.delete({
@@ -264,11 +267,20 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
                 setToDelete(undefined)
                 return
               }
-              if (status && status !== "connected") {
+              if (wsStatus && wsStatus !== "connected") {
                 await sync.session.refresh()
               }
               if (search()) await refetch()
               setToDelete(undefined)
+
+              if (ref && currentIndex >= 0) {
+                setTimeout(() => {
+                  const newIndex = Math.min(currentIndex, ref.filtered.length - 1)
+                  if (newIndex >= 0) {
+                    ref.moveTo(newIndex, true)
+                  }
+                }, 50)
+              }
               return
             }
             setToDelete(option.value)

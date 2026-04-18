@@ -6,7 +6,7 @@
 |--------|---|-------------|--------|-------------|-------------|
 | ☑ | 1 | feat/base-one-rebrand | origin | 59324c1f2c | |
 | ☑ | 2 | feat/sinister-quotes | origin | c7db46f47d | Placeholders MUST be SINISTER_PLACEHOLDERS array |
-| ☐ | 3 | feat/markdown-renderer | gignit | TBD | |
+| ☑ | 3 | feat/markdown-renderer | gignit | 90037f2e83 | |
 | ☐ | 4 | feat/thinking-indicator-hidden | rcdailey | TBD | |
 | ☐ | 5 | feat/session-grouping | origin | TBD | |
 | ☐ | 6 | feat/session-bookmarks | origin | TBD | |
@@ -89,3 +89,4 @@
 |---|--------|--------|-------|
 | 1 | feat/base-one-rebrand | 59324c1f2c | Clean merge |
 | 2 | feat/sinister-quotes | c7db46f47d | Clean merge |
+| 3 | feat/markdown-renderer | 90037f2e83 | Conflicts resolved in run.ts and session/index.tsx |

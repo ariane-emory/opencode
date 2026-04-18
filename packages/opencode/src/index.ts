@@ -54,6 +54,10 @@ process.on("uncaughtException", (e) => {
 const args = hideBin(process.argv)
 
 function show(out: string) {
+  out = out.replace(
+    "  project  path to start opencode in                                                        [string]",
+    "  project path to start opencode in                                                         [string]",
+  )
   const text = out.trimStart()
   if (!text.startsWith("opencode ")) {
     process.stderr.write(UI.logo() + EOL + EOL)
@@ -65,7 +69,7 @@ function show(out: string) {
 
 const cli = yargs(args)
   .parserConfiguration({ "populate--": true })
-  .scriptName("opencode")
+  .scriptName("baseone")
   .wrap(100)
   .help("help", "show help")
   .alias("help", "h")
@@ -102,10 +106,11 @@ const cli = yargs(args)
     Heap.start()
 
     process.env.AGENT = "1"
+    process.env.BASEONE = "1"
     process.env.OPENCODE = "1"
     process.env.OPENCODE_PID = String(process.pid)
 
-    Log.Default.info("opencode", {
+    Log.Default.info("baseone", {
       version: InstallationVersion,
       args: process.argv.slice(2),
     })

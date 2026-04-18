@@ -4,6 +4,7 @@
   callPackage,
   bun,
   nodejs,
+  ripgrep,
   sysctl,
   makeBinaryWrapper,
   models-dev,
@@ -13,7 +14,7 @@
   node_modules ? callPackage ./node-modules.nix { },
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
-  pname = "opencode";
+  pname = "baseone";
   inherit (node_modules) version src;
   inherit node_modules;
 
@@ -55,16 +56,11 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     ''
       runHook preInstall
 
-      install -Dm755 dist/opencode-*/bin/opencode $out/bin/opencode
+      install -Dm755 dist/opencode-*/bin/baseone $out/bin/baseone
       install -Dm644 schema.json $out/share/opencode/schema.json
-    ''
-    # bun runs sysctl to detect if dunning on rosetta2
-    + lib.optionalString stdenvNoCC.hostPlatform.isDarwin ''
-      wrapProgram $out/bin/opencode \
+      wrapProgram $out/bin/baseone \
         --prefix PATH : ${
-          lib.makeBinPath [
-            sysctl
-          ]
+          lib.makeBinPath ([ ripgrep ] ++ lib.optional stdenvNoCC.hostPlatform.isDarwin sysctl)
         }
     ''
     + ''
@@ -73,9 +69,9 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   postInstall = lib.optionalString (stdenvNoCC.buildPlatform.canExecute stdenvNoCC.hostPlatform) ''
     # trick yargs into also generating zsh completions
-    installShellCompletion --cmd opencode \
-      --bash <($out/bin/opencode completion) \
-      --zsh <(SHELL=/bin/zsh $out/bin/opencode completion)
+    installShellCompletion --cmd baseone \
+      --bash <($out/bin/baseone completion) \
+      --zsh <(SHELL=/bin/zsh $out/bin/baseone completion)
   '';
 
   nativeInstallCheckInputs = [
@@ -92,9 +88,9 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   meta = {
     description = "The open source coding agent";
-    homepage = "https://opencode.ai/";
+    homepage = "https://github.com/ariane-emory/baseone";
     license = lib.licenses.mit;
-    mainProgram = "opencode";
+    mainProgram = "baseone";
     inherit (node_modules.meta) platforms;
   };
 })

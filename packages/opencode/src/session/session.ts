@@ -31,9 +31,7 @@ import { Global } from "@/global"
 import { fn } from "@/util/fn"
 import { makeRuntime } from "@/effect/run-service"
 import { Effect, Layer, Option, Context } from "effect"
-import { makeRuntime } from "@/effect/run-service"
 import { SessionRunState } from "./run-state"
-import { fn } from "@/util/fn"
 
 const log = Log.create({ service: "session" })
 

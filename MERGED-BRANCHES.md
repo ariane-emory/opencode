@@ -51,7 +51,7 @@
 | ☑ | 45 | feat/set-session-title | origin | 2a5391673f | |
 | ☑ | 46 | feat/get-session-title | origin | 0513f7f6b7 | |
 | ☑ | 47 | feat/no-disabled-lsps-in-sidebar | origin | cd72e76a84 | |
-| ☐ | 48 | feat/agent-timestamps | origin | TBD | |
+| ☑ | 48 | feat/agent-timestamps | origin | 9e9a34ba19 | |
 | ☐ | 49 | feat/rewind-modal-option | origin | TBD | |
 | ☐ | 50 | feat/alphabetize-command-palette-groups | origin | TBD | |
 | ☐ | 51 | feat/taller-dialogs | origin | TBD | |

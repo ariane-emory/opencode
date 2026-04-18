@@ -9,7 +9,7 @@
 | ☑ | 3 | feat/markdown-renderer | gignit | 90037f2e83 | |
 | ☑ | 4 | feat/thinking-indicator-hidden | rcdailey | dd036aeddc | |
 | ☑ | 5 | feat/session-grouping | origin | c0612b14a8 | |
-| ☐ | 6 | feat/session-bookmarks | origin | TBD | |
+| ☑ | 6 | feat/session-bookmarks | origin | 8a3311c373 | |
 | ☐ | 7 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks |
 | ☐ | 8 | feat/keybindable-commands | origin | TBD | |
 | ☐ | 9 | feat/automatic-list-continuation | origin | TBD | |
@@ -92,3 +92,4 @@
 | 3 | feat/markdown-renderer | 90037f2e83 | Conflicts resolved in run.ts and session/index.tsx |
 | 4 | feat/thinking-indicator-hidden | dd036aeddc | Clean merge |
 | 5 | feat/session-grouping | c0612b14a8 | Clean merge |
+| 6 | feat/session-bookmarks | 8a3311c373 | Conflicts resolved in dialog-session-list.tsx and locale.ts |

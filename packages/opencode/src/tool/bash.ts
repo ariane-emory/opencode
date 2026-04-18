@@ -571,7 +571,7 @@ export const BashTool = Tool.define(
 
     return () =>
       Effect.sync(() => {
-        const shell = Shell.acceptable()
+        const shell = Shell.preferred()
         const name = Shell.name(shell)
         const chain =
           name === "powershell"

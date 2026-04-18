@@ -50,7 +50,7 @@
 | ☑ | 44 | feat/session-child-toggle-key | origin | b524c86798 | |
 | ☑ | 45 | feat/set-session-title | origin | 2a5391673f | |
 | ☑ | 46 | feat/get-session-title | origin | 0513f7f6b7 | |
-| ☐ | 47 | feat/no-disabled-lsps-in-sidebar | origin | TBD | |
+| ☑ | 47 | feat/no-disabled-lsps-in-sidebar | origin | cd72e76a84 | |
 | ☐ | 48 | feat/agent-timestamps | origin | TBD | |
 | ☐ | 49 | feat/rewind-modal-option | origin | TBD | |
 | ☐ | 50 | feat/alphabetize-command-palette-groups | origin | TBD | |

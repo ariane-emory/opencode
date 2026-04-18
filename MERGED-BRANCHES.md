@@ -48,7 +48,7 @@
 | ☑ | 42 | feat/edit-tool-description | origin | a75a38c7ea | |
 | ☑ | 43 | feat/renaming-doesnt-close-session-list | origin | 60396a68fc | |
 | ☑ | 44 | feat/session-child-toggle-key | origin | b524c86798 | |
-| ☐ | 45 | feat/set-session-title | origin | TBD | |
+| ☑ | 45 | feat/set-session-title | origin | 2a5391673f | |
 | ☐ | 46 | feat/get-session-title | origin | TBD | |
 | ☐ | 47 | feat/no-disabled-lsps-in-sidebar | origin | TBD | |
 | ☐ | 48 | feat/agent-timestamps | origin | TBD | |

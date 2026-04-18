@@ -14,7 +14,7 @@
 | ☑ | 8 | feat/keybindable-commands | origin | 813a41bb69 | |
 | ☑ | 9 | feat/automatic-list-continuation | origin | af70f6b4e1 | |
 | ☑ | 10 | feat/continue-command | origin | bf4ca34cae | |
-| ☐ | 11 | feat/configurable-snapshot-lifespan | origin | TBD | |
+| ☑ | 11 | feat/configurable-snapshot-lifespan | origin | 7414548791 | |
 | ☐ | 12 | feat/configurable-new-plan-mode | origin | TBD | |
 | ☐ | 13 | feat/enable-exa-setting | origin | TBD | |
 | ☐ | 14 | feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber this while merging! Merging this branch MUST add the new item to the command palette. |
@@ -96,4 +96,5 @@
 | 8 | feat/keybindable-commands | 813a41bb69 | Import fix: Keybind from @/util instead of @/util/keybind |
 | 9 | feat/automatic-list-continuation | af70f6b4e1 | Clean merge |
 | 10 | feat/continue-command | bf4ca34cae | Clean merge |
+| 11 | feat/configurable-snapshot-lifespan | 7414548791 | Clean merge |
 | 6 | feat/session-bookmarks | 8a3311c373 | Conflicts resolved in dialog-session-list.tsx and locale.ts |

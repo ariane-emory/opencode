@@ -23,7 +23,7 @@
 | ☑ | 17 | feat/argument-range-syntax | origin | 8e688c3201 | |
 | ☑ | 18 | feat/default-arguments | origin | 55f489e76e | When merging this branch, make sure that you don't accidentally reintroduce the swallowing behaviour that the feat/argument-range-syntax branch was meant to eliminate. |
 | ☑ | 19 | fix/preserve-quotes-in-arguments | origin | f280d7e430 | |
-| ☐ | 20 | fix/history-navigation-key-commands | origin | TBD | |
+| ☑ | 20 | fix/history-navigation-key-commands | origin | d5a0974477 | |
 | ☐ | 21 | fix/build-with-short-version | origin | TBD | Automatically uses short timestamp version for integration branches without requiring OPENCODE_VERSION to be set |
 | ☐ | 22 | fix/autocompletion-filtered-order | origin | TBD | |
 | ☐ | 23 | fix/modal-menus-filtered-order | origin | TBD | |

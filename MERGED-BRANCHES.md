@@ -75,10 +75,10 @@
 | ☑ | 69 | feat/tool-output-colour | origin | 999983cd6e | Combined with sessionTitle from branch 68 - both theme colors now supported |
 | ☑ | 70 | feat/improve-experimental-plan-mode-prompt | origin | 805d097097 | Clean merge |
 | ☑ | 71 | fix/input-enter-keybindings | origin | 5a68b58108 | Clean merge |
-| ☐ | 72 | fix/escape-from-status | origin | TBD | |
-| ☐ | 73 | fix/restore-footer | origin | TBD | As its name suggests, this feature restores the footer that was removed in a previous version; it must not be allowed to be clobbered by other branches when merging! |
-| ☐ | 74 | feat/remove-canned-jokes | origin | TBD | |
-| ☐ | 75 | feat/kimi-with-claude-system-prompt | origin | TBD | |
+| ☑ | 72 | fix/escape-from-status | origin | 42001aa42c | Clean merge |
+| ☑ | 73 | fix/restore-footer | origin | 42001aa42c | Clean merge |
+| ☑ | 74 | feat/remove-canned-jokes | origin | 42001aa42c | Clean merge |
+| ☑ | 75 | feat/kimi-with-claude-system-prompt | origin | 42001aa42c | Clean merge |
 | ☐ | 76 | fix/less-bottom-padding | origin | TBD | |
 | ☐ | 77 | fix/session-list-delete-selection | origin | TBD | |
 | ☐ | 78 | fix/no-footer-context-when-sidebar | origin | TBD | |

@@ -20,7 +20,7 @@
 | ☑ | 14 | feat/canceled-prompts-in-history | origin | e4725ccf85 | Careful not to clobber this while merging! Merging this branch MUST add the new item to the command palette. |
 | ☑ | 15 | feat/permission-spinner | origin | d6be06615b | |
 | ☑ | 16 | feat/opencode-expand | origin | 8f4838c100 | |
-| ☐ | 17 | feat/argument-range-syntax | origin | TBD | |
+| ☑ | 17 | feat/argument-range-syntax | origin | 8e688c3201 | |
 | ☐ | 18 | feat/default-arguments | origin | TBD | When merging this branch, make sure that you don't accidentally reintroduce the swallowing behaviour that the feat/argument-range-syntax branch was meant to eliminate. |
 | ☐ | 19 | fix/preserve-quotes-in-arguments | origin | TBD | |
 | ☐ | 20 | fix/history-navigation-key-commands | origin | TBD | |

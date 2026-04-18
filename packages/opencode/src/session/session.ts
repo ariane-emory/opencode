@@ -28,6 +28,8 @@ import { SessionID, MessageID, PartID } from "./schema"
 import type { Provider } from "@/provider"
 import { Permission } from "@/permission"
 import { Global } from "@/global"
+import { fn } from "@/util/fn"
+import { makeRuntime } from "@/effect/run-service"
 import { Effect, Layer, Option, Context } from "effect"
 
 const log = Log.create({ service: "session" })
@@ -77,6 +79,7 @@ export function fromRow(row: SessionRow): Info {
       updated: row.time_updated,
       compacting: row.time_compacting ?? undefined,
       archived: row.time_archived ?? undefined,
+      pinned: row.time_pinned ?? undefined,
     },
   }
 }
@@ -102,6 +105,7 @@ export function toRow(info: Info) {
     time_updated: info.time.updated,
     time_compacting: info.time.compacting,
     time_archived: info.time.archived,
+    time_pinned: info.time.pinned ?? null,
   }
 }
 
@@ -143,6 +147,7 @@ export const Info = z
       updated: z.number(),
       compacting: z.number().optional(),
       archived: z.number().optional(),
+      pinned: z.number().optional(),
     }),
     permission: Permission.Ruleset.zod.optional(),
     revert: z
@@ -193,6 +198,7 @@ export const ChildrenInput = SessionID.zod
 export const RemoveInput = SessionID.zod
 export const SetTitleInput = z.object({ sessionID: SessionID.zod, title: z.string() })
 export const SetArchivedInput = z.object({ sessionID: SessionID.zod, time: z.number().optional() })
+export const SetPinnedInput = z.object({ sessionID: SessionID.zod, time: z.number().nullable().optional() })
 export const SetPermissionInput = z.object({ sessionID: SessionID.zod, permission: Permission.Ruleset.zod })
 export const SetRevertInput = z.object({
   sessionID: SessionID.zod,
@@ -340,6 +346,7 @@ export interface Interface {
   readonly get: (id: SessionID) => Effect.Effect<Info>
   readonly setTitle: (input: { sessionID: SessionID; title: string }) => Effect.Effect<void>
   readonly setArchived: (input: { sessionID: SessionID; time?: number }) => Effect.Effect<void>
+  readonly setPinned: (input: { sessionID: SessionID; time?: number | null }) => Effect.Effect<void>
   readonly setPermission: (input: { sessionID: SessionID; permission: Permission.Ruleset }) => Effect.Effect<void>
   readonly setRevert: (input: {
     sessionID: SessionID
@@ -563,6 +570,9 @@ export const layer: Layer.Layer<Service, never, Bus.Service | Storage.Service> =
           })
         }
       }
+      if (original.time.pinned !== undefined) {
+        yield* setPinned({ sessionID: session.id, time: original.time.pinned })
+      }
       return session
     })
 
@@ -579,6 +589,10 @@ export const layer: Layer.Layer<Service, never, Bus.Service | Storage.Service> =
 
     const setArchived = Effect.fn("Session.setArchived")(function* (input: { sessionID: SessionID; time?: number }) {
       yield* patch(input.sessionID, { time: { archived: input.time } })
+    })
+
+    const setPinned = Effect.fn("Session.setPinned")(function* (input: { sessionID: SessionID; time?: number | null }) {
+      yield* patch(input.sessionID, { time: { pinned: input.time } })
     })
 
     const setPermission = Effect.fn("Session.setPermission")(function* (input: {
@@ -676,6 +690,7 @@ export const layer: Layer.Layer<Service, never, Bus.Service | Storage.Service> =
       get,
       setTitle,
       setArchived,
+      setPinned,
       setPermission,
       setRevert,
       clearRevert,
@@ -696,6 +711,51 @@ export const layer: Layer.Layer<Service, never, Bus.Service | Storage.Service> =
 )
 
 export const defaultLayer = layer.pipe(Layer.provide(Bus.layer), Layer.provide(Storage.defaultLayer))
+
+const { runPromise } = makeRuntime(Service, defaultLayer)
+
+export const create = fn(CreateInput, (input) => runPromise((svc) => svc.create(input)))
+
+export const fork = fn(ForkInput, (input) => runPromise((svc) => svc.fork(input)))
+
+export const get = fn(GetInput, (id) => runPromise((svc) => svc.get(id)))
+
+export const setTitle = fn(SetTitleInput, (input) => runPromise((svc) => svc.setTitle(input)))
+
+export const setArchived = fn(SetArchivedInput, (input) => runPromise((svc) => svc.setArchived(input)))
+
+export const setPinned = fn(SetPinnedInput, (input) => runPromise((svc) => svc.setPinned(input)))
+
+export const setPermission = fn(SetPermissionInput, (input) => runPromise((svc) => svc.setPermission(input)))
+
+export const setRevert = fn(SetRevertInput, (input) =>
+  runPromise((svc) => svc.setRevert({ sessionID: input.sessionID, revert: input.revert, summary: input.summary })),
+)
+
+export const messages = fn(MessagesInput, (input) => runPromise((svc) => svc.messages(input)))
+
+export const children = fn(ChildrenInput, (id) => runPromise((svc) => svc.children(id)))
+
+export const remove = fn(RemoveInput, (id) => runPromise((svc) => svc.remove(id)))
+
+export async function updateMessage<T extends MessageV2.Info>(msg: T): Promise<T> {
+  MessageV2.Info.parse(msg)
+  return runPromise((svc) => svc.updateMessage(msg))
+}
+
+export const removeMessage = fn(z.object({ sessionID: SessionID.zod, messageID: MessageID.zod }), (input) =>
+  runPromise((svc) => svc.removeMessage(input)),
+)
+
+export const removePart = fn(
+  z.object({ sessionID: SessionID.zod, messageID: MessageID.zod, partID: PartID.zod }),
+  (input) => runPromise((svc) => svc.removePart(input)),
+)
+
+export async function updatePart<T extends MessageV2.Part>(part: T): Promise<T> {
+  MessageV2.Part.parse(part)
+  return runPromise((svc) => svc.updatePart(part))
+}
 
 export function* list(input?: {
   directory?: string

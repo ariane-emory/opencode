@@ -70,7 +70,7 @@
 | ☑ | 64 | fix/no-split-database | origin | f3dba410ba | Clean merge |
 | ☑ | 65 | feat/elapsed-timer | origin | 6bff1091a2 | Resolved conflicts in run.ts (import order) and session/index.tsx (imports and sync addition) |
 | ☑ | 66 | fix/rfc2119-question-tool | origin | fd5d99d858 | Clean merge |
-| ☐ | 67 | feat/sidebar-header-accent-colours | origin | TBD | |
+| ☑ | 67 | feat/sidebar-header-accent-colours | origin | d2c2c3f095 | Resolved conflict in lsp.tsx by using branch version with accent color headers |
 | ☐ | 68 | feat/distinct-title-colour | origin | TBD | Make sure that this change in the title's colouring is made compatible with the reformatting in grouped session titles that comes from the feat/session-grouping branch, BOTH the distinct colour for the titles AND the formatting of grouped sessions' titles |
 | ☐ | 69 | feat/tool-output-colour | origin | TBD | |
 | ☐ | 70 | feat/improve-experimental-plan-mode-prompt | origin | TBD | |

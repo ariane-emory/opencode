@@ -29,7 +29,7 @@
 | ☑ | 23 | fix/modal-menus-filtered-order | origin | 8b109c94f0 | |
 | ☑ | 24 | fix/config-package-json-pollution | origin | ad9a839272 | This branch MUST be included in integration branches to prevent package.json pollution with non-SemVer versions |
 | ☑ | 25 | fix/session-list-viewport-jumping | origin | 8d185a5850 | |
-| ☐ | 26 | fix/merging-multiple-configs | origin | TBD | |
+| ☑ | 26 | fix/merging-multiple-configs | origin | 900e9f64d0 | |
 | ☐ | 27 | fix/markdown-codeblock-theme-property | origin | TBD | |
 | ☐ | 28 | fix/persist-sidebar | origin | TBD | This branch is meant not only to make the sidebar display state persistent across restarts of the program but also to remove the normal behaviour where the sidebar is hidden when the terminal is not wide enough! There MUST NOT be a way to return to the auto state after transitioning to the "show" or "hide" state. This change in the sidebar behaviour MUST NOT be clobbered while merging! |
 | ☐ | 29 | feat/persist-sidebar-group-folding-states | origin | TBD | Be sure not to let this feature get clobbered by subsequent merges! |

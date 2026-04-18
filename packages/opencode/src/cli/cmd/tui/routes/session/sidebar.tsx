@@ -77,8 +77,8 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
         </scrollbox>
 
         <box flexShrink={0} gap={1} paddingTop={1}>
-          <TuiPluginRuntime.Slot name="sidebar_footer" mode="single_winner" session_id={props.sessionID}>
-            <box flexDirection="row" justifyContent="space-between">
+          <box flexDirection="row" justifyContent="space-between">
+            <TuiPluginRuntime.Slot name="sidebar_footer" mode="single_winner" session_id={props.sessionID}>
               <text fg={theme.textMuted}>
                 <span style={{ fg: theme.success }}>•</span> <b>Base</b>
                 <span style={{ fg: theme.text }}>
@@ -86,11 +86,11 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                 </span>{" "}
                 <span>{InstallationVersion}</span>
               </text>
-              <Show when={showSidebarClock()}>
-                <text fg={theme.accent}>🐈 {clockTime()}</text>
-              </Show>
-            </box>
-          </TuiPluginRuntime.Slot>
+            </TuiPluginRuntime.Slot>
+            <Show when={showSidebarClock()}>
+              <text fg={theme.accent}>🐈 {clockTime()}</text>
+            </Show>
+          </box>
         </box>
       </box>
     </Show>

@@ -340,6 +340,14 @@ export const Info = z
           .boolean()
           .optional()
           .describe("Enable experimental Exa features"),
+        messages_limit: z
+          .union([z.number().min(1), z.literal("none")])
+          .optional()
+          .describe("Maximum number of message parts to load per session when syncing, or 'none' to load all messages"),
+        session_list_limit: z
+          .union([z.number().min(1), z.literal("none")])
+          .optional()
+          .describe("Maximum number of sessions to display in session list, or 'none' to show all sessions"),
       })
       .optional(),
   })

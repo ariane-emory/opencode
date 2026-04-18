@@ -132,7 +132,11 @@ export function DialogSessionList() {
   }
 
   const options = createMemo(() => {
+    if (!sync.ready) return []
     const today = new Date().toDateString()
+    const sessionsListLimit = sync.data.config.experimental?.session_list_limit
+    const limit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
+
     const all = sessions().filter((x) => x.parentID === undefined)
     const pinned = all.filter((x) => x.time.pinned !== undefined).toSorted((a, b) => (b.time.pinned ?? 0) - (a.time.pinned ?? 0))
     const grouped = all.filter((x) => x.time.pinned === undefined && parseSessionTitleParts(x.title).group)
@@ -196,6 +200,7 @@ export function DialogSessionList() {
         return item(x, date.toDateString() === today ? "Today" : date.toDateString(), false)
       }),
     ]
+    return limit ? result.slice(0, limit) : result
   })
 
   onMount(() => {

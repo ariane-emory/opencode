@@ -318,10 +318,14 @@ export function createFrames(options: KnightRiderOptions = {}): string[] {
         return "·"
       }
 
-      // Default to blocks
-      // It's active if we have a valid color index that is within our colors array
-      const isActive = index >= 0 && index < trailOptions.colors.length
-      return isActive ? "■" : "⬝"
+      // Default to blocks - index 0 is brightest, higher indices are dimmer
+      // Use visually distinct block shading characters
+      const blocks = ["█", "▓", "▒", "░"]
+      if (index >= 0 && index < trailOptions.colors.length) {
+        // Direct mapping: each trail position gets its own block character
+        return blocks[Math.min(index, blocks.length - 1)]
+      }
+      return "·"
     }).join("")
   })
 
@@ -365,4 +369,281 @@ export function createColors(options: KnightRiderOptions = {}): ColorGenerator {
   }
 
   return createKnightRiderTrail(trailOptions)
+}
+
+export interface PulseOptions {
+  width?: number            // Number of characters (default: 8)
+  style?: KnightRiderStyle  // "blocks" or "diamonds" (default: "blocks")
+  color?: ColorInput        // Base color to pulse
+  riseFrames?: number       // Frames for brightness to rise (default: 5)
+  fallFrames?: number       // Frames for brightness to fall (default: 5)
+  gapFrames?: number        // Frames of darkness between pulses (default: 3)
+  restFrames?: number       // Frames to rest at minimum (default: 10)
+  pulseCount?: number       // Number of pulses before rest (default: 2)
+  minAlpha?: number         // Darkest alpha (default: 0)
+  maxAlpha?: number         // Brightest alpha (default: 1.0)
+  spreadDelay?: number      // Frame delay per distance from center (default: 2)
+}
+
+/**
+ * Quadratic ease-in-out function for smooth animations
+ * @param t Progress value from 0 to 1
+ * @returns Eased value from 0 to 1
+ */
+function easeInOutQuad(t: number): number {
+  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
+}
+
+/**
+ * Calculates alpha value for a center-outward pulsing animation
+ * @param frame Current frame number (adjusted for character delay)
+ * @param singlePulse Total frames in one pulse (rise + fall)
+ * @param pulseCount Number of pulses before rest period
+ * @param restFrames Number of frames to rest at minimum brightness
+ * @param minAlpha Minimum alpha value
+ * @param maxAlpha Maximum alpha value
+ * @param riseFrames Number of frames for brightness to rise
+ * @param fallFrames Number of frames for brightness to fall
+ * @returns Alpha value for the current frame
+ */
+function calculateCenterPulseAlpha(
+  frame: number,
+  singlePulse: number,
+  pulseCount: number,
+  restFrames: number,
+  minAlpha: number,
+  maxAlpha: number,
+  riseFrames: number,
+  fallFrames: number,
+): number {
+  // If frame is negative (delayed character hasn't started yet), stay at min
+  if (frame < 0) return minAlpha
+  
+  const pulsesEnd = singlePulse * pulseCount
+  
+  // During rest period
+  if (frame >= pulsesEnd) return minAlpha
+  
+  // Determine which pulse we're in and position within that pulse
+  const pulseIndex = Math.floor(frame / singlePulse)
+  const frameInPulse = frame % singlePulse
+  
+  if (pulseIndex >= pulseCount) return minAlpha
+  
+  // Rising phase
+  if (frameInPulse < riseFrames) {
+    const progress = frameInPulse / riseFrames
+    return minAlpha + (maxAlpha - minAlpha) * easeInOutQuad(progress)
+  }
+  
+  // Falling phase
+  const fallProgress = (frameInPulse - riseFrames) / fallFrames
+  return maxAlpha - (maxAlpha - minAlpha) * easeInOutQuad(fallProgress)
+}
+
+/**
+ * Calculates alpha for a breathing animation where a wave expands from center then contracts back
+ * Think of it as a circular wave: the "radius" grows and shrinks, and each position's brightness
+ * depends on how close the wave radius is to that position's distance from center
+ * @param frame Current frame in the animation cycle
+ * @param distance This character's distance from center
+ * @param singlePulse Total frames in one pulse
+ * @param pulseCount Number of pulses before rest
+ * @param restFrames Frames to rest at minimum
+ * @param minAlpha Minimum alpha value
+ * @param maxAlpha Maximum alpha value  
+ * @param riseFrames Frames for wave to expand outward
+ * @param fallFrames Frames for wave to contract inward
+ * @param totalChars Total number of characters
+ * @returns Alpha value for this character at this frame
+ */
+function calculateSimpleBreathingAlpha(
+  frame: number,
+  distance: number,
+  singlePulse: number,
+  pulseCount: number,
+  restFrames: number,
+  minAlpha: number,
+  maxAlpha: number,
+  riseFrames: number,
+  fallFrames: number,
+  totalChars: number,
+  gapFrames: number = 3,
+): number {
+  const pulseWithGap = singlePulse + gapFrames
+  const allPulsesEnd = (pulseWithGap * pulseCount) - gapFrames // No gap after last pulse
+  
+  // During final rest period, everything is dark
+  if (frame >= allPulsesEnd) return minAlpha
+  
+  // Determine which pulse we're in (accounting for gaps)
+  const pulseIndex = Math.floor(frame / pulseWithGap)
+  if (pulseIndex >= pulseCount) return minAlpha
+  
+  const frameInCycle = frame % pulseWithGap
+  
+  // If we're in the gap between pulses, stay dark
+  if (frameInCycle >= singlePulse) return minAlpha
+  
+  const frameInPulse = frameInCycle
+  
+  // Calculate the "wave radius" - how far from center the wave has spread
+  const maxDistance = ((totalChars - 1) / 2) + 1
+  let waveRadius: number
+  
+  if (frameInPulse < riseFrames) {
+    // Expanding phase: wave grows from 0 to maxDistance
+    waveRadius = (frameInPulse / riseFrames) * maxDistance
+  } else {
+    // Contracting phase: wave shrinks from maxDistance back to 0
+    const fallFrame = frameInPulse - riseFrames
+    waveRadius = maxDistance - (fallFrame / fallFrames) * maxDistance
+  }
+  
+  // A position is lit if it's inside the wave radius
+  // Positions are brighter the closer they are to the wave edge
+  // But all positions inside the radius should be at least somewhat visible
+  
+  if (distance > waveRadius) {
+    // Outside the wave - dark
+    return minAlpha
+  }
+  
+  // Inside the wave - brightness should be highest at center and fade toward edge
+  // This creates the effect where center is always brightest
+  const brightnessAtCenter = 1.0
+  const brightnessAtEdge = 0.05
+  
+  // Calculate brightness based on how close we are to center (distance 0)
+  // distance=0 (center) should give brightnessAtCenter
+  // distance=waveRadius (edge) should give brightnessAtEdge
+  const normalizedDistance = distance / waveRadius
+  const brightness = brightnessAtCenter - (normalizedDistance * (brightnessAtCenter - brightnessAtEdge))
+  const easedBrightness = easeInOutQuad(brightness)
+  
+  // Scale overall brightness based on wave expansion progress
+  // This creates a fade-in effect where brightness builds gradually
+  let overallScale = 1.0
+  if (frameInPulse < riseFrames) {
+    // During rise: scale brightness by how far the wave has expanded
+    overallScale = frameInPulse / riseFrames
+  }
+  
+  const finalBrightness = easedBrightness * overallScale
+  
+  return minAlpha + (maxAlpha - minAlpha) * finalBrightness
+}
+
+/**
+ * Creates frame strings for a pulsing animation where brightness spreads from center outward
+ * Used for permission-awaiting state
+ * @param options Configuration options for the pulse effect
+ * @returns Array of frame strings (all identical since color generator handles animation)
+ */
+export function createPulseFrames(options: PulseOptions = {}): string[] {
+  const width = options.width ?? 8
+  const style = options.style ?? "blocks"
+  const riseFrames = options.riseFrames ?? 4
+  const fallFrames = options.fallFrames ?? 4
+  const gapFrames = options.gapFrames ?? 2
+  const restFrames = options.restFrames ?? 15
+  const pulseCount = options.pulseCount ?? 2
+  const minAlpha = options.minAlpha ?? 0
+  const maxAlpha = options.maxAlpha ?? 1.0
+
+  const singlePulse = riseFrames + fallFrames
+  const totalFrames = (singlePulse * pulseCount) + (gapFrames * (pulseCount - 1)) + restFrames
+
+  // Generate dynamic frames with different characters based on brightness
+  const frames = Array.from({ length: totalFrames }, (_, frameIndex) => {
+    return Array.from({ length: width }, (_, charIndex) => {
+      const center = (width - 1) / 2
+      const distance = Math.abs(charIndex - center)
+      
+      // Calculate alpha for this position at this frame
+      const alpha = calculateSimpleBreathingAlpha(
+        frameIndex,
+        distance,
+        singlePulse,
+        pulseCount,
+        restFrames,
+        minAlpha,
+        maxAlpha,
+        riseFrames,
+        fallFrames,
+        width,
+        gapFrames
+      )
+      
+      // Choose character based on alpha/brightness level
+      if (style === "diamonds") {
+        if (alpha > 0.7) return "◆"        // Brightest
+        if (alpha > 0.4) return "⬥"        // Medium-bright
+        if (alpha > 0.2) return "⬩"        // Dim
+        if (alpha > minAlpha) return "·"   // Edge of pulse
+        return " "                          // Outside pulse/inactive
+      }
+      
+      // Blocks style - use progressive block shading
+      if (alpha > 0.9) return "█"           // Full block - brightest
+      if (alpha > 0.7) return "▓"           // Dark shade
+      if (alpha > 0.5) return "▒"          // Medium shade  
+      if (alpha > 0.3) return "░"           // Light shade
+      if (alpha > minAlpha) return "·"      // Edge of pulse (dot)
+      return " "                             // Outside pulse (empty space)
+    }).join("")
+  })
+
+  return frames
+}
+
+/**
+ * Creates a color generator for pulsing animation with center-outward spread effect
+ * Pattern: pulse up/down (twice), then rest, with brightness spreading from center to edges
+ * @param options Configuration options for the pulse effect
+ * @returns ColorGenerator function that calculates colors based on frame and character position
+ */
+export function createPulseColors(options: PulseOptions = {}): ColorGenerator {
+  const width = options.width ?? 8
+  const riseFrames = options.riseFrames ?? 4
+  const fallFrames = options.fallFrames ?? 4
+  const gapFrames = options.gapFrames ?? 2
+  const restFrames = options.restFrames ?? 15
+  const pulseCount = options.pulseCount ?? 2
+  const minAlpha = options.minAlpha ?? 0
+  const maxAlpha = options.maxAlpha ?? 1.0
+  const spreadDelay = options.spreadDelay ?? 2
+
+  const singlePulse = riseFrames + fallFrames
+  const totalFrames = (singlePulse * pulseCount) + (gapFrames * (pulseCount - 1)) + restFrames
+
+  const baseColor = options.color
+    ? (options.color instanceof RGBA ? options.color : RGBA.fromHex(options.color as string))
+    : RGBA.fromHex("#ffffff")
+
+  return (frameIndex: number, charIndex: number, _totalFrames: number, totalChars: number) => {
+    const frame = frameIndex % totalFrames
+    
+    // Calculate distance from center (0 for center chars, increases toward edges)
+    const center = (totalChars - 1) / 2
+    const distanceFromCenter = Math.abs(charIndex - center)
+    
+    // For breathing effect: calculate the "wave radius" at this frame
+    // The wave expands and then contracts
+    const alpha = calculateSimpleBreathingAlpha(
+      frame,
+      distanceFromCenter,
+      singlePulse, 
+      pulseCount, 
+      restFrames, 
+      minAlpha, 
+      maxAlpha, 
+      riseFrames, 
+      fallFrames,
+      totalChars,
+      gapFrames
+    )
+    
+    return RGBA.fromValues(baseColor.r, baseColor.g, baseColor.b, alpha)
+  }
 }

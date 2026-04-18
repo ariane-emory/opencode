@@ -1,5 +1,5 @@
 import { Prompt, type PromptRef } from "@tui/component/prompt"
-import { createEffect, createSignal } from "solid-js"
+import { createEffect, createSignal, onCleanup } from "solid-js"
 import { Logo } from "../component/logo"
 import { useProject } from "../context/project"
 import { useSync } from "../context/sync"
@@ -9,9 +9,6 @@ import { useRouteData } from "@tui/context/route"
 import { usePromptRef } from "../context/prompt"
 import { useLocal } from "../context/local"
 import { TuiPluginRuntime } from "../plugin"
-
-// TODO: what is the best way to do this?
-let once = false
 const placeholder = {
   normal: ["Fix a TODO in the codebase", "What is the tech stack of this project?", "Fix broken tests"],
   shell: ["ls -la", "git status", "pwd"],
@@ -26,20 +23,30 @@ export function Home() {
   const args = useArgs()
   const local = useLocal()
   let sent = false
+  let restored = false
 
   const bind = (r: PromptRef | undefined) => {
     setRef(r)
     promptRef.set(r)
-    if (once || !r) return
+  }
+
+  createEffect(() => {
+    const r = ref()
+    if (!r || restored) return
     if (route.initialPrompt) {
       r.set(route.initialPrompt)
-      once = true
+      restored = true
       return
     }
-    if (!args.prompt) return
-    r.set({ input: args.prompt, parts: [] })
-    once = true
-  }
+    if (args.prompt) {
+      r.set({ input: args.prompt, parts: [] })
+      restored = true
+    }
+  })
+
+  onCleanup(() => {
+    restored = false
+  })
 
   // Wait for sync and model store to be ready before auto-submitting --prompt
   createEffect(() => {

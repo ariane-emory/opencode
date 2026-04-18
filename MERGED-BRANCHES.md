@@ -44,7 +44,7 @@
 | ☑ | 38 | feat/experimental-dont-cache-command-markdown | origin | 9040bc0fbe | |
 | ☑ | 39 | feat/jsonc-user-themes | origin | 16231b67d5 | |
 | ☑ | 40 | feat/shell-advice | origin | 77b8757c8a | Make sure to combine this properly with the changes to the bash tool's description that are made in the feat/improve-bash-tool-git-advice branch, both sets of changes must be synthesized! |
-| ☐ | 41 | feat/improve-bash-tool-git-advice | origin | TBD | Make sure to combine this properly with the changes to the bash tool's description that are made in the feat/shell-advice branch, both sets of changes must be synthesized! |
+| ☑ | 41 | feat/improve-bash-tool-git-advice | origin | 78fd808664 | Make sure to combine this properly with the changes to the bash tool's description that are made in the feat/shell-advice branch, both sets of changes must be synthesized! |
 | ☐ | 42 | feat/edit-tool-description | origin | TBD | |
 | ☐ | 43 | feat/renaming-doesnt-close-session-list | origin | TBD | |
 | ☐ | 44 | feat/session-child-toggle-key | origin | TBD | |

@@ -90,7 +90,6 @@ export const Layout = z.enum(["auto", "stretch"]).meta({
   ref: "LayoutConfig",
 })
 export type Layout = z.infer<typeof Layout>
-
 export const Info = z
   .object({
     $schema: z.string().optional().describe("JSON schema reference for configuration validation"),
@@ -564,6 +563,10 @@ export const layer = Layer.effect(
         log.debug("loading config from OPENCODE_CONFIG_DIR", { path: Flag.OPENCODE_CONFIG_DIR })
       }
 
+      const pluginPackage =
+        InstallationLocal || !/^\d+\.\d+\.\d+/.test(InstallationVersion)
+          ? "@opencode-ai/plugin"
+          : `@opencode-ai/plugin@${InstallationVersion}`
       const deps: Fiber.Fiber<void, never>[] = []
 
       for (const dir of directories) {
@@ -582,7 +585,7 @@ export const layer = Layer.effect(
 
         const dep = yield* npmSvc
           .install(dir, {
-            add: ["@opencode-ai/plugin" + (InstallationLocal ? "" : "@" + InstallationVersion)],
+            add: [pluginPackage],
           })
           .pipe(
             Effect.exit,

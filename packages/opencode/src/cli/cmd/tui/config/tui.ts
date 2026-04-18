@@ -148,12 +148,16 @@ export namespace TuiConfig {
       const directory = yield* CurrentWorkingDirectory
       const npm = yield* Npm.Service
       const data = yield* Effect.promise(() => loadState({ directory }))
+      const pluginPackage =
+        InstallationLocal || !/^\d+\.\d+\.\d+/.test(InstallationVersion)
+          ? "@opencode-ai/plugin"
+          : `@opencode-ai/plugin@${InstallationVersion}`
       const deps = yield* Effect.forEach(
         data.dirs,
         (dir) =>
           npm
             .install(dir, {
-              add: ["@opencode-ai/plugin" + (InstallationLocal ? "" : "@" + InstallationVersion)],
+              add: [pluginPackage],
             })
             .pipe(Effect.forkScoped),
         {

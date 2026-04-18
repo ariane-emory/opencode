@@ -63,7 +63,7 @@
 | ☑ | 57 | feat/full-datetimes-in-fork-and-timeline-dialogues | origin | da06fe5a67 | |
 | ☑ | 58 | feat/configurable-maximum-prompt-input-size | origin | fd38f2f7f4 | |
 | ☑ | 59 | feat/clickable-sidebar-mcps | origin | 0d83e8bac6 | |
-| ☐ | 60 | feat/clickable-dialogue-mcps | origin | TBD | |
+| ☑ | 60 | feat/clickable-dialogue-mcps | origin | 8416bcb740 | |
 | ☐ | 61 | feat/clickable-status-mcps | origin | TBD | |
 | ☐ | 62 | feat/ignored-commands | origin | TBD | |
 | ☐ | 63 | feat/dialogue-background-overlay-setting | origin | TBD | |

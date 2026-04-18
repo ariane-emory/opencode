@@ -1634,6 +1634,13 @@ NOTE: At any point in time through this workflow you should feel free to ask the
         }
 
         const templateParts = yield* resolvePromptParts(template)
+        if (cmd.ignored) {
+          for (const part of templateParts) {
+            if (part.type === "text") {
+              part.ignored = true
+            }
+          }
+        }
         const isSubtask = (agent.mode === "subagent" && cmd.subtask !== false) || cmd.subtask === true
         const parts = isSubtask
           ? [

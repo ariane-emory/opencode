@@ -43,6 +43,7 @@ export const Info = z
     // https://zod.dev/v4/changelog?id=zfunction
     template: z.promise(z.string()).or(z.string()),
     subtask: z.boolean().optional(),
+    ignored: z.boolean().optional(),
     hints: z.array(z.string()),
   })
   .meta({
@@ -102,6 +103,7 @@ async function loadSingleCommand(filePath: string): Promise<Info | null> {
     source: "command" as const,
     template,
     subtask: md.data?.subtask,
+    ignored: md.data?.ignored,
     hints: hints(template),
   }
 }
@@ -236,6 +238,7 @@ export const layer = Layer.effect(
             return command.template
           },
           subtask: command.subtask,
+          ignored: command.ignored,
           hints: hints(command.template),
         }
       }

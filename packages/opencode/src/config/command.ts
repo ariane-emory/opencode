@@ -18,6 +18,7 @@ export const Info = z.object({
   agent: z.string().optional(),
   model: ConfigModelID.optional(),
   subtask: z.boolean().optional(),
+  ignored: z.boolean().optional(),
 }).catchall(z.any())
 
 export type Info = z.infer<typeof Info>

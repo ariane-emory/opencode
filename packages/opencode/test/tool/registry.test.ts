@@ -157,6 +157,7 @@ describe("tool.registry", () => {
         experimental: {
           plan_mode: true,
           cache_command_markdown_files: true,
+          max_prompt_input_lines: 6,
         },
       },
     })

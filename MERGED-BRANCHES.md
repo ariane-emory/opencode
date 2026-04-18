@@ -72,7 +72,7 @@
 | ☑ | 66 | fix/rfc2119-question-tool | origin | fd5d99d858 | Clean merge |
 | ☑ | 67 | feat/sidebar-header-accent-colours | origin | d2c2c3f095 | Resolved conflict in lsp.tsx by using branch version with accent color headers |
 | ☑ | 68 | feat/distinct-title-colour | origin | 8d5cad00bd | Combined sessionTitle color with grouped title formatting from feat/session-grouping |
-| ☐ | 69 | feat/tool-output-colour | origin | TBD | |
+| ☑ | 69 | feat/tool-output-colour | origin | 999983cd6e | Combined with sessionTitle from branch 68 - both theme colors now supported |
 | ☐ | 70 | feat/improve-experimental-plan-mode-prompt | origin | TBD | |
 | ☐ | 71 | fix/input-enter-keybindings | origin | TBD | |
 | ☐ | 72 | fix/escape-from-status | origin | TBD | |

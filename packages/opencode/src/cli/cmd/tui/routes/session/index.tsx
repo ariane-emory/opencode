@@ -599,7 +599,6 @@ export function Session() {
       },
     },
     {
-    {
       title: conceal() ? "Disable code concealment" : "Enable code concealment",
       value: "session.toggle.conceal",
       keybind: "messages_toggle_conceal",

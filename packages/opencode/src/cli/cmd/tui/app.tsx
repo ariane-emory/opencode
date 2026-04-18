@@ -731,8 +731,6 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       value: "sidebar_overlay",
       category: "System",
       onSelect: (dialog) => {
-      category: "System",
-      onSelect: (dialog) => {
         kv.set("sidebar_overlay", !kv.get("sidebar_overlay", true))
         dialog.clear()
       },

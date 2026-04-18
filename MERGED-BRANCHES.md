@@ -74,7 +74,7 @@
 | ☑ | 68 | feat/distinct-title-colour | origin | 8d5cad00bd | Combined sessionTitle color with grouped title formatting from feat/session-grouping |
 | ☑ | 69 | feat/tool-output-colour | origin | 999983cd6e | Combined with sessionTitle from branch 68 - both theme colors now supported |
 | ☑ | 70 | feat/improve-experimental-plan-mode-prompt | origin | 805d097097 | Clean merge |
-| ☐ | 71 | fix/input-enter-keybindings | origin | TBD | |
+| ☑ | 71 | fix/input-enter-keybindings | origin | 5a68b58108 | Clean merge |
 | ☐ | 72 | fix/escape-from-status | origin | TBD | |
 | ☐ | 73 | fix/restore-footer | origin | TBD | As its name suggests, this feature restores the footer that was removed in a previous version; it must not be allowed to be clobbered by other branches when merging! |
 | ☐ | 74 | feat/remove-canned-jokes | origin | TBD | |

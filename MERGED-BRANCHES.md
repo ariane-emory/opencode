@@ -54,7 +54,7 @@
 | ☑ | 48 | feat/agent-timestamps | origin | 9e9a34ba19 | |
 | ☑ | 49 | feat/rewind-modal-option | origin | c45e5ee6e8 | |
 | ☑ | 50 | feat/alphabetize-command-palette-groups | origin | fe31473f32 | |
-| ☐ | 51 | feat/taller-dialogs | origin | TBD | |
+| ☑ | 51 | feat/taller-dialogs | origin | d71ec605b5 | |
 | ☐ | 52 | feat/add-arianes-themes | origin | TBD | |
 | ☐ | 53 | feat/aspiers--readline-additions | origin | TBD | |
 | ☐ | 54 | feat/sidebar-clock | origin | TBD | |

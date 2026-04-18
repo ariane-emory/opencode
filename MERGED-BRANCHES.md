@@ -39,7 +39,7 @@
 | ☐ | 33 | feat/session-id-in-status | origin | TBD | |
 | ☑ | 34 | feat/opeoginni--display-message-tps | origin | e3ef8b5590 | |
 | ☑ | 35 | feat/kv-diff-style-clean | origin | 4c2041968f | |
-| ☐ | 36 | feat/global-compaction-threshold | origin | TBD | |
+| ☑ | 36 | feat/global-compaction-threshold | origin | 023116140a | |
 | ☐ | 37 | feat/configurable-message-and-session-limit | origin | TBD | Don't forget that both the `experimental._message__limit` and `experimental.session_list_limit` settings should accept either positive integers or the string value "none"! |
 | ☐ | 38 | feat/experimental-dont-cache-command-markdown | origin | TBD | |
 | ☐ | 39 | feat/jsonc-user-themes | origin | TBD | |

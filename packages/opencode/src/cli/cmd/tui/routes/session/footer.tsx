@@ -72,9 +72,6 @@ export function Footer() {
     <box flexDirection="row" justifyContent="space-between" gap={1} flexShrink={0}>
       <box flexDirection="row" gap={1}>
         <text fg={theme.textMuted}>{directory()}</text>
-        <Show when={usage()}>
-          <text fg={theme.textMuted}>{usage()}</text>
-        </Show>
       </box>
       <box gap={2} flexDirection="row" flexShrink={0}>
         <Switch>
@@ -89,6 +86,9 @@ export function Footer() {
                 <span style={{ fg: theme.warning }}>△</span> {permissions().length} Permission
                 {permissions().length > 1 ? "s" : ""}
               </text>
+            </Show>
+            <Show when={usage()}>
+              <text fg={theme.textMuted}>{usage()}</text>
             </Show>
             <Show when={!off()}>
               <text fg={theme.text}>

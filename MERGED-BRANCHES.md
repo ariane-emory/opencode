@@ -14,7 +14,7 @@
 | ☑ | 8 | feat/keybindable-commands | origin | 813a41bb69 | |
 | ☑ | 9 | feat/automatic-list-continuation | origin | af70f6b4e1 | |
 | ☑ | 10 | feat/continue-command | origin | bf4ca34cae | |
-| ☑ | 11 | feat/configurable-snapshot-lifespan | origin | cb34b8a166 | Updated: fix(snapshot): use git prune instead of gc to actually delete old snapshots |
+| ☑ | 11 | feat/configurable-snapshot-lifespan | origin | 35f1d84e94 | Updated again: replace git gc --prune with git prune --expire for proper cleanup |
 | ☑ | 12 | feat/configurable-new-plan-mode | origin | b3d4a22a97 | |
 | ☑ | 13 | feat/enable-exa-setting | origin | d751073087 | |
 | ☑ | 14 | feat/canceled-prompts-in-history | origin | e4725ccf85 | Careful not to clobber this while merging! Merging this branch MUST add the new item to the command palette. |
@@ -98,6 +98,7 @@
 | 10 | feat/continue-command | bf4ca34cae | Clean merge |
 | 11 | feat/configurable-snapshot-lifespan | 7414548791 | Clean merge |
 | 11-update | feat/configurable-snapshot-lifespan | cb34b8a166 | Updated remotely: fix(snapshot): use git prune instead of gc to actually delete old snapshots |
+| 11-update-2 | feat/configurable-snapshot-lifespan | 35f1d84e94 | Updated remotely again: replace git gc --prune with git prune --expire for proper cleanup |
 | 12 | feat/configurable-new-plan-mode | b3d4a22a97 | Clean merge |
 | 13 | feat/enable-exa-setting | d751073087 | Conflicts resolved in config.ts (kept both plan_mode and enable_exa settings, removed duplicate import, kept all exported functions) |
 | 14 | feat/canceled-prompts-in-history | e4725ccf85 | Conflicts resolved in app.tsx (kept both markdown toggle and clear prompt history toggle command palette items) |

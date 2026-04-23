@@ -11,7 +11,6 @@ import { useLocal } from "../context/local"
 import { TuiPluginRuntime } from "../plugin"
 import { SINISTER_PLACEHOLDERS } from "@opencode-ai/ui/constants/placeholders"
 
-// TODO: what is the best way to do this?
 let once = false
 const placeholder = {
   normal: [...SINISTER_PLACEHOLDERS],
@@ -32,8 +31,8 @@ export function Home() {
     setRef(r)
     promptRef.set(r)
     if (once || !r) return
-    if (route.initialPrompt) {
-      r.set(route.initialPrompt)
+    if (route.prompt) {
+      r.set(route.prompt)
       once = true
       return
     }

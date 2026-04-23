@@ -257,6 +257,26 @@ export const Info = Schema.Struct({
     })),
   )
 
+// Schema.Struct produces readonly types by default, but the service code
+// below mutates Info objects directly (e.g. `config.mode = ...`). Strip the
+// readonly recursively so callers get the same mutable shape zod inferred.
+//
+// `Types.DeepMutable` from effect-smol would be a drop-in, but its fallback
+// branch `{ -readonly [K in keyof T]: ... }` collapses `unknown` to `{}`
+// (since `keyof unknown = never`), which widens `Record<string, unknown>`
+// fields like `ConfigPlugin.Options`. The local version gates on
+// `extends object` so `unknown` passes through.
+//
+// Tuple branch preserves `ConfigPlugin.Spec`'s `readonly [string, Options]`
+// shape (otherwise the general array branch widens it to an array).
+type DeepMutable<T> = T extends readonly [unknown, ...unknown[]]
+  ? { -readonly [K in keyof T]: DeepMutable<T[K]> }
+  : T extends readonly (infer U)[]
+    ? DeepMutable<U>[]
+    : T extends object
+      ? { -readonly [K in keyof T]: DeepMutable<T[K]> }
+      : T
+
 export type Info = DeepMutable<Schema.Schema.Type<typeof Info>> & {
   // plugin_origins is derived state, not a persisted config field. It keeps each winning plugin spec together
   // with the file and scope it came from so later runtime code can make location-sensitive decisions.

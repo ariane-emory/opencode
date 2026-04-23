@@ -132,7 +132,11 @@ export function DialogSessionList() {
     const today = new Date().toDateString()
     const all = sessions().filter((x) => x.parentID === undefined)
     const pinned = all.filter((x) => x.time.pinned !== undefined).toSorted((a, b) => (b.time.pinned ?? 0) - (a.time.pinned ?? 0))
-    const unpinned = all.filter((x) => x.time.pinned === undefined).toSorted((a, b) => b.time.updated - a.time.updated)
+    const unpinned = all.filter((x) => x.time.pinned === undefined).toSorted((a, b) => {
+      const updatedDay = new Date(b.time.updated).setHours(0, 0, 0, 0) - new Date(a.time.updated).setHours(0, 0, 0, 0)
+      if (updatedDay !== 0) return updatedDay
+      return b.time.created - a.time.created
+    })
 
     const foot = (session: (typeof all)[number], showDate: boolean) => {
       if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES && session.workspaceID) {
@@ -147,7 +151,7 @@ export function DialogSessionList() {
                 fg: status === "error" ? theme.error : status === "disconnected" ? theme.textMuted : theme.success,
               }}
             >
-              ■
+              ●
             </span>
           </>
         )

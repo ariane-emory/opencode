@@ -10,7 +10,7 @@
 | ☑ | 4 | feat/thinking-indicator-hidden | rcdailey | f925e9e39f | Clean merge |
 | ☑ | 5 | feat/session-grouping | origin | 69dcd12f42 | Clean merge |
 | ☑ | 6 | feat/session-bookmarks | origin | 47bbd57c79 | Resolved conflicts in dialog-session-list.tsx and locale.ts - combined session grouping and bookmarks features |
-| ☐ | 7 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks |
+| ☑ | 7 | fix/dialog-datetime-alignment | origin | 8055e7ac95 | Resolved conflict in locale.ts - kept comment about padding |
 | ☐ | 8 | feat/keybindable-commands | origin | TBD | |
 | ☐ | 9 | feat/automatic-list-continuation | origin | TBD | |
 | ☐ | 10 | feat/continue-command | origin | TBD | |

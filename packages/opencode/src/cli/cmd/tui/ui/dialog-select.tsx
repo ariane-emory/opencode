@@ -1,11 +1,10 @@
 import { InputRenderable, RGBA, ScrollBoxRenderable, TextAttributes } from "@opentui/core"
 import { useTheme, selectedForeground } from "@tui/context/theme"
-import { entries, filter, flatMap, groupBy, mapValues, pipe } from "remeda"
-import { tieredMatch } from "@/util/tiered-match"
-import { smartCompare } from "@/util/smart-sort"
+import { entries, filter, flatMap, groupBy, pipe } from "remeda"
 import { batch, createEffect, createMemo, For, Show, type JSX, on } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useKeyboard, useTerminalDimensions } from "@opentui/solid"
+import * as fuzzysort from "fuzzysort"
 import { isDeepEqual } from "remeda"
 import { useDialog, type DialogContext } from "@tui/ui/dialog"
 import { useKeybind } from "@tui/context/keybind"
@@ -18,8 +17,8 @@ export interface DialogSelectProps<T> {
   title: string
   placeholder?: string
   options: DialogSelectOption<T>[]
-  sort?: boolean
   flat?: boolean
+  sort?: boolean
   ref?: (ref: DialogSelectRef<T>) => void
   onMove?: (option: DialogSelectOption<T>) => void
   onFilter?: (query: string) => void
@@ -52,7 +51,7 @@ export interface DialogSelectOption<T = any> {
 export type DialogSelectRef<T> = {
   filter: string
   filtered: DialogSelectOption<T>[]
-  scrollToValue: (value: T, center?: boolean) => void
+  moveTo: (index: number, center?: boolean) => void
 }
 
 export function DialogSelect<T>(props: DialogSelectProps<T>) {
@@ -67,21 +66,41 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     input: "keyboard" as "keyboard" | "mouse",
   })
 
+  createEffect(
+    on(
+      () => props.current,
+      (current) => {
+        if (current) {
+          const currentIndex = flat().findIndex((opt) => isDeepEqual(opt.value, current))
+          if (currentIndex >= 0) {
+            setStore("selected", currentIndex)
+          }
+        }
+      },
+    ),
+  )
+
   let input: InputRenderable
 
   const filtered = createMemo(() => {
     if (props.skipFilter) return props.options.filter((x) => x.disabled !== true)
-    const needle = store.filter.toLowerCase().trim()
+    const needle = store.filter.toLowerCase()
     const options = pipe(
       props.options,
       filter((x) => x.disabled !== true),
     )
     if (!needle) return options
 
-    // **CRITICAL**: This tiered matching logic is the core feature of fix/modal-menus-filtered-order.
-    // It ensures prefix matches appear first, then substring matches, then description/category matches.
-    // DO NOT replace with simple fuzzysort or frecency sorting during merges!
-    return tieredMatch(options, needle)
+    // prioritize title matches (weight: 2) over category matches (weight: 1).
+    // users typically search by the item name, and not its category.
+    const result = fuzzysort
+      .go(needle, options, {
+        keys: ["title", "category"],
+        scoreFn: (r) => r[0].score * 2 + r[1].score,
+      })
+      .map((x) => x.obj)
+
+    return result
   })
 
   // When the filter changes due to how TUI works, the mousemove might still be triggered
@@ -99,10 +118,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     const result = pipe(
       filtered(),
       groupBy((x) => x.category ?? ""),
-      (groups) => {
-        if (!props.sort || store.filter) return groups
-        return mapValues(groups, (x) => x.sort((a, b) => smartCompare(a.title, b.title)))
-      },
+      // mapValues((x) => x.sort((a, b) => a.title.localeCompare(b.title))),
       entries(),
     )
     return result
@@ -124,7 +140,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
   })
 
   const dimensions = useTerminalDimensions()
-  const height = createMemo(() => Math.min(rows(), Math.floor(dimensions().height * 0.8) - 6))
+  const height = createMemo(() => Math.min(rows(), Math.floor(dimensions().height / 2) - 6))
 
   const selected = createMemo(() => flat()[store.selected])
 
@@ -134,7 +150,6 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
         if (filter.length > 0) {
           moveTo(0, true)
         } else if (current) {
-          if (isDeepEqual(selected()?.value, current)) return
           const currentIndex = flat().findIndex((opt) => isDeepEqual(opt.value, current))
           if (currentIndex >= 0) {
             moveTo(currentIndex, true)
@@ -156,28 +171,26 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     setStore("selected", next)
     const option = selected()
     if (option) props.onMove?.(option)
-    setTimeout(() => {
-      if (!scroll) return
-      const target = scroll.getChildren().find((child) => {
-        return child.id === JSON.stringify(selected()?.value)
-      })
-      if (!target) return
-      const y = target.y - scroll.y
-      if (center) {
-        const centerOffset = Math.floor(scroll.height / 2)
-        scroll.scrollBy(y - centerOffset)
-      } else {
-        if (y >= scroll.height) {
-          scroll.scrollBy(y - scroll.height + 1)
-        }
-        if (y < 0) {
-          scroll.scrollBy(y)
-          if (isDeepEqual(flat()[0].value, selected()?.value)) {
-            scroll.scrollTo(0)
-          }
+    if (!scroll) return
+    const target = scroll.getChildren().find((child) => {
+      return child.id === JSON.stringify(selected()?.value)
+    })
+    if (!target) return
+    const y = target.y - scroll.y
+    if (center) {
+      const centerOffset = Math.floor(scroll.height / 2)
+      scroll.scrollBy(y - centerOffset)
+    } else {
+      if (y >= scroll.height) {
+        scroll.scrollBy(y - scroll.height + 1)
+      }
+      if (y < 0) {
+        scroll.scrollBy(y)
+        if (isDeepEqual(flat()[0].value, selected()?.value)) {
+          scroll.scrollTo(0)
         }
       }
-    }, 0)
+    }
   }
 
   const keybind = useKeybind()
@@ -221,12 +234,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     get filtered() {
       return filtered()
     },
-    scrollToValue(value: T, center?: boolean) {
-      const index = flat().findIndex((opt) => isDeepEqual(opt.value, value))
-      if (index >= 0) {
-        moveTo(index, center)
-      }
-    },
+    moveTo,
   }
   props.ref?.(ref)
 

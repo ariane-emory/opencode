@@ -5,7 +5,7 @@
 | Status | # | Branch Name | Remote | Commit Hash | Description |
 |--------|---|-------------|--------|-------------|-------------|
 | ☑ | 1 | feat/base-one-rebrand | origin | e700d7124f | Clean merge |
-| ☐ | 2 | feat/sinister-quotes | origin | TBD | Placeholders MUST be SINISTER_PLACEHOLDERS array |
+| ☑ | 2 | feat/sinister-quotes | origin | ddbb34d144 | Clean merge - SINISTER_PLACEHOLDERS array preserved |
 | ☐ | 3 | feat/markdown-renderer | gignit | TBD | |
 | ☐ | 4 | feat/thinking-indicator-hidden | rcdailey | TBD | |
 | ☐ | 5 | feat/session-grouping | origin | TBD | |
@@ -89,4 +89,5 @@
 | # | Branch | Commit | Notes |
 |---|--------|--------|-------|
 | 1 | feat/base-one-rebrand | e700d7124f | Clean merge |
+| 2 | feat/sinister-quotes | ddbb34d144 | Clean merge - SINISTER_PLACEHOLDERS array preserved |
 

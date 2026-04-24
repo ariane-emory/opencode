@@ -1,5 +1,6 @@
 import type { BoxRenderable, TextareaRenderable, KeyEvent, ScrollBoxRenderable } from "@opentui/core"
 import { pathToFileURL } from "bun"
+import fuzzysort from "fuzzysort"
 import { firstBy } from "remeda"
 import { smartCompare } from "@/util/smart-sort"
 import { createMemo, createResource, createEffect, onMount, onCleanup, Index, Show, createSignal } from "solid-js"
@@ -438,7 +439,7 @@ export function Autocomplete(props: {
       return prev
     }
 
-    return tieredMatch(mixed, searchValue, store.visible || "/", 100)
+    return tieredMatch(mixed, searchValue, store.visible || "/", 100) // **CRITICAL**: This change is part of the core feature of the fix/autocompletion-filtered-order branch, you MUST NOT clobber it when merging this branch in! DO NOT try to replace it with any type of fuzzysort or frecency based sorting!
   })
 
   createEffect(() => {

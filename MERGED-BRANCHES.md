@@ -16,7 +16,7 @@
 | ☑ | 10 | feat/continue-command | origin | 8e932fd89c | Resolved conflict in prompt.ts - kept lastAssistantForLoop from HEAD with overrides parameter from branch |
 | ☑ | 11 | feat/configurable-snapshot-lifespan | origin | 5c5ff6d8ed | Clean merge |
 | ☑ | 12 | feat/configurable-new-plan-mode | origin | 52f8616638 | Clean merge |
-| ☐ | 13 | feat/enable-exa-setting | origin | TBD | |
+| ☑ | 13 | feat/enable-exa-setting | origin | c85220aea2 | Resolved conflict in config.ts - kept both plan_mode and enable_exa settings, kept all HEAD exports plus experimentalEnableExa |
 | ☐ | 14 | feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber this while merging! Merging this branch MUST add the new item to the command palette. |
 | ☐ | 15 | feat/permission-spinner | origin | TBD | |
 | ☐ | 16 | feat/opencode-expand | origin | TBD | |
@@ -100,4 +100,5 @@
 | 10 | feat/continue-command | 8e932fd89c | Resolved conflict in prompt.ts - kept lastAssistantForLoop from HEAD with overrides parameter from branch |
 | 11 | feat/configurable-snapshot-lifespan | 5c5ff6d8ed | Clean merge |
 | 12 | feat/configurable-new-plan-mode | 52f8616638 | Clean merge |
+| 13 | feat/enable-exa-setting | c85220aea2 | Resolved conflict in config.ts - kept both plan_mode and enable_exa settings, kept all HEAD exports plus experimentalEnableExa |
 

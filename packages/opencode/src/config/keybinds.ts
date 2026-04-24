@@ -53,6 +53,7 @@ const KeybindsSchema = Schema.Struct({
   messages_redo: keybind("<leader>r", "Redo message"),
   messages_toggle_conceal: keybind("<leader>h", "Toggle code block concealment in messages"),
   tool_details: keybind("none", "Toggle tool details visibility"),
+  sidebar_overlay_toggle: keybind("none", "Toggle sidebar overlay mode"),
   model_list: keybind("<leader>m", "List available models"),
   model_cycle_recent: keybind("f2", "Next recently used model"),
   model_cycle_recent_reverse: keybind("shift+f2", "Previous recently used model"),

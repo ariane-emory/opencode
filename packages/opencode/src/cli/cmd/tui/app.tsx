@@ -428,6 +428,12 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         aliases: ["clear"],
       },
       onSelect: () => {
+        const current = promptRef.current
+        const currentPrompt = current?.current?.input ? current.current : undefined
+        const currentSessionID = route.data.type === "session" ? route.data.sessionID : undefined
+        if (currentSessionID) {
+          kv.setEphemeral("last_session_id", currentSessionID)
+        }
         route.navigate({
           type: "home",
         })

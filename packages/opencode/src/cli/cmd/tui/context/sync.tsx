@@ -247,10 +247,17 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
             event.properties.info.sessionID,
             produce((draft) => {
               draft.splice(result.index, 0, event.properties.info)
+              const maxMessages = store.config.experimental?.messages_limit
+              const maxMessagesCount = maxMessages === "none" ? Infinity : maxMessages ?? 100
+              if (draft.length > maxMessagesCount) {
+                draft.shift()
+              }
             }),
           )
           const updated = store.message[event.properties.info.sessionID]
-          if (updated.length > 100) {
+          const maxMessages = store.config.experimental?.messages_limit
+          const maxMessagesCount = maxMessages === "none" ? Infinity : maxMessages ?? 100
+          if (updated.length > maxMessagesCount) {
             const oldest = updated[0]
             batch(() => {
               setStore(
@@ -360,9 +367,13 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
         fullSyncedSessions.clear()
         syncedWorkspace = workspace
       }
-      const start = Date.now() - 30 * 24 * 60 * 60 * 1000
+      const configPromise = sdk.client.config.get({ workspace }, { throwOnError: true })
+      const config = (await configPromise).data!
+      const sessionsListLimit = config.experimental?.session_list_limit
+      const sessionsLimit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
+      const start = sessionsListLimit === "none" ? undefined : Date.now() - 30 * 24 * 60 * 60 * 1000
       const sessionListPromise = sdk.client.session
-        .list({ start: start })
+        .list({ start, limit: sessionsLimit })
         .then((x) => (x.data ?? []).toSorted((a, b) => a.id.localeCompare(b.id)))
 
       // blocking - include session.list when continuing a session
@@ -373,7 +384,6 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
         .then((x) => x.data)
         .catch(() => emptyConsoleState)
       const agentsPromise = sdk.client.app.agents({ workspace }, { throwOnError: true })
-      const configPromise = sdk.client.config.get({ workspace }, { throwOnError: true })
       const projectPromise = project.sync()
       const blockingRequests: Promise<unknown>[] = [
         providersPromise,
@@ -498,9 +508,11 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
         },
         async sync(sessionID: string) {
           if (fullSyncedSessions.has(sessionID)) return
+          const messagesLimit = store.config.experimental?.messages_limit
+          const limit = messagesLimit === "none" ? undefined : messagesLimit ?? 100
           const [session, messages, todo, diff] = await Promise.all([
             sdk.client.session.get({ sessionID }, { throwOnError: true }),
-            sdk.client.session.messages({ sessionID, limit: 100 }),
+            sdk.client.session.messages({ sessionID, limit }),
             sdk.client.session.todo({ sessionID }),
             sdk.client.session.diff({ sessionID }),
           ])
@@ -514,6 +526,7 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
               for (const message of messages.data!) {
                 draft.part[message.info.id] = message.parts
               }
+
               draft.session_diff[sessionID] = diff.data ?? []
             }),
           )

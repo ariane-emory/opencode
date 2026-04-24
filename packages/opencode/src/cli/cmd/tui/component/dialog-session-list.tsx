@@ -129,7 +129,10 @@ export function DialogSessionList() {
   }
 
   const options = createMemo(() => {
+    if (!sync.ready) return []
     const today = new Date().toDateString()
+    const sessionsListLimit = sync.data.config.experimental?.session_list_limit
+    const limit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
 
     function parseSessionTitle(title: string): { group?: string; displayTitle: string } {
       const pipeIndex = title.indexOf("|")
@@ -203,16 +206,7 @@ export function DialogSessionList() {
         const category = parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString())
         return item(x, category, false)
       }),
-    ]
-  })
-
-  createEffect(() => {
-    const id = currentSessionID() ?? defaultSessionID()
-    if (!id) return
-    options()
-    setTimeout(() => {
-      selectRef()?.scrollToValue(id, true)
-    }, 0)
+    ].slice(0, limit)
   })
 
   onMount(() => {

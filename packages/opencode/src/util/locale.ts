@@ -27,6 +27,25 @@ export function todayTimeOrDateTime(input: number): string {
   }
 }
 
+export function shortDateTime(input: number): string {
+  const date = new Date(input)
+  const now = new Date()
+  const isToday =
+    date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate()
+
+  const timeStr = time(input)
+
+  if (isToday) {
+    return timeStr
+  } else {
+    const dateStr = date.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    })
+    return `${dateStr} ${timeStr}`
+  }
+}
+
 export function number(num: number): string {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1) + "M"

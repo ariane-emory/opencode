@@ -111,14 +111,37 @@ export function DialogSessionList() {
 
   const options = createMemo(() => {
     const today = new Date().toDateString()
+
+    function parseSessionTitle(title: string): { group?: string; displayTitle: string } {
+      const pipeIndex = title.indexOf("|")
+      if (pipeIndex === -1) return { displayTitle: title }
+      const group = title.slice(0, pipeIndex).trim()
+      const displayTitle = title.slice(pipeIndex + 1).trim()
+      if (!group) return { displayTitle }
+      return { group, displayTitle }
+    }
+
     return sessions()
       .filter((x) => x.parentID === undefined)
       .toSorted((a, b) => {
+        const aParsed = parseSessionTitle(a.title)
+        const bParsed = parseSessionTitle(b.title)
+        // Grouped sessions come first
+        if (aParsed.group && !bParsed.group) return -1
+        if (!aParsed.group && bParsed.group) return 1
+        // Both grouped: sort by group name ASC, then updated DESC
+        if (aParsed.group && bParsed.group) {
+          const groupCompare = aParsed.group.localeCompare(bParsed.group)
+          if (groupCompare !== 0) return groupCompare
+          return b.time.updated - a.time.updated
+        }
+        // Both ungrouped: original sort by date then creation time
         const updatedDay = new Date(b.time.updated).setHours(0, 0, 0, 0) - new Date(a.time.updated).setHours(0, 0, 0, 0)
         if (updatedDay !== 0) return updatedDay
         return b.time.created - a.time.created
       })
       .map((x) => {
+        const parsed = parseSessionTitle(x.title)
         const workspace = x.workspaceID ? project.workspace.get(x.workspaceID) : undefined
 
         let workspaceStatus: WorkspaceStatus | null = null
@@ -148,19 +171,16 @@ export function DialogSessionList() {
             )
           }
         } else {
-          footer = Locale.time(x.time.updated)
+          footer = parsed.group ? Locale.shortDateTime(x.time.updated) : Locale.time(x.time.updated)
         }
 
         const date = new Date(x.time.updated)
-        let category = date.toDateString()
-        if (category === today) {
-          category = "Today"
-        }
+        let category = parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString())
         const isDeleting = toDelete() === x.id
         const status = sync.data.session_status?.[x.id]
         const isWorking = status?.type === "busy"
         return {
-          title: isDeleting ? `Press ${keybind.print("session_delete")} again to confirm` : x.title,
+          title: isDeleting ? `Press ${keybind.print("session_delete")} again to confirm` : (parsed.displayTitle || x.title),
           bg: isDeleting ? theme.error : undefined,
           value: x.id,
           category,

@@ -31,7 +31,8 @@ import * as CrossSpawnSpawner from "@/effect/cross-spawn-spawner"
 import * as Stream from "effect/Stream"
 import { Command } from "../command"
 import { pathToFileURL, fileURLToPath } from "url"
-import { Config, ConfigMarkdown } from "../config"
+import * as ConfigMarkdown from "../config/markdown"
+import { Config } from "../config"
 import { SessionSummary } from "./summary"
 import { NamedError } from "@opencode-ai/shared/util/error"
 import { SessionProcessor } from "./processor"
@@ -1914,7 +1915,7 @@ export function createStructuredOutputTool(input: {
 const bashRegex = /!`([^`]+)`/g
 // Match [Image N] as single token, quoted strings, or non-space sequences
 const argsRegex = /(?:\[Image\s+\d+\]|"[^"]*"|'[^']*'|[^\s"']+)/gi
-const placeholderRegex = /\$(\d+)/g
+const quoteTrimRegex = /^["']|["']$/g
 
 const { runPromise } = makeRuntime(Service, defaultLayer)
 

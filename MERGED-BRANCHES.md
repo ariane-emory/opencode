@@ -9,7 +9,7 @@
 | ☑ | 3 | feat/markdown-renderer | gignit | d7eaf15518 | Resolved conflicts in run.ts, session/index.tsx, ui.ts |
 | ☑ | 4 | feat/thinking-indicator-hidden | rcdailey | f925e9e39f | Clean merge |
 | ☑ | 5 | feat/session-grouping | origin | 69dcd12f42 | Clean merge |
-| ☐ | 6 | feat/session-bookmarks | origin | TBD | |
+| ☑ | 6 | feat/session-bookmarks | origin | 47bbd57c79 | Resolved conflicts in dialog-session-list.tsx and locale.ts - combined session grouping and bookmarks features |
 | ☐ | 7 | fix/dialog-datetime-alignment | origin | TBD | Merge immediately after feat/session-bookmarks |
 | ☐ | 8 | feat/keybindable-commands | origin | TBD | |
 | ☐ | 9 | feat/automatic-list-continuation | origin | TBD | |

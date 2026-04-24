@@ -25,21 +25,21 @@
 | ☑ | 19 | fix/preserve-quotes-in-arguments | origin | 242433752a | Clean merge |
 | ☑ | 20 | fix/history-navigation-key-commands | origin | 55b2e1087c | Clean merge |
 | ☑ | 21 | fix/build-with-short-version | origin | 84744e0f48 | Clean merge - automatically uses short timestamp version for integration branches |
-| ☐ | 22 | fix/autocompletion-filtered-order | origin | TBD | |
-| ☐ | 23 | fix/modal-menus-filtered-order | origin | TBD | |
-| ☐ | 24 | fix/config-package-json-pollution | origin | TBD | This branch MUST be included in integration branches to prevent package.json pollution with non-SemVer versions |
-| ☐ | 25 | fix/session-list-viewport-jumping | origin | TBD | |
-| ☐ | 26 | fix/merging-multiple-configs | origin | TBD | |
-| ☐ | 27 | fix/markdown-codeblock-theme-property | origin | TBD | |
-| ☐ | 28 | fix/persist-sidebar | origin | TBD | This branch is meant not only to make the sidebar display state persistent across restarts if the program but also to remove the normal behaviour where the sidebar is hidden when the terminal is not wide enough! There MUST NOT be a way to return to the auto state after transitioning to the "show" or "hide" state. This change in the sidebar behaviour MUST NOT be clobbered while merging! |
-| ☐ | 29 | feat/persist-sidebar-group-folding-states | origin | TBD | Be sure not to let this feature get clobbered by subsequent merges! |
-| ☐ | 30 | feat/command-palette-consistency | origin | TBD | This branch is meant to MOVE several items from the Session category to the System category in the command palette. You MUST NOT duplicate them into both categories when resolving merge conflicts! Additionally, if fix/persist-sidebar was merged previously, be sure to properly move the new logic for the sidebar that it added: no return to "auto" after leaving, et cetera |
-| ☐ | 31 | feat/persistant-sidebar-overlay-behaviour | origin | TBD | |
-| ☐ | 32 | refactor/shared-substitute | origin | TBD | |
-| ☐ | 33 | feat/opeoginni--display-message-tps | origin | TBD | |
-| ☐ | 34 | feat/kv-diff-style-clean | origin | TBD | |
-| ☐ | 35 | feat/global-compaction-threshold | origin | TBD | |
-| ☐ | 36 | feat/configurable-message-and-session-limit | origin | TBD | Don't forget that both the `experimental._message__limit` and `experimental.session_list_limit` settings should accept either positive integers or the string value "none"! |
+| ☑ | 22 | fix/autocompletion-filtered-order | origin | 22fcbe6a0f | Resolved conflicts in prompt/index.tsx - kept list continuation and prompt keybindings |
+| ☑ | 23 | fix/modal-menus-filtered-order | origin | f907cd1440 | Resolved conflicts in autocomplete.tsx and dialog-select.tsx - kept tieredMatch, added fuzzysort and smartCompare |
+| ☑ | 24 | fix/config-package-json-pollution | origin | d41810aff2 | Clean merge |
+| ☑ | 25 | fix/session-list-viewport-jumping | origin | 743d09f87c | Clean merge |
+| ☑ | 26 | fix/merging-multiple-configs | origin | 5db6c14997 | Clean merge |
+| ☑ | 27 | fix/markdown-codeblock-theme-property | origin | 5877ece0c1 | Clean merge |
+| ☑ | 28 | fix/persist-sidebar | origin | 5345da3a88 | Resolved conflicts in prompt/index.tsx - kept sinister placeholders, list continuation, and placeholder resize effects |
+| ☑ | 29 | feat/persist-sidebar-group-folding-states | origin | da1c9b4f7b | Clean merge |
+| ☑ | 30 | feat/command-palette-consistency | origin | 8d04d61abb | Resolved conflicts in app.tsx and session/index.tsx - moved all toggles to System category, removed duplicates from Session |
+| ☑ | 31 | feat/persistant-sidebar-overlay-behaviour | origin | a762938e54 | Clean merge |
+| ☑ | 32 | refactor/shared-substitute | origin | aaeca2d9f8 | Resolved conflicts in substitute.ts and prompt.ts - combined extended placeholders with shared substitute |
+| ☑ | 33 | feat/opeoginni--display-message-tps | origin | 640904c05c | Resolved conflict in app.tsx - added TPS toggle alongside sidebar overlay toggle |
+| ☑ | 34 | feat/kv-diff-style-clean | origin | 1c17e6b999 | Clean merge - fixed duplicate useKV import in permission.tsx |
+| ☑ | 35 | feat/global-compaction-threshold | origin | c483d04c28 | Clean merge |
+| ☑ | 36 | feat/configurable-message-and-session-limit | origin | 6d062d25ef | Resolved conflicts in dialog-session-list.tsx, config.ts, types.gen.ts - combined session grouping/bookmarks with configurable limit |
 | ☐ | 37 | feat/experimental-dont-cache-command-markdown | origin | TBD | |
 | ☐ | 38 | feat/jsonc-user-themes | origin | TBD | |
 | ☐ | 39 | feat/improve-bash-tool-git-advice | origin | TBD | Make sure to combine this properly with the changes to the bash tool's description that are made in the feat/shell-advice branch, both sets of changes must be synthesized! |
@@ -109,4 +109,19 @@
 | 19 | fix/preserve-quotes-in-arguments | 242433752a | Clean merge |
 | 20 | fix/history-navigation-key-commands | 55b2e1087c | Clean merge |
 | 21 | fix/build-with-short-version | 84744e0f48 | Clean merge - automatically uses short timestamp version for integration branches |
+| 22 | fix/autocompletion-filtered-order | 22fcbe6a0f | Resolved conflicts in prompt/index.tsx |
+| 23 | fix/modal-menus-filtered-order | f907cd1440 | Resolved conflicts in autocomplete.tsx and dialog-select.tsx |
+| 24 | fix/config-package-json-pollution | d41810aff2 | Clean merge |
+| 25 | fix/session-list-viewport-jumping | 743d09f87c | Clean merge |
+| 26 | fix/merging-multiple-configs | 5db6c14997 | Clean merge |
+| 27 | fix/markdown-codeblock-theme-property | 5877ece0c1 | Clean merge |
+| 28 | fix/persist-sidebar | 5345da3a88 | Resolved conflicts in prompt/index.tsx |
+| 29 | feat/persist-sidebar-group-folding-states | da1c9b4f7b | Clean merge |
+| 30 | feat/command-palette-consistency | 8d04d61abb | Resolved conflicts in app.tsx and session/index.tsx |
+| 31 | feat/persistant-sidebar-overlay-behaviour | a762938e54 | Clean merge |
+| 32 | refactor/shared-substitute | aaeca2d9f8 | Resolved conflicts in substitute.ts and prompt.ts |
+| 33 | feat/opeoginni--display-message-tps | 640904c05c | Resolved conflict in app.tsx |
+| 34 | feat/kv-diff-style-clean | 1c17e6b999 | Clean merge |
+| 35 | feat/global-compaction-threshold | c483d04c28 | Clean merge |
+| 36 | feat/configurable-message-and-session-limit | 6d062d25ef | Resolved conflicts in dialog-session-list.tsx, config.ts, types.gen.ts |
 

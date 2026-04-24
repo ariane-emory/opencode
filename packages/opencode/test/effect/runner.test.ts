@@ -412,6 +412,27 @@ describe("Runner", () => {
     }),
   )
 
+  it.live(
+    "cancel during shell_then_run uses queued onInterrupt when provided",
+    Effect.gen(function* () {
+      const s = yield* Scope.Scope
+      const runner = Runner.make<string>(s)
+
+      const sh = yield* runner.startShell(Effect.never.pipe(Effect.as("aborted"))).pipe(Effect.forkChild)
+      yield* Effect.sleep("10 millis")
+
+      const run = yield* runner.ensureRunning(Effect.succeed("y"), Effect.succeed("fallback")).pipe(Effect.forkChild)
+      yield* Effect.sleep("10 millis")
+      expect(runner.state._tag).toBe("ShellThenRun")
+
+      yield* runner.cancel
+
+      const exit = yield* Fiber.await(run)
+      expect(Exit.isSuccess(exit)).toBe(true)
+      if (Exit.isSuccess(exit)) expect(exit.value).toBe("fallback")
+    }),
+  )
+
   // --- lifecycle callbacks ---
 
   it.live(

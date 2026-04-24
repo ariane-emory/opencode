@@ -126,7 +126,6 @@ type Frame = {
   glow: Glow | undefined
   spark: number
 }
-
 const NEAR = [
   [1, 0],
   [1, 1],

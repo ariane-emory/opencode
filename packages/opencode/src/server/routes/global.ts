@@ -247,41 +247,10 @@ export const GlobalRoutes = lazy(() =>
         }),
       ),
       async (c) => {
-        const result = await AppRuntime.runPromise(
-          Installation.Service.use((svc) =>
-            Effect.gen(function* () {
-              const method = yield* svc.method()
-              if (method === "unknown") {
-                return { success: false as const, status: 400 as const, error: "Unknown installation method" }
-              }
-
-              const target = c.req.valid("json").target || (yield* svc.latest(method))
-              const result = yield* Effect.catch(
-                svc.upgrade(method, target).pipe(Effect.as({ success: true as const, version: target })),
-                (err) =>
-                  Effect.succeed({
-                    success: false as const,
-                    status: 500 as const,
-                    error: err instanceof Error ? err.message : String(err),
-                  }),
-              )
-              if (!result.success) return result
-              return { ...result, status: 200 as const }
-            }),
-          ),
+        return c.json(
+          { success: false, error: "BaseOne must be updated manually. Automatic upgrades are not supported." },
+          400,
         )
-        if (!result.success) {
-          return c.json({ success: false, error: result.error }, result.status)
-        }
-        const target = result.version
-        GlobalBus.emit("event", {
-          directory: "global",
-          payload: {
-            type: Installation.Event.Updated.type,
-            properties: { version: target },
-          },
-        })
-        return c.json({ success: true, version: target })
       },
     ),
 )

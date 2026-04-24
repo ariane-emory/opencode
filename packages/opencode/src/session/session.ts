@@ -741,7 +741,7 @@ export const children = fn(ChildrenInput, (id) => runPromise((svc) => svc.childr
 export const remove = fn(RemoveInput, (id) => runPromise((svc) => svc.remove(id)))
 
 export async function updateMessage<T extends MessageV2.Info>(msg: T): Promise<T> {
-  MessageV2.Info.parse(msg)
+  MessageV2.Info.zod.parse(msg)
   return runPromise((svc) => svc.updateMessage(msg))
 }
 
@@ -755,7 +755,7 @@ export const removePart = fn(
 )
 
 export async function updatePart<T extends MessageV2.Part>(part: T): Promise<T> {
-  MessageV2.Part.parse(part)
+  MessageV2.Part.zod.parse(part)
   return runPromise((svc) => svc.updatePart(part))
 }
 

@@ -240,6 +240,9 @@ export const Info = Schema.Struct({
       mcp_timeout: Schema.optional(PositiveInt).annotate({
         description: "Timeout in milliseconds for model context protocol (MCP) requests",
       }),
+      plan_mode: Schema.optional(Schema.Boolean).annotate({
+        description: "Enable experimental plan mode",
+      }),
     }),
   ),
 })
@@ -251,65 +254,6 @@ export const Info = Schema.Struct({
       >,
     })),
   )
-
-          return Object.entries(data).every(([id, config]) => {
-            if (config.disabled) return true
-            if (serverIds.has(id)) return true
-            return Boolean(config.extensions)
-          })
-        },
-        {
-          error: "For custom LSP servers, 'extensions' array is required.",
-        },
-      ),
-    instructions: z.array(z.string()).optional().describe("Additional instruction files or patterns to include"),
-    layout: Layout.optional().describe("@deprecated Always uses stretch layout."),
-    permission: ConfigPermission.Info.optional(),
-    tools: z.record(z.string(), z.boolean()).optional(),
-    enterprise: z
-      .object({
-        url: z.string().optional().describe("Enterprise URL"),
-      })
-      .optional(),
-    compaction: z
-      .object({
-        auto: z.boolean().optional().describe("Enable automatic compaction when context is full (default: true)"),
-        prune: z.boolean().optional().describe("Enable pruning of old tool outputs (default: true)"),
-        reserved: z
-          .number()
-          .int()
-          .min(0)
-          .optional()
-          .describe("Token buffer for compaction. Leaves enough window to avoid overflow during compaction."),
-      })
-      .optional(),
-    experimental: z
-      .object({
-        disable_paste_summary: z.boolean().optional(),
-        batch_tool: z.boolean().optional().describe("Enable the batch tool"),
-        openTelemetry: z
-          .boolean()
-          .optional()
-          .describe("Enable OpenTelemetry spans for AI SDK calls (using the 'experimental_telemetry' flag)"),
-        primary_tools: z
-          .array(z.string())
-          .optional()
-          .describe("Tools that should only be available to primary agents."),
-        continue_loop_on_deny: z.boolean().optional().describe("Continue the agent loop when a tool call is denied"),
-        mcp_timeout: z
-          .number()
-          .int()
-          .positive()
-          .optional()
-          .describe("Timeout in milliseconds for model context protocol (MCP) requests"),
-        plan_mode: z.boolean().optional().describe("Enable experimental plan mode"),
-      })
-      .optional(),
-  })
-  .strict()
-  .meta({
-    ref: "Config",
-  })
 
 // Schema.Struct produces readonly types by default, but the service code
 // below mutates Info objects directly (e.g. `config.mode = ...`). Strip the

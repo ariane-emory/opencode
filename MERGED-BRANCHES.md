@@ -11,7 +11,7 @@
 | ☑ | 5 | feat/session-grouping | origin | 69dcd12f42 | Clean merge |
 | ☑ | 6 | feat/session-bookmarks | origin | 47bbd57c79 | Resolved conflicts in dialog-session-list.tsx and locale.ts - combined session grouping and bookmarks features |
 | ☑ | 7 | fix/dialog-datetime-alignment | origin | 8055e7ac95 | Resolved conflict in locale.ts - kept comment about padding |
-| ☐ | 8 | feat/keybindable-commands | origin | TBD | |
+| ☑ | 8 | feat/keybindable-commands | origin | 7c84e63b8b | Clean merge |
 | ☐ | 9 | feat/automatic-list-continuation | origin | TBD | |
 | ☐ | 10 | feat/continue-command | origin | TBD | |
 | ☐ | 11 | feat/configurable-snapshot-lifespan | origin | TBD | |
@@ -91,4 +91,9 @@
 | 1 | feat/base-one-rebrand | e700d7124f | Clean merge |
 | 2 | feat/sinister-quotes | ddbb34d144 | Clean merge - SINISTER_PLACEHOLDERS array preserved |
 | 3 | feat/markdown-renderer | d7eaf15518 | Resolved conflicts in run.ts, session/index.tsx, ui.ts |
+| 4 | feat/thinking-indicator-hidden | f925e9e39f | Clean merge |
+| 5 | feat/session-grouping | 69dcd12f42 | Clean merge |
+| 6 | feat/session-bookmarks | 47bbd57c79 | Resolved conflicts in dialog-session-list.tsx and locale.ts |
+| 7 | fix/dialog-datetime-alignment | 8055e7ac95 | Resolved conflict in locale.ts |
+| 8 | feat/keybindable-commands | 7c84e63b8b | Clean merge |
 

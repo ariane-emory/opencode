@@ -153,6 +153,117 @@ describe("tool.bash", () => {
       },
     })
   })
+
+  test("description includes shell information", async () => {
+    await Instance.provide({
+      directory: projectRoot,
+      fn: async () => {
+        const bash = await initBash()
+        expect(bash.description).toContain("Be aware: OS:")
+        expect(bash.description).toContain("Shell:")
+        const shellMatch = bash.description.match(/Shell: ([^\n]+)/)
+        expect(shellMatch).toBeTruthy()
+        expect(shellMatch?.[1]).toBeTruthy()
+      },
+    })
+  })
+
+  test("shell name detection is platform-aware", async () => {
+    await Instance.provide({
+      directory: projectRoot,
+      fn: async () => {
+        const bash = await initBash()
+        const detectedShell = bash.description.match(/Shell: ([^\n]+)/)?.[1]?.trim()
+
+        expect(detectedShell).toBeTruthy()
+
+        // Verify detected shell is appropriate for the platform
+        if (process.platform === "win32") {
+          expect(["cmd", "powershell"]).toContain(detectedShell!)
+        } else {
+          expect(["bash", "zsh", "fish", "ksh", "csh", "tcsh", "dash"]).toContain(detectedShell!)
+        }
+      },
+    })
+  })
+
+  test("description uses dynamic shell-specific language", async () => {
+    await Instance.provide({
+      directory: projectRoot,
+      fn: async () => {
+        const bash = await initBash()
+        const detectedShell = bash.description.match(/Shell: ([^\n]+)/)?.[1]?.trim()
+
+        expect(detectedShell).toBeTruthy()
+
+        // Should contain shell-specific command references
+        if (detectedShell) {
+          expect(bash.description).toContain(`${detectedShell} command`)
+          expect(bash.description).toContain(`${detectedShell} commands`)
+        }
+
+        expect(bash.description).toContain("persistent shell session")
+      },
+    })
+  })
+
+  test("shell-specific language works for different shell types", async () => {
+    // Test with different shell environments
+    const originalShell = process.env.SHELL
+
+    await Instance.provide({
+      directory: projectRoot,
+      fn: async () => {
+        try {
+          // Mock zsh shell environment
+          process.env.SHELL = "/bin/zsh"
+          Shell.acceptable.reset()
+          Shell.preferred.reset()
+          const bashZsh = await initBash()
+          expect(bashZsh.description).toContain("zsh command")
+          expect(bashZsh.description).toContain("zsh commands")
+
+          // Mock bash shell environment
+          process.env.SHELL = "/bin/bash"
+          Shell.acceptable.reset()
+          Shell.preferred.reset()
+          const bashBash = await initBash()
+          expect(bashBash.description).toContain("bash command")
+          expect(bashBash.description).toContain("bash commands")
+
+          // Mock ksh shell environment
+          process.env.SHELL = "/bin/ksh"
+          Shell.acceptable.reset()
+          Shell.preferred.reset()
+          const bashKsh = await initBash()
+          expect(bashKsh.description).toContain("ksh command")
+          expect(bashKsh.description).toContain("ksh commands")
+
+          // Mock fish shell environment (fish is now supported, not blacklisted)
+          process.env.SHELL = "/usr/bin/fish"
+          Shell.acceptable.reset()
+          Shell.preferred.reset()
+          const bashFish = await initBash()
+          expect(bashFish.description).toContain("fish command")
+          expect(bashFish.description).toContain("fish commands")
+
+          process.env.SHELL = "/usr/bin/nu"
+          Shell.acceptable.reset()
+          Shell.preferred.reset()
+          const bashNu = await initBash()
+          expect(bashNu.description).toContain("nu command")
+          expect(bashNu.description).toContain("nu commands")
+        } finally {
+          // Restore original shell
+          if (originalShell) {
+            process.env.SHELL = originalShell
+          } else {
+            delete process.env.SHELL
+          }
+        }
+      },
+    })
+  })
 })
 
 describe("tool.bash permissions", () => {

@@ -20,7 +20,7 @@
 | ☑ | 14 | feat/canceled-prompts-in-history | origin | efd98982e7 | Resolved conflict in app.tsx - kept both markdown toggle and clear prompt history toggle in command palette |
 | ☑ | 15 | feat/permission-spinner | origin | 7ee14f1001 | Clean merge |
 | ☑ | 16 | feat/opencode-expand | origin | d07b3c790b | Clean merge |
-| ☐ | 17 | feat/argument-range-syntax | origin | TBD | |
+| ☑ | 17 | feat/argument-range-syntax | origin | 461a3681a3 | Resolved conflicts in substitute.ts, prompt.ts, substitute.test.ts - kept branch's extended placeholder syntax with no swallowing |
 | ☐ | 18 | feat/default-arguments | origin | TBD | When merging this branch, make sure that you don't accidentally reintroduce the swallowing behaviour that the feat/argument-range-syntax branch was meant to eliminate. |
 | ☐ | 19 | fix/preserve-quotes-in-arguments | origin | TBD | |
 | ☐ | 20 | fix/history-navigation-key-commands | origin | TBD | |
@@ -104,4 +104,5 @@
 | 14 | feat/canceled-prompts-in-history | efd98982e7 | Resolved conflict in app.tsx - kept both markdown toggle and clear prompt history toggle in command palette |
 | 15 | feat/permission-spinner | 7ee14f1001 | Clean merge |
 | 16 | feat/opencode-expand | d07b3c790b | Clean merge |
+| 17 | feat/argument-range-syntax | 461a3681a3 | Resolved conflicts in substitute.ts, prompt.ts, substitute.test.ts - kept branch's extended placeholder syntax with no swallowing |
 

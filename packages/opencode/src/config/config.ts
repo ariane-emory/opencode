@@ -296,6 +296,11 @@ export const Info = Schema.Struct({
       continue_loop_on_deny: Schema.optional(Schema.Boolean).annotate({
         description: "Continue the agent loop when a tool call is denied",
       }),
+      context_compaction_threshold: Schema.optional(
+        Schema.Number.check(Schema.isGreaterThanOrEqualTo(10)).check(Schema.isLessThanOrEqualTo(100)),
+      ).annotate({
+        description: "Percentage of usable context space at which to trigger compaction (10-100)",
+      }),
       mcp_timeout: Schema.optional(PositiveInt).annotate({
         description: "Timeout in milliseconds for model context protocol (MCP) requests",
       }),

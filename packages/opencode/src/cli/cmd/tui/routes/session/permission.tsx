@@ -577,7 +577,8 @@ function Prompt<const T extends Record<string, string>>(props: {
   const dialog = useDialog()
 
   const pulseSpinnerDef = createMemo(() => {
-    const color = local.agent.color(local.agent.current().name)
+    const current = local.agent.current()
+    const color = current ? local.agent.color(current.name) : theme.primary
     return {
       frames: createPulseFrames({
         color,

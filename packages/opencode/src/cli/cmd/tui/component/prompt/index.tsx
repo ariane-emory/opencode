@@ -958,7 +958,8 @@ export function Prompt(props: PromptProps) {
 
   // Create pulse spinner definition for permission-awaiting state
   const pulseSpinnerDef = createMemo(() => {
-    const color = local.agent.color(local.agent.current().name)
+    const current = local.agent.current()
+    const color = current ? local.agent.color(current.name) : theme.primary
     return {
       frames: createPulseFrames({
         color,

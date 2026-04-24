@@ -31,7 +31,7 @@ assistant: ls
 
 <example>
 user: what command should I run to watch files in the current directory?
-assistant: [use the ls tool to list the files in the current directory, then read docs/commands in the relevant file to find out how to watch files]
+assistant: Use the read tool to inspect files in the current directory, then read docs/commands in the relevant file to find out how to watch files.
 npm run dev
 </example>
 
@@ -42,7 +42,7 @@ assistant: 150000
 
 <example>
 user: what files are in the directory src/?
-assistant: [runs ls and sees foo.c, bar.c, baz.c]
+assistant: [tool_call: read for path '/path/to/project/src', reads 'src/' and sees foo.c, bar.c, baz.c]
 user: which file contains the implementation of foo?
 assistant: src/foo.c
 </example>

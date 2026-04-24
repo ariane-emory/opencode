@@ -19,8 +19,15 @@ function rewrite(request: Request, values: { directory?: string; workspace?: str
   const url = new URL(request.url)
   let changed = false
 
-  for (const [name, key] of [["x-opencode-workspace", "workspace"]] as const) {
-    const value = pick(request.headers.get(name), values.workspace)
+  for (const [name, key] of [
+    ["x-opencode-directory", "directory"],
+    ["x-opencode-workspace", "workspace"],
+  ] as const) {
+    const value = pick(
+      request.headers.get(name),
+      key === "directory" ? values.directory : values.workspace,
+      key === "directory" ? encodeURIComponent : undefined,
+    )
     if (!value) continue
     if (!url.searchParams.has(key)) {
       url.searchParams.set(key, value)

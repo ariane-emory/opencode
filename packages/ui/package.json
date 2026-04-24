@@ -6,6 +6,8 @@
   "exports": {
     "./package.json": "./package.json",
     "./*": "./src/components/*.tsx",
+    "./constants/placeholders": "./src/constants/placeholders.ts",
+    "./constants/*": "./src/constants/*.ts",
     "./i18n/*": "./src/i18n/*.ts",
     "./pierre": "./src/pierre/index.ts",
     "./pierre/*": "./src/pierre/*.ts",

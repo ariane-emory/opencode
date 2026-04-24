@@ -9,10 +9,11 @@ import { useRouteData } from "@tui/context/route"
 import { usePromptRef } from "../context/prompt"
 import { useLocal } from "../context/local"
 import { TuiPluginRuntime } from "../plugin"
+import { SINISTER_PLACEHOLDERS } from "@opencode-ai/ui/constants/placeholders"
 
 let once = false
 const placeholder = {
-  normal: ["Fix a TODO in the codebase", "What is the tech stack of this project?", "Fix broken tests"],
+  normal: [...SINISTER_PLACEHOLDERS],
   shell: ["ls -la", "git status", "pwd"],
 }
 

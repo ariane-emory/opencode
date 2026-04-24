@@ -4,9 +4,14 @@ import { Effect, Schema } from "effect"
 import type z from "zod"
 import { zod } from "@/util/effect-zod"
 
+// Every keybind field has the same shape: an optional string with a default
+// binding and a human description.  `keybind()` keeps the declaration list
+// below dense and readable.
 const keybind = (value: string, description: string) =>
   Schema.String.pipe(Schema.optional, Schema.withDecodingDefault(Effect.succeed(value))).annotate({ description })
 
+// Windows prepends ctrl+z to the undo binding because `terminal_suspend`
+// cannot consume ctrl+z on native Windows terminals (no POSIX suspend).
 const inputUndoDefault = process.platform === "win32" ? "ctrl+z,ctrl+-,super+z" : "ctrl+-,super+z"
 
 const KeybindsSchema = Schema.Struct({
@@ -102,6 +107,9 @@ const KeybindsSchema = Schema.Struct({
   session_child_cycle: keybind("right", "Go to next child session"),
   session_child_cycle_reverse: keybind("left", "Go to previous child session"),
   session_parent: keybind("up", "Go to parent session"),
+  // `terminal_suspend` was formerly `.default("ctrl+z").transform((v) => win32 ? "none" : v)`,
+  // but `tui.ts` already forces the binding to "none" on win32 before calling
+  // `Keybinds.parse(...)`, so the schema-level transform was redundant.
   terminal_suspend: keybind("ctrl+z", "Suspend terminal"),
   terminal_title_toggle: keybind("none", "Toggle terminal title"),
   tips_toggle: keybind("<leader>h", "Toggle tips on home screen"),
@@ -112,6 +120,9 @@ const KeybindsSchema = Schema.Struct({
 
 export type Keybinds = Schema.Schema.Type<typeof KeybindsSchema>
 
+// Consumers access `Keybinds.shape` and `Keybinds.shape.X.parse(undefined)`,
+// which requires the runtime type to be a ZodObject, not just ZodType.  Every
+// field is `string().optional().default(...)` at runtime, so widen to that.
 export const Keybinds = zod(KeybindsSchema) as unknown as z.ZodObject<
   Record<keyof Keybinds, z.ZodDefault<z.ZodOptional<z.ZodString>>>
 >

@@ -1605,14 +1605,12 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       const args = raw.map((arg) => arg.replace(quoteTrimRegex, ""))
       const templateCommand = yield* Effect.promise(async () => cmd.template)
 
-      const { result: withArgs, hasPlaceholders } = substituteArguments(
-        templateCommand,
-        args,
-      )
-
+      const { result: withArgs, hasPlaceholders } = substituteArguments(templateCommand, args)
       const usesArgumentsPlaceholder = templateCommand.includes("$ARGUMENTS")
       let template = withArgs.replaceAll("$ARGUMENTS", input.arguments)
 
+      // If command doesn't explicitly handle arguments (no $N or $ARGUMENTS placeholders)
+      // but user provided arguments, append them to the template
       if (!hasPlaceholders && !usesArgumentsPlaceholder && input.arguments.trim()) {
         template = template + "\n\n" + input.arguments
       }
@@ -1780,6 +1778,7 @@ export const defaultLayer = Layer.suspend(() =>
     ),
   ),
 )
+
 export const PromptInput = z.object({
   sessionID: SessionID.zod,
   messageID: MessageID.zod.optional(),

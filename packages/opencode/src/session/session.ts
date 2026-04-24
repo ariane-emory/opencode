@@ -11,7 +11,7 @@ import { InstallationVersion } from "../installation/version"
 import { Database, NotFoundError, eq, and, gte, isNull, desc, like, inArray, lt } from "../storage"
 import { SyncEvent } from "../sync"
 import type { SQL } from "../storage"
-import { PartTable, SessionTable } from "./session.sql"
+import { MessageTable, PartTable, SessionTable } from "./session.sql"
 import { ProjectTable } from "../project/project.sql"
 import { Storage } from "@/storage"
 import { Log } from "../util"
@@ -30,6 +30,7 @@ import { Global } from "@/global"
 import { fn } from "@/util/fn"
 import { makeRuntime } from "@/effect/run-service"
 import { Effect, Layer, Option, Context } from "effect"
+import { SessionRunState } from "./run-state"
 
 const log = Log.create({ service: "session" })
 
@@ -726,51 +727,72 @@ export const layer: Layer.Layer<Service, never, Bus.Service | Storage.Service> =
 
 export const defaultLayer = layer.pipe(Layer.provide(Bus.layer), Layer.provide(Storage.defaultLayer))
 
-const { runPromise } = makeRuntime(Service, defaultLayer)
+const rewindRuntime = makeRuntime(SessionRunState.Service, SessionRunState.defaultLayer)
+const sessionRuntime = makeRuntime(Service, defaultLayer)
 
-export const create = fn(CreateInput, (input) => runPromise((svc) => svc.create(input)))
+export const create = fn(CreateInput, (input) => sessionRuntime.runPromise((svc) => svc.create(input)))
 
-export const fork = fn(ForkInput, (input) => runPromise((svc) => svc.fork(input)))
+export const fork = fn(ForkInput, (input) => sessionRuntime.runPromise((svc) => svc.fork(input)))
 
-export const get = fn(GetInput, (id) => runPromise((svc) => svc.get(id)))
+export const get = fn(GetInput, (id) => sessionRuntime.runPromise((svc) => svc.get(id)))
 
-export const setTitle = fn(SetTitleInput, (input) => runPromise((svc) => svc.setTitle(input)))
+export const setTitle = fn(SetTitleInput, (input) => sessionRuntime.runPromise((svc) => svc.setTitle(input)))
 
-export const setArchived = fn(SetArchivedInput, (input) => runPromise((svc) => svc.setArchived(input)))
+export const setArchived = fn(SetArchivedInput, (input) => sessionRuntime.runPromise((svc) => svc.setArchived(input)))
 
-export const setPinned = fn(SetPinnedInput, (input) => runPromise((svc) => svc.setPinned(input)))
+export const setPinned = fn(SetPinnedInput, (input) => sessionRuntime.runPromise((svc) => svc.setPinned(input)))
 
-export const setPermission = fn(SetPermissionInput, (input) => runPromise((svc) => svc.setPermission(input)))
+export const setPermission = fn(SetPermissionInput, (input) => sessionRuntime.runPromise((svc) => svc.setPermission(input)))
 
 export const setRevert = fn(SetRevertInput, (input) =>
-  runPromise((svc) => svc.setRevert({ sessionID: input.sessionID, revert: input.revert, summary: input.summary })),
+  sessionRuntime.runPromise((svc) => svc.setRevert({ sessionID: input.sessionID, revert: input.revert, summary: input.summary })),
 )
 
-export const messages = fn(MessagesInput, (input) => runPromise((svc) => svc.messages(input)))
+export const messages = fn(MessagesInput, (input) => sessionRuntime.runPromise((svc) => svc.messages(input)))
 
-export const children = fn(ChildrenInput, (id) => runPromise((svc) => svc.children(id)))
+export const children = fn(ChildrenInput, (id) => sessionRuntime.runPromise((svc) => svc.children(id)))
 
-export const remove = fn(RemoveInput, (id) => runPromise((svc) => svc.remove(id)))
+export const remove = fn(RemoveInput, (id) => sessionRuntime.runPromise((svc) => svc.remove(id)))
 
 export async function updateMessage<T extends MessageV2.Info>(msg: T): Promise<T> {
   MessageV2.Info.zod.parse(msg)
-  return runPromise((svc) => svc.updateMessage(msg))
+  return sessionRuntime.runPromise((svc) => svc.updateMessage(msg))
 }
 
 export const removeMessage = fn(z.object({ sessionID: SessionID.zod, messageID: MessageID.zod }), (input) =>
-  runPromise((svc) => svc.removeMessage(input)),
+  sessionRuntime.runPromise((svc) => svc.removeMessage(input)),
 )
 
 export const removePart = fn(
   z.object({ sessionID: SessionID.zod, messageID: MessageID.zod, partID: PartID.zod }),
-  (input) => runPromise((svc) => svc.removePart(input)),
+  (input) => sessionRuntime.runPromise((svc) => svc.removePart(input)),
 )
 
 export async function updatePart<T extends MessageV2.Part>(part: T): Promise<T> {
   MessageV2.Part.zod.parse(part)
-  return runPromise((svc) => svc.updatePart(part))
+  return sessionRuntime.runPromise((svc) => svc.updatePart(part))
 }
 
+export const rewind = fn(
+  z.object({
+    sessionID: SessionID.zod,
+    messageID: MessageID.zod,
+  }),
+  async (input) => {
+    await rewindRuntime.runPromise((svc) => svc.assertNotBusy(input.sessionID))
+    const msgs = await sessionRuntime.runPromise((svc) => svc.messages({ sessionID: input.sessionID }))
+    for (const msg of msgs) {
+      if (msg.info.id >= input.messageID) {
+        Database.use((db) => db.delete(MessageTable).where(eq(MessageTable.id, msg.info.id)).run())
+        Bus.publish(MessageV2.Event.Removed, {
+          sessionID: input.sessionID,
+          messageID: msg.info.id,
+        })
+      }
+    }
+    return sessionRuntime.runPromise((svc) => svc.get(input.sessionID))
+  },
+)
 export function* list(input?: {
   directory?: string
   workspaceID?: WorkspaceID

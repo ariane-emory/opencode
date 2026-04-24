@@ -17,7 +17,6 @@ import { DialogWorkspaceCreate, openWorkspaceSession, restoreWorkspaceSession } 
 import { Spinner } from "./spinner"
 import { errorMessage } from "@/util/error"
 import { DialogSessionDeleteFailed } from "./dialog-session-delete-failed"
-import { parseSessionTitleParts } from "@tui/util/session-title"
 
 type WorkspaceStatus = "connected" | "connecting" | "disconnected" | "error"
 
@@ -112,70 +111,83 @@ export function DialogSessionList() {
 
   const options = createMemo(() => {
     const today = new Date().toDateString()
-    const all = sessions().filter((x) => x.parentID === undefined)
-    const grouped = all.filter((x) => parseSessionTitleParts(x.title).group)
-    const plain = all.filter((x) => !parseSessionTitleParts(x.title).group)
 
-    const footer = (x: (typeof all)[number], grouped: boolean) => {
-      if (!Flag.OPENCODE_EXPERIMENTAL_WORKSPACES || !x.workspaceID) {
-        return grouped ? Locale.shortDateTime(x.time.updated) : Locale.time(x.time.updated)
-      }
-
-      const workspace = project.workspace.get(x.workspaceID)
-      const status = (project.workspace.status(x.workspaceID) || "error") as WorkspaceStatus
-      const desc = workspace ? `${workspace.type}: ${workspace.name}` : "unknown"
-
-      return (
-        <>
-          {desc}{" "}
-          <span
-            style={{
-              fg: status === "connected" ? theme.success : theme.error,
-            }}
-          >
-            ●
-          </span>
-        </>
-      )
+    function parseSessionTitle(title: string): { group?: string; displayTitle: string } {
+      const pipeIndex = title.indexOf("|")
+      if (pipeIndex === -1) return { displayTitle: title }
+      const group = title.slice(0, pipeIndex).trim()
+      const displayTitle = title.slice(pipeIndex + 1).trim()
+      if (!group) return { displayTitle }
+      return { group, displayTitle }
     }
 
-    grouped.sort((a, b) => {
-      const ag = parseSessionTitleParts(a.title).group ?? ""
-      const bg = parseSessionTitleParts(b.title).group ?? ""
-      const cmp = ag.localeCompare(bg)
-      if (cmp !== 0) return cmp
-      return b.time.updated - a.time.updated
-    })
-    plain.sort((a, b) => b.time.updated - a.time.updated)
+    return sessions()
+      .filter((x) => x.parentID === undefined)
+      .toSorted((a, b) => {
+        const aParsed = parseSessionTitle(a.title)
+        const bParsed = parseSessionTitle(b.title)
+        // Grouped sessions come first
+        if (aParsed.group && !bParsed.group) return -1
+        if (!aParsed.group && bParsed.group) return 1
+        // Both grouped: sort by group name ASC, then updated DESC
+        if (aParsed.group && bParsed.group) {
+          const groupCompare = aParsed.group.localeCompare(bParsed.group)
+          if (groupCompare !== 0) return groupCompare
+          return b.time.updated - a.time.updated
+        }
+        // Both ungrouped: original sort by date then creation time
+        const updatedDay = new Date(b.time.updated).setHours(0, 0, 0, 0) - new Date(a.time.updated).setHours(0, 0, 0, 0)
+        if (updatedDay !== 0) return updatedDay
+        return b.time.created - a.time.created
+      })
+      .map((x) => {
+        const parsed = parseSessionTitle(x.title)
+        const workspace = x.workspaceID ? project.workspace.get(x.workspaceID) : undefined
 
-    return [
-      ...grouped.map((x) => {
-        const parts = parseSessionTitleParts(x.title)
-        const status = sync.data.session_status?.[x.id]
-        const deleting = toDelete() === x.id
-        return {
-          title: deleting ? `Press ${keybind.print("session_delete")} again to confirm` : parts.rest,
-          bg: deleting ? theme.error : undefined,
-          value: x.id,
-          category: parts.group,
-          footer: footer(x, true),
-          gutter: status?.type === "busy" ? <Spinner /> : undefined,
+        let workspaceStatus: WorkspaceStatus | null = null
+        if (x.workspaceID) {
+          workspaceStatus = project.workspace.status(x.workspaceID) || "error"
         }
-      }),
-      ...plain.map((x) => {
+
+        let footer = ""
+        if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES) {
+          if (x.workspaceID) {
+            let desc = "unknown"
+            if (workspace) {
+              desc = `${workspace.type}: ${workspace.name}`
+            }
+
+            footer = (
+              <>
+                {desc}{" "}
+                <span
+                  style={{
+                    fg: workspaceStatus === "connected" ? theme.success : theme.error,
+                  }}
+                >
+                  ●
+                </span>
+              </>
+            )
+          }
+        } else {
+          footer = parsed.group ? Locale.shortDateTime(x.time.updated) : Locale.time(x.time.updated)
+        }
+
         const date = new Date(x.time.updated)
+        let category = parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString())
+        const isDeleting = toDelete() === x.id
         const status = sync.data.session_status?.[x.id]
-        const deleting = toDelete() === x.id
+        const isWorking = status?.type === "busy"
         return {
-          title: deleting ? `Press ${keybind.print("session_delete")} again to confirm` : x.title,
-          bg: deleting ? theme.error : undefined,
+          title: isDeleting ? `Press ${keybind.print("session_delete")} again to confirm` : (parsed.displayTitle || x.title),
+          bg: isDeleting ? theme.error : undefined,
           value: x.id,
-          category: date.toDateString() === today ? "Today" : date.toDateString(),
-          footer: footer(x, false),
-          gutter: status?.type === "busy" ? <Spinner /> : undefined,
+          category,
+          footer,
+          gutter: isWorking ? <Spinner /> : undefined,
         }
-      }),
-    ]
+      })
   })
 
   onMount(() => {

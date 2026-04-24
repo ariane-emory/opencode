@@ -5,8 +5,8 @@ import { useTheme } from "../../context/theme"
 import { useTuiConfig } from "../../context/tui-config"
 import { InstallationChannel, InstallationVersion } from "@/installation/version"
 import { TuiPluginRuntime } from "../../plugin"
+
 import { getScrollAcceleration } from "../../util/scroll"
-import { parseSessionTitleParts } from "@tui/util/session-title"
 
 export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
   const project = useProject()
@@ -27,7 +27,6 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
     return `${info.type}: ${info.name}`
   }
   const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
-  const titleParts = createMemo(() => parseSessionTitleParts(session()?.title ?? ""))
 
   return (
     <Show when={session()}>
@@ -61,9 +60,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
             >
               <box paddingRight={1}>
                 <text fg={theme.text}>
-                  <Show when={titleParts().group} fallback={<b>{titleParts().rest}</b>}>
-                    <b>{titleParts().group}</b> {titleParts().rest}
-                  </Show>
+                  <b>{session()!.title}</b>
                 </text>
                 <Show when={InstallationChannel !== "latest"}>
                   <text fg={theme.textMuted}>{props.sessionID}</text>

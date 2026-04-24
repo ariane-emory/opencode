@@ -1,6 +1,6 @@
 import { InputRenderable, RGBA, ScrollBoxRenderable, TextAttributes } from "@opentui/core"
 import { useTheme, selectedForeground } from "@tui/context/theme"
-import { entries, filter, flatMap, groupBy, mapValues, pipe, take } from "remeda"
+import { entries, filter, flatMap, groupBy, mapValues, pipe } from "remeda"
 import { tieredMatch } from "@/util/tiered-match"
 import { smartCompare } from "@/util/smart-sort"
 import { batch, createEffect, createMemo, For, Show, type JSX, on } from "solid-js"
@@ -100,7 +100,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
       filtered(),
       groupBy((x) => x.category ?? ""),
       (groups) => {
-        if (!props.sort) return groups
+        if (!props.sort || store.filter) return groups
         return mapValues(groups, (x) => x.sort((a, b) => smartCompare(a.title, b.title)))
       },
       entries(),

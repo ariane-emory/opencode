@@ -17,7 +17,7 @@ export const { use: useKeybind, provider: KeybindProvider } = createSimpleContex
     const keybinds = createMemo<Record<string, Keybind.Info[]>>(() => {
       return pipe(
         (config.keybinds ?? {}) as Record<string, string>,
-        mapValues((value) => Keybind.parse(value)),
+        mapValues((value) => (value ? Keybind.parse(value) : [])),
       )
     })
     const [store, setStore] = createStore({

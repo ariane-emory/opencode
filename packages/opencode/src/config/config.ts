@@ -246,6 +246,9 @@ export const Info = Schema.Struct({
       plan_mode: Schema.optional(Schema.Boolean).annotate({
         description: "Enable experimental plan mode",
       }),
+      enable_exa: Schema.optional(Schema.Boolean).annotate({
+        description: "Enable experimental Exa features",
+      }),
     }),
   ),
 })
@@ -843,4 +846,10 @@ export async function directories() {
 
 export async function waitForDependencies() {
   return runPromise((svc) => svc.waitForDependencies())
+}
+
+export async function experimentalEnableExa(): Promise<boolean> {
+  if (Flag.OPENCODE_ENABLE_EXA) return true
+  const config = await runPromise((svc) => svc.get())
+  return config.experimental?.enable_exa === true
 }

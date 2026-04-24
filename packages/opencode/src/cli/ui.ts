@@ -2,6 +2,7 @@ import z from "zod"
 import { EOL } from "os"
 import { NamedError } from "@opencode-ai/shared/util/error"
 import { logo as glyphs } from "./logo"
+import { renderMarkdown, type MarkdownTheme } from "./markdown-renderer"
 
 const wordmark = [
   `⠀                                ▄     `,

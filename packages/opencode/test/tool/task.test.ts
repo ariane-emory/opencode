@@ -379,6 +379,7 @@ describe("tool.task", () => {
           },
           experimental: {
             primary_tools: ["bash", "read"],
+            cache_command_markdown_files: true,
           },
         },
       },

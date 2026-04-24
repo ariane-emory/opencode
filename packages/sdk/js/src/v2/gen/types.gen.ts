@@ -1881,6 +1881,7 @@ export type Config = {
       agent?: string
       model?: string
       subtask?: boolean
+      ignored?: boolean
     }
   }
   /**
@@ -2560,6 +2561,7 @@ export type Command = {
   source?: "command" | "mcp" | "skill"
   template: string
   subtask?: boolean
+  ignored?: boolean
   hints: Array<string>
 }
 

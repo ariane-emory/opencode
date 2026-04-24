@@ -304,6 +304,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
     renderer.clearSelection()
   }
   const [terminalTitleEnabled, setTerminalTitleEnabled] = createSignal(kv.get("terminal_title_enabled", true))
+  const [sidebarClockEnabled, setSidebarClockEnabled] = createSignal(kv.get("sidebar_clock_visible", true))
 
   // Update terminal window title based on current route and session
   createEffect(() => {
@@ -859,6 +860,19 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       onSelect: (dialog) => {
         const current = kv.get("sidebar", "auto")
         kv.set("sidebar", current === "auto" ? "hide" : "auto")
+        dialog.clear()
+      },
+    },
+    {
+      title: sidebarClockEnabled() ? "Hide sidebar clock" : "Show sidebar clock",
+      value: "system.toggle.sidebar_clock",
+      category: "System",
+      onSelect: (dialog) => {
+        setSidebarClockEnabled((prev) => {
+          const next = !prev
+          kv.set("sidebar_clock_visible", next)
+          return next
+        })
         dialog.clear()
       },
     },

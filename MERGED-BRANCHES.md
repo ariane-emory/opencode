@@ -14,7 +14,7 @@
 | ☑ | 8 | feat/keybindable-commands | origin | 7c84e63b8b | Clean merge |
 | ☑ | 9 | feat/automatic-list-continuation | origin | e3151d89ae | Clean merge |
 | ☑ | 10 | feat/continue-command | origin | 8e932fd89c | Resolved conflict in prompt.ts - kept lastAssistantForLoop from HEAD with overrides parameter from branch |
-| ☐ | 11 | feat/configurable-snapshot-lifespan | origin | TBD | |
+| ☑ | 11 | feat/configurable-snapshot-lifespan | origin | 5c5ff6d8ed | Clean merge |
 | ☐ | 12 | feat/configurable-new-plan-mode | origin | TBD | |
 | ☐ | 13 | feat/enable-exa-setting | origin | TBD | |
 | ☐ | 14 | feat/canceled-prompts-in-history | origin | TBD | Careful not to clobber this while merging! Merging this branch MUST add the new item to the command palette. |
@@ -98,4 +98,5 @@
 | 8 | feat/keybindable-commands | 7c84e63b8b | Clean merge |
 | 9 | feat/automatic-list-continuation | e3151d89ae | Clean merge |
 | 10 | feat/continue-command | 8e932fd89c | Resolved conflict in prompt.ts - kept lastAssistantForLoop from HEAD with overrides parameter from branch |
+| 11 | feat/configurable-snapshot-lifespan | 5c5ff6d8ed | Clean merge |
 

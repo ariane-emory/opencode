@@ -22,7 +22,7 @@
 | ☑ | 16 | feat/opencode-expand | origin | d07b3c790b | Clean merge |
 | ☑ | 17 | feat/argument-range-syntax | origin | 461a3681a3 | Resolved conflicts in substitute.ts, prompt.ts, substitute.test.ts - kept branch's extended placeholder syntax with no swallowing |
 | ☑ | 18 | feat/default-arguments | origin | 05b55ff8e4 | Combined with feat/argument-range-syntax - kept all placeholder syntaxes ($N, ${N}, ${N..M}, ${N:default}, ${N..M:default}) with no swallowing |
-| ☐ | 19 | fix/preserve-quotes-in-arguments | origin | TBD | |
+| ☑ | 19 | fix/preserve-quotes-in-arguments | origin | 242433752a | Clean merge |
 | ☐ | 20 | fix/history-navigation-key-commands | origin | TBD | |
 | ☐ | 21 | fix/build-with-short-version | origin | TBD | Automatically uses short timestamp version for integration branches without requiring OPENCODE_VERSION to be set |
 | ☐ | 22 | fix/autocompletion-filtered-order | origin | TBD | |
@@ -106,4 +106,5 @@
 | 16 | feat/opencode-expand | d07b3c790b | Clean merge |
 | 17 | feat/argument-range-syntax | 461a3681a3 | Resolved conflicts in substitute.ts, prompt.ts, substitute.test.ts - kept branch's extended placeholder syntax with no swallowing |
 | 18 | feat/default-arguments | 05b55ff8e4 | Combined with feat/argument-range-syntax - kept all placeholder syntaxes ($N, ${N}, ${N..M}, ${N:default}, ${N..M:default}) with no swallowing |
+| 19 | fix/preserve-quotes-in-arguments | 242433752a | Clean merge |
 

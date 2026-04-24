@@ -117,7 +117,11 @@ export function DialogSessionList() {
 
     return sessions()
       .filter((x) => x.parentID === undefined)
-      .toSorted((a, b) => b.time.updated - a.time.updated)
+      .toSorted((a, b) => {
+        const updatedDay = new Date(b.time.updated).setHours(0, 0, 0, 0) - new Date(a.time.updated).setHours(0, 0, 0, 0)
+        if (updatedDay !== 0) return updatedDay
+        return b.time.created - a.time.created
+      })
       .map((x) => {
         const workspace = x.workspaceID ? project.workspace.get(x.workspaceID) : undefined
 
@@ -139,15 +143,10 @@ export function DialogSessionList() {
                 {desc}{" "}
                 <span
                   style={{
-                    fg:
-                      workspaceStatus === "error"
-                        ? theme.error
-                        : workspaceStatus === "disconnected"
-                          ? theme.textMuted
-                          : theme.success,
+                    fg: workspaceStatus === "connected" ? theme.success : theme.error,
                   }}
                 >
-                  ■
+                  ●
                 </span>
               </>
             )

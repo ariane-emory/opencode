@@ -1,11 +1,11 @@
-import { afterEach, describe, expect } from "bun:test"
+import { afterEach, describe, expect, test } from "bun:test"
 import path from "path"
 import fs from "fs/promises"
 import { Effect, Layer } from "effect"
 import { Instance } from "../../src/project/instance"
 import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"
 import { ToolRegistry } from "../../src/tool"
-import { provideTmpdirInstance } from "../fixture/fixture"
+import { provideTmpdirInstance, tmpdir } from "../fixture/fixture"
 import { testEffect } from "../lib/effect"
 
 const node = CrossSpawnSpawner.defaultLayer
@@ -149,4 +149,27 @@ describe("tool.registry", () => {
       }),
     ),
   )
+
+  test("registers plan tools when experimental.plan_mode is enabled", async () => {
+    await using tmp = await tmpdir({
+      git: true,
+      config: {
+        experimental: {
+          plan_mode: true,
+        },
+      },
+    })
+
+    await Instance.provide({
+      directory: tmp.path,
+      fn: async () => {
+        const registry = await Effect.gen(function* () {
+          const svc = yield* ToolRegistry.Service
+          return yield* svc.ids()
+        }).pipe(Effect.provide(ToolRegistry.defaultLayer), Effect.runPromise)
+        expect(registry).toContain("plan_exit")
+        expect(registry).toContain("plan_enter")
+      },
+    })
+  }, 30000)
 })

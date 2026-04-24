@@ -336,6 +336,18 @@ export class BusyError extends Error {
   }
 }
 
+export class NothingToContinueError extends Error {
+  constructor(public readonly sessionID: string) {
+    super(`Nothing to continue in session ${sessionID}`)
+  }
+}
+
+export class InvalidContinueAgentError extends Error {
+  constructor(public readonly agent: string) {
+    super(`Invalid continue agent: ${agent}`)
+  }
+}
+
 export interface Interface {
   readonly create: (input?: {
     parentID?: SessionID

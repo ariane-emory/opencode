@@ -46,6 +46,7 @@ import { Process } from "@/util"
 import { Cause, Effect, Exit, Layer, Option, Scope, Context } from "effect"
 import { EffectLogger } from "@/effect"
 import { InstanceState } from "@/effect"
+import { makeRuntime } from "@/effect/run-service"
 import { TaskTool, type TaskPromptOps } from "@/tool/task"
 import { SessionRunState } from "./run-state"
 import { EffectBridge } from "@/effect"
@@ -72,6 +73,7 @@ export interface Interface {
   readonly loop: (input: z.infer<typeof LoopInput>) => Effect.Effect<MessageV2.WithParts>
   readonly shell: (input: ShellInput) => Effect.Effect<MessageV2.WithParts>
   readonly command: (input: CommandInput) => Effect.Effect<MessageV2.WithParts>
+  readonly continue: (input: z.infer<typeof ContinueInput>) => Effect.Effect<MessageV2.WithParts>
   readonly resolvePromptParts: (template: string) => Effect.Effect<PromptInput["parts"]>
 }
 
@@ -1326,8 +1328,14 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       } satisfies MessageV2.WithParts
     })
 
-    const runLoop: (sessionID: SessionID) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.run")(
-      function* (sessionID: SessionID) {
+    const runLoop: (
+      sessionID: SessionID,
+      overrides?: { agent?: string; model?: { providerID: ProviderID; modelID: ModelID } },
+    ) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.run")(
+      function* (
+        sessionID: SessionID,
+        overrides?: { agent?: string; model?: { providerID: ProviderID; modelID: ModelID } },
+      ) {
         const ctx = yield* InstanceState.context
         const slog = elog.with({ sessionID })
         let structured: unknown | undefined
@@ -1355,6 +1363,14 @@ NOTE: At any point in time through this workflow you should feel free to ask the
           }
 
           if (!lastUser) throw new Error("No user message found in stream. This should never happen.")
+
+          const agentToUse = overrides?.agent ?? lastUser.agent
+          const modelToUse = overrides?.model ?? lastUser.model
+          if (overrides?.agent || overrides?.model) {
+            yield* sessions.updateMessage({ ...lastUser, agent: agentToUse, model: modelToUse })
+            lastUser.agent = agentToUse
+            lastUser.model = modelToUse
+          }
 
           const lastAssistantMsg = msgs.findLast(
             (msg) => msg.info.role === "assistant" && msg.info.id === lastAssistant?.id,
@@ -1559,7 +1575,11 @@ NOTE: At any point in time through this workflow you should feel free to ask the
     const loop: (input: z.infer<typeof LoopInput>) => Effect.Effect<MessageV2.WithParts> = Effect.fn(
       "SessionPrompt.loop",
     )(function* (input: z.infer<typeof LoopInput>) {
-      return yield* state.ensureRunning(input.sessionID, lastAssistantForLoop(input.sessionID), runLoop(input.sessionID))
+      return yield* state.ensureRunning(
+        input.sessionID,
+        lastAssistantForLoop(input.sessionID),
+        runLoop(input.sessionID, { agent: input.agent, model: input.model }),
+      )
     })
 
     const shell: (input: ShellInput) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.shell")(
@@ -1684,12 +1704,54 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       return result
     })
 
+    const continue_ = Effect.fn("SessionPrompt.continue")(function* (input: z.infer<typeof ContinueInput>) {
+      yield* state.assertNotBusy(input.sessionID)
+      if (input.agent) {
+        const agent = yield* agents.get(input.agent)
+        if (!agent || agent.mode === "subagent" || agent.hidden) throw new Session.InvalidContinueAgentError(input.agent)
+      }
+
+      const last = (yield* MessageV2.filterCompactedEffect(input.sessionID)).findLast(
+        (msg): msg is MessageV2.WithParts & { info: MessageV2.Assistant } => msg.info.role === "assistant",
+      )
+      if (!last) throw new Session.NothingToContinueError(input.sessionID)
+
+      if (
+        last.info.finish &&
+        last.info.finish !== "tool-calls" &&
+        !last.parts.some(
+          (part) => part.type === "tool" && (part.state.status === "pending" || part.state.status === "running"),
+        ) &&
+        !last.info.error
+      ) {
+        return yield* prompt({
+          sessionID: input.sessionID,
+          agent: input.agent,
+          model: input.model,
+          parts: [{ type: "text", text: "continue" }],
+        })
+      }
+
+      last.info.error = undefined
+      last.info.finish = "tool-calls"
+      last.info.time.completed ??= Date.now()
+      yield* sessions.updateMessage(last.info)
+
+      yield* sessions.touch(input.sessionID)
+      return yield* state.ensureRunning(
+        input.sessionID,
+        lastAssistant(input.sessionID),
+        runLoop(input.sessionID, { agent: input.agent, model: input.model }),
+      )
+    })
+
     return Service.of({
       cancel,
       prompt,
       loop,
       shell,
       command,
+      continue: continue_,
       resolvePromptParts,
     })
   }),
@@ -1767,6 +1829,24 @@ export type PromptInput = Omit<z.infer<typeof PromptInput>, "parts"> & {
 
 export const LoopInput = z.object({
   sessionID: SessionID.zod,
+  agent: z.string().optional(),
+  model: z
+    .object({
+      providerID: ProviderID.zod,
+      modelID: ModelID.zod,
+    })
+    .optional(),
+})
+
+export const ContinueInput = z.object({
+  sessionID: SessionID.zod,
+  agent: z.string().optional(),
+  model: z
+    .object({
+      providerID: ProviderID.zod,
+      modelID: ModelID.zod,
+    })
+    .optional(),
 })
 
 export const ShellInput = z.object({
@@ -1844,5 +1924,11 @@ const bashRegex = /!`([^`]+)`/g
 const argsRegex = /(?:\[Image\s+\d+\]|"[^"]*"|'[^']*'|[^\s"']+)/gi
 const placeholderRegex = /\$(\d+)/g
 const quoteTrimRegex = /^["']|["']$/g
+
+const { runPromise } = makeRuntime(Service, defaultLayer)
+
+export async function continue_(input: z.infer<typeof ContinueInput>) {
+  return runPromise((svc) => svc.continue(ContinueInput.parse(input)))
+}
 
 export * as SessionPrompt from "./prompt"

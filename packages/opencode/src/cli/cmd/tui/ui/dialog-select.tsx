@@ -1,6 +1,6 @@
 import { InputRenderable, RGBA, ScrollBoxRenderable, TextAttributes } from "@opentui/core"
 import { useTheme, selectedForeground } from "@tui/context/theme"
-import { entries, filter, flatMap, groupBy, mapValues, pipe } from "remeda"
+import { entries, filter, flatMap, groupBy, mapValues, pipe, take } from "remeda"
 import { tieredMatch } from "@/util/tiered-match"
 import { smartCompare } from "@/util/smart-sort"
 import { batch, createEffect, createMemo, For, Show, type JSX, on } from "solid-js"
@@ -18,13 +18,13 @@ export interface DialogSelectProps<T> {
   title: string
   placeholder?: string
   options: DialogSelectOption<T>[]
+  sort?: boolean
   flat?: boolean
   ref?: (ref: DialogSelectRef<T>) => void
   onMove?: (option: DialogSelectOption<T>) => void
   onFilter?: (query: string) => void
   onSelect?: (option: DialogSelectOption<T>) => void
   skipFilter?: boolean
-  sort?: boolean
   keybind?: {
     keybind?: Keybind.Info
     title: string

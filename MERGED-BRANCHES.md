@@ -6,7 +6,7 @@
 |--------|---|-------------|--------|-------------|-------------|
 | ☑ | 1 | feat/base-one-rebrand | origin | e700d7124f | Clean merge |
 | ☑ | 2 | feat/sinister-quotes | origin | ddbb34d144 | Clean merge - SINISTER_PLACEHOLDERS array preserved |
-| ☐ | 3 | feat/markdown-renderer | gignit | TBD | |
+| ☑ | 3 | feat/markdown-renderer | gignit | d7eaf15518 | Resolved conflicts in run.ts, session/index.tsx, ui.ts |
 | ☐ | 4 | feat/thinking-indicator-hidden | rcdailey | TBD | |
 | ☐ | 5 | feat/session-grouping | origin | TBD | |
 | ☐ | 6 | feat/session-bookmarks | origin | TBD | |
@@ -90,4 +90,5 @@
 |---|--------|--------|-------|
 | 1 | feat/base-one-rebrand | e700d7124f | Clean merge |
 | 2 | feat/sinister-quotes | ddbb34d144 | Clean merge - SINISTER_PLACEHOLDERS array preserved |
+| 3 | feat/markdown-renderer | d7eaf15518 | Resolved conflicts in run.ts, session/index.tsx, ui.ts |
 

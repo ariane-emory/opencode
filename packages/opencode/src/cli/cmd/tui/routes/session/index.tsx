@@ -1267,7 +1267,8 @@ function UserMessage(props: {
   const local = useLocal()
   const text = createMemo(() => props.parts.flatMap((x) => (x.type === "text" && !x.synthetic ? [x] : []))[0])
   const files = createMemo(() => props.parts.flatMap((x) => (x.type === "file" ? [x] : [])))
-  const { theme } = useTheme()
+  const tui = useTheme()
+  const theme = tui.theme
   const [hover, setHover] = createSignal(false)
   const queued = createMemo(() => props.pending && props.message.id > props.pending)
   const color = createMemo(() => local.agent.color(props.message.agent))
@@ -1529,6 +1530,7 @@ const LANGS: Record<string, string> = {
 function TextPart(props: { last: boolean; part: TextPart; message: AssistantMessage }) {
   const ctx = use()
   const tui = useTheme()
+  const theme = tui.theme
   const segments = createMemo(() => parseMarkdownSegments(props.part.text?.trim() ?? ""))
 
   return (

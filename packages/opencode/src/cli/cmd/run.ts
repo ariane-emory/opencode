@@ -29,7 +29,7 @@ import { Locale } from "../../util"
 import { AppRuntime } from "@/effect/app-runtime"
 import { loadTheme } from "../theme-loader"
 import type { MarkdownTheme } from "../markdown-renderer"
-import { TuiConfig } from "../../config/tui"
+import { TuiConfig } from "../cmd/tui/config/tui"
 
 type ToolProps<T> = {
   input: Tool.InferParameters<T>
@@ -409,7 +409,7 @@ export const RunCommand = cmd({
     }
 
     async function execute(sdk: OpencodeClient) {
-      const theme: MarkdownTheme | undefined = await TuiConfig.get().then((c) => loadTheme(c.theme)).catch(() => loadTheme())
+      const theme: MarkdownTheme | undefined = await TuiConfig.get().then((c: { theme?: string }) => loadTheme(c.theme)).catch(() => loadTheme())
 
       function tool(part: ToolPart) {
         try {

@@ -38,6 +38,7 @@ import { useToast } from "../../ui/toast"
 import { useKV } from "../../context/kv"
 import { createFadeIn } from "../../util/signal"
 import { useTextareaKeybindings } from "../textarea-keybindings"
+import { useListContinuation } from "../list-continuation"
 import { DialogSkill } from "../dialog-skill"
 import { DialogWorkspaceCreate, restoreWorkspaceSession } from "../dialog-workspace-create"
 import { DialogWorkspaceUnavailable } from "../dialog-workspace-unavailable"
@@ -128,6 +129,10 @@ export function Prompt(props: PromptProps) {
   }
 
   const textareaKeybindings = useTextareaKeybindings()
+  const listContinuation = useListContinuation()
+
+  // Filter out newline from keybindings so we can handle it in onKeyDown with list continuation
+  const promptKeybindings = createMemo(() => textareaKeybindings().filter((b) => b.action !== "newline"))
 
   const fileStyleId = syntax().getStyleId("extmark.file")!
   const agentStyleId = syntax().getStyleId("extmark.agent")!
@@ -654,7 +659,13 @@ export function Prompt(props: PromptProps) {
     if (!store.prompt.input) return false
     const agent = local.agent.current()
     if (!agent) return false
-    const trimmed = store.prompt.input.trim()
+
+    const cleaned = listContinuation.cleanupForSubmit(store.prompt.input)
+    if (cleaned !== store.prompt.input) {
+      setStore("prompt", "input", cleaned)
+    }
+
+    const trimmed = cleaned.trim()
     if (trimmed === "exit" || trimmed === "quit" || trimmed === ":q") {
       void exit()
       return true
@@ -692,7 +703,6 @@ export function Prompt(props: PromptProps) {
       ))
       return false
     }
-
     let sessionID = props.sessionID
     if (sessionID == null) {
       const res = await sdk.client.session.create({ workspace: props.workspaceID })
@@ -712,7 +722,7 @@ export function Prompt(props: PromptProps) {
     }
 
     const messageID = MessageID.ascending()
-    let inputText = store.prompt.input
+    let inputText = cleaned
 
     // Expand pasted text inline before submitting
     const allExtmarks = input.extmarks.getAllForTypeId(promptPartTypeId)
@@ -1015,10 +1025,40 @@ export function Prompt(props: PromptProps) {
                 autocomplete.onInput(value)
                 syncExtmarksWithPromptParts()
               }}
-              keyBindings={textareaKeybindings()}
+              keyBindings={promptKeybindings()}
               onKeyDown={async (e) => {
                 if (props.disabled) {
                   e.preventDefault()
+                  return
+                }
+                // Handle automatic list continuation on newline
+                if (keybind.match("input_newline", e)) {
+                  e.preventDefault()
+                  const action = listContinuation.handleNewline(input.plainText, input.cursorOffset)
+                  if (action) {
+                    if (action.type === "continue") {
+                      input.insertText(action.insertText)
+                      if (action.renumber) {
+                        // Adjust offsets since insertText shifted subsequent content
+                        const offset = action.insertText.length
+                        const adjustedStart = action.renumber.start + offset
+                        const adjustedEnd = action.renumber.end + offset
+                        const before = input.plainText.slice(0, adjustedStart)
+                        const after = input.plainText.slice(adjustedEnd)
+                        input.setText(before + action.renumber.newText + after)
+                        // Cursor should be after the inserted new item
+                        input.cursorOffset = adjustedStart - 1
+                      }
+                    } else if (action.type === "clear") {
+                      const before = input.plainText.slice(0, action.deleteRange.start)
+                      const after = input.plainText.slice(action.deleteRange.end)
+                      input.setText(before + after)
+                      input.cursorOffset = action.cursorPosition
+                    }
+                  } else {
+                    // No list continuation - just insert a normal newline
+                    input.insertText("\n")
+                  }
                   return
                 }
                 // Check clipboard for images before terminal-handled paste runs.

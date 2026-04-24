@@ -24,7 +24,7 @@
 | ☑ | 18 | feat/default-arguments | origin | 05b55ff8e4 | Combined with feat/argument-range-syntax - kept all placeholder syntaxes ($N, ${N}, ${N..M}, ${N:default}, ${N..M:default}) with no swallowing |
 | ☑ | 19 | fix/preserve-quotes-in-arguments | origin | 242433752a | Clean merge |
 | ☑ | 20 | fix/history-navigation-key-commands | origin | 55b2e1087c | Clean merge |
-| ☐ | 21 | fix/build-with-short-version | origin | TBD | Automatically uses short timestamp version for integration branches without requiring OPENCODE_VERSION to be set |
+| ☑ | 21 | fix/build-with-short-version | origin | 84744e0f48 | Clean merge - automatically uses short timestamp version for integration branches |
 | ☐ | 22 | fix/autocompletion-filtered-order | origin | TBD | |
 | ☐ | 23 | fix/modal-menus-filtered-order | origin | TBD | |
 | ☐ | 24 | fix/config-package-json-pollution | origin | TBD | This branch MUST be included in integration branches to prevent package.json pollution with non-SemVer versions |
@@ -108,4 +108,5 @@
 | 18 | feat/default-arguments | 05b55ff8e4 | Combined with feat/argument-range-syntax - kept all placeholder syntaxes ($N, ${N}, ${N..M}, ${N:default}, ${N..M:default}) with no swallowing |
 | 19 | fix/preserve-quotes-in-arguments | 242433752a | Clean merge |
 | 20 | fix/history-navigation-key-commands | 55b2e1087c | Clean merge |
+| 21 | fix/build-with-short-version | 84744e0f48 | Clean merge - automatically uses short timestamp version for integration branches |
 

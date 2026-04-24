@@ -1,4 +1,5 @@
 import path from "path"
+import { substituteArguments } from "../config/substitute"
 import os from "os"
 import z from "zod"
 import { SessionID, MessageID, PartID } from "./schema"
@@ -1582,7 +1583,6 @@ NOTE: At any point in time through this workflow you should feel free to ask the
         runLoop(input.sessionID, { agent: input.agent, model: input.model }),
       )
     })
-
     const shell: (input: ShellInput) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.shell")(
       function* (input: ShellInput) {
         return yield* state.startShell(input.sessionID, lastAssistant(input.sessionID), shellImpl(input))
@@ -1605,24 +1605,15 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       const args = raw.map((arg) => arg.replace(quoteTrimRegex, ""))
       const templateCommand = yield* Effect.promise(async () => cmd.template)
 
-      const placeholders = templateCommand.match(placeholderRegex) ?? []
-      let last = 0
-      for (const item of placeholders) {
-        const value = Number(item.slice(1))
-        if (value > last) last = value
-      }
+      const { result: withArgs, hasPlaceholders } = substituteArguments(
+        templateCommand,
+        args,
+      )
 
-      const withArgs = templateCommand.replaceAll(placeholderRegex, (_, index) => {
-        const position = Number(index)
-        const argIndex = position - 1
-        if (argIndex >= args.length) return ""
-        if (position === last) return args.slice(argIndex).join(" ")
-        return args[argIndex]
-      })
       const usesArgumentsPlaceholder = templateCommand.includes("$ARGUMENTS")
       let template = withArgs.replaceAll("$ARGUMENTS", input.arguments)
 
-      if (placeholders.length === 0 && !usesArgumentsPlaceholder && input.arguments.trim()) {
+      if (!hasPlaceholders && !usesArgumentsPlaceholder && input.arguments.trim()) {
         template = template + "\n\n" + input.arguments
       }
 
@@ -1933,5 +1924,7 @@ const { runPromise } = makeRuntime(Service, defaultLayer)
 export async function continue_(input: z.infer<typeof ContinueInput>) {
   return runPromise((svc) => svc.continue(ContinueInput.parse(input)))
 }
+
+export { substituteArguments }
 
 export * as SessionPrompt from "./prompt"

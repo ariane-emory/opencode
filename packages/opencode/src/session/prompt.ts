@@ -1691,6 +1691,7 @@ export const defaultLayer = Layer.suspend(() =>
     Layer.provide(Session.defaultLayer),
     Layer.provide(SessionRevert.defaultLayer),
     Layer.provide(SessionSummary.defaultLayer),
+    Layer.provide(Config.defaultLayer),
     Layer.provide(
       Layer.mergeAll(
         Agent.defaultLayer,

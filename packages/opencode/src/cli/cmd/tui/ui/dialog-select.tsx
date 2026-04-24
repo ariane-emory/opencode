@@ -1,6 +1,7 @@
 import { InputRenderable, RGBA, ScrollBoxRenderable, TextAttributes } from "@opentui/core"
 import { useTheme, selectedForeground } from "@tui/context/theme"
 import { entries, filter, flatMap, groupBy, mapValues, pipe } from "remeda"
+import { tieredMatch } from "@/util/tiered-match"
 import { smartCompare } from "@/util/smart-sort"
 import { batch, createEffect, createMemo, For, Show, type JSX, on } from "solid-js"
 import { createStore } from "solid-js/store"
@@ -90,29 +91,10 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     )
     if (!needle) return options
 
-    // Use tiered matching for better results
-    const tier1: DialogSelectOption<T>[] = []
-    const tier2: DialogSelectOption<T>[] = []
-    const tier3: DialogSelectOption<T>[] = []
-
-    for (const option of options) {
-      const title = option.title.toLowerCase()
-      const category = option.category?.toLowerCase() ?? ""
-      const description = option.description?.toLowerCase() ?? ""
-
-      if (title.startsWith(needle)) {
-        tier1.push(option)
-      } else if (title.includes(needle) || category.startsWith(needle)) {
-        tier2.push(option)
-      } else if (category.includes(needle) || description.includes(needle)) {
-        tier3.push(option)
-      }
-    }
-
-    const sortByTitle = (a: DialogSelectOption<T>, b: DialogSelectOption<T>) =>
-      smartCompare(a.title, b.title)
-
-    return [...tier1.sort(sortByTitle), ...tier2.sort(sortByTitle), ...tier3.sort(sortByTitle)]
+    // **CRITICAL**: This tiered matching logic is the core feature of fix/modal-menus-filtered-order.
+    // It ensures prefix matches appear first, then substring matches, then description/category matches.
+    // DO NOT replace with simple fuzzysort or frecency sorting during merges!
+    return tieredMatch(options, needle)
   })
 
   // When the filter changes due to how TUI works, the mousemove might still be triggered

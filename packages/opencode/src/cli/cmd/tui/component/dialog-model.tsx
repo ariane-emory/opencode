@@ -121,6 +121,9 @@ export function DialogModel(props: { providerID?: string }) {
     if (needle) {
       const lowerNeedle = needle.toLowerCase()
 
+      // **CRITICAL**: This tieredFilter function is the core feature of fix/modal-menus-filtered-order.
+      // It ensures prefix matches appear first, then substring matches, then category matches,
+      // with smartCompare sorting within each tier. DO NOT replace with fuzzysort during merges!
       const tieredFilter = <T extends { title: string; category?: string }>(items: T[]) => {
         const tier1: T[] = []
         const tier2: T[] = []

@@ -26,6 +26,7 @@ import { Flag } from "@/flag/flag"
 import { Log } from "@/util"
 import { LspTool } from "./lsp"
 import * as Truncate from "./truncate"
+import { SetCurrentSessionTitleTool } from "./set-current-session-title"
 import { ApplyPatchTool } from "./apply_patch"
 import { Glob } from "@opencode-ai/shared/util/glob"
 import path from "path"
@@ -116,6 +117,7 @@ export const layer: Layer.Layer<
     const patchtool = yield* ApplyPatchTool
     const skilltool = yield* SkillTool
     const bookmarktool = yield* BookmarkCurrentSessionTool
+    const sessiontitletool = yield* SetCurrentSessionTitleTool
 
     const state = yield* InstanceState.make<State>(
       Effect.fn("ToolRegistry.state")(function* (ctx) {
@@ -198,6 +200,7 @@ export const layer: Layer.Layer<
           lsp: Tool.init(lsptool),
           plan: Tool.init(plan),
           planEnter: Tool.init(planEnter),
+          sessiontitle: Tool.init(sessiontitletool),
         })
 
         return {
@@ -223,6 +226,7 @@ export const layer: Layer.Layer<
             ...((Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE || (yield* config.experimentalPlanMode())) && Flag.OPENCODE_CLIENT === "cli"
               ? [tool.plan, tool.planEnter]
               : []),
+            tool.sessiontitle,
           ],
           task: tool.task,
           read: tool.read,

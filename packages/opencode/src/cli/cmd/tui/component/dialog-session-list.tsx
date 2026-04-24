@@ -130,10 +130,10 @@ export function DialogSessionList() {
           {desc}{" "}
           <span
             style={{
-              fg: status === "error" ? theme.error : status === "disconnected" ? theme.textMuted : theme.success,
+              fg: status === "connected" ? theme.success : theme.error,
             }}
           >
-            ■
+            ●
           </span>
         </>
       )

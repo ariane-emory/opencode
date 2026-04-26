@@ -17,9 +17,12 @@ import { DialogWorkspaceCreate, openWorkspaceSession, restoreWorkspaceSession } 
 import { Spinner } from "./spinner"
 import { errorMessage } from "@/util/error"
 import { DialogSessionDeleteFailed } from "./dialog-session-delete-failed"
+import { parseSessionTitleParts } from "@tui/util/session-title"
 import { useKV } from "../context/kv"
 
-export function DialogSessionList() {
+type WorkspaceStatus = "connected" | "connecting" | "disconnected" | "error"
+
+export function DialogSessionList(props: { initialSessionID?: string } = {}) {
   const dialog = useDialog()
   const route = useRoute()
   const sync = useSync()
@@ -33,6 +36,7 @@ export function DialogSessionList() {
   const [search, setSearch] = createDebouncedSignal("", 150)
   const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()
 
+
   const [searchResults, { refetch }] = createResource(search, async (query) => {
     if (!query) return undefined
     const result = await sdk.client.session.list({ search: query, limit: 30 })
@@ -40,7 +44,7 @@ export function DialogSessionList() {
   })
 
   const pinKeybind = "ctrl+b"
-  const currentSessionID = createMemo(() => (route.data.type === "session" ? route.data.sessionID : undefined))
+  const currentSessionID = createMemo(() => props.initialSessionID ?? (route.data.type === "session" ? route.data.sessionID : undefined))
 
   const sessions = createMemo(() => {
     const results = searchResults()
@@ -129,41 +133,20 @@ export function DialogSessionList() {
   }
 
   const options = createMemo(() => {
+    if (!sync.ready) return []
     const today = new Date().toDateString()
-
-    function parseSessionTitle(title: string): { group?: string; displayTitle: string } {
-      const pipeIndex = title.indexOf("|")
-      if (pipeIndex === -1) return { displayTitle: title }
-      const group = title.slice(0, pipeIndex).trim()
-      const displayTitle = title.slice(pipeIndex + 1).trim()
-      if (!group) return { displayTitle }
-      return { group, displayTitle }
-    }
+    const sessionsListLimit = sync.data.config.experimental?.session_list_limit
+    const limit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
 
     const all = sessions().filter((x) => x.parentID === undefined)
     const pinned = all.filter((x) => x.time.pinned !== undefined).toSorted((a, b) => (b.time.pinned ?? 0) - (a.time.pinned ?? 0))
-    const unpinned = all.filter((x) => x.time.pinned === undefined).toSorted((a, b) => {
-      const aParsed = parseSessionTitle(a.title)
-      const bParsed = parseSessionTitle(b.title)
-      // Grouped sessions come first
-      if (aParsed.group && !bParsed.group) return -1
-      if (!aParsed.group && bParsed.group) return 1
-      // Both grouped: sort by group name ASC, then updated DESC
-      if (aParsed.group && bParsed.group) {
-        const groupCompare = aParsed.group.localeCompare(bParsed.group)
-        if (groupCompare !== 0) return groupCompare
-        return b.time.updated - a.time.updated
-      }
-      // Both ungrouped: original sort by date then creation time
-      const updatedDay = new Date(b.time.updated).setHours(0, 0, 0, 0) - new Date(a.time.updated).setHours(0, 0, 0, 0)
-      if (updatedDay !== 0) return updatedDay
-      return b.time.created - a.time.created
-    })
+    const grouped = all.filter((x) => x.time.pinned === undefined && parseSessionTitleParts(x.title).group)
+    const plain = all.filter((x) => x.time.pinned === undefined && !parseSessionTitleParts(x.title).group)
 
     const foot = (session: (typeof all)[number], showDate: boolean) => {
       if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES && session.workspaceID) {
         const workspace = project.workspace.get(session.workspaceID)
-        const status = project.workspace.status(session.workspaceID) || "error"
+        const status = (project.workspace.status(session.workspaceID) || "error") as WorkspaceStatus
         const desc = workspace ? `${workspace.type}: ${workspace.name}` : "unknown"
         return (
           <>
@@ -173,7 +156,7 @@ export function DialogSessionList() {
                 fg: status === "error" ? theme.error : status === "disconnected" ? theme.textMuted : theme.success,
               }}
             >
-              ●
+              ■
             </span>
           </>
         )
@@ -182,11 +165,11 @@ export function DialogSessionList() {
       return showDate ? Locale.shortDateTime(session.time.updated) : Locale.time(session.time.updated)
     }
 
-    const item = (session: (typeof all)[number], category: string, showDate: boolean, displayTitle?: string) => {
+    const item = (session: (typeof all)[number], category: string, showDate: boolean) => {
       const deleting = toDelete() === session.id
       const status = sync.data.session_status?.[session.id]
       return {
-        title: deleting ? `Press ${keybind.print("session_delete")} again to confirm` : (displayTitle ?? session.title),
+        title: deleting ? `Press ${keybind.print("session_delete")} again to confirm` : session.title,
         bg: deleting ? theme.error : undefined,
         value: session.id,
         category,
@@ -195,24 +178,30 @@ export function DialogSessionList() {
       }
     }
 
-    return [
+    grouped.sort((a, b) => {
+      const ag = parseSessionTitleParts(a.title).group ?? ""
+      const bg = parseSessionTitleParts(b.title).group ?? ""
+      const cmp = ag.localeCompare(bg)
+      if (cmp !== 0) return cmp
+      return b.time.updated - a.time.updated
+    })
+    plain.sort((a, b) => b.time.updated - a.time.updated)
+
+    const result = [
       ...pinned.map((x) => item(x, "Bookmarks:", true)),
-      ...unpinned.map((x) => {
+      ...grouped.map((x) => {
+        const parts = parseSessionTitleParts(x.title)
+        return {
+          ...item(x, parts.group!, true),
+          title: toDelete() === x.id ? `Press ${keybind.print("session_delete")} again to confirm` : parts.rest,
+        }
+      }),
+      ...plain.map((x) => {
         const date = new Date(x.time.updated)
-        const parsed = parseSessionTitle(x.title)
-        const category = parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString())
-        return item(x, category, false, parsed.displayTitle)
+        return item(x, date.toDateString() === today ? "Today" : date.toDateString(), false)
       }),
     ]
-  })
-
-  createEffect(() => {
-    const id = currentSessionID() ?? defaultSessionID()
-    if (!id) return
-    options()
-    setTimeout(() => {
-      selectRef()?.scrollToValue(id, true)
-    }, 0)
+    return limit ? result.slice(0, limit) : result
   })
 
   onMount(() => {
@@ -243,8 +232,10 @@ export function DialogSessionList() {
           title: "delete",
           onTrigger: async (option) => {
             if (toDelete() === option.value) {
+              const ref = selectRef()
+              const currentIndex = ref?.filtered.findIndex((opt) => opt.value === option.value) ?? -1
               const session = sessions().find((item) => item.id === option.value)
-              const status = session?.workspaceID ? project.workspace.status(session.workspaceID) : undefined
+              const wsStatus = session?.workspaceID ? project.workspace.status(session.workspaceID) : undefined
 
               try {
                 const result = await sdk.client.session.delete({
@@ -276,11 +267,20 @@ export function DialogSessionList() {
                 setToDelete(undefined)
                 return
               }
-              if (status && status !== "connected") {
+              if (wsStatus && wsStatus !== "connected") {
                 await sync.session.refresh()
               }
               if (search()) await refetch()
               setToDelete(undefined)
+
+              if (ref && currentIndex >= 0) {
+                setTimeout(() => {
+                  const newIndex = Math.min(currentIndex, ref.filtered.length - 1)
+                  if (newIndex >= 0) {
+                    ref.moveTo(newIndex, true)
+                  }
+                }, 50)
+              }
               return
             }
             setToDelete(option.value)
@@ -290,7 +290,8 @@ export function DialogSessionList() {
           keybind: keybind.all.session_rename?.[0],
           title: "rename",
           onTrigger: async (option) => {
-            dialog.replace(() => <DialogSessionRename session={option.value} />)
+            const back = () => dialog.replace(() => <DialogSessionList initialSessionID={option.value} />)
+            dialog.replace(() => <DialogSessionRename session={option.value} onSuccess={back} onCancel={back} />)
           },
         },
         {

@@ -861,25 +861,28 @@ export function Logo(props: { shape?: LogoShape; ink?: RGBA; idle?: boolean } = 
         onMouse={mouse}
       />
       <For each={ctx.shape.left}>
-        {(line, index) => (
-          <box flexDirection="row" gap={1}>
-            <box flexDirection="row">
-              {renderLine(line, index(), props.ink ?? theme.textMuted, !!props.ink, 0, frame(), dusk(), idleState())}
+        {(line, index) => {
+          const isTagline = index() === ctx.shape.left.length - 1
+          return (
+            <box flexDirection="row" gap={1}>
+              <box flexDirection="row">
+                {renderLine(line, index(), props.ink ?? theme.textMuted, !!props.ink, 0, frame(), dusk(), idleState())}
+              </box>
+              <box flexDirection="row">
+                {renderLine(
+                  ctx.shape.right[index()],
+                  index(),
+                  isTagline ? props.ink ?? theme.textMuted : props.ink ?? theme.text,
+                  isTagline ? false : true,
+                  ctx.LEFT + GAP,
+                  frame(),
+                  dusk(),
+                  idleState(),
+                )}
+              </box>
             </box>
-            <box flexDirection="row">
-              {renderLine(
-                ctx.shape.right[index()],
-                index(),
-                props.ink ?? theme.text,
-                true,
-                ctx.LEFT + GAP,
-                frame(),
-                dusk(),
-                idleState(),
-              )}
-            </box>
-          </box>
-        )}
+          )
+        }}
       </For>
     </box>
   )

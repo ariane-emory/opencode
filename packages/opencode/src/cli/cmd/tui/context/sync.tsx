@@ -27,7 +27,7 @@ import { createSimpleContext } from "./helper"
 import type { Snapshot } from "@/snapshot"
 import { useExit } from "./exit"
 import { useArgs } from "./args"
-import { batch, onMount } from "solid-js"
+import { batch, createEffect, on } from "solid-js"
 import { Log } from "@/util"
 import { emptyConsoleState, type ConsoleState } from "@/config/console-state"
 
@@ -373,7 +373,7 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       const sessionsLimit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
       const start = sessionsListLimit === "none" ? undefined : Date.now() - 30 * 24 * 60 * 60 * 1000
       const sessionListPromise = sdk.client.session
-        .list({ start, limit: sessionsLimit })
+        .list({ start, limit: sessionsLimit, workspace })
         .then((x) => (x.data ?? []).toSorted((a, b) => a.id.localeCompare(b.id)))
 
       // blocking - include session.list when continuing a session
@@ -466,9 +466,14 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
         })
     }
 
-    onMount(() => {
-      void bootstrap()
-    })
+    createEffect(
+      on(
+        () => project.workspace.current(),
+        () => {
+          void bootstrap()
+        },
+      ),
+    )
 
     const result = {
       data: store,
@@ -491,8 +496,9 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
         },
         async refresh() {
           const start = Date.now() - 30 * 24 * 60 * 60 * 1000
+          const workspace = project.workspace.current()
           const list = await sdk.client.session
-            .list({ start })
+            .list({ start, workspace })
             .then((x) => (x.data ?? []).toSorted((a, b) => a.id.localeCompare(b.id)))
           setStore("session", reconcile(list))
         },
@@ -510,11 +516,12 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
           if (fullSyncedSessions.has(sessionID)) return
           const messagesLimit = store.config.experimental?.messages_limit
           const limit = messagesLimit === "none" ? undefined : messagesLimit ?? 100
+          const workspace = project.workspace.current()
           const [session, messages, todo, diff] = await Promise.all([
-            sdk.client.session.get({ sessionID }, { throwOnError: true }),
-            sdk.client.session.messages({ sessionID, limit }),
-            sdk.client.session.todo({ sessionID }),
-            sdk.client.session.diff({ sessionID }),
+            sdk.client.session.get({ sessionID, workspace }, { throwOnError: true }),
+            sdk.client.session.messages({ sessionID, limit, workspace }),
+            sdk.client.session.todo({ sessionID, workspace }),
+            sdk.client.session.diff({ sessionID, workspace }),
           ])
           setStore(
             produce((draft) => {

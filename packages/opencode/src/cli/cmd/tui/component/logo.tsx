@@ -1,13 +1,34 @@
-import { BoxRenderable, MouseButton, MouseEvent, RGBA, TextAttributes } from "@opentui/core"
+import { RGBA, TextAttributes } from "@opentui/core"
 import { For, createMemo, createSignal, onCleanup, onMount, type JSX } from "solid-js"
 import { useTheme, tint } from "@tui/context/theme"
-import * as Sound from "@tui/util/sound"
-import { go, logo } from "@/cli/logo"
+import { go } from "@/cli/logo"
 
 export type LogoShape = {
   left: string[]
   right: string[]
 }
+
+const LOGO_LEFT = [
+  "██████╗  █████╗ ███████╗███████╗     ",
+  "██╔══██╗██╔══██╗██╔════╝██╔════╝    ",
+  "██████╔╝███████║███████╗█████╗      ",
+  "██╔══██╗██╔══██║╚════██║██╔══╝      ",
+  "██████╔╝██║  ██║███████║███████╗    ",
+  "╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝     ",
+  "                                  ",
+]
+
+const LOGO_RIGHT = [
+  "██████╗ ███╗   ██╗███████╗",
+  "██╔═══██╗████╗  ██║██╔════╝",
+  "██║   ██║██╔██╗ ██║█████╗  ",
+  "██║   ██║██║╚██╗██║██╔══╝  ",
+  "╚██████╔╝██║ ╚████║███████╗",
+  "╚═════╝ ╚═╝  ╚═══╝╚══════╝",
+  "[ A product of Reseune Labs ]",
+]
+
+const logo: LogoShape = { left: LOGO_LEFT, right: LOGO_RIGHT }
 
 type ShimmerConfig = {
   period: number
@@ -553,14 +574,8 @@ function buildIdleState(t: number, ctx: LogoContext): IdleState {
 export function Logo(props: { shape?: LogoShape; ink?: RGBA; idle?: boolean } = {}) {
   const ctx = props.shape ? build(props.shape) : DEFAULT
   const { theme } = useTheme()
-  const [rings, setRings] = createSignal<Ring[]>([])
-  const [hold, setHold] = createSignal<Hold>()
-  const [release, setRelease] = createSignal<Release>()
-  const [glow, setGlow] = createSignal<Glow>()
   const [now, setNow] = createSignal(0)
-  let box: BoxRenderable | undefined
   let timer: ReturnType<typeof setInterval> | undefined
-  let hum = false
 
   const stop = () => {
     if (!timer) return
@@ -571,26 +586,6 @@ export function Logo(props: { shape?: LogoShape; ink?: RGBA; idle?: boolean } = 
   const tick = () => {
     const t = performance.now()
     setNow(t)
-    const item = hold()
-    if (item && !hum && t - item.at >= HOLD) {
-      hum = true
-      Sound.start()
-    }
-    if (item && t - item.at >= CHARGE) {
-      burst(item.x, item.y)
-    }
-    let live = false
-    setRings((list) => {
-      const next = list.filter((item) => t - item.at < LIFE)
-      live = next.length > 0
-      return next
-    })
-    const flash = glow()
-    if (flash && t - flash.at >= GLOW_OUT) {
-      setGlow(undefined)
-    }
-    if (!live) setRelease(undefined)
-    if (live || hold() || release() || glow()) return
     if (props.idle) return
     stop()
   }
@@ -602,8 +597,6 @@ export function Logo(props: { shape?: LogoShape; ink?: RGBA; idle?: boolean } = 
 
   onCleanup(() => {
     stop()
-    hum = false
-    Sound.dispose()
   })
 
   onMount(() => {
@@ -612,75 +605,23 @@ export function Logo(props: { shape?: LogoShape; ink?: RGBA; idle?: boolean } = 
     start()
   })
 
-  const hit = (x: number, y: number) => {
-    const char = ctx.FULL[y]?.[x]
-    return char !== undefined && char !== " "
-  }
+  const frame = createMemo(() => ({
+    t: now(),
+    list: [],
+    hold: undefined,
+    release: undefined,
+    glow: undefined,
+    spark: 0,
+  }))
 
-  const press = (x: number, y: number, t: number) => {
-    const last = hold()
-    if (last) burst(last.x, last.y)
-    setNow(t)
-    if (!last) setRelease(undefined)
-    setHold({ x, y, at: t, glyph: select(x, y, ctx) })
-    hum = false
-    start()
-  }
-
-  const burst = (x: number, y: number) => {
-    const item = hold()
-    if (!item) return
-    hum = false
-    const t = performance.now()
-    const age = t - item.at
-    const rise = ramp(age, HOLD, CHARGE)
-    const level = push(rise)
-    setHold(undefined)
-    setRelease({ x, y, at: t, glyph: item.glyph, level, rise })
-    if (item.glyph !== undefined) {
-      setGlow({ glyph: item.glyph, at: t, force: lerp(0.18, 1.5, rise * level) })
-    }
-    setRings((list) => [
-      ...list,
-      {
-        x: x + 0.5,
-        y: y * 2 + 1,
-        at: t,
-        force: lerp(0.82, 2.55, level),
-        kick: lerp(0.32, 0.32 + KICK, level),
-      },
-    ])
-    setNow(t)
-    start()
-    Sound.pulse(lerp(0.8, 1, level))
-  }
-
-  const frame = createMemo(() => {
-    const t = now()
-    const item = hold()
-    return {
-      t,
-      list: rings(),
-      hold: item,
-      release: release(),
-      glow: glow(),
-      spark: item ? noise(item.x, item.y, t) : 0,
-    }
-  })
-
-  const dusk = createMemo(() => {
-    const base = frame()
-    const t = base.t - LAG
-    const item = base.hold
-    return {
-      t,
-      list: base.list,
-      hold: item,
-      release: base.release,
-      glow: base.glow,
-      spark: item ? noise(item.x, item.y, t) : 0,
-    }
-  })
+  const dusk = createMemo(() => ({
+    t: now(),
+    list: [],
+    hold: undefined,
+    release: undefined,
+    glow: undefined,
+    spark: 0,
+  }))
 
   const idleState = createMemo(() => (props.idle ? buildIdleState(frame().t, ctx) : undefined))
 
@@ -827,39 +768,8 @@ export function Logo(props: { shape?: LogoShape; ink?: RGBA; idle?: boolean } = 
     })
   }
 
-  const mouse = (evt: MouseEvent) => {
-    if (!box) return
-    if ((evt.type === "down" || evt.type === "drag") && evt.button === MouseButton.LEFT) {
-      const x = evt.x - box.x
-      const y = evt.y - box.y
-      if (!hit(x, y)) return
-      if (evt.type === "drag" && hold()) return
-      evt.preventDefault()
-      evt.stopPropagation()
-      const t = performance.now()
-      press(x, y, t)
-      return
-    }
-
-    if (!hold()) return
-    if (evt.type === "up") {
-      const item = hold()
-      if (!item) return
-      burst(item.x, item.y)
-    }
-  }
-
   return (
-    <box ref={(item: BoxRenderable) => (box = item)}>
-      <box
-        position="absolute"
-        top={0}
-        left={0}
-        width={ctx.FULL[0]?.length ?? 0}
-        height={ctx.FULL.length}
-        zIndex={1}
-        onMouse={mouse}
-      />
+    <box>
       <For each={ctx.shape.left}>
         {(line, index) => {
           const isTagline = index() === ctx.shape.left.length - 1

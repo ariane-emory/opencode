@@ -103,6 +103,7 @@ async function loadSingleCommand(filePath: string): Promise<Info | null> {
     source: "command" as const,
     template,
     subtask: md.data?.subtask,
+    ignored: md.data?.ignored,
     hints: hints(template),
   }
 }

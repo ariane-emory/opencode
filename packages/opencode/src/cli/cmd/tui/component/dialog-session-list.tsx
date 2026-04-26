@@ -182,11 +182,11 @@ export function DialogSessionList() {
       return showDate ? Locale.shortDateTime(session.time.updated) : Locale.time(session.time.updated)
     }
 
-    const item = (session: (typeof all)[number], category: string, showDate: boolean) => {
+    const item = (session: (typeof all)[number], category: string, showDate: boolean, displayTitle?: string) => {
       const deleting = toDelete() === session.id
       const status = sync.data.session_status?.[session.id]
       return {
-        title: deleting ? `Press ${keybind.print("session_delete")} again to confirm` : session.title,
+        title: deleting ? `Press ${keybind.print("session_delete")} again to confirm` : (displayTitle ?? session.title),
         bg: deleting ? theme.error : undefined,
         value: session.id,
         category,
@@ -201,7 +201,7 @@ export function DialogSessionList() {
         const date = new Date(x.time.updated)
         const parsed = parseSessionTitle(x.title)
         const category = parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString())
-        return item(x, category, false)
+        return item(x, category, false, parsed.displayTitle)
       }),
     ]
   })

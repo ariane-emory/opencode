@@ -6,7 +6,7 @@ import { useConnected } from "../../component/use-connected"
 import { createStore } from "solid-js/store"
 import { useRoute } from "../../context/route"
 import type { AssistantMessage } from "@opencode-ai/sdk/v2"
-import { Locale } from "@/util"
+import { Locale } from "@/util/locale"
 
 export function Footer() {
   const { theme } = useTheme()

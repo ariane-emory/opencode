@@ -1417,7 +1417,7 @@ test("validates experimental messages_limit schema - rejects invalid values", as
       )
     },
   })
-  await Instance.provide({
+  await WithInstance.provide({
     directory: tmp.path,
     fn: async () => {
       await expect(load()).rejects.toThrow()

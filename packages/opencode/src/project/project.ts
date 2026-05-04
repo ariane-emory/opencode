@@ -1,50 +1,62 @@
 import z from "zod"
-import { and, Database, eq } from "../storage"
+import { and } from "drizzle-orm"
+import { Database } from "@/storage/db"
+import { eq } from "drizzle-orm"
 import { ProjectTable } from "./project.sql"
 import { SessionTable } from "../session/session.sql"
-import { Log } from "../util"
-import { Flag } from "@/flag/flag"
+import * as Log from "@opencode-ai/core/util/log"
+import { Flag } from "@opencode-ai/core/flag/flag"
 import { BusEvent } from "@/bus/bus-event"
 import { GlobalBus } from "@/bus/global"
 import { which } from "../util/which"
 import { ProjectID } from "./schema"
-import { Effect, Layer, Path, Scope, Context, Stream } from "effect"
+import { Bus } from "@/bus"
+import { Command } from "@/command"
+import { InstanceState } from "@/effect/instance-state"
+import { Effect, Layer, Path, Scope, Context, Stream, Types, Schema } from "effect"
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process"
 import { NodePath } from "@effect/platform-node"
-import { AppFileSystem } from "@opencode-ai/shared/filesystem"
-import * as CrossSpawnSpawner from "@/effect/cross-spawn-spawner"
+import { AppFileSystem } from "@opencode-ai/core/filesystem"
+import { CrossSpawnSpawner } from "@opencode-ai/core/cross-spawn-spawner"
+import { zod } from "@/util/effect-zod"
+import { NonNegativeInt, optionalOmitUndefined, withStatics } from "@/util/schema"
+import { serviceUse } from "@/effect/service-use"
 
 const log = Log.create({ service: "project" })
 
-export const Info = z
-  .object({
-    id: ProjectID.zod,
-    worktree: z.string(),
-    vcs: z.literal("git").optional(),
-    name: z.string().optional(),
-    icon: z
-      .object({
-        url: z.string().optional(),
-        override: z.string().optional(),
-        color: z.string().optional(),
-      })
-      .optional(),
-    commands: z
-      .object({
-        start: z.string().optional().describe("Startup script to run when creating a new workspace (worktree)"),
-      })
-      .optional(),
-    time: z.object({
-      created: z.number(),
-      updated: z.number(),
-      initialized: z.number().optional(),
-    }),
-    sandboxes: z.array(z.string()),
-  })
-  .meta({
-    ref: "Project",
-  })
-export type Info = z.infer<typeof Info>
+const ProjectVcs = Schema.Literal("git")
+
+const ProjectIcon = Schema.Struct({
+  url: optionalOmitUndefined(Schema.String),
+  override: optionalOmitUndefined(Schema.String),
+  color: optionalOmitUndefined(Schema.String),
+})
+
+const ProjectCommands = Schema.Struct({
+  start: optionalOmitUndefined(
+    Schema.String.annotate({ description: "Startup script to run when creating a new workspace (worktree)" }),
+  ),
+})
+
+const ProjectTime = Schema.Struct({
+  created: NonNegativeInt,
+  updated: NonNegativeInt,
+  initialized: optionalOmitUndefined(NonNegativeInt),
+})
+
+export const Info = Schema.Struct({
+  id: ProjectID,
+  worktree: Schema.String,
+  vcs: optionalOmitUndefined(ProjectVcs),
+  name: optionalOmitUndefined(Schema.String),
+  icon: optionalOmitUndefined(ProjectIcon),
+  commands: optionalOmitUndefined(ProjectCommands),
+  time: ProjectTime,
+  sandboxes: Schema.Array(Schema.String),
+})
+  .annotate({ identifier: "Project" })
+  .pipe(withStatics((s) => ({ zod: zod(s) })))
+export type Info = Types.DeepMutable<Schema.Schema.Type<typeof Info>>
 
 export const Event = {
   Updated: BusEvent.define("project.updated", Info),
@@ -54,11 +66,17 @@ type Row = typeof ProjectTable.$inferSelect
 
 export function fromRow(row: Row): Info {
   const icon =
-    row.icon_url || row.icon_color ? { url: row.icon_url ?? undefined, color: row.icon_color ?? undefined } : undefined
+    row.icon_url || row.icon_url_override || row.icon_color
+      ? {
+          url: row.icon_url ?? undefined,
+          override: row.icon_url_override ?? undefined,
+          color: row.icon_color ?? undefined,
+        }
+      : undefined
   return {
     id: row.id,
     worktree: row.worktree,
-    vcs: row.vcs ? Info.shape.vcs.parse(row.vcs) : undefined,
+    vcs: row.vcs ? Schema.decodeUnknownSync(ProjectVcs)(row.vcs) : undefined,
     name: row.name ?? undefined,
     icon,
     time: {
@@ -74,16 +92,31 @@ export function fromRow(row: Row): Info {
 export const UpdateInput = z.object({
   projectID: ProjectID.zod,
   name: z.string().optional(),
-  icon: Info.shape.icon.optional(),
-  commands: Info.shape.commands.optional(),
+  icon: zod(ProjectIcon).optional(),
+  commands: zod(ProjectCommands).optional(),
 })
 export type UpdateInput = z.infer<typeof UpdateInput>
+
+export const UpdatePayload = Schema.Struct({
+  name: Schema.optional(Schema.String),
+  icon: Schema.optional(ProjectIcon),
+  commands: Schema.optional(ProjectCommands),
+})
+  .annotate({ identifier: "ProjectUpdateInput" })
+  .pipe(withStatics((s) => ({ zod: zod(s) })))
+export type UpdatePayload = Types.DeepMutable<Schema.Schema.Type<typeof UpdatePayload>>
 
 // ---------------------------------------------------------------------------
 // Effect service
 // ---------------------------------------------------------------------------
 
 export interface Interface {
+  /**
+   * Per-instance setup. Subscribes to the `/init` slash command for the
+   * current instance and stamps the project's initialized timestamp when it
+   * fires. Subscription lifetime is tied to the per-instance state scope.
+   */
+  readonly init: () => Effect.Effect<void>
   readonly fromDirectory: (directory: string) => Effect.Effect<{ project: Info; sandbox: string }>
   readonly discover: (input: Info) => Effect.Effect<void>
   readonly list: () => Effect.Effect<Info[]>
@@ -103,13 +136,14 @@ type GitResult = { code: number; text: string; stderr: string }
 export const layer: Layer.Layer<
   Service,
   never,
-  AppFileSystem.Service | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+  AppFileSystem.Service | Path.Path | ChildProcessSpawner.ChildProcessSpawner | Bus.Service
 > = Layer.effect(
   Service,
   Effect.gen(function* () {
     const fs = yield* AppFileSystem.Service
     const pathSvc = yield* Path.Path
     const spawner = yield* ChildProcessSpawner.ChildProcessSpawner
+    const bus = yield* Bus.Service
 
     const git = Effect.fnUntraced(
       function* (args: string[], opts?: { cwd?: string }) {
@@ -139,7 +173,7 @@ export const layer: Layer.Layer<
         }),
       )
 
-    const fakeVcs = Info.shape.vcs.parse(Flag.OPENCODE_FAKE_VCS)
+    const fakeVcs = Schema.decodeUnknownSync(Schema.optional(ProjectVcs))(Flag.OPENCODE_FAKE_VCS)
 
     const resolveGitPath = (cwd: string, name: string) => {
       if (!name) return cwd
@@ -155,7 +189,7 @@ export const layer: Layer.Layer<
     const readCachedProjectId = Effect.fnUntraced(function* (dir: string) {
       return yield* fs.readFileString(pathSvc.join(dir, "opencode")).pipe(
         Effect.map((x) => x.trim()),
-        Effect.map(ProjectID.make),
+        Effect.map((x) => ProjectID.make(x)),
         Effect.catch(() => Effect.void),
       )
     })
@@ -201,13 +235,13 @@ export const layer: Layer.Layer<
             vcs: fakeVcs,
           }
         }
-        const worktree = (() => {
-          const common = resolveGitPath(sandbox, commonDir.text.trim())
-          return common === sandbox ? sandbox : pathSvc.dirname(common)
-        })()
+        const common = resolveGitPath(sandbox, commonDir.text.trim())
+        const bareCheck = yield* git(["config", "--bool", "core.bare"], { cwd: sandbox })
+        const isBareRepo = bareCheck.code === 0 && bareCheck.text.trim() === "true"
+        const worktree = common === sandbox ? sandbox : isBareRepo ? common : pathSvc.dirname(common)
 
         if (id == null) {
-          id = yield* readCachedProjectId(pathSvc.join(worktree, ".git"))
+          id = yield* readCachedProjectId(common)
         }
 
         if (!id) {
@@ -220,7 +254,7 @@ export const layer: Layer.Layer<
 
           id = roots[0] ? ProjectID.make(roots[0]) : undefined
           if (id) {
-            yield* fs.writeFileString(pathSvc.join(worktree, ".git", "opencode"), id).pipe(Effect.ignore)
+            yield* fs.writeFileString(pathSvc.join(common, "opencode"), id).pipe(Effect.ignore)
           }
         }
 
@@ -283,6 +317,7 @@ export const layer: Layer.Layer<
             vcs: result.vcs ?? null,
             name: result.name,
             icon_url: result.icon?.url,
+            icon_url_override: result.icon?.override,
             icon_color: result.icon?.color,
             time_created: result.time.created,
             time_updated: result.time.updated,
@@ -297,6 +332,7 @@ export const layer: Layer.Layer<
               vcs: result.vcs ?? null,
               name: result.name,
               icon_url: result.icon?.url,
+              icon_url_override: result.icon?.override,
               icon_color: result.icon?.color,
               time_updated: result.time.updated,
               time_initialized: result.time.initialized,
@@ -359,6 +395,7 @@ export const layer: Layer.Layer<
           .set({
             name: input.name,
             icon_url: input.icon?.url,
+            icon_url_override: input.icon?.override,
             icon_color: input.icon?.color,
             commands: input.commands,
             time_updated: Date.now(),
@@ -388,6 +425,21 @@ export const layer: Layer.Layer<
       yield* db((d) =>
         d.update(ProjectTable).set({ time_initialized: Date.now() }).where(eq(ProjectTable.id, id)).run(),
       )
+    })
+
+    const initState = yield* InstanceState.make(
+      Effect.fn("Project.initState")(function* (ctx) {
+        yield* bus.subscribe(Command.Event.Executed).pipe(
+          Stream.runForEach((payload) =>
+            payload.properties.name === Command.Default.INIT ? setInitialized(ctx.project.id) : Effect.void,
+          ),
+          Effect.forkScoped,
+        )
+      }),
+    )
+
+    const init = Effect.fn("Project.init")(function* () {
+      yield* InstanceState.get(initState)
     })
 
     const sandboxes = Effect.fn("Project.sandboxes")(function* (id: ProjectID) {
@@ -439,6 +491,7 @@ export const layer: Layer.Layer<
     })
 
     return Service.of({
+      init,
       fromDirectory,
       discover,
       list,
@@ -454,10 +507,13 @@ export const layer: Layer.Layer<
 )
 
 export const defaultLayer = layer.pipe(
+  Layer.provide(Bus.defaultLayer),
   Layer.provide(CrossSpawnSpawner.defaultLayer),
   Layer.provide(AppFileSystem.defaultLayer),
   Layer.provide(NodePath.layer),
 )
+
+export const use = serviceUse(Service)
 
 export function list() {
   return Database.use((db) =>
@@ -480,3 +536,5 @@ export function setInitialized(id: ProjectID) {
     db.update(ProjectTable).set({ time_initialized: Date.now() }).where(eq(ProjectTable.id, id)).run(),
   )
 }
+
+export * as Project from "./project"

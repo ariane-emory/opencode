@@ -1,33 +1,36 @@
-import { BoxRenderable, TextareaRenderable, MouseEvent, PasteEvent, decodePasteBytes } from "@opentui/core"
+import { BoxRenderable, RGBA, TextareaRenderable, MouseEvent, PasteEvent, decodePasteBytes } from "@opentui/core"
 import { createEffect, createMemo, onMount, createSignal, onCleanup, on, Show, Switch, Match } from "solid-js"
 import "opentui-spinner/solid"
 import path from "path"
 import { fileURLToPath } from "url"
-import { Filesystem } from "@/util"
+import { Filesystem } from "@/util/filesystem"
 import { useLocal } from "@tui/context/local"
-import { useTheme } from "@tui/context/theme"
+import { tint, useTheme } from "@tui/context/theme"
 import { EmptyBorder, SplitBorder } from "@tui/component/border"
 import { useSDK } from "@tui/context/sdk"
 import { useRoute } from "@tui/context/route"
+import { useProject } from "@tui/context/project"
 import { useSync } from "@tui/context/sync"
 import { useEvent } from "@tui/context/event"
+import { editorSelectionKey, useEditorContext, type EditorSelection } from "@tui/context/editor"
 import { MessageID, PartID } from "@/session/schema"
-import { createStore, produce } from "solid-js/store"
+import { createStore, produce, unwrap } from "solid-js/store"
 import { useKeybind } from "@tui/context/keybind"
 import { usePromptHistory, type PromptInfo } from "./history"
+import { computePromptTraits } from "./traits"
 import { assign } from "./part"
 import { usePromptStash } from "./stash"
 import { DialogStash } from "../dialog-stash"
 import { type AutocompleteRef, Autocomplete } from "./autocomplete"
 import { useCommandDialog } from "../dialog-command"
-import { useRenderer, type JSX } from "@opentui/solid"
+import { useRenderer, useTerminalDimensions, type JSX } from "@opentui/solid"
 import * as Editor from "@tui/util/editor"
 import { useExit } from "../../context/exit"
 import * as Clipboard from "../../util/clipboard"
 import type { AssistantMessage, FilePart, UserMessage } from "@opencode-ai/sdk/v2"
 import { TuiEvent } from "../../event"
 import { iife } from "@/util/iife"
-import { Locale } from "@/util"
+import { Locale } from "@/util/locale"
 import { formatDuration } from "@/util/format"
 import { createColors, createFrames } from "../../ui/spinner.ts"
 import { useDialog } from "@tui/ui/dialog"
@@ -35,8 +38,11 @@ import { DialogProvider as DialogProviderConnect } from "../dialog-provider"
 import { DialogAlert } from "../../ui/dialog-alert"
 import { useToast } from "../../ui/toast"
 import { useKV } from "../../context/kv"
+import { createFadeIn } from "../../util/signal"
 import { useTextareaKeybindings } from "../textarea-keybindings"
 import { DialogSkill } from "../dialog-skill"
+import { DialogWorkspaceCreate, restoreWorkspaceSession } from "../dialog-workspace-create"
+import { DialogWorkspaceUnavailable } from "../dialog-workspace-unavailable"
 import { useArgs } from "@tui/context/args"
 
 export type PromptProps = {
@@ -75,6 +81,38 @@ function randomIndex(count: number) {
   return Math.floor(Math.random() * count)
 }
 
+function fadeColor(color: RGBA, alpha: number) {
+  return RGBA.fromValues(color.r, color.g, color.b, color.a * alpha)
+}
+
+function hasEditorRangeSelection(selection: EditorSelection["ranges"][number]) {
+  return (
+    selection.selection.start.line !== selection.selection.end.line ||
+    selection.selection.start.character !== selection.selection.end.character
+  )
+}
+
+function getEditorRangeLabel(selection: EditorSelection["ranges"][number]) {
+  if (!hasEditorRangeSelection(selection)) return
+  if (selection.selection.start.line === selection.selection.end.line) return `#${selection.selection.start.line}`
+  return `#${selection.selection.start.line}-${selection.selection.end.line}`
+}
+
+function formatEditorContext(selection: EditorSelection) {
+  const selected = selection.ranges.filter(hasEditorRangeSelection)
+  if (selected.length === 0)
+    return `<system-reminder>Note: The user opened the file "${selection.filePath}". This may or may not be relevant to the current task.</system-reminder>\n`
+
+  const ranges = selected.map((range, index) => {
+    const prefix = selected.length > 1 ? `Selection ${index + 1}: ` : ""
+    return `Note: The user selected ${prefix}${getEditorRangeLabel(range)} from "${selection.filePath}". \`\`\`${range.text}\`\`\`\n\n`
+  })
+
+  return `<system-reminder>${ranges.join("\n")} This may or may not be relevant to the current task.</system-reminder>\n`
+}
+
+let stashed: { prompt: PromptInfo; cursor: number } | undefined
+
 export function Prompt(props: PromptProps) {
   let input: TextareaRenderable
   let anchor: BoxRenderable
@@ -84,7 +122,9 @@ export function Prompt(props: PromptProps) {
   const local = useLocal()
   const args = useArgs()
   const sdk = useSDK()
+  const editor = useEditorContext()
   const route = useRoute()
+  const project = useProject()
   const sync = useSync()
   const dialog = useDialog()
   const toast = useToast()
@@ -93,10 +133,45 @@ export function Prompt(props: PromptProps) {
   const stash = usePromptStash()
   const command = useCommandDialog()
   const renderer = useRenderer()
+  const dimensions = useTerminalDimensions()
   const { theme, syntax } = useTheme()
   const kv = useKV()
+  const animationsEnabled = createMemo(() => kv.get("animations_enabled", true))
   const list = createMemo(() => props.placeholders?.normal ?? [])
   const shell = createMemo(() => props.placeholders?.shell ?? [])
+  const fileContextEnabled = createMemo(() => kv.get("file_context_enabled", true))
+  const [dismissedEditorSelectionKey, setDismissedEditorSelectionKey] = createSignal<string>()
+  const editorContext = createMemo(() => {
+    const selection = fileContextEnabled() ? editor.selection() : undefined
+    if (!selection) return
+    return editorSelectionKey(selection) === dismissedEditorSelectionKey() ? undefined : selection
+  })
+  const editorPath = createMemo(() => editorContext()?.filePath)
+  const editorSelectionLabel = createMemo(() => {
+    const ranges = editorContext()?.ranges
+    if (!ranges) return
+    const first = ranges.find(hasEditorRangeSelection) ?? ranges[0]
+    if (!first) return
+    return [getEditorRangeLabel(first), ranges.length > 1 ? `+${ranges.length - 1}` : undefined]
+      .filter(Boolean)
+      .join(" ")
+  })
+  const editorFileLabel = createMemo(() => {
+    const value = editorPath()
+    if (!value) return
+    const filename = path.basename(value)
+    const file = /^index\.[^./]+$/.test(filename)
+      ? [path.basename(path.dirname(value)), filename].filter(Boolean).join("/")
+      : filename
+    return `${file.split(path.sep).join("/")}${editorSelectionLabel() ?? ""}`
+  })
+  const editorFileLabelDisplay = createMemo(() => {
+    const file = editorFileLabel()
+    if (!file) return
+    return Locale.truncateMiddle(file, Math.max(12, Math.min(48, Math.floor(dimensions().width / 3))))
+  })
+  const [editorContextHover, setEditorContextHover] = createSignal(false)
+  let lastSubmittedEditorSelectionKey: string | undefined
   const [auto, setAuto] = createSignal<AutocompleteRef>()
   const currentProviderLabel = createMemo(() => local.model.parsed().provider)
   const hasRightContent = createMemo(() => Boolean(props.right))
@@ -110,6 +185,11 @@ export function Prompt(props: PromptProps) {
     if (sync.data.provider.length === 0) {
       dialog.replace(() => <DialogProviderConnect />)
     }
+  }
+
+  function dismissEditorContext() {
+    setDismissedEditorSelectionKey(editorSelectionKey(editorContext()))
+    editor.clearSelection()
   }
 
   const textareaKeybindings = useTextareaKeybindings()
@@ -233,9 +313,21 @@ export function Prompt(props: PromptProps) {
         keybind: "input_submit",
         category: "Prompt",
         hidden: true,
-        onSelect: (dialog) => {
+        onSelect: async (dialog) => {
           if (!input.focused) return
-          void submit()
+          const handled = await submit()
+          if (!handled) return
+
+          dialog.clear()
+        },
+      },
+      {
+        title: "Remove editor context",
+        value: "prompt.editor_context.clear",
+        category: "Prompt",
+        enabled: Boolean(editorContext()),
+        onSelect: (dialog) => {
+          dismissEditorContext()
           dialog.clear()
         },
       },
@@ -433,29 +525,44 @@ export function Prompt(props: PromptProps) {
     },
   }
 
+  onMount(() => {
+    const saved = stashed
+    stashed = undefined
+    if (store.prompt.input) return
+    if (saved && saved.prompt.input) {
+      input.setText(saved.prompt.input)
+      setStore("prompt", saved.prompt)
+      restoreExtmarksFromParts(saved.prompt.parts)
+      input.cursorOffset = saved.cursor
+    }
+  })
+
   onCleanup(() => {
+    if (store.prompt.input) {
+      stashed = { prompt: unwrap(store.prompt), cursor: input.cursorOffset }
+    }
     props.ref?.(undefined)
   })
 
   createEffect(() => {
     if (!input || input.isDestroyed) return
     if (props.visible === false || dialog.stack.length > 0) {
-      input.blur()
+      if (input.focused) input.blur()
       return
     }
 
     // Slot/plugin updates can remount the background prompt while a dialog is open.
     // Keep focus with the dialog and let the prompt reclaim it after the dialog closes.
-    input.focus()
+    if (!input.focused) input.focus()
   })
 
   createEffect(() => {
     if (!input || input.isDestroyed) return
-    input.traits = {
-      capture: auto()?.visible ? ["escape", "navigate", "submit", "tab"] : undefined,
-      suspend: !!props.disabled || store.mode === "shell",
-      status: store.mode === "shell" ? "SHELL" : undefined,
-    }
+    input.traits = computePromptTraits({
+      mode: store.mode,
+      disabled: !!props.disabled,
+      autocompleteVisible: !!auto()?.visible,
+    })
   })
 
   function restoreExtmarksFromParts(parts: PromptInfo["parts"]) {
@@ -599,25 +706,62 @@ export function Prompt(props: PromptProps) {
       setStore("prompt", "input", input.plainText)
       syncExtmarksWithPromptParts()
     }
-    if (props.disabled) return
-    if (autocomplete?.visible) return
-    if (!store.prompt.input) return
+    if (props.disabled) return false
+    if (autocomplete?.visible) return false
+    if (!store.prompt.input) return false
     const agent = local.agent.current()
-    if (!agent) return
+    if (!agent) return false
     const trimmed = store.prompt.input.trim()
     if (trimmed === "exit" || trimmed === "quit" || trimmed === ":q") {
       void exit()
-      return
+      return true
     }
     const selectedModel = local.model.current()
     if (!selectedModel) {
       void promptModelWarning()
-      return
+      return false
     }
 
+    const workspaceSession = props.sessionID ? sync.session.get(props.sessionID) : undefined
+    const workspaceID = workspaceSession?.workspaceID
+    const workspaceStatus = workspaceID ? (project.workspace.status(workspaceID) ?? "error") : undefined
+    if (props.sessionID && workspaceID && workspaceStatus !== "connected") {
+      dialog.replace(() => (
+        <DialogWorkspaceUnavailable
+          onRestore={() => {
+            dialog.replace(() => (
+              <DialogWorkspaceCreate
+                onSelect={(nextWorkspaceID) =>
+                  restoreWorkspaceSession({
+                    dialog,
+                    sdk,
+                    sync,
+                    project,
+                    toast,
+                    workspaceID: nextWorkspaceID,
+                    sessionID: props.sessionID!,
+                  })
+                }
+              />
+            ))
+          }}
+        />
+      ))
+      return false
+    }
+
+    const variant = local.model.variant.current()
     let sessionID = props.sessionID
     if (sessionID == null) {
-      const res = await sdk.client.session.create({ workspace: props.workspaceID })
+      const res = await sdk.client.session.create({
+        workspace: props.workspaceID,
+        agent: agent.name,
+        model: {
+          providerID: selectedModel.providerID,
+          id: selectedModel.modelID,
+          variant,
+        },
+      })
 
       if (res.error) {
         console.log("Creating a session failed:", res.error)
@@ -627,7 +771,7 @@ export function Prompt(props: PromptProps) {
           variant: "error",
         })
 
-        return
+        return true
       }
 
       sessionID = res.data.id
@@ -657,7 +801,25 @@ export function Prompt(props: PromptProps) {
 
     // Capture mode before it gets reset
     const currentMode = store.mode
-    const variant = local.model.variant.current()
+    const editorSelection = editorContext()
+    const currentEditorSelectionKey = editorSelectionKey(editorSelection)
+    const editorParts =
+      editorSelection && currentEditorSelectionKey !== lastSubmittedEditorSelectionKey
+        ? [
+            {
+              id: PartID.ascending(),
+              type: "text" as const,
+              text: formatEditorContext(editorSelection),
+              synthetic: true,
+              metadata: {
+                kind: "editor_context",
+                source: editorSelection.source ?? "editor",
+                filePath: editorSelection.filePath,
+                ranges: editorSelection.ranges,
+              },
+            },
+          ]
+        : []
 
     if (store.mode === "shell") {
       void sdk.client.session.shell({
@@ -710,6 +872,7 @@ export function Prompt(props: PromptProps) {
           model: selectedModel,
           variant,
           parts: [
+            ...editorParts,
             {
               id: PartID.ascending(),
               type: "text",
@@ -719,6 +882,7 @@ export function Prompt(props: PromptProps) {
           ],
         })
         .catch(() => {})
+      lastSubmittedEditorSelectionKey = currentEditorSelectionKey
     }
     history.append({
       ...store.prompt,
@@ -741,6 +905,7 @@ export function Prompt(props: PromptProps) {
         })
       }, 50)
     input.clear()
+    return true
   }
   const exit = useExit()
 
@@ -841,6 +1006,14 @@ export function Prompt(props: PromptProps) {
     return !!current
   })
 
+  const agentMetaAlpha = createFadeIn(() => !!local.agent.current(), animationsEnabled)
+  const modelMetaAlpha = createFadeIn(() => !!local.agent.current() && store.mode === "normal", animationsEnabled)
+  const variantMetaAlpha = createFadeIn(
+    () => !!local.agent.current() && store.mode === "normal" && showVariant(),
+    animationsEnabled,
+  )
+  const borderHighlight = createMemo(() => tint(theme.border, highlight(), agentMetaAlpha()))
+
   const placeholderText = createMemo(() => {
     if (props.showPlaceholder === false) return undefined
     if (store.mode === "shell") {
@@ -901,7 +1074,7 @@ export function Prompt(props: PromptProps) {
       <box ref={(r) => (anchor = r)} visible={props.visible !== false}>
         <box
           border={["left"]}
-          borderColor={highlight()}
+          borderColor={borderHighlight()}
           customBorderChars={{
             ...SplitBorder.customBorderChars,
             bottomLeft: "╹",
@@ -1078,7 +1251,7 @@ export function Prompt(props: PromptProps) {
                 const lineCount = (pastedContent.match(/\n/g)?.length ?? 0) + 1
                 if (
                   (lineCount >= 3 || pastedContent.length > 150) &&
-                  !sync.data.config.experimental?.disable_paste_summary
+                  kv.get("paste_summary_enabled", !sync.data.config.experimental?.disable_paste_summary)
                 ) {
                   pasteText(pastedContent, `[Pasted ~${lineCount} lines]`)
                   return
@@ -1116,17 +1289,25 @@ export function Prompt(props: PromptProps) {
                 <Show when={local.agent.current()} fallback={<box height={1} />}>
                   {(agent) => (
                     <>
-                      <text fg={highlight()}>{store.mode === "shell" ? "Shell" : Locale.titlecase(agent().name)} </text>
+                      <text fg={fadeColor(highlight(), agentMetaAlpha())}>
+                        {store.mode === "shell" ? "Shell" : Locale.titlecase(agent().name)}
+                      </text>
                       <Show when={store.mode === "normal"}>
                         <box flexDirection="row" gap={1}>
-                          <text flexShrink={0} fg={keybind.leader ? theme.textMuted : theme.text}>
+                          <text fg={fadeColor(theme.textMuted, modelMetaAlpha())}>·</text>
+                          <text
+                            flexShrink={0}
+                            fg={fadeColor(keybind.leader ? theme.textMuted : theme.text, modelMetaAlpha())}
+                          >
                             {local.model.parsed().model}
                           </text>
-                          <text fg={theme.textMuted}>{currentProviderLabel()}</text>
+                          <text fg={fadeColor(theme.textMuted, modelMetaAlpha())}>{currentProviderLabel()}</text>
                           <Show when={showVariant()}>
-                            <text fg={theme.textMuted}>·</text>
+                            <text fg={fadeColor(theme.textMuted, variantMetaAlpha())}>·</text>
                             <text>
-                              <span style={{ fg: theme.warning, bold: true }}>{local.model.variant.current()}</span>
+                              <span style={{ fg: fadeColor(theme.warning, variantMetaAlpha()), bold: true }}>
+                                {local.model.variant.current()}
+                              </span>
                             </text>
                           </Show>
                         </box>
@@ -1146,7 +1327,7 @@ export function Prompt(props: PromptProps) {
         <box
           height={1}
           border={["left"]}
-          borderColor={highlight()}
+          borderColor={borderHighlight()}
           customBorderChars={{
             ...EmptyBorder,
             vertical: theme.backgroundElement.a !== 0 ? "╹" : " ",
@@ -1252,6 +1433,18 @@ export function Prompt(props: PromptProps) {
           </Show>
           <Show when={status().type !== "retry"}>
             <box gap={2} flexDirection="row">
+              <Show when={editorFileLabelDisplay()}>
+                {(file) => (
+                  <text
+                    fg={theme.secondary}
+                    onMouseOver={() => setEditorContextHover(true)}
+                    onMouseOut={() => setEditorContextHover(false)}
+                    onMouseUp={dismissEditorContext}
+                  >
+                    {editorContextHover() ? `x ${file()}` : file()}
+                  </text>
+                )}
+              </Show>
               <Switch>
                 <Match when={store.mode === "normal"}>
                   <Switch>

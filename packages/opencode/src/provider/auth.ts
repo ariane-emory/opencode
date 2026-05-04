@@ -1,13 +1,12 @@
 import type { AuthOAuthResult, Hooks } from "@opencode-ai/plugin"
-import { NamedError } from "@opencode-ai/shared/util/error"
 import { Auth } from "@/auth"
-import { InstanceState } from "@/effect"
+import { InstanceState } from "@/effect/instance-state"
 import { zod } from "@/util/effect-zod"
-import { withStatics } from "@/util/schema"
+import { namedSchemaError } from "@/util/named-schema-error"
+import { optionalOmitUndefined, withStatics } from "@/util/schema"
 import { Plugin } from "../plugin"
 import { ProviderID } from "./schema"
 import { Array as Arr, Effect, Layer, Record, Result, Context, Schema } from "effect"
-import z from "zod"
 
 const When = Schema.Struct({
   key: Schema.String,
@@ -19,14 +18,14 @@ const TextPrompt = Schema.Struct({
   type: Schema.Literal("text"),
   key: Schema.String,
   message: Schema.String,
-  placeholder: Schema.optional(Schema.String),
-  when: Schema.optional(When),
+  placeholder: optionalOmitUndefined(Schema.String),
+  when: optionalOmitUndefined(When),
 })
 
 const SelectOption = Schema.Struct({
   label: Schema.String,
   value: Schema.String,
-  hint: Schema.optional(Schema.String),
+  hint: optionalOmitUndefined(Schema.String),
 })
 
 const SelectPrompt = Schema.Struct({
@@ -34,7 +33,7 @@ const SelectPrompt = Schema.Struct({
   key: Schema.String,
   message: Schema.String,
   options: Schema.Array(SelectOption),
-  when: Schema.optional(When),
+  when: optionalOmitUndefined(When),
 })
 
 const Prompt = Schema.Union([TextPrompt, SelectPrompt])
@@ -42,7 +41,7 @@ const Prompt = Schema.Union([TextPrompt, SelectPrompt])
 export class Method extends Schema.Class<Method>("ProviderAuthMethod")({
   type: Schema.Literals(["oauth", "api"]),
   label: Schema.String,
-  prompts: Schema.optional(Schema.Array(Prompt)),
+  prompts: optionalOmitUndefined(Schema.Array(Prompt)),
 }) {
   static readonly zod = zod(this)
 }
@@ -58,22 +57,28 @@ export class Authorization extends Schema.Class<Authorization>("ProviderAuthAuth
   static readonly zod = zod(this)
 }
 
-export const OauthMissing = NamedError.create("ProviderAuthOauthMissing", z.object({ providerID: ProviderID.zod }))
+export const AuthorizeInput = Schema.Struct({
+  method: Schema.Finite.annotate({ description: "Auth method index" }),
+  inputs: Schema.optional(Schema.Record(Schema.String, Schema.String)).annotate({ description: "Prompt inputs" }),
+}).pipe(withStatics((s) => ({ zod: zod(s) })))
+export type AuthorizeInput = Schema.Schema.Type<typeof AuthorizeInput>
 
-export const OauthCodeMissing = NamedError.create(
-  "ProviderAuthOauthCodeMissing",
-  z.object({ providerID: ProviderID.zod }),
-)
+export const CallbackInput = Schema.Struct({
+  method: Schema.Finite.annotate({ description: "Auth method index" }),
+  code: Schema.optional(Schema.String).annotate({ description: "OAuth authorization code" }),
+}).pipe(withStatics((s) => ({ zod: zod(s) })))
+export type CallbackInput = Schema.Schema.Type<typeof CallbackInput>
 
-export const OauthCallbackFailed = NamedError.create("ProviderAuthOauthCallbackFailed", z.object({}))
+export const OauthMissing = namedSchemaError("ProviderAuthOauthMissing", { providerID: ProviderID })
 
-export const ValidationFailed = NamedError.create(
-  "ProviderAuthValidationFailed",
-  z.object({
-    field: z.string(),
-    message: z.string(),
-  }),
-)
+export const OauthCodeMissing = namedSchemaError("ProviderAuthOauthCodeMissing", { providerID: ProviderID })
+
+export const OauthCallbackFailed = namedSchemaError("ProviderAuthOauthCallbackFailed", {})
+
+export const ValidationFailed = namedSchemaError("ProviderAuthValidationFailed", {
+  field: Schema.String,
+  message: Schema.String,
+})
 
 export type Error =
   | Auth.AuthError
@@ -86,12 +91,12 @@ type Hook = NonNullable<Hooks["auth"]>
 
 export interface Interface {
   readonly methods: () => Effect.Effect<Methods>
-  readonly authorize: (input: {
-    providerID: ProviderID
-    method: number
-    inputs?: Record<string, string>
-  }) => Effect.Effect<Authorization | undefined, Error>
-  readonly callback: (input: { providerID: ProviderID; method: number; code?: string }) => Effect.Effect<void, Error>
+  readonly authorize: (
+    input: {
+      providerID: ProviderID
+    } & AuthorizeInput,
+  ) => Effect.Effect<Authorization | undefined, Error>
+  readonly callback: (input: { providerID: ProviderID } & CallbackInput) => Effect.Effect<void, Error>
 }
 
 interface State {
@@ -130,34 +135,34 @@ export const layer: Layer.Layer<Service, never, Auth.Service | Plugin.Service> =
           item.methods.map((method) => ({
             type: method.type,
             label: method.label,
-            prompts: method.prompts?.map((prompt) => {
-              if (prompt.type === "select") {
+            ...(method.prompts && {
+              prompts: method.prompts.map((prompt) => {
+                if (prompt.type === "select") {
+                  return {
+                    type: "select" as const,
+                    key: prompt.key,
+                    message: prompt.message,
+                    options: prompt.options,
+                    ...(prompt.when && { when: prompt.when }),
+                  }
+                }
                 return {
-                  type: "select" as const,
+                  type: "text" as const,
                   key: prompt.key,
                   message: prompt.message,
-                  options: prompt.options,
-                  when: prompt.when,
+                  ...(prompt.placeholder && { placeholder: prompt.placeholder }),
+                  ...(prompt.when && { when: prompt.when }),
                 }
-              }
-              return {
-                type: "text" as const,
-                key: prompt.key,
-                message: prompt.message,
-                placeholder: prompt.placeholder,
-                when: prompt.when,
-              }
+              }),
             }),
           })),
         ),
       )
     })
 
-    const authorize = Effect.fn("ProviderAuth.authorize")(function* (input: {
-      providerID: ProviderID
-      method: number
-      inputs?: Record<string, string>
-    }) {
+    const authorize = Effect.fn("ProviderAuth.authorize")(function* (
+      input: { providerID: ProviderID } & AuthorizeInput,
+    ) {
       const { hooks, pending } = yield* InstanceState.get(state)
       const method = hooks[input.providerID].methods[input.method]
       if (method.type !== "oauth") return
@@ -180,11 +185,7 @@ export const layer: Layer.Layer<Service, never, Auth.Service | Plugin.Service> =
       }
     })
 
-    const callback = Effect.fn("ProviderAuth.callback")(function* (input: {
-      providerID: ProviderID
-      method: number
-      code?: string
-    }) {
+    const callback = Effect.fn("ProviderAuth.callback")(function* (input: { providerID: ProviderID } & CallbackInput) {
       const pending = (yield* InstanceState.get(state)).pending
       const match = pending.get(input.providerID)
       if (!match) return yield* Effect.fail(new OauthMissing({ providerID: input.providerID }))
@@ -223,3 +224,5 @@ export const layer: Layer.Layer<Service, never, Auth.Service | Plugin.Service> =
 export const defaultLayer = Layer.suspend(() =>
   layer.pipe(Layer.provide(Auth.defaultLayer), Layer.provide(Plugin.defaultLayer)),
 )
+
+export * as ProviderAuth from "./auth"

@@ -1,8 +1,9 @@
-import z from "zod"
-import { Effect } from "effect"
+import { Effect, Schema } from "effect"
 import * as Tool from "./tool"
-import { Session } from "../session"
+import { Session } from "@/session/session"
 import DESCRIPTION from "./session-title.txt"
+
+const Parameters = Schema.Struct({})
 
 export const GetCurrentSessionTitleTool = Tool.define(
   "get_current_session_title",
@@ -10,7 +11,7 @@ export const GetCurrentSessionTitleTool = Tool.define(
     const session = yield* Session.Service
     return {
       description: DESCRIPTION,
-      parameters: z.object({}),
+      parameters: Parameters,
       execute: Effect.fn("GetCurrentSessionTitleTool.execute")(function* (_params, ctx) {
         const info = yield* session.get(ctx.sessionID)
         return {

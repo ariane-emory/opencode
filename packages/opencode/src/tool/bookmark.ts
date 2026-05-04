@@ -1,7 +1,10 @@
-import z from "zod"
-import { Effect } from "effect"
+import { Effect, Schema } from "effect"
 import * as Tool from "./tool"
-import { Session } from "../session"
+import { Session } from "@/session/session"
+
+const Parameters = Schema.Struct({
+  _confirm: Schema.String.annotate({ description: "Enter 'yes' to proceed" }),
+})
 
 const DESCRIPTION = `You MUST always use this tool if asked to bookmark the current session.
 
@@ -15,30 +18,32 @@ Usage notes:
 
 export const BookmarkCurrentSessionTool = Tool.define(
   "bookmark_current_session",
-  Effect.succeed({
-    description: DESCRIPTION,
-    parameters: z.object({
-      _confirm: z.string().describe("Enter 'yes' to proceed"),
-    }),
-    execute: (_params, ctx) =>
-      Effect.gen(function* () {
-        const session = yield* Effect.promise(() => Session.get(ctx.sessionID))
+  Effect.gen(function* () {
+    const svc = yield* Session.Service
 
-        if (session.time.pinned !== undefined) {
+    return {
+      description: DESCRIPTION,
+      parameters: Parameters,
+      execute: (_params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context) =>
+        Effect.gen(function* () {
+          const session = yield* svc.get(ctx.sessionID)
+
+          if (session.time.pinned !== undefined) {
+            return {
+              title: "Session already bookmarked",
+              output: `The current session "${session.title}" is already bookmarked.`,
+              metadata: {},
+            }
+          }
+
+          yield* svc.setPinned({ sessionID: ctx.sessionID, time: Date.now() })
+
           return {
-            title: "Session already bookmarked",
-            output: `The current session "${session.title}" is already bookmarked.`,
+            title: "Session bookmarked",
+            output: `Successfully bookmarked the current session "${session.title}". It will now appear in the Bookmarks section at the top of the session list.`,
             metadata: {},
           }
-        }
-
-        yield* Effect.promise(() => Session.setPinned({ sessionID: ctx.sessionID, time: Date.now() }))
-
-        return {
-          title: "Session bookmarked",
-          output: `Successfully bookmarked the current session "${session.title}". It will now appear in the Bookmarks section at the top of the session list.`,
-          metadata: {},
-        }
-      }).pipe(Effect.orDie),
+        }).pipe(Effect.orDie),
+    }
   }),
 )

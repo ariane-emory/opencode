@@ -2,19 +2,14 @@ import { createMemo, createSignal } from "solid-js"
 import { useLocal } from "@tui/context/local"
 import { useSync } from "@tui/context/sync"
 import { map, pipe, flatMap, entries, filter, sortBy, take } from "remeda"
-import { smartCompare } from "@/util/smart-sort"
 import { DialogSelect } from "@tui/ui/dialog-select"
 import { useDialog } from "@tui/ui/dialog"
 import { createDialogProviderOptions, DialogProvider } from "./dialog-provider"
 import { DialogVariant } from "./dialog-variant"
 import { useKeybind } from "../context/keybind"
-
-export function useConnected() {
-  const sync = useSync()
-  return createMemo(() =>
-    sync.data.provider.some((x) => x.id !== "opencode" || Object.values(x.models).some((y) => y.cost?.input !== 0)),
-  )
-}
+import { smartCompare } from "@/util/smart-sort"
+import * as fuzzysort from "fuzzysort"
+import { useConnected } from "./use-connected"
 
 export function DialogModel(props: { providerID?: string }) {
   const local = useLocal()

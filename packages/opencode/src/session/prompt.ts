@@ -111,7 +111,6 @@ export const layer = Layer.effect(
     const spawner = yield* ChildProcessSpawner.ChildProcessSpawner
     const scope = yield* Scope.Scope
     const instruction = yield* Instruction.Service
-    const config = yield* Config.Service
     const state = yield* SessionRunState.Service
     const revert = yield* SessionRevert.Service
     const summary = yield* SessionSummary.Service

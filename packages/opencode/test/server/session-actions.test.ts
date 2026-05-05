@@ -1,14 +1,14 @@
 import { afterEach, describe, expect, mock, spyOn, test } from "bun:test"
 import { Effect } from "effect"
-import { Instance } from "../../src/project/instance"
+import { WithInstance } from "../../src/project/with-instance"
 import { Server } from "../../src/server/server"
-import { Session as SessionNs } from "../../src/session"
+import { Session as SessionNs } from "@/session/session"
 import { MessageV2 } from "../../src/session/message-v2"
 import { ModelID, ProviderID } from "../../src/provider/schema"
 import { MessageID, PartID, type SessionID } from "../../src/session/schema"
 import { SessionPrompt } from "../../src/session/prompt"
-import { Log } from "../../src/util"
-import { tmpdir } from "../fixture/fixture"
+import * as Log from "@opencode-ai/core/util/log"
+import { disposeAllInstances, tmpdir } from "../fixture/fixture"
 
 void Log.init({ print: false })
 
@@ -43,7 +43,7 @@ const Session = {
 
 afterEach(async () => {
   mock.restore()
-  await Instance.disposeAll()
+  await disposeAllInstances()
 })
 
 async function user(sessionID: SessionID, text: string, model = "test") {
@@ -114,11 +114,11 @@ function result(sessionID: SessionID, parentID: string): MessageV2.WithParts {
 describe("session action routes", () => {
   test("abort route returns success", async () => {
     await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
+    await WithInstance.provide({
       directory: tmp.path,
       fn: async () => {
         const session = await svc.create({})
-        const app = Server.Default().app
+        const app = Server.Legacy().app
 
         const res = await app.request(`/session/${session.id}/abort`, { method: "POST" })
 
@@ -131,13 +131,13 @@ describe("session action routes", () => {
   })
   test("continue route calls SessionPrompt.continue_", async () => {
     await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
+    await WithInstance.provide({
       directory: tmp.path,
       fn: async () => {
         const session = await Session.create({})
         const msg = await user(session.id, "hello")
         const cont = spyOn(SessionPrompt, "continue_").mockResolvedValue(result(session.id, msg.id))
-        const app = Server.Default().app
+        const app = Server.Legacy().app
 
         const res = await app.request(`/session/${session.id}/continue`, {
           method: "POST",
@@ -156,13 +156,13 @@ describe("session action routes", () => {
 
   test("continue route passes selected agent and model override", async () => {
     await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
+    await WithInstance.provide({
       directory: tmp.path,
       fn: async () => {
         const session = await Session.create({})
         const msg = await user(session.id, "hello")
         const cont = spyOn(SessionPrompt, "continue_").mockResolvedValue(result(session.id, msg.id))
-        const app = Server.Default().app
+        const app = Server.Legacy().app
 
         const res = await app.request(`/session/${session.id}/continue`, {
           method: "POST",
@@ -193,13 +193,13 @@ describe("session action routes", () => {
 
   test("continue route works without body", async () => {
     await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
+    await WithInstance.provide({
       directory: tmp.path,
       fn: async () => {
         const session = await Session.create({})
         const msg = await user(session.id, "hello")
         const cont = spyOn(SessionPrompt, "continue_").mockResolvedValue(result(session.id, msg.id))
-        const app = Server.Default().app
+        const app = Server.Legacy().app
 
         const res = await app.request(`/session/${session.id}/continue`, {
           method: "POST",
@@ -215,12 +215,12 @@ describe("session action routes", () => {
 
   test("continue route returns 400 when session is busy", async () => {
     await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
+    await WithInstance.provide({
       directory: tmp.path,
       fn: async () => {
         const session = await Session.create({})
         const cont = spyOn(SessionPrompt, "continue_").mockRejectedValue(new Session.BusyError(session.id))
-        const app = Server.Default().app
+        const app = Server.Legacy().app
 
         const res = await app.request(`/session/${session.id}/continue`, {
           method: "POST",
@@ -236,12 +236,12 @@ describe("session action routes", () => {
 
   test("continue route returns 400 when nothing can continue", async () => {
     await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
+    await WithInstance.provide({
       directory: tmp.path,
       fn: async () => {
         const session = await Session.create({})
         const cont = spyOn(SessionPrompt, "continue_").mockRejectedValue(new Session.NothingToContinueError(session.id))
-        const app = Server.Default().app
+        const app = Server.Legacy().app
 
         const res = await app.request(`/session/${session.id}/continue`, {
           method: "POST",
@@ -259,7 +259,7 @@ describe("session action routes", () => {
 describe("continue logic", () => {
   test("throws when no assistant message exists", async () => {
     await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
+    await WithInstance.provide({
       directory: tmp.path,
       fn: async () => {
         const session = await Session.create({})
@@ -280,7 +280,7 @@ describe("continue logic", () => {
 
   test("sends new prompt when assistant finished normally", async () => {
     await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
+    await WithInstance.provide({
       directory: tmp.path,
       fn: async () => {
         const session = await Session.create({})
@@ -304,7 +304,7 @@ describe("continue logic", () => {
 
   test("patches interrupted assistant and preserves output", async () => {
     await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
+    await WithInstance.provide({
       directory: tmp.path,
       fn: async () => {
         const session = await Session.create({})
@@ -336,7 +336,7 @@ describe("continue logic", () => {
 
   test("does not create a new user message when resuming tool calls", async () => {
     await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
+    await WithInstance.provide({
       directory: tmp.path,
       fn: async () => {
         const session = await Session.create({})
@@ -374,7 +374,7 @@ describe("continue logic", () => {
 
   test("updates the resumed model when continue receives an override", async () => {
     await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
+    await WithInstance.provide({
       directory: tmp.path,
       fn: async () => {
         const session = await Session.create({})
@@ -404,7 +404,7 @@ describe("continue logic", () => {
 
   test("updates the resumed agent when continue receives an override", async () => {
     await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
+    await WithInstance.provide({
       directory: tmp.path,
       fn: async () => {
         const session = await Session.create({})
@@ -430,7 +430,7 @@ describe("continue logic", () => {
 
   test("updates the resumed agent and model together", async () => {
     await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
+    await WithInstance.provide({
       directory: tmp.path,
       fn: async () => {
         const session = await Session.create({})
@@ -461,7 +461,7 @@ describe("continue logic", () => {
 
   test("rejects non-primary continue agents", async () => {
     await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
+    await WithInstance.provide({
       directory: tmp.path,
       fn: async () => {
         const session = await Session.create({})
@@ -485,7 +485,7 @@ describe("continue logic", () => {
 
   test("uses the selected primary agent for finished-assistant fallback", async () => {
     await using tmp = await tmpdir({ git: true })
-    await Instance.provide({
+    await WithInstance.provide({
       directory: tmp.path,
       fn: async () => {
         const session = await Session.create({})

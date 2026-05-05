@@ -1,12 +1,17 @@
 import type { Argv } from "yargs"
+import { Effect } from "effect"
 import { cmd } from "./cmd"
-import { Session } from "../../session"
-import { bootstrap } from "../bootstrap"
+import { effectCmd, fail } from "../effect-cmd"
+import { Session } from "@/session/session"
+import { SessionID } from "../../session/schema"
 import { UI } from "../ui"
-import { Locale } from "../../util/locale"
-import { Flag } from "../../flag/flag"
+import { Locale } from "@/util/locale"
+import { Flag } from "@opencode-ai/core/flag/flag"
+import { Filesystem } from "@/util/filesystem"
+import { Process } from "@/util/process"
 import { EOL } from "os"
 import path from "path"
+import { which } from "../../util/which"
 
 function pagerCmd(): string[] {
   const lessOptions = ["-R", "-S"]
@@ -15,20 +20,20 @@ function pagerCmd(): string[] {
   }
 
   // user could have less installed via other options
-  const lessOnPath = Bun.which("less")
+  const lessOnPath = which("less")
   if (lessOnPath) {
-    if (Bun.file(lessOnPath).size) return [lessOnPath, ...lessOptions]
+    if (Filesystem.stat(lessOnPath)?.size) return [lessOnPath, ...lessOptions]
   }
 
   if (Flag.OPENCODE_GIT_BASH_PATH) {
     const less = path.join(Flag.OPENCODE_GIT_BASH_PATH, "..", "..", "usr", "bin", "less.exe")
-    if (Bun.file(less).size) return [less, ...lessOptions]
+    if (Filesystem.stat(less)?.size) return [less, ...lessOptions]
   }
 
-  const git = Bun.which("git")
+  const git = which("git")
   if (git) {
     const less = path.join(git, "..", "..", "usr", "bin", "less.exe")
-    if (Bun.file(less).size) return [less, ...lessOptions]
+    if (Filesystem.stat(less)?.size) return [less, ...lessOptions]
   }
 
   // Fall back to Windows built-in more (via cmd.exe)
@@ -38,15 +43,34 @@ function pagerCmd(): string[] {
 export const SessionCommand = cmd({
   command: "session",
   describe: "manage sessions",
-  builder: (yargs: Argv) => yargs.command(SessionListCommand).demandCommand(),
+  builder: (yargs: Argv) => yargs.command(SessionListCommand).command(SessionDeleteCommand).demandCommand(),
   async handler() {},
 })
 
-export const SessionListCommand = cmd({
+export const SessionDeleteCommand = effectCmd({
+  command: "delete <sessionID>",
+  describe: "delete a session",
+  builder: (yargs) =>
+    yargs.positional("sessionID", {
+      describe: "session ID to delete",
+      type: "string",
+      demandOption: true,
+    }),
+  handler: Effect.fn("Cli.session.delete")(function* (args) {
+    const svc = yield* Session.Service
+    const sessionID = SessionID.make(args.sessionID)
+    // Match legacy try/catch — Session.get surfaces NotFoundError as a defect.
+    yield* svc.get(sessionID).pipe(Effect.catchCause(() => fail(`Session not found: ${args.sessionID}`)))
+    yield* svc.remove(sessionID)
+    UI.println(UI.Style.TEXT_SUCCESS_BOLD + `Session ${args.sessionID} deleted` + UI.Style.TEXT_NORMAL)
+  }),
+})
+
+export const SessionListCommand = effectCmd({
   command: "list",
   describe: "list sessions",
-  builder: (yargs: Argv) => {
-    return yargs
+  builder: (yargs) =>
+    yargs
       .option("max-count", {
         alias: "n",
         describe: "limit to N most recent sessions",
@@ -57,50 +81,37 @@ export const SessionListCommand = cmd({
         type: "string",
         choices: ["table", "json"],
         default: "table",
-      })
-  },
-  handler: async (args) => {
-    await bootstrap(process.cwd(), async () => {
-      const sessions = []
-      for await (const session of Session.list()) {
-        if (!session.parentID) {
-          sessions.push(session)
-        }
-      }
+      }),
+  handler: Effect.fn("Cli.session.list")(function* (args) {
+    const sessions = yield* Session.Service.use((svc) => svc.list({ roots: true, limit: args.maxCount }))
 
-      sessions.sort((a, b) => b.time.updated - a.time.updated)
+    if (sessions.length === 0) return
 
-      const limitedSessions = args.maxCount ? sessions.slice(0, args.maxCount) : sessions
+    const output = args.format === "json" ? formatSessionJSON(sessions) : formatSessionTable(sessions)
 
-      if (limitedSessions.length === 0) {
-        return
-      }
+    const shouldPaginate = process.stdout.isTTY && !args.maxCount && args.format === "table"
 
-      let output: string
-      if (args.format === "json") {
-        output = formatSessionJSON(limitedSessions)
-      } else {
-        output = formatSessionTable(limitedSessions)
-      }
-
-      const shouldPaginate = process.stdout.isTTY && !args.maxCount && args.format === "table"
-
-      if (shouldPaginate) {
-        const proc = Bun.spawn({
-          cmd: pagerCmd(),
+    if (shouldPaginate) {
+      yield* Effect.promise(async () => {
+        const proc = Process.spawn(pagerCmd(), {
           stdin: "pipe",
           stdout: "inherit",
           stderr: "inherit",
         })
 
+        if (!proc.stdin) {
+          console.log(output)
+          return
+        }
+
         proc.stdin.write(output)
         proc.stdin.end()
         await proc.exited
-      } else {
-        console.log(output)
-      }
-    })
-  },
+      })
+    } else {
+      console.log(output)
+    }
+  }),
 })
 
 function formatSessionTable(sessions: Session.Info[]): string {

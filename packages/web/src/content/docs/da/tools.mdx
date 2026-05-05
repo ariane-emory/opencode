@@ -1,6 +1,6 @@
 ---
-title: Verktøy
-description: Administrer verktøyene en LLM kan bruge.
+title: Værktøjer
+description: Administrer de værktøjer, en LLM kan bruge.
 ---
 
 Verktøy lar LLM utføre handlinger i kodebasen din. OpenCode kommer med et sett med innebygde verktøy, men du kan utvide det med [egendefinerte verktøy](/docs/custom-tools) eller [MCP servere](/docs/mcp-servers).
@@ -9,7 +9,7 @@ Som standard er alle verktøy **aktivert** og trenger ikke tillatelse for at kj�
 
 ---
 
-## Konfigurer
+## Konfiguration
 
 Brug feltet `permission` for at kontrollere verktøyets oppførsel. Du kan tillate, avslå eller kreve godkjenning for hvert verktøy.
 
@@ -39,7 +39,7 @@ Du kan også bruge jokertegn for at kontrollere flere verktøy samtidig. For eks
 
 ---
 
-## Innebygd
+## Indbyggede
 
 Her er alle de innebygde verktøyene som er tilgængelige i OpenCode.
 
@@ -95,7 +95,7 @@ Opret nye filer eller overskriv eksisterende.
 Brug denne for at la LLM lage nye filer. Den vil overskrive eksisterende filer hvis de allerede eksisterer.
 
 :::note
-`write`-verktøyet kontrolleres av tillatelsen `edit`, som dekker alle filendringer (`edit`, `write`, `patch`, `multiedit`).
+`write`-verktøyet kontrolleres av tillatelsen `edit`, som dekker alle filendringer (`edit`, `write`, `patch`).
 :::
 
 ---
@@ -151,23 +151,6 @@ Søk etter filer ved at bruge glob-mønstre som `**/*.js` eller `src/**/*.ts`. R
 
 ---
 
-### list
-
-List filer og kataloger i en gitt bane.
-
-```json title="opencode.json" {4}
-{
-  "$schema": "https://opencode.ai/config.json",
-  "permission": {
-    "list": "allow"
-  }
-}
-```
-
-Dette verktøyet viser kataloginnhold. Den aksepterer glob-mønstre for at filtrere resultater.
-
----
-
 ### lsp (experimental)
 
 Samhandle med dine konfigurerte LSP-servere for at få kodeintelligensfunksjoner som definisjoner, referanser, sveveinformasjon og anropshierarki.
@@ -207,7 +190,7 @@ Brug patcher på filer.
 Dette verktøyet bruger opdateringsfiler til kodebasen din. Nyttig for at påføre diff og lapper fra forskjellige kilder.
 
 :::note
-`patch`-verktøyet kontrolleres av tillatelsen `edit`, som dekker alle filendringer (`edit`, `write`, `patch`, `multiedit`).
+`patch`-verktøyet kontrolleres av tillatelsen `edit`, som dekker alle filendringer (`edit`, `write`, `patch`).
 :::
 
 ---
@@ -241,27 +224,6 @@ Administrer to-doslister under kodingssessioner.
 ```
 
 Opreter og opdaterer oppgavelister for at spore fremdrift under komplekse operasjoner. LLM bruger dette til at organisere flertrinnsoppgaver.
-
-:::note
-Dette verktøyet er deaktivert for subagenter som standard, men du kan aktivere det manuelt. [Finn ut mer](/docs/agents/#permissions)
-:::
-
----
-
-### todoread
-
-Les eksisterende to-doslister.
-
-```json title="opencode.json" {4}
-{
-  "$schema": "https://opencode.ai/config.json",
-  "permission": {
-    "todoread": "allow"
-  }
-}
-```
-
-Leser nuværende to-doslistestatus. Bruges av LLM for at spore hvilke oppgaver som venter eller er fullført.
 
 :::note
 Dette verktøyet er deaktivert for subagenter som standard, men du kan aktivere det manuelt. [Finn ut mer](/docs/agents/#permissions)
@@ -344,7 +306,7 @@ Hvert spørsmål inkluderer en overskrift, spørsmålsteksten og en liste over a
 
 ---
 
-## Egendefinerte verktøy
+## Brugerdefinerede værktøjer
 
 Egendefinerte verktøy lar deg definere dine egne funksjoner som LLM kan kalle. Disse er definert i konfigurasjonsfilen din og kan kjøre vilkårlig kode.
 
@@ -352,7 +314,7 @@ Egendefinerte verktøy lar deg definere dine egne funksjoner som LLM kan kalle. 
 
 ---
 
-## MCP servere
+## MCP-servere
 
 MCP (Model Context Protocol) servere lar deg integrere eksterne verktøy og tjenester. Dette inkluderer databasetilgang, API-integrasjoner og tredjepartstjenester.
 
@@ -360,13 +322,13 @@ MCP (Model Context Protocol) servere lar deg integrere eksterne verktøy og tjen
 
 ---
 
-## Internaler
+## Interne
 
-Internt bruger verktøy som `grep`, `glob` og `list` [ripgrep](https://github.com/BurntSushi/ripgrep) under panseret. Som standard respekterer ripgrep `.gitignore`-mønstre, noe som betyr at filer og kataloger som er oppført i `.gitignore` vil bli ekskludert fra søk og lister.
+Internt bruger verktøy som `grep` og `glob` [ripgrep](https://github.com/BurntSushi/ripgrep) under panseret. Som standard respekterer ripgrep `.gitignore`-mønstre, noe som betyr at filer og kataloger som er oppført i `.gitignore` vil bli ekskludert fra søk og lister.
 
 ---
 
-### Ignore patterns
+### Ignoreringsmønstre
 
 For at inkludere filer som normalt vil bli ignorert, lag en `.ignore`-fil i prosjektroten. Denne filen kan eksplisitt tillate visse stier.
 

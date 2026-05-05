@@ -1,6 +1,6 @@
 ---
-title: Tools
-description: Manage the tools an LLM can use.
+title: 도구
+description: LLM이 사용할 수 있는 도구를 관리합니다.
 ---
 
 도구는 LLM을 사용하여 코드베이스에서 작업을 수행 할 수 있습니다. opencode는 내장 도구 세트로 제공되지만, [custom tools](/docs/custom-tools) 또는 [MCP 서버](/docs/mcp-servers)로 확장할 수 있습니다.
@@ -47,7 +47,7 @@ description: Manage the tools an LLM can use.
 
 ###### bash
 
-프로젝트 환경에서 쉘 명령을 실행합니다.
+프로젝트 환경에서 shell 명령을 실행합니다.
 
 ```json title="opencode.json" {4}
 {
@@ -58,11 +58,11 @@ description: Manage the tools an LLM can use.
 }
 ```
 
-이 도구는 `npm install`, `git status` 또는 다른 쉘 명령과 같은 terminal 명령을 실행하는 LLM을 허용합니다.
+이 도구는 `npm install`, `git status` 또는 다른 shell 명령과 같은 terminal 명령을 실행하는 LLM을 허용합니다.
 
 ---
 
-### 편집
+### edit
 
 정확한 문자열 교체를 사용하여 기존 파일을 수정합니다.
 
@@ -79,7 +79,7 @@ description: Manage the tools an LLM can use.
 
 ---
 
-### 쓰기
+### write
 
 새로운 파일을 만들거나 기존의 것을 덮어쓰기.
 
@@ -95,12 +95,12 @@ description: Manage the tools an LLM can use.
 LLM을 사용하여 새 파일을 만듭니다. 이미 존재하는 경우 기존 파일을 덮어쓰겠습니다.
 
 :::note
-`write` 공구는 모든 파일 수정 (`edit`, `write`, `patch`, `multiedit`)를 포함하는 `edit` 허가에 의해 통제됩니다.
+`write` 공구는 모든 파일 수정 (`edit`, `write`, `patch`)를 포함하는 `edit` 허가에 의해 통제됩니다.
 :::
 
 ---
 
-### 읽기
+### read
 
 codebase에서 파일 내용을 읽으십시오.
 
@@ -117,7 +117,7 @@ codebase에서 파일 내용을 읽으십시오.
 
 ---
 
-#### 그라프
+#### grep
 
 정규 표현식을 사용하여 파일 내용을 검색합니다.
 
@@ -151,24 +151,7 @@ Codebase에서 빠른 콘텐츠 검색. 전체 regex 문법 및 파일 패턴 �
 
 ---
 
-### 리스트
-
-주어진 경로의 파일 및 디렉토리 목록.
-
-```json title="opencode.json" {4}
-{
-  "$schema": "https://opencode.ai/config.json",
-  "permission": {
-    "list": "allow"
-  }
-}
-```
-
-이 도구는 디렉토리 내용을 나열합니다. 그것은 glob 패턴을 필터 결과에 받아들입니다.
-
----
-
-### lsp (실험)
+### lsp (실험적)
 
 정의, 참고, hover info 및 호출 hierarchy와 같은 코드 인텔리전스 기능을 얻기 위해 구성 된 LSP 서버와 인터랙트.
 
@@ -191,7 +174,7 @@ LSP 서버가 프로젝트에 사용할 수 있는 구성하려면 [LSP Servers]
 
 ---
 
-## 패치
+## patch
 
 파일에 패치를 적용합니다.
 
@@ -207,12 +190,12 @@ LSP 서버가 프로젝트에 사용할 수 있는 구성하려면 [LSP Servers]
 이 도구는 코드베이스에 패치 파일을 적용합니다. 다양한 소스에서 diffs 및 Patch를 적용하는 데 유용합니다.
 
 :::note
-`patch` 공구는 모든 파일 수정 (`edit`, `write`, `patch`, `multiedit`)를 포함하는 `edit` 허가에 의해 통제됩니다.
+`patch` 공구는 모든 파일 수정 (`edit`, `write`, `patch`)를 포함하는 `edit` 허가에 의해 통제됩니다.
 :::
 
 ---
 
-### 기술
+### skill
 
 [skill](/docs/skills) (`SKILL.md` 파일)을로드하고 대화의 내용을 반환합니다.
 
@@ -227,7 +210,7 @@ LSP 서버가 프로젝트에 사용할 수 있는 구성하려면 [LSP Servers]
 
 ---
 
-## todowrite에
+## todowrite
 
 코딩 세션 중에 todo 목록을 관리합니다.
 
@@ -248,28 +231,7 @@ LSP 서버가 프로젝트에 사용할 수 있는 구성하려면 [LSP Servers]
 
 ---
 
-#### todoread
-
-기존의 todo 목록 읽기.
-
-```json title="opencode.json" {4}
-{
-  "$schema": "https://opencode.ai/config.json",
-  "permission": {
-    "todoread": "allow"
-  }
-}
-```
-
-현재 todo 목록 상태를 읽습니다. 작업이 종료되거나 완료되는 것을 추적하기 위해 LLM에 의해 사용됩니다.
-
-:::note
-이 도구는 기본으로 시약을 비활성화하지만 수동으로 활성화 할 수 있습니다. [더 알아보기](/docs/agents/#permissions)
-:::
-
----
-
-#### 웹 사이트
+#### webfetch
 
 Fetch 웹 콘텐츠.
 
@@ -286,7 +248,7 @@ LLM을 fetch 및 웹 페이지를 읽을 수 있습니다. 온라인 리소스�
 
 ---
 
-#### 웹 검색
+#### websearch
 
 웹 검색
 
@@ -320,7 +282,7 @@ API 키가 필요하지 않습니다 - 도구는 인증없이 Exa AI의 호스�
 
 ---
 
-### 질문
+### question
 
 실행 중에 사용자의 질문 요청.
 
@@ -362,7 +324,7 @@ MCP 서버 구성에 대한 [Learn more](/docs/mcp-servers).
 
 ## 내부
 
-내부, 도구 `grep`, `glob`, 그리고 `list` 사용 [ripgrep](https://github.com/BurntSushi/ripgrep) 후드 아래에. 기본적으로 ripgrep은 `.gitignore` 패턴을 존중하며 `.gitignore`에 나열된 파일 및 디렉토리를 검색 및 목록에서 제외됩니다.
+내부, 도구 `grep` 그리고 `glob` 사용 [ripgrep](https://github.com/BurntSushi/ripgrep) 후드 아래에. 기본적으로 ripgrep은 `.gitignore` 패턴을 존중하며 `.gitignore`에 나열된 파일 및 디렉토리를 검색 및 목록에서 제외됩니다.
 
 ---
 

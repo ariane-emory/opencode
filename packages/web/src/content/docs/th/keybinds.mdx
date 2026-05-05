@@ -3,11 +3,11 @@ title: ปุ่มลัด
 description: ปรับแต่งปุ่มลัดของคุณ
 ---
 
-OpenCode มีรายการปุ่มลัดที่คุณปรับแต่งได้ผ่านการกำหนดค่า OpenCode
+OpenCode มีรายการปุ่มลัดที่คุณปรับแต่งได้ผ่าน `tui.json`
 
-```json title="opencode.json"
+```json title="tui.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://opencode.ai/tui.json",
   "keybinds": {
     "leader": "ctrl+x",
     "app_exit": "ctrl+c,ctrl+d,<leader>q",
@@ -28,6 +28,7 @@ OpenCode มีรายการปุ่มลัดที่คุณปร�
     "session_unshare": "none",
     "session_interrupt": "escape",
     "session_compact": "<leader>c",
+    "session_child_first": "<leader>down",
     "session_child_cycle": "<leader>right",
     "session_child_cycle_reverse": "<leader>left",
     "session_parent": "<leader>up",
@@ -52,6 +53,7 @@ OpenCode มีรายการปุ่มลัดที่คุณปร�
     "model_cycle_favorite": "none",
     "model_cycle_favorite_reverse": "none",
     "variant_cycle": "ctrl+t",
+    "variant_list": "none",
     "command_list": "ctrl+p",
     "agent_list": "<leader>a",
     "agent_cycle": "tab",
@@ -105,23 +107,23 @@ OpenCode มีรายการปุ่มลัดที่คุณปร�
 
 ---
 
-## กุญแจผู้นำ
+## ปุ่ม Leader
 
-OpenCode ใช้คีย์ `leader` สำหรับการเชื่อมโยงคีย์ส่วนใหญ่ วิธีนี้จะหลีกเลี่ยงความขัดแย้งใน terminal ของคุณ
+OpenCode ใช้ปุ่ม `leader` สำหรับการเชื่อมโยงคีย์ส่วนใหญ่ วิธีนี้จะหลีกเลี่ยงความขัดแย้งใน terminal ของคุณ
 
-ตามค่าเริ่มต้น `ctrl+x` จะเป็นปุ่มผู้นำ และการดำเนินการส่วนใหญ่ต้องการให้คุณกดปุ่มผู้นำก่อน จากนั้นจึงกดทางลัด ตัวอย่างเช่น หากต้องการเริ่มเซสชันใหม่ คุณต้องกด `ctrl+x` ก่อน จากนั้นจึงกด `n`
+ตามค่าเริ่มต้น `ctrl+x` จะเป็นปุ่ม leader และการดำเนินการส่วนใหญ่ต้องการให้คุณกดปุ่ม leader ก่อน จากนั้นจึงกดทางลัด ตัวอย่างเช่น หากต้องการเริ่มเซสชันใหม่ คุณต้องกด `ctrl+x` ก่อน จากนั้นจึงกด `n`
 
-คุณไม่จำเป็นต้องใช้คีย์ผู้นำสำหรับการผูกคีย์ แต่เราขอแนะนำให้ทำเช่นนั้น
+คุณไม่จำเป็นต้องใช้ปุ่ม leader สำหรับการผูกคีย์ แต่เราขอแนะนำให้ทำเช่นนั้น
 
 ---
 
 ## ปิดการใช้งานการผูกปุ่ม
 
-คุณสามารถปิดการใช้งานการผูกปุ่มได้โดยการเพิ่มคีย์ลงในการกำหนดค่าของคุณด้วยค่า "none"
+คุณสามารถปิดการใช้งานการผูกปุ่มได้โดยการเพิ่มคีย์ลงใน `tui.json` ด้วยค่า "none"
 
-```json title="opencode.json"
+```json title="tui.json"
 {
-  "$schema": "https://opencode.ai/config.json",
+  "$schema": "https://opencode.ai/tui.json",
   "keybinds": {
     "session_compact": "none"
   }
@@ -143,10 +145,10 @@ OpenCode ใช้คีย์ `leader` สำหรับการเชื่�
 | `alt+b`  | เลื่อนเคอร์เซอร์กลับไปหนึ่งคำ                    |
 | `alt+f`  | เลื่อนเคอร์เซอร์ไปข้างหน้าหนึ่งคำ                |
 | `ctrl+d` | ลบอักขระใต้เคอร์เซอร์                            |
-| `ctrl+k` | ฆ่าให้จบแถว                                      |
-| `ctrl+u` | ฆ่าที่จุดเริ่มต้นของบรรทัด                       |
-| `ctrl+w` | ฆ่าคำก่อนหน้า                                    |
-| `alt+d`  | ฆ่าคำถัดไป                                       |
+| `ctrl+k` | ลบจนจบแถว                                        |
+| `ctrl+u` | ลบจนถึงต้นบรรทัด                                 |
+| `ctrl+w` | ลบคำก่อนหน้า                                     |
+| `alt+d`  | ลบคำถัดไป                                        |
 | `ctrl+t` | ย้ายอักขระ                                       |
 | `ctrl+g` | ยกเลิกป๊อปโอเวอร์ / ยกเลิกการตอบกลับที่ทำงานอยู่ |
 
@@ -156,7 +158,7 @@ OpenCode ใช้คีย์ `leader` สำหรับการเชื่�
 
 terminal บางตัวไม่ส่งคีย์ตัวปรับแต่งพร้อม Enter เป็นค่าเริ่มต้น คุณอาจต้องกำหนดค่า terminal ของคุณให้ส่ง `Shift+Enter` เป็นลำดับหลีก
 
-### terminal Windows
+### Windows Terminal
 
 เปิด `settings.json` ของคุณที่:
 

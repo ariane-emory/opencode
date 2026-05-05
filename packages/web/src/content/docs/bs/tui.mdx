@@ -27,7 +27,7 @@ Give me a quick summary of the codebase.
 
 ---
 
-## Reference fajlova
+## Reference datoteka
 
 Možete referencirati datoteke u svojim porukama koristeći `@`. Ovo vrši nejasnu pretragu datoteka u trenutnom radnom direktoriju.
 
@@ -43,7 +43,7 @@ Sadržaj datoteke se automatski dodaje u razgovor.
 
 ---
 
-## Bash komande
+## Bash naredbe
 
 Započnite poruku sa `!` da pokrenete komandu ljuske.
 
@@ -55,7 +55,7 @@ Izlaz naredbe se dodaje u razgovor kao rezultat alata.
 
 ---
 
-## Komande
+## Naredbe
 
 Kada koristite OpenCode TUI, možete upisati `/` nakon čega slijedi ime komande da biste brzo izvršili radnje. na primjer:
 
@@ -235,7 +235,7 @@ Podijelite trenutnu sesiju. [Saznajte više](/docs/share).
 Navedite dostupne teme.
 
 ```bash frame="none"
-/theme
+/themes
 ```
 
 **Tastatura:** `ctrl+x t`
@@ -292,7 +292,7 @@ Obje naredbe `/editor` i `/export` koriste editor specificiran u vašoj varijabl
 <Tabs>
   <TabItem label="Linux/macOS">
 
-```bash
+    ```bash
     # Example for nano or vim
     export EDITOR=nano
     export EDITOR=vim
@@ -300,9 +300,7 @@ Obje naredbe `/editor` i `/export` koriste editor specificiran u vašoj varijabl
     # For GUI editors, VS Code, Cursor, VSCodium, Windsurf, Zed, etc.
     # include --wait
     export EDITOR="code --wait"
-
-
-```
+    ```
 
     Da biste ga učinili trajnim, dodajte ovo u svoj shell profil;
     `~/.bashrc`, `~/.zshrc`, itd.
@@ -311,15 +309,13 @@ Obje naredbe `/editor` i `/export` koriste editor specificiran u vašoj varijabl
 
   <TabItem label="Windows (CMD)">
 
-```bash
+    ```bash
     set EDITOR=notepad
 
     # For GUI editors, VS Code, Cursor, VSCodium, Windsurf, Zed, etc.
     # include --wait
     set EDITOR=code --wait
-
-
-```
+    ```
 
     Da biste ga učinili trajnim, koristite **Svojstva sistema** > **Okruženje
     Varijable**.
@@ -328,15 +324,13 @@ Obje naredbe `/editor` i `/export` koriste editor specificiran u vašoj varijabl
 
   <TabItem label="Windows (PowerShell)">
 
-```powershell
+    ```powershell
     $env:EDITOR = "notepad"
 
     # For GUI editors, VS Code, Cursor, VSCodium, Windsurf, Zed, etc.
     # include --wait
     $env:EDITOR = "code --wait"
-
-
-```
+    ```
 
     Da biste ga učinili trajnim, dodajte ovo u svoj PowerShell profil.
 
@@ -346,13 +340,13 @@ Obje naredbe `/editor` i `/export` koriste editor specificiran u vašoj varijabl
 Popularne opcije uređivača uključuju:
 
 - `code` - ​​Visual Studio Code
-- `cursor` - ​​Kursor
-- `windsurf` - ​​jedrenje na dasci
+- `cursor` - ​​Cursor
+- `windsurf` - ​​Windsurf
 - `nvim` - ​​Neovim editorom
 - `vim` - ​​Vim editor
 - `nano` - ​​Nano editor
 - `notepad` - ​​Windows Notepad
-- `subl` - ​​Uzvišeni tekst
+- `subl` - ​​Sublime Text
 
 :::note
 Neki uređivači kao što je VS Code moraju biti pokrenuti sa `--wait` zastavicom.
@@ -362,26 +356,36 @@ Nekim uređivačima su potrebni argumenti komandne linije da bi se pokrenuli u n
 
 ---
 
-## Konfiguriši
+## Konfiguracija
 
-Možete prilagoditi TUI ponašanje putem vašeg OpenCode konfiguracionog fajla.
+Možete prilagoditi TUI ponašanje putem `tui.json` (ili `tui.jsonc`).
 
-```json title="opencode.json"
+```json title="tui.json"
 {
-  "$schema": "https://opencode.ai/config.json",
-  "tui": {
-    "scroll_speed": 3,
-    "scroll_acceleration": {
-      "enabled": true
-    }
-  }
+  "$schema": "https://opencode.ai/tui.json",
+  "theme": "opencode",
+  "keybinds": {
+    "leader": "ctrl+x"
+  },
+  "scroll_speed": 3,
+  "scroll_acceleration": {
+    "enabled": true
+  },
+  "diff_style": "auto"
 }
 ```
 
+Ovo je odvojeno od `opencode.json`, koji konfiguriše ponašanje servera/izvršavanja.
+
 ### Opcije
 
-- `scroll_acceleration` - ​​Omogućite ubrzanje pomicanja u macOS stilu za glatko, prirodno pomicanje. Kada je omogućeno, brzina pomicanja se povećava brzim pokretima pomicanja i ostaje precizna za sporije pokrete. **Ova postavka ima prednost nad `scroll_speed` i nadjačava je kada je omogućena.**
-- `scroll_speed` - ​​Kontrolira koliko brzo TUI skroluje kada se koriste komande za pomeranje (minimalno: `1`). Podrazumevano je `3`. **Napomena: Ovo se zanemaruje ako je `scroll_acceleration.enabled` postavljeno na `true`.**
+- `theme` - Postavlja vašu UI temu. [Saznajte više](/docs/themes).
+- `keybinds` - Prilagođava prečice na tastaturi. [Saznajte više](/docs/keybinds).
+- `scroll_acceleration.enabled` - ​​Omogućite ubrzanje pomicanja u macOS stilu za glatko, prirodno pomicanje. Kada je omogućeno, brzina pomicanja se povećava brzim pokretima pomicanja i ostaje precizna za sporije pokrete. **Ova postavka ima prednost nad `scroll_speed` i nadjačava je kada je omogućena.**
+- `scroll_speed` - ​​Kontrolira koliko brzo TUI skroluje kada se koriste komande za pomeranje (minimum: `0.001`, podržava decimalne vrijednosti). Podrazumevano je `3`. **Napomena: Ovo se zanemaruje ako je `scroll_acceleration.enabled` postavljeno na `true`.**
+- `diff_style` - Kontrolira prikazivanje razlike. `"auto"` se prilagođava širini terminala, `"stacked"` uvijek prikazuje raspored u jednoj koloni.
+
+Koristite `OPENCODE_TUI_CONFIG` da učitate prilagođenu putanju TUI konfiguracije.
 
 ---
 

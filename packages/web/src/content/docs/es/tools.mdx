@@ -9,7 +9,7 @@ De forma predeterminada, todas las herramientas están **habilitadas** y no nece
 
 ---
 
-## Configurar
+## Configuración
 
 Utilice el campo `permission` para controlar el comportamiento de la herramienta. Puede permitir, denegar o exigir aprobación para cada herramienta.
 
@@ -39,13 +39,13 @@ También puedes utilizar comodines para controlar varias herramientas a la vez. 
 
 ---
 
-## Incorporado
+## Integradas
 
 Aquí están todas las herramientas integradas disponibles en OpenCode.
 
 ---
 
-### fiesta
+### bash
 
 Ejecute comandos de shell en el entorno de su proyecto.
 
@@ -62,7 +62,7 @@ Esta herramienta permite que LLM ejecute comandos de terminal como `npm install`
 
 ---
 
-### editar
+### edit
 
 Modifique archivos existentes utilizando reemplazos de cadenas exactas.
 
@@ -79,7 +79,7 @@ Esta herramienta realiza ediciones precisas de archivos reemplazando coincidenci
 
 ---
 
-### escribir
+### write
 
 Cree nuevos archivos o sobrescriba los existentes.
 
@@ -95,12 +95,12 @@ Cree nuevos archivos o sobrescriba los existentes.
 Utilice esto para permitir que LLM cree nuevos archivos. Sobrescribirá los archivos existentes si ya existen.
 
 :::note
-La herramienta `write` está controlada por el permiso `edit`, que cubre todas las modificaciones de archivos (`edit`, `write`, `patch`, `multiedit`).
+La herramienta `write` está controlada por el permiso `edit`, que cubre todas las modificaciones de archivos (`edit`, `write`, `patch`).
 :::
 
 ---
 
-### leer
+### read
 
 Lea el contenido del archivo desde su base de código.
 
@@ -134,7 +134,7 @@ Búsqueda rápida de contenido en su base de código. Admite sintaxis de expresi
 
 ---
 
-### globo
+### glob
 
 Encuentre archivos por coincidencia de patrones.
 
@@ -148,23 +148,6 @@ Encuentre archivos por coincidencia de patrones.
 ```
 
 Busque archivos usando patrones globales como `**/*.js` o `src/**/*.ts`. Devuelve rutas de archivos coincidentes ordenadas por hora de modificación.
-
----
-
-### lista
-
-Enumere archivos y directorios en una ruta determinada.
-
-```json title="opencode.json" {4}
-{
-  "$schema": "https://opencode.ai/config.json",
-  "permission": {
-    "list": "allow"
-  }
-}
-```
-
-Esta herramienta enumera el contenido del directorio. Acepta patrones globales para filtrar resultados.
 
 ---
 
@@ -191,7 +174,7 @@ Para configurar qué servidores LSP están disponibles para su proyecto, consult
 
 ---
 
-### parche
+### patch
 
 Aplicar parches a los archivos.
 
@@ -207,12 +190,12 @@ Aplicar parches a los archivos.
 Esta herramienta aplica archivos de parche a su código base. Útil para aplicar diferencias y parches de diversas fuentes.
 
 :::note
-La herramienta `patch` está controlada por el permiso `edit`, que cubre todas las modificaciones de archivos (`edit`, `write`, `patch`, `multiedit`).
+La herramienta `patch` está controlada por el permiso `edit`, que cubre todas las modificaciones de archivos (`edit`, `write`, `patch`).
 :::
 
 ---
 
-### habilidad
+### skill
 
 Cargue una [habilidad](/docs/skills) (un archivo `SKILL.md`) y devuelva su contenido en la conversación.
 
@@ -227,7 +210,7 @@ Cargue una [habilidad](/docs/skills) (un archivo `SKILL.md`) y devuelva su conte
 
 ---
 
-### todo escribir
+### todowrite
 
 Administre listas de tareas pendientes durante las sesiones de codificación.
 
@@ -248,28 +231,7 @@ Esta herramienta está deshabilitada para los subagentes de forma predeterminada
 
 ---
 
-### todo leer
-
-Leer listas de tareas pendientes existentes.
-
-```json title="opencode.json" {4}
-{
-  "$schema": "https://opencode.ai/config.json",
-  "permission": {
-    "todoread": "allow"
-  }
-}
-```
-
-Lee el estado actual de la lista de tareas pendientes. Utilizado por LLM para rastrear qué tareas están pendientes o completadas.
-
-:::note
-Esta herramienta está deshabilitada para los subagentes de forma predeterminada, pero puede habilitarla manualmente. [Más información](/docs/agents/#permissions)
-:::
-
----
-
-### búsqueda web
+### webfetch
 
 Obtener contenido web.
 
@@ -286,7 +248,7 @@ Permite que LLM busque y lea páginas web. Útil para buscar documentación o in
 
 ---
 
-### búsqueda web
+### websearch
 
 Busque información en la web.
 
@@ -320,7 +282,7 @@ Utilice `websearch` cuando necesite encontrar información (descubrimiento) y `w
 
 ---
 
-### pregunta
+### question
 
 Haga preguntas al usuario durante la ejecución.
 
@@ -352,9 +314,9 @@ Las herramientas personalizadas le permiten definir sus propias funciones a las 
 
 ---
 
-## MCP servidores
+## Servidores MCP
 
-Los servidores MCP (Protocolo de contexto modelo) le permiten integrar herramientas y servicios externos. Esto incluye acceso a bases de datos, integraciones API y servicios de terceros.
+Los servidores MCP (Model Context Protocol) le permiten integrar herramientas y servicios externos. Esto incluye acceso a bases de datos, integraciones API y servicios de terceros.
 
 [Más información](/docs/mcp-servers) sobre la configuración de servidores MCP.
 
@@ -362,7 +324,7 @@ Los servidores MCP (Protocolo de contexto modelo) le permiten integrar herramien
 
 ## Internos
 
-Internamente, herramientas como `grep`, `glob` y `list` usan [ripgrep](https://github.com/BurntSushi/ripgrep) bajo el capó. De forma predeterminada, ripgrep respeta los patrones `.gitignore`, lo que significa que los archivos y directorios enumerados en su `.gitignore` se excluirán de las búsquedas y listados.
+Internamente, herramientas como `grep` y `glob` usan [ripgrep](https://github.com/BurntSushi/ripgrep) bajo el capó. De forma predeterminada, ripgrep respeta los patrones `.gitignore`, lo que significa que los archivos y directorios enumerados en su `.gitignore` se excluirán de las búsquedas y listados.
 
 ---
 

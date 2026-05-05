@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /* deno-fmt-ignore-file */
+/* biome-ignore-all lint: auto-generated */
 
 import "sst"
 declare module "sst" {
@@ -94,6 +95,18 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "SALESFORCE_CLIENT_ID": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "SALESFORCE_CLIENT_SECRET": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "SALESFORCE_INSTANCE_URL": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "STRIPE_PUBLISHABLE_KEY": {
       "type": "sst.sst.Secret"
       "value": string
@@ -118,15 +131,26 @@ declare module "sst" {
       "type": "sst.cloudflare.StaticSite"
       "url": string
     }
-    "ZEN_BLACK_LIMITS": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
     "ZEN_BLACK_PRICE": {
       "plan100": string
       "plan20": string
       "plan200": string
       "product": string
+      "type": "sst.sst.Linkable"
+    }
+    "ZEN_LIMITS": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "ZEN_LITE_PRICE": {
+      "firstMonth100Coupon": string
+      "firstMonth50Coupon": string
+      "price": string
+      "priceInr": number
+      "product": string
+      "sixMonths100Coupon": string
+      "threeMonths100Coupon": string
+      "twelveMonths100Coupon": string
       "type": "sst.sst.Linkable"
     }
     "ZEN_MODELS1": {
@@ -181,7 +205,47 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "ZEN_MODELS21": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "ZEN_MODELS22": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "ZEN_MODELS23": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "ZEN_MODELS24": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "ZEN_MODELS25": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "ZEN_MODELS26": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "ZEN_MODELS27": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "ZEN_MODELS28": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "ZEN_MODELS29": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "ZEN_MODELS3": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "ZEN_MODELS30": {
       "type": "sst.sst.Secret"
       "value": string
     }

@@ -27,7 +27,7 @@ OpenCode รองรับโหมดการแชร์สามโหม�
 
 ---
 
-### คู่มือ (ค่าเริ่มต้น)
+### Manual (ค่าเริ่มต้น)
 
 ตามค่าเริ่มต้น OpenCode จะใช้โหมดการแชร์ด้วยตนเอง เซสชันจะไม่ถูกแชร์โดยอัตโนมัติ แต่คุณสามารถแชร์ได้ด้วยตนเองโดยใช้คำสั่ง `/share`:
 
@@ -41,7 +41,7 @@ OpenCode รองรับโหมดการแชร์สามโหม�
 
 ```json title="opencode.json"
 {
-  "$schema": "https://opncd.ai/config.json",
+  "$schema": "https://opencode.ai/config.json",
   "share": "manual"
 }
 ```
@@ -54,7 +54,7 @@ OpenCode รองรับโหมดการแชร์สามโหม�
 
 ```json title="opencode.json"
 {
-  "$schema": "https://opncd.ai/config.json",
+  "$schema": "https://opencode.ai/config.json",
   "share": "auto"
 }
 ```
@@ -63,13 +63,13 @@ OpenCode รองรับโหมดการแชร์สามโหม�
 
 ---
 
-### พิการ
+### ปิดการใช้งาน
 
 คุณสามารถปิดการแชร์ทั้งหมดได้โดยตั้งค่าตัวเลือก `share` เป็น `"disabled"` ใน [ไฟล์กำหนดค่า](/docs/config):
 
 ```json title="opencode.json"
 {
-  "$schema": "https://opncd.ai/config.json",
+  "$schema": "https://opencode.ai/config.json",
   "share": "disabled"
 }
 ```

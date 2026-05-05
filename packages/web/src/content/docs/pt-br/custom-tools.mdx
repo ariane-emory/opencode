@@ -1,6 +1,6 @@
 ---
 title: Ferramentas Personalizadas
-description: Crie ferramentas que o LLM pode chamar em opencode.
+description: Crie ferramentas que o LLM pode chamar no opencode.
 ---
 
 Ferramentas personalizadas são funções que você cria e que o LLM pode chamar durante as conversas. Elas funcionam junto com as [ferramentas integradas](/docs/tools) do opencode, como `read`, `write` e `bash`.
@@ -32,11 +32,11 @@ import { tool } from "@opencode-ai/plugin"
 export default tool({
   description: "Consultar o banco de dados do projeto",
   args: {
-    query: tool.schema.string().describe("Consulta SQL a ser executada"),
+    query: tool.schema.string().describe("Consulta SQL para executar"),
   },
   async execute(args) {
     // Sua lógica de banco de dados aqui
-    return `Executed query: ${args.query}`
+    return `Consulta executada: ${args.query}`
   },
 })
 ```
@@ -79,13 +79,39 @@ Isso cria duas ferramentas: `math_add` e `math_multiply`.
 
 ---
 
+#### Colisões de nome com ferramentas integradas
+
+Ferramentas personalizadas são chaveadas pelo nome da ferramenta. Se uma ferramenta personalizada usar o mesmo nome que uma ferramenta integrada, a ferramenta personalizada tem precedência.
+
+Por exemplo, este arquivo substitui a ferramenta `bash` integrada:
+
+```ts title=".opencode/tools/bash.ts"
+import { tool } from "@opencode-ai/plugin"
+
+export default tool({
+  description: "Restricted bash wrapper",
+  args: {
+    command: tool.schema.string(),
+  },
+  async execute(args) {
+    return `blocked: ${args.command}`
+  },
+})
+```
+
+:::note
+Prefira nomes únicos, a menos que você queira intencionalmente substituir uma ferramenta integrada. Se você quiser desabilitar uma ferramenta integrada, mas não substituí-la, use [permissões](/docs/permissions).
+:::
+
+---
+
 ### Argumentos
 
 Você pode usar `tool.schema`, que é apenas [Zod](https://zod.dev), para definir tipos de argumentos.
 
 ```ts "tool.schema"
 args: {
-  query: tool.schema.string().describe("Consulta SQL a ser executada")
+  query: tool.schema.string().describe("Consulta SQL para executar")
 }
 ```
 
@@ -101,7 +127,7 @@ export default {
   },
   async execute(args, context) {
     // Implementação da ferramenta
-    return "resultado"
+    return "result"
   },
 }
 ```
@@ -119,21 +145,21 @@ export default tool({
   description: "Obter informações do projeto",
   args: {},
   async execute(args, context) {
-    // Acessar informações do contexto
+    // Acessar informações de contexto
     const { agent, sessionID, messageID, directory, worktree } = context
     return `Agent: ${agent}, Session: ${sessionID}, Message: ${messageID}, Directory: ${directory}, Worktree: ${worktree}`
   },
 })
 ```
 
-Use `context.directory` para o diretório de trabalho da sessão.  
+Use `context.directory` para o diretório de trabalho da sessão.
 Use `context.worktree` para a raiz do worktree do git.
 
 ---
 
 ## Exemplos
 
-### Escreva uma ferramenta em Python
+### Escrevendo uma ferramenta em Python
 
 Você pode escrever suas ferramentas em qualquer linguagem que desejar. Aqui está um exemplo que adiciona dois números usando Python.
 

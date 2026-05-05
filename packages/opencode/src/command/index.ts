@@ -95,15 +95,17 @@ async function loadSingleCommand(filePath: string): Promise<Info | null> {
   const cmdName = trim(file)
   const template = md.content.trim()
 
+  const computedKeys = new Set(["name", "source", "template", "hints"])
+  const extraFields = Object.fromEntries(
+    Object.entries(md.data || {}).filter(([k]) => !computedKeys.has(k))
+  )
+
   return {
     name: cmdName,
-    description: md.data?.description,
-    agent: md.data?.agent,
-    model: md.data?.model,
     source: "command" as const,
     template,
-    subtask: md.data?.subtask,
     hints: hints(template),
+    ...extraFields,
   }
 }
 

@@ -2,7 +2,7 @@ export * as ConfigLSP from "./lsp"
 
 import { Schema } from "effect"
 import { zod } from "@/util/effect-zod"
-import { withStatics } from "@/util/schema"
+import { ConfigBoolean, withStatics } from "@/util/schema"
 import * as LSPServer from "../lsp/server"
 
 export const Disabled = Schema.Struct({
@@ -14,7 +14,7 @@ export const Entry = Schema.Union([
   Schema.Struct({
     command: Schema.mutable(Schema.Array(Schema.String)),
     extensions: Schema.optional(Schema.mutable(Schema.Array(Schema.String))),
-    disabled: Schema.optional(Schema.Boolean),
+    disabled: Schema.optional(ConfigBoolean),
     env: Schema.optional(Schema.Record(Schema.String, Schema.String)),
     initialization: Schema.optional(Schema.Record(Schema.String, Schema.Unknown)),
   }),
@@ -38,7 +38,7 @@ export const requiresExtensionsForCustomServers = Schema.makeFilter<
   return ok ? undefined : "For custom LSP servers, 'extensions' array is required."
 })
 
-export const Info = Schema.Union([Schema.Boolean, Schema.Record(Schema.String, Entry)])
+export const Info = Schema.Union([ConfigBoolean, Schema.Record(Schema.String, Entry)])
   .check(requiresExtensionsForCustomServers)
   .pipe(withStatics((s) => ({ zod: zod(s) })))
 

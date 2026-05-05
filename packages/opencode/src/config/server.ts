@@ -1,13 +1,13 @@
 import { Schema } from "effect"
 import { zod } from "@/util/effect-zod"
-import { PositiveInt, withStatics } from "@/util/schema"
+import { ConfigBoolean, PositiveInt, withStatics } from "@/util/schema"
 
 export const Server = Schema.Struct({
   port: Schema.optional(PositiveInt).annotate({
     description: "Port to listen on",
   }),
   hostname: Schema.optional(Schema.String).annotate({ description: "Hostname to listen on" }),
-  mdns: Schema.optional(Schema.Boolean).annotate({ description: "Enable mDNS service discovery" }),
+  mdns: Schema.optional(ConfigBoolean).annotate({ description: "Enable mDNS service discovery" }),
   mdnsDomain: Schema.optional(Schema.String).annotate({
     description: "Custom domain name for mDNS service (default: opencode.local)",
   }),

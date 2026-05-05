@@ -8,7 +8,7 @@ import { useArgs } from "../context/args"
 import { useRouteData } from "@tui/context/route"
 import { usePromptRef } from "../context/prompt"
 import { useLocal } from "../context/local"
-import { TuiPluginRuntime } from "../plugin"
+import { TuiPluginRuntime } from "@/cli/cmd/tui/plugin/runtime"
 import { SINISTER_PLACEHOLDERS } from "@opencode-ai/ui/constants/placeholders"
 
 let once = false

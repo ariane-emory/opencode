@@ -242,7 +242,7 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
   const buttonsSpring = useSpring(() => (store.mode === "normal" ? 1 : 0), { visualDuration: 0.2, bounce: 0 })
   const motion = (value: number) => ({
     opacity: value,
-    transform: `scale(${0.95 + value * 0.05})`,
+    transform: `scale(${0.98 + value * 0.02})`,
     filter: `blur(${(1 - value) * 2}px)`,
     "pointer-events": value > 0.5 ? ("auto" as const) : ("none" as const),
   })
@@ -286,6 +286,14 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     return items.filter((item) => !item.comment?.trim())
   })
 
+  const hasUserPrompt = createMemo(() => {
+    const sessionID = params.id
+    if (!sessionID) return false
+    const messages = sync.data.message[sessionID]
+    if (!messages) return false
+    return messages.some((m) => m.role === "user")
+  })
+
   const [history, setHistory] = persisted(
     Persist.global("prompt-history", ["prompt-history.v1"]),
     createStore<{
@@ -303,8 +311,15 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
     }),
   )
 
+  const suggest = createMemo(() => !hasUserPrompt())
+
   const placeholder = createMemo(() => {
-    if (store.mode === "shell") return language.t("prompt.placeholder.shell")
+    if (store.mode === "shell") {
+      return language.t("prompt.placeholder.shell", { example: suggest() ? "git status" : "" })
+    }
+    if (commentCount() > 1) return language.t("prompt.placeholder.summarizeComments")
+    if (commentCount() === 1) return language.t("prompt.placeholder.summarizeComment")
+    if (!suggest()) return language.t("prompt.placeholder.simple")
     return PLACEHOLDERS[store.placeholder]
   })
 
@@ -1359,12 +1374,11 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                 <IconButton
                   data-action="prompt-submit"
                   type="submit"
-                  disabled={store.mode !== "normal" || (!working() && blank())}
+                  disabled={!working() && blank()}
                   tabIndex={store.mode === "normal" ? undefined : -1}
-                  icon={stopping() ? "stop" : "arrow-up"}
+                  icon={stopping() ? "stop" : store.mode === "shell" ? "arrow-undo-down" : "arrow-up"}
                   variant="primary"
                   class="size-8"
-                  style={buttons()}
                   aria-label={stopping() ? language.t("prompt.action.stop") : language.t("prompt.action.send")}
                 />
               </Tooltip>
@@ -1407,14 +1421,24 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
           <div class="px-1.75 pt-5.5 pb-2 flex items-center gap-2 min-w-0">
             <div class="flex items-center gap-1.5 min-w-0 flex-1 relative">
               <div
-                class="h-7 flex items-center gap-1.5 max-w-[160px] min-w-0 absolute inset-y-0 left-0"
+                class="h-7 flex items-center gap-1.5 min-w-0 absolute inset-0"
                 style={{
-                  padding: "0 4px 0 8px",
+                  padding: "0 0px 0 8px",
                   ...shell(),
                 }}
               >
-                <span class="truncate text-13-medium text-text-strong">{language.t("prompt.mode.shell")}</span>
-                <div class="size-4 shrink-0" />
+                <Icon name="console" />
+                <span class="truncate text-13-medium text-text-base">{language.t("prompt.mode.shell")}</span>
+                <div class="flex-1" />
+                <Button
+                  variant="ghost"
+                  class="text-text-base"
+                  onClick={() => {
+                    setStore("mode", "normal")
+                  }}
+                >
+                  {language.t("common.cancel")}
+                </Button>
               </div>
               <div class="flex items-center gap-1.5 min-w-0 flex-1 h-7">
                 <Show when={!agentsLoading()}>
@@ -1521,33 +1545,35 @@ export const PromptInput: Component<PromptInputProps> = (props) => {
                         </TooltipKeybind>
                       </Show>
                     </div>
-                    <div
-                      data-component="prompt-variant-control"
-                      style={providersShouldFadeIn() ? { animation: "fade-in 0.3s" } : undefined}
-                    >
-                      <TooltipKeybind
-                        placement="top"
-                        gutter={4}
-                        title={language.t("command.model.variant.cycle")}
-                        keybind={command.keybind("model.variant.cycle")}
+                    <Show when={variants().length > 2}>
+                      <div
+                        data-component="prompt-variant-control"
+                        style={providersShouldFadeIn() ? { animation: "fade-in 0.3s" } : undefined}
                       >
-                        <Select
-                          size="normal"
-                          options={variants()}
-                          current={local.model.variant.current() ?? "default"}
-                          label={(x) => (x === "default" ? language.t("common.default") : x)}
-                          onSelect={(value) => {
-                            local.model.variant.set(value === "default" ? undefined : value)
-                            restoreFocus()
-                          }}
-                          class="capitalize max-w-[160px] text-text-base"
-                          valueClass="truncate text-13-regular text-text-base"
-                          triggerStyle={control()}
-                          triggerProps={{ "data-action": "prompt-model-variant" }}
-                          variant="ghost"
-                        />
-                      </TooltipKeybind>
-                    </div>
+                        <TooltipKeybind
+                          placement="top"
+                          gutter={4}
+                          title={language.t("command.model.variant.cycle")}
+                          keybind={command.keybind("model.variant.cycle")}
+                        >
+                          <Select
+                            size="normal"
+                            options={variants()}
+                            current={local.model.variant.current() ?? "default"}
+                            label={(x) => (x === "default" ? language.t("common.default") : x)}
+                            onSelect={(value) => {
+                              local.model.variant.set(value === "default" ? undefined : value)
+                              restoreFocus()
+                            }}
+                            class="capitalize max-w-[160px] text-text-base"
+                            valueClass="truncate text-13-regular text-text-base"
+                            triggerStyle={control()}
+                            triggerProps={{ "data-action": "prompt-model-variant" }}
+                            variant="ghost"
+                          />
+                        </TooltipKeybind>
+                      </div>
+                    </Show>
                   </Show>
                 </Show>
               </div>

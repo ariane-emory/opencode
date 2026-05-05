@@ -3,6 +3,7 @@ import { InstanceState } from "@/effect/instance-state"
 import { EffectBridge } from "@/effect/bridge"
 import type { InstanceContext } from "@/project/instance"
 import { Instance } from "@/project/instance"
+import { InstanceRef } from "@/effect/instance-ref"
 import { SessionID, MessageID } from "@/session/schema"
 import { Effect, Layer, Context, Schema } from "effect"
 import z from "zod"
@@ -106,8 +107,8 @@ async function loadSingleCommand(filePath: string): Promise<Info | null> {
   }
 }
 
-async function loadFreshCommandsWithMtime(directories: string[]): Promise<Record<string, Info>> {
-  const result: Record<string, Info> = createBuiltInCommands()
+async function loadFreshCommandsWithMtime(directories: string[], worktree: string): Promise<Record<string, Info>> {
+  const result: Record<string, Info> = createBuiltInCommands(worktree)
 
   for (const dir of directories) {
     const subdirs = ["command", "commands", ".opencode/command", ".opencode/commands"]
@@ -141,14 +142,14 @@ async function loadFreshCommandsWithMtime(directories: string[]): Promise<Record
   return result
 }
 
-function createBuiltInCommands(): Record<string, Info> {
+function createBuiltInCommands(worktree: string): Record<string, Info> {
   return {
     [Default.INIT]: {
       name: Default.INIT,
       description: "create/update AGENTS.md",
       source: "command",
       get template() {
-        return PROMPT_INITIALIZE.replace("${path}", Instance.worktree)
+        return PROMPT_INITIALIZE.replace("${path}", worktree)
       },
       hints: hints(PROMPT_INITIALIZE),
     },
@@ -157,7 +158,7 @@ function createBuiltInCommands(): Record<string, Info> {
       description: "review changes [commit|branch|pr], defaults to uncommitted",
       source: "command",
       get template() {
-        return PROMPT_REVIEW.replace("${path}", Instance.worktree)
+        return PROMPT_REVIEW.replace("${path}", worktree)
       },
       subtask: true,
       hints: hints(PROMPT_REVIEW),
@@ -292,7 +293,9 @@ export const layer = Layer.effect(
     const get = Effect.fn("Command.get")(function* (name: string) {
       const cfg = yield* config.get()
       if (cfg.experimental?.cache_command_markdown_files === false) {
-        const builtIn = createBuiltInCommands()
+        const instance = yield* InstanceRef
+        const worktree = instance?.worktree ?? Instance.worktree
+        const builtIn = createBuiltInCommands(worktree)
         if (builtIn[name]) return builtIn[name]
 
         const dirs = yield* config.directories()
@@ -328,8 +331,10 @@ export const layer = Layer.effect(
     const list = Effect.fn("Command.list")(function* () {
       const cfg = yield* config.get()
       if (cfg.experimental?.cache_command_markdown_files === false) {
+        const instance = yield* InstanceRef
+        const worktree = instance?.worktree ?? Instance.worktree
         const dirs = yield* config.directories()
-        const fresh = yield* Effect.promise(() => loadFreshCommandsWithMtime(dirs))
+        const fresh = yield* Effect.promise(() => loadFreshCommandsWithMtime(dirs, worktree))
 
         for (const [name, prompt] of Object.entries(yield* mcp.prompts())) {
           if (!fresh[name]) {

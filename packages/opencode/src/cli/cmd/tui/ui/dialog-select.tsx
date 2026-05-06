@@ -51,6 +51,7 @@ export type DialogSelectRef<T> = {
   filter: string
   filtered: DialogSelectOption<T>[]
   moveTo: (index: number, center?: boolean) => void
+  scrollToValue: (value: T, center?: boolean) => void
 }
 
 export function DialogSelect<T>(props: DialogSelectProps<T>) {
@@ -234,6 +235,12 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
       return filtered()
     },
     moveTo,
+    scrollToValue(value: T, center?: boolean) {
+      const index = flat().findIndex((opt) => isDeepEqual(opt.value, value))
+      if (index >= 0) {
+        moveTo(index, center)
+      }
+    },
   }
   props.ref?.(ref)
 

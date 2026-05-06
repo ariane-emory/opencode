@@ -247,8 +247,9 @@ export function DialogSessionList() {
               if (ref && currentIndex >= 0) {
                 setTimeout(() => {
                   const newIndex = Math.min(currentIndex, ref.filtered.length - 1)
-                  if (newIndex >= 0) {
-                    ref.moveTo(newIndex, true)
+                  const adjacentOption = ref.filtered[newIndex]
+                  if (adjacentOption) {
+                    ref.scrollToValue(adjacentOption.value, true)
                   }
                 }, 50)
               }

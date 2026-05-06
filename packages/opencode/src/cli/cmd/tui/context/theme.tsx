@@ -38,7 +38,6 @@ import zenburn from "./theme/zenburn.json" with { type: "json" }
 import carbonfox from "./theme/carbonfox.json" with { type: "json" }
 import mellow from "./theme/mellow.json" with { type: "json" }
 import midnight from "./theme/midnight.json" with { type: "json" }
-import tokyoNight from "./theme/tokyo-night.json" with { type: "json" }
 import auraTransparent from "./theme/aura--transparent.json" with { type: "json" }
 import ayuTransparent from "./theme/ayu--transparent.json" with { type: "json" }
 import catppuccinTransparent from "./theme/catppuccin--transparent.json" with { type: "json" }
@@ -71,7 +70,6 @@ import palenightTransparent from "./theme/palenight--transparent.json" with { ty
 import rosepineTransparent from "./theme/rosepine--transparent.json" with { type: "json" }
 import solarizedTransparent from "./theme/solarized--transparent.json" with { type: "json" }
 import synthwave84Transparent from "./theme/synthwave84--transparent.json" with { type: "json" }
-import tokyoNightTransparent from "./theme/tokyo-night--transparent.json" with { type: "json" }
 import vesperTransparent from "./theme/vesper--transparent.json" with { type: "json" }
 import zenburnTransparent from "./theme/zenburn--transparent.json" with { type: "json" }
 import carbonfoxTransparent from "./theme/carbonfox--transparent.json" with { type: "json" }
@@ -206,8 +204,6 @@ export const DEFAULT_THEMES: Record<string, ThemeJson> = {
   ["rosepine--transparent"]: rosepineTransparent,
   ["solarized--transparent"]: solarizedTransparent,
   ["synthwave84--transparent"]: synthwave84Transparent,
-  ["tokyo-night"]: tokyoNight,
-  ["tokyo-night--transparent"]: tokyoNightTransparent,
   ["vesper--transparent"]: vesperTransparent,
   ["zenburn--transparent"]: zenburnTransparent,
   ["carbonfox--transparent"]: carbonfoxTransparent,

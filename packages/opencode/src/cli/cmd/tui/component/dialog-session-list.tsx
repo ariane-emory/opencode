@@ -188,7 +188,8 @@ export function DialogSessionList() {
       skipFilter={true}
       current={skipCurrentSelection() ? undefined : currentSessionID()}
       onFilter={setSearch}
-      onMove={() => {
+      onMove={(option) => {
+        if (toDelete() === option.value) return
         setToDelete(undefined)
       }}
       onSelect={(option) => {

@@ -131,6 +131,7 @@ export const InstanceRoutes = (upgrade: UpgradeWebSocket, opts?: CorsOptions): H
     app.post(SessionPaths.promptAsync, (c) => handler(c.req.raw, context))
     app.post(SessionPaths.command, (c) => handler(c.req.raw, context))
     app.post(SessionPaths.shell, (c) => handler(c.req.raw, context))
+    app.post(SessionPaths.rewind, (c) => handler(c.req.raw, context))
     app.post(SessionPaths.revert, (c) => handler(c.req.raw, context))
     app.post(SessionPaths.unrevert, (c) => handler(c.req.raw, context))
     app.post(SessionPaths.permissions, (c) => handler(c.req.raw, context))

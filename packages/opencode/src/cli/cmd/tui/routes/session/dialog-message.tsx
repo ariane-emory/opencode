@@ -98,6 +98,8 @@ export function DialogMessage(props: {
               messageID: msg.id,
             })
 
+            await sync.session.forceSync(props.sessionID)
+
             if (promptInfo) props.setPrompt?.(promptInfo)
             dialog.clear()
           },

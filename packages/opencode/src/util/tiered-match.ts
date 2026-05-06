@@ -39,7 +39,14 @@ export function tieredMatch<T extends TieredMatchable>(items: T[], needle: strin
     }
   }
 
-  const sortByTitle = (a: T, b: T) => smartCompare(a.title, b.title)
+  const sortByTitle = (a: T, b: T) => compareTieredTitles(a.title, b.title, lowerNeedle)
 
   return [...tier1.sort(sortByTitle), ...tier2.sort(sortByTitle), ...tier3.sort(sortByTitle)]
+}
+
+export function compareTieredTitles(a: string, b: string, needle: string) {
+  const aIndex = a.toLowerCase().indexOf(needle)
+  const bIndex = b.toLowerCase().indexOf(needle)
+  if (aIndex !== bIndex) return aIndex - bIndex
+  return smartCompare(a, b)
 }

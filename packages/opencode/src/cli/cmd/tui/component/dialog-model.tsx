@@ -7,7 +7,7 @@ import { useDialog } from "@tui/ui/dialog"
 import { createDialogProviderOptions, DialogProvider } from "./dialog-provider"
 import { DialogVariant } from "./dialog-variant"
 import { useKeybind } from "../context/keybind"
-import { smartCompare } from "@/util/smart-sort"
+import { compareTieredTitles } from "@/util/tiered-match"
 import { useConnected } from "./use-connected"
 
 export function DialogModel(props: { providerID?: string }) {
@@ -136,7 +136,7 @@ export function DialogModel(props: { providerID?: string }) {
           }
         }
 
-        const sortByTitle = (a: T, b: T) => smartCompare(a.title, b.title)
+        const sortByTitle = (a: T, b: T) => compareTieredTitles(a.title, b.title, lowerNeedle)
         return [...tier1.sort(sortByTitle), ...tier2.sort(sortByTitle), ...tier3.sort(sortByTitle)]
       }
 

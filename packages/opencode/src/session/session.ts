@@ -654,9 +654,11 @@ export const layer: Layer.Layer<Service, never, Bus.Service | Storage.Service | 
       })
       const msgs = yield* messages({ sessionID: input.sessionID })
       const idMap = new Map<string, MessageID>()
+      let reachedTarget = !input.messageID
 
       for (const msg of msgs) {
-        if (input.messageID && msg.info.id >= input.messageID) break
+        if (input.messageID && msg.info.id === input.messageID) reachedTarget = true
+        if (reachedTarget) break
         const newID = MessageID.ascending()
         idMap.set(msg.info.id, newID)
 
@@ -826,15 +828,16 @@ export const rewind = fn(
   async (input) => {
     await rewindRuntime.runPromise((svc) => svc.assertNotBusy(input.sessionID))
     const msgs = await sessionRuntime.runPromise((svc) => svc.messages({ sessionID: input.sessionID }))
+    let remove = false
     for (const msg of msgs) {
-      if (msg.info.id >= input.messageID) {
-        await sessionRuntime.runPromise((svc) =>
-          svc.removeMessage({
-            sessionID: input.sessionID,
-            messageID: msg.info.id,
-          }),
-        )
-      }
+      if (msg.info.id === input.messageID) remove = true
+      if (!remove) continue
+      await sessionRuntime.runPromise((svc) =>
+        svc.removeMessage({
+          sessionID: input.sessionID,
+          messageID: msg.info.id,
+        }),
+      )
     }
     return sessionRuntime.runPromise((svc) => svc.get(input.sessionID))
   },

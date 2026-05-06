@@ -238,6 +238,7 @@ export function DialogSessionList() {
                 setToDelete(undefined)
                 return
               }
+              if (ref) ref.skipAutoScroll = true
               if (wsStatus && wsStatus !== "connected") {
                 await sync.session.refresh()
               }
@@ -253,6 +254,9 @@ export function DialogSessionList() {
                   }
                 }, 50)
               }
+              setTimeout(() => {
+                if (ref) ref.skipAutoScroll = false
+              }, 100)
               return
             }
             setToDelete(option.value)

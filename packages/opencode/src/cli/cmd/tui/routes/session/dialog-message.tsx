@@ -80,26 +80,25 @@ export function DialogMessage(props: {
             const msg = message()
             if (!msg) return
 
-            if (props.setPrompt) {
-              const parts = sync.data.part[msg.id]
-              const promptInfo = parts.reduce(
-                (agg, part) => {
-                  if (part.type === "text") {
-                    if (!part.synthetic) agg.input += part.text
-                  }
-                  if (part.type === "file") agg.parts.push(part)
-                  return agg
-                },
-                { input: "", parts: [] as PromptInfo["parts"] },
-              )
-              props.setPrompt(promptInfo)
-            }
+            const promptInfo = props.setPrompt
+              ? sync.data.part[msg.id].reduce(
+                  (agg, part) => {
+                    if (part.type === "text") {
+                      if (!part.synthetic) agg.input += part.text
+                    }
+                    if (part.type === "file") agg.parts.push(part)
+                    return agg
+                  },
+                  { input: "", parts: [] as PromptInfo["parts"] },
+                )
+              : undefined
 
             await sdk.client.session.rewind({
               sessionID: props.sessionID,
               messageID: msg.id,
             })
 
+            if (promptInfo) props.setPrompt?.(promptInfo)
             dialog.clear()
           },
         },

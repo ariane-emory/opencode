@@ -828,11 +828,12 @@ export const rewind = fn(
     const msgs = await sessionRuntime.runPromise((svc) => svc.messages({ sessionID: input.sessionID }))
     for (const msg of msgs) {
       if (msg.info.id >= input.messageID) {
-        Database.use((db) => db.delete(MessageTable).where(eq(MessageTable.id, msg.info.id)).run())
-        Bus.publish(MessageV2.Event.Removed, {
-          sessionID: input.sessionID,
-          messageID: msg.info.id,
-        })
+        await sessionRuntime.runPromise((svc) =>
+          svc.removeMessage({
+            sessionID: input.sessionID,
+            messageID: msg.info.id,
+          }),
+        )
       }
     }
     return sessionRuntime.runPromise((svc) => svc.get(input.sessionID))

@@ -8,7 +8,6 @@ import { createDialogProviderOptions, DialogProvider } from "./dialog-provider"
 import { DialogVariant } from "./dialog-variant"
 import { useKeybind } from "../context/keybind"
 import { smartCompare } from "@/util/smart-sort"
-import * as fuzzysort from "fuzzysort"
 import { useConnected } from "./use-connected"
 
 export function DialogModel(props: { providerID?: string }) {

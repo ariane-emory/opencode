@@ -436,6 +436,7 @@ export interface Interface {
     workspaceID?: WorkspaceID
   }) => Effect.Effect<Info>
   readonly fork: (input: { sessionID: SessionID; messageID?: MessageID }) => Effect.Effect<Info>
+  readonly rewind: (input: { sessionID: SessionID; messageID: MessageID }) => Effect.Effect<Info>
   readonly touch: (sessionID: SessionID) => Effect.Effect<void>
   readonly get: (id: SessionID) => Effect.Effect<Info>
   readonly setTitle: (input: { sessionID: SessionID; title: string }) => Effect.Effect<void>
@@ -482,12 +483,17 @@ export type Patch = Types.DeepMutable<SyncEvent.Event<typeof Event.Updated>["dat
 const db = <T>(fn: (d: Parameters<typeof Database.use>[0] extends (trx: infer D) => any ? D : never) => T) =>
   Effect.sync(() => Database.use(fn))
 
-export const layer: Layer.Layer<Service, never, Bus.Service | Storage.Service | SyncEvent.Service> = Layer.effect(
+export const layer: Layer.Layer<
+  Service,
+  never,
+  Bus.Service | Storage.Service | SyncEvent.Service | SessionRunState.Service
+> = Layer.effect(
   Service,
   Effect.gen(function* () {
     const bus = yield* Bus.Service
     const storage = yield* Storage.Service
     const sync = yield* SyncEvent.Service
+    const runState = yield* SessionRunState.Service
 
     const createNext = Effect.fn("Session.createNext")(function* (input: {
       id?: SessionID
@@ -763,6 +769,27 @@ export const layer: Layer.Layer<Service, never, Bus.Service | Storage.Service | 
       return input.partID
     })
 
+    const rewind = Effect.fn("Session.rewind")(function* (input: {
+      sessionID: SessionID
+      messageID: MessageID
+    }) {
+      yield* runState.assertNotBusy(input.sessionID)
+      const msgs = yield* messages({ sessionID: input.sessionID })
+      let remove = false
+      for (const msg of msgs) {
+        if (msg.info.id === input.messageID) remove = true
+        if (!remove) continue
+        yield* removeMessage({
+          sessionID: input.sessionID,
+          messageID: msg.info.id,
+        })
+      }
+      if (!remove) {
+        throw new NotFoundError({ message: `Message not found in session: ${input.messageID}` })
+      }
+      return yield* get(input.sessionID)
+    })
+
     const updatePartDelta = Effect.fnUntraced(function* (input: {
       sessionID: SessionID
       messageID: MessageID
@@ -788,6 +815,7 @@ export const layer: Layer.Layer<Service, never, Bus.Service | Storage.Service | 
       list,
       create,
       fork,
+      rewind,
       touch,
       get,
       setTitle,
@@ -815,9 +843,9 @@ export const defaultLayer = layer.pipe(
   Layer.provide(Bus.layer),
   Layer.provide(Storage.defaultLayer),
   Layer.provide(SyncEvent.defaultLayer),
+  Layer.provide(SessionRunState.defaultLayer),
 )
 
-const rewindRuntime = makeRuntime(SessionRunState.Service, SessionRunState.defaultLayer)
 const sessionRuntime = makeRuntime(Service, defaultLayer)
 
 export const rewind = fn(
@@ -825,22 +853,7 @@ export const rewind = fn(
     sessionID: SessionID.zod,
     messageID: MessageID.zod,
   }),
-  async (input) => {
-    await rewindRuntime.runPromise((svc) => svc.assertNotBusy(input.sessionID))
-    const msgs = await sessionRuntime.runPromise((svc) => svc.messages({ sessionID: input.sessionID }))
-    let remove = false
-    for (const msg of msgs) {
-      if (msg.info.id === input.messageID) remove = true
-      if (!remove) continue
-      await sessionRuntime.runPromise((svc) =>
-        svc.removeMessage({
-          sessionID: input.sessionID,
-          messageID: msg.info.id,
-        }),
-      )
-    }
-    return sessionRuntime.runPromise((svc) => svc.get(input.sessionID))
-  },
+  (input) => sessionRuntime.runPromise((svc) => svc.rewind(input)),
 )
 
 function* listByProject(

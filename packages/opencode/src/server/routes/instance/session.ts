@@ -410,14 +410,15 @@ export const SessionRoutes = lazy(() =>
         }),
       ),
       validator("json", Session.rewind.schema.omit({ sessionID: true })),
-      async (c) => {
-        const sessionID = c.req.valid("param").sessionID
-        const session = await Session.rewind({
-          sessionID,
-          ...c.req.valid("json"),
-        })
-        return c.json(session)
-      },
+      async (c) =>
+        jsonRequest("SessionRoutes.rewind", c, function* () {
+          const sessionID = c.req.valid("param").sessionID
+          const session = yield* Session.Service
+          return yield* session.rewind({
+            sessionID,
+            ...c.req.valid("json"),
+          })
+        }),
     )
     .post(
       "/:sessionID/fork",

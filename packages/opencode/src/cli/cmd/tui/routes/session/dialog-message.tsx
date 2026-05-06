@@ -3,9 +3,11 @@ import { useSync } from "@tui/context/sync"
 import { DialogSelect } from "@tui/ui/dialog-select"
 import { useSDK } from "@tui/context/sdk"
 import { useRoute } from "@tui/context/route"
+import { useToast } from "@tui/ui/toast"
 import * as Clipboard from "@tui/util/clipboard"
 import type { PromptInfo } from "@tui/component/prompt/history"
 import { strip } from "@tui/component/prompt/part"
+import { errorMessage } from "@/util/error"
 
 export function DialogMessage(props: {
   messageID: string
@@ -14,6 +16,7 @@ export function DialogMessage(props: {
 }) {
   const sync = useSync()
   const sdk = useSDK()
+  const toast = useToast()
   const message = createMemo(() => sync.data.message[props.sessionID]?.find((x) => x.id === props.messageID))
   const route = useRoute()
 
@@ -93,15 +96,23 @@ export function DialogMessage(props: {
                 )
               : undefined
 
-            await sdk.client.session.rewind({
-              sessionID: props.sessionID,
-              messageID: msg.id,
-            })
+            try {
+              await sdk.client.session.rewind({
+                sessionID: props.sessionID,
+                messageID: msg.id,
+              })
 
-            await sync.session.forceSync(props.sessionID)
+              await sync.session.forceSync(props.sessionID)
 
-            if (promptInfo) props.setPrompt?.(promptInfo)
-            dialog.clear()
+              if (promptInfo) props.setPrompt?.(promptInfo)
+              dialog.clear()
+            } catch (error) {
+              toast.show({
+                title: "Rewind failed",
+                message: errorMessage(error),
+                variant: "error",
+              })
+            }
           },
         },
         {

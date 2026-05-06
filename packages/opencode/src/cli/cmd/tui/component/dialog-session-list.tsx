@@ -32,6 +32,7 @@ export function DialogSessionList() {
   const [toDelete, setToDelete] = createSignal<string>()
   const [search, setSearch] = createDebouncedSignal("", 150)
   const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()
+  const [skipCurrentSelection, setSkipCurrentSelection] = createSignal(false)
 
 
   const [searchResults, { refetch }] = createResource(
@@ -185,7 +186,7 @@ export function DialogSessionList() {
       title="Sessions"
       options={options()}
       skipFilter={true}
-      current={currentSessionID()}
+      current={skipCurrentSelection() ? undefined : currentSessionID()}
       onFilter={setSearch}
       onMove={() => {
         setToDelete(undefined)
@@ -239,6 +240,7 @@ export function DialogSessionList() {
                 return
               }
               if (ref) ref.skipAutoScroll = true
+              setSkipCurrentSelection(true)
               if (wsStatus && wsStatus !== "connected") {
                 await sync.session.refresh()
               }
@@ -256,6 +258,7 @@ export function DialogSessionList() {
               }
               setTimeout(() => {
                 if (ref) ref.skipAutoScroll = false
+                setSkipCurrentSelection(false)
               }, 100)
               return
             }

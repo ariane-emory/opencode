@@ -14,7 +14,7 @@ ${commandSection}
 
 You SHOULD create new commits and push your changes to origin after making any substantial changes to a file. When you are creating a new git commit, you MUST follow these steps carefully:
 
-Git Safety Protocol:
+# Git Safety Protocol:
 - You SHOULD only update the git config when explicitly asks you to do so
 - You SHOULD NOT run destructive/irreversible git commands (like hard reset, etc) unless the user explicitly requests them
 - You SHOULD only skip hooks (--no-verify, --no-gpg-sign, etc) to avoid push failures due to pre-existing errors in the base branch or when user explicitly requests it

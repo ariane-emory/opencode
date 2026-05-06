@@ -32,9 +32,6 @@ export function DialogSessionList() {
   const [toDelete, setToDelete] = createSignal<string>()
   const [search, setSearch] = createDebouncedSignal("", 150)
   const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()
-  const [skipCurrentSelection, setSkipCurrentSelection] = createSignal(false)
-
-
   const [searchResults, { refetch }] = createResource(
     () => ({ query: search(), filter: sync.session.query() }),
     async (input) => {
@@ -186,7 +183,7 @@ export function DialogSessionList() {
       title="Sessions"
       options={options()}
       skipFilter={true}
-      current={skipCurrentSelection() ? undefined : currentSessionID()}
+      current={currentSessionID()}
       onFilter={setSearch}
       onMove={(option) => {
         if (toDelete() === option.value) return
@@ -210,8 +207,9 @@ export function DialogSessionList() {
               const adjacentID =
                 currentIndex < 0
                   ? undefined
-                  : ref?.filtered[Math.min(currentIndex + 1, ref.filtered.length - 1)]?.value ??
-                    ref?.filtered[currentIndex - 1]?.value
+                  : currentIndex < (ref?.filtered.length ?? 0) - 1
+                    ? ref?.filtered[currentIndex + 1]?.value
+                    : ref?.filtered[currentIndex - 1]?.value
               const session = sessions().find((item) => item.id === option.value)
               const wsStatus = session?.workspaceID ? project.workspace.status(session.workspaceID) : undefined
 
@@ -246,7 +244,6 @@ export function DialogSessionList() {
                 return
               }
               if (ref) ref.skipAutoScroll = true
-              setSkipCurrentSelection(true)
               if (wsStatus && wsStatus !== "connected") {
                 await sync.session.refresh()
               }
@@ -260,7 +257,6 @@ export function DialogSessionList() {
               }
               setTimeout(() => {
                 if (ref) ref.skipAutoScroll = false
-                setSkipCurrentSelection(false)
               }, 100)
               return
             }

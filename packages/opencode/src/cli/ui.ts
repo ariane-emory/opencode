@@ -68,35 +68,13 @@ export function logo(pad?: string) {
     shadow: "\x1b[38;5;238m",
   }
   const gap = " "
-  const draw = (line: string, fg: string, shadow: string) => {
-    const parts: string[] = []
-    for (const char of line) {
-      if (char === "_") {
-        parts.push(" ")
-        continue
-      }
-      if (char === "^") {
-        parts.push(fg, "▀", reset)
-        continue
-      }
-      if (char === "~") {
-        parts.push(shadow, "▀", reset)
-        continue
-      }
-      if (char === " ") {
-        parts.push(" ")
-        continue
-      }
-      parts.push(fg, char, reset)
-    }
-    return parts.join("")
-  }
+
   glyphs.left.forEach((row, index) => {
     if (pad) result.push(pad)
-    result.push(draw(row, left.fg, left.shadow))
+    result.push(left.fg, row, reset)
     result.push(gap)
     const other = glyphs.right[index] ?? ""
-    result.push(draw(other, right.fg, right.shadow))
+    result.push(right.fg, other, reset)
     result.push(EOL)
   })
   return result.join("").trimEnd()

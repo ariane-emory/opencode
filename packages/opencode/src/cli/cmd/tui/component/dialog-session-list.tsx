@@ -207,6 +207,11 @@ export function DialogSessionList() {
             if (toDelete() === option.value) {
               const ref = selectRef()
               const currentIndex = ref?.filtered.findIndex((opt) => opt.value === option.value) ?? -1
+              const adjacentID =
+                currentIndex < 0
+                  ? undefined
+                  : ref?.filtered[Math.min(currentIndex + 1, ref.filtered.length - 1)]?.value ??
+                    ref?.filtered[currentIndex - 1]?.value
               const session = sessions().find((item) => item.id === option.value)
               const wsStatus = session?.workspaceID ? project.workspace.status(session.workspaceID) : undefined
 
@@ -248,13 +253,9 @@ export function DialogSessionList() {
               if (search()) await refetch()
               setToDelete(undefined)
 
-              if (ref && currentIndex >= 0) {
+              if (ref && adjacentID) {
                 setTimeout(() => {
-                  const newIndex = Math.min(currentIndex, ref.filtered.length - 1)
-                  const adjacentOption = ref.filtered[newIndex]
-                  if (adjacentOption) {
-                    ref.scrollToValue(adjacentOption.value, true)
-                  }
+                  ref.scrollToValue(adjacentID, true)
                 }, 50)
               }
               setTimeout(() => {

@@ -121,7 +121,8 @@ export function DialogSessionList() {
       const group = title.slice(0, pipeIndex).trim()
       const displayTitle = title.slice(pipeIndex + 1).trim()
       if (!group) return { displayTitle }
-      return { group, displayTitle }
+      const capitalized = group.charAt(0).toUpperCase() + group.slice(1)
+      return { group: capitalized, displayTitle }
     }
 
     return sessions()

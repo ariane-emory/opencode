@@ -50,7 +50,6 @@ export type PromptProps = {
   workspaceID?: string
   visible?: boolean
   disabled?: boolean
-  showUsage?: boolean
   onSubmit?: () => void
   ref?: (ref: PromptRef | undefined) => void
   hint?: JSX.Element

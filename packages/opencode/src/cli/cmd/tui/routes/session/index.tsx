@@ -1328,7 +1328,7 @@ function UserMessage(props: {
                 <Show when={ctx.showTimestamps()}>
                   <text fg={theme.textMuted}>
                     <span style={{ fg: theme.textMuted }}>
-                      {Locale.todayTimeOrDateTime(props.message.time.created)}
+                      {Locale.todayTimeOrDateTimeCompact(props.message.time.created)}
                     </span>
                   </text>
                 </Show>
@@ -1432,7 +1432,7 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
               <span style={{ fg: theme.text }}>{Locale.titlecase(props.message.mode)}</span>
               <span style={{ fg: theme.textMuted }}> · {model()}</span>
               <Show when={ctx.showAgentTimestamps()}>
-                <span style={{ fg: theme.textMuted }}> · {Locale.todayTimeOrDateTime(props.message.time.created)}</span>
+                <span style={{ fg: theme.textMuted }}> · {Locale.todayTimeOrDateTimeCompact(props.message.time.created)}</span>
               </Show>
               <Show when={duration()}>
                 <span style={{ fg: theme.textMuted }}> · {Locale.duration(duration())}</span>

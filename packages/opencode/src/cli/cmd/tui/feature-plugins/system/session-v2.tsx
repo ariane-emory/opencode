@@ -180,7 +180,7 @@ function UserMessage(props: { message: SessionMessageUser; index: number }) {
             </For>
           </box>
         </Show>
-        <text fg={theme.textMuted}>{Locale.todayTimeOrDateTime(props.message.time.created)}</text>
+        <text fg={theme.textMuted}>{Locale.todayTimeOrDateTimeCompact(props.message.time.created)}</text>
       </box>
     </box>
   )

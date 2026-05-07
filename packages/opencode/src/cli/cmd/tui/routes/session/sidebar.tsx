@@ -3,8 +3,9 @@ import { useSync } from "@tui/context/sync"
 import { createMemo, Show } from "solid-js"
 import { useTheme } from "../../context/theme"
 import { useTuiConfig } from "../../context/tui-config"
-import { InstallationChannel, InstallationVersion } from "@opencode-ai/core/installation/version"
+import { InstallationVersion } from "@opencode-ai/core/installation/version"
 import { TuiPluginRuntime } from "@/cli/cmd/tui/plugin/runtime"
+import { useKV } from "../../context/kv"
 
 import { getScrollAcceleration } from "../../util/scroll"
 
@@ -27,6 +28,9 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
     return `${info.type}: ${info.name}`
   }
   const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
+
+  const kv = useKV()
+  const showSessionID = createMemo(() => kv.get("sidebar_session_id_visible", false))
 
   return (
     <Show when={session()}>
@@ -62,7 +66,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
                 <text fg={theme.text}>
                   <b>{session()!.title}</b>
                 </text>
-                <Show when={InstallationChannel !== "latest"}>
+                <Show when={showSessionID()}>
                   <text fg={theme.textMuted}>{props.sessionID}</text>
                 </Show>
                 <Show when={session()!.workspaceID}>

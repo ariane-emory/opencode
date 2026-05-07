@@ -779,6 +779,15 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         dialog.clear()
       },
     },
+    {
+      title: kv.get("sidebar_session_id_visible", false) ? "Hide session ID in sidebar" : "Show session ID in sidebar",
+      value: "app.toggle.sidebar_session_id",
+      category: "System",
+      onSelect: (dialog) => {
+        kv.set("sidebar_session_id_visible", !kv.get("sidebar_session_id_visible", false))
+        dialog.clear()
+      },
+    },
   ])
 
   event.on(TuiEvent.CommandExecute.type, (evt) => {

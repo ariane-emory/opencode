@@ -282,9 +282,11 @@ export const layer: Layer.Layer<
     })
 
     const tools: Interface["tools"] = Effect.fn("ToolRegistry.tools")(function* (input) {
+      const cfg = yield* config.get()
+      const enableExa = Flag.OPENCODE_ENABLE_EXA || cfg.experimental?.enable_exa === true
       const filtered = (yield* all()).filter((tool) => {
         if (tool.id === WebSearchTool.id) {
-          return input.providerID === ProviderID.opencode || Flag.OPENCODE_ENABLE_EXA
+          return input.providerID === ProviderID.opencode || enableExa
         }
 
         const usePatch =

@@ -5250,205 +5250,6 @@ export type SessionTodoResponses = {
 
 export type SessionTodoResponse = SessionTodoResponses[keyof SessionTodoResponses]
 
-export type SessionInitData = {
-  body?: {
-    modelID: string
-    providerID: string
-    messageID: string
-  }
-  path: {
-    sessionID: string
-  }
-  query?: {
-    directory?: string
-    workspace?: string
-  }
-  url: "/session/{sessionID}/init"
-}
-
-export type SessionInitErrors = {
-  /**
-   * Bad request
-   */
-  400: BadRequestError
-  /**
-   * Not found
-   */
-  404: NotFoundError
-}
-
-export type SessionInitError = SessionInitErrors[keyof SessionInitErrors]
-
-export type SessionInitResponses = {
-  /**
-   * 200
-   */
-  200: boolean
-}
-
-export type SessionInitResponse = SessionInitResponses[keyof SessionInitResponses]
-
-export type SessionRewindData = {
-  body?: {
-    messageID: string
-  }
-  path: {
-    sessionID: string
-  }
-  query?: {
-    directory?: string
-  }
-  url: "/session/{sessionID}/rewind"
-}
-
-export type SessionRewindErrors = {
-  /**
-   * Bad request
-   */
-  400: BadRequestError
-  /**
-   * Not found
-   */
-  404: NotFoundError
-}
-
-export type SessionRewindError = SessionRewindErrors[keyof SessionRewindErrors]
-
-export type SessionRewindResponses = {
-  /**
-   * Rewound session
-   */
-  200: Session
-}
-
-export type SessionRewindResponse = SessionRewindResponses[keyof SessionRewindResponses]
-
-export type SessionForkData = {
-  body?: {
-    messageID?: string
-  }
-  path: {
-    sessionID: string
-  }
-  query?: {
-    directory?: string
-    workspace?: string
-  }
-  url: "/session/{sessionID}/fork"
-}
-
-export type SessionForkResponses = {
-  /**
-   * 200
-   */
-  200: Session
-}
-
-export type SessionForkResponse = SessionForkResponses[keyof SessionForkResponses]
-
-export type SessionAbortData = {
-  body?: never
-  path: {
-    sessionID: string
-  }
-  query?: {
-    directory?: string
-    workspace?: string
-  }
-  url: "/session/{sessionID}/abort"
-}
-
-export type SessionAbortErrors = {
-  /**
-   * Bad request
-   */
-  400: BadRequestError
-  /**
-   * Not found
-   */
-  404: NotFoundError
-}
-
-export type SessionAbortError = SessionAbortErrors[keyof SessionAbortErrors]
-
-export type SessionAbortResponses = {
-  /**
-   * Aborted session
-   */
-  200: boolean
-}
-
-export type SessionAbortResponse = SessionAbortResponses[keyof SessionAbortResponses]
-
-export type SessionUnshareData = {
-  body?: never
-  path: {
-    sessionID: string
-  }
-  query?: {
-    directory?: string
-    workspace?: string
-  }
-  url: "/session/{sessionID}/share"
-}
-
-export type SessionUnshareErrors = {
-  /**
-   * Bad request
-   */
-  400: BadRequestError
-  /**
-   * Not found
-   */
-  404: NotFoundError
-}
-
-export type SessionUnshareError = SessionUnshareErrors[keyof SessionUnshareErrors]
-
-export type SessionUnshareResponses = {
-  /**
-   * Successfully unshared session
-   */
-  200: Session
-}
-
-export type SessionUnshareResponse = SessionUnshareResponses[keyof SessionUnshareResponses]
-
-export type SessionShareData = {
-  body?: never
-  path: {
-    sessionID: string
-  }
-  query?: {
-    directory?: string
-    workspace?: string
-  }
-  url: "/session/{sessionID}/share"
-}
-
-export type SessionShareErrors = {
-  /**
-   * Bad request
-   */
-  400: BadRequestError
-  /**
-   * Not found
-   */
-  404: NotFoundError
-}
-
-export type SessionShareError = SessionShareErrors[keyof SessionShareErrors]
-
-export type SessionShareResponses = {
-  /**
-   * Successfully shared session
-   */
-  200: Session
-}
-
-export type SessionShareResponse = SessionShareResponses[keyof SessionShareResponses]
-
-
 export type SessionDiffData = {
   body?: never
   path: {
@@ -5657,6 +5458,42 @@ export type SessionForkResponses = {
 }
 
 export type SessionForkResponse = SessionForkResponses[keyof SessionForkResponses]
+
+export type SessionRewindData = {
+  body?: {
+    messageID: string
+  }
+  path: {
+    sessionID: string
+  }
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/session/{sessionID}/rewind"
+}
+
+export type SessionRewindErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+  /**
+   * Not found
+   */
+  404: NotFoundError
+}
+
+export type SessionRewindError = SessionRewindErrors[keyof SessionRewindErrors]
+
+export type SessionRewindResponses = {
+  /**
+   * Rewound session
+   */
+  200: Session
+}
+
+export type SessionRewindResponse = SessionRewindResponses[keyof SessionRewindResponses]
 
 export type SessionAbortData = {
   body?: never

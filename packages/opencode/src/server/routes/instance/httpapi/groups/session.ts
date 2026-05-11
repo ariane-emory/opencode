@@ -254,7 +254,7 @@ export const SessionApi = HttpApi.make("session")
           params: { sessionID: SessionID },
           payload: RewindPayload,
           success: described(Session.Info, "Rewound session"),
-          error: [HttpApiError.BadRequest, HttpApiError.NotFound],
+          error: [HttpApiError.BadRequest, ApiNotFoundError],
         }).annotateMerge(
           OpenApi.annotations({
             identifier: "session.rewind",

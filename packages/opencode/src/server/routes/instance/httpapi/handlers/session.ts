@@ -216,7 +216,7 @@ export const sessionHandlers = HttpApiBuilder.group(InstanceHttpApi, "session", 
       params: { sessionID: SessionID }
       payload: typeof RewindPayload.Type
     }) {
-      return yield* session.rewind({ sessionID: ctx.params.sessionID, messageID: ctx.payload.messageID })
+      return yield* SessionError.mapStorageNotFound(session.rewind({ sessionID: ctx.params.sessionID, messageID: ctx.payload.messageID }))
     })
 
     const abort = Effect.fn("SessionHttpApi.abort")(function* (ctx: { params: { sessionID: SessionID } }) {

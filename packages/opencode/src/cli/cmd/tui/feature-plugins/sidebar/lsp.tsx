@@ -1,4 +1,5 @@
-import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
+import type { TuiPlugin, TuiPluginApi } from "@opencode-ai/plugin/tui"
+import type { InternalTuiPlugin } from "../../plugin/internal"
 import { createEffect, createMemo, createSignal, For, Show } from "solid-js"
 
 const id = "internal:sidebar-lsp"
@@ -20,7 +21,7 @@ function View(props: { api: TuiPluginApi }) {
   }
   const theme = () => props.api.theme.current
   const list = createMemo(() => props.api.state.lsp())
-  const off = createMemo(() => props.api.state.config.lsp === false)
+  const off = createMemo(() => !props.api.state.config.lsp)
 
   return (
     <box>
@@ -34,9 +35,7 @@ function View(props: { api: TuiPluginApi }) {
       </box>
       <Show when={list().length <= 2 || open()}>
         <Show when={list().length === 0}>
-          <text fg={theme().textMuted}>
-            {off() ? "LSPs have been disabled in settings" : "LSPs will activate as files are read"}
-          </text>
+          <text fg={theme().textMuted}>{off() ? "LSPs are disabled" : "LSPs will activate as files are read"}</text>
         </Show>
         <For each={list()}>
           {(item) => (
@@ -71,7 +70,7 @@ const tui: TuiPlugin = async (api) => {
   })
 }
 
-const plugin: TuiPluginModule & { id: string } = {
+const plugin: InternalTuiPlugin = {
   id,
   tui,
 }

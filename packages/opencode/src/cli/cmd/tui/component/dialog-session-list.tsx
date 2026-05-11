@@ -2,21 +2,21 @@ import { useDialog } from "@tui/ui/dialog"
 import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { useRoute } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
-import { createEffect, createMemo, createResource, createSignal, onMount } from "solid-js"
+import { createEffect, createMemo, createResource, createSignal, onMount, type JSX } from "solid-js"
 import { Locale } from "@/util/locale"
 import { useProject } from "@tui/context/project"
-import { useKeybind } from "../context/keybind"
 import { useTheme } from "../context/theme"
 import { useSDK } from "../context/sdk"
 import { Flag } from "@opencode-ai/core/flag/flag"
 import { DialogSessionRename } from "./dialog-session-rename"
-import { Keybind } from "@/util/keybind"
 import { createDebouncedSignal } from "../util/signal"
 import { useToast } from "../ui/toast"
-import { DialogWorkspaceCreate, openWorkspaceSession, restoreWorkspaceSession } from "./dialog-workspace-create"
+import { openWorkspaceSelect, type WorkspaceSelection, warpWorkspaceSession } from "./dialog-workspace-create"
 import { Spinner } from "./spinner"
 import { errorMessage } from "@/util/error"
 import { DialogSessionDeleteFailed } from "./dialog-session-delete-failed"
+import { WorkspaceLabel } from "./workspace-label"
+import { useCommandShortcut } from "../keymap"
 import { useKV } from "../context/kv"
 
 export function DialogSessionList() {
@@ -24,7 +24,6 @@ export function DialogSessionList() {
   const route = useRoute()
   const sync = useSync()
   const project = useProject()
-  const keybind = useKeybind()
   const { theme } = useTheme()
   const sdk = useSDK()
   const toast = useToast()
@@ -32,6 +31,7 @@ export function DialogSessionList() {
   const [toDelete, setToDelete] = createSignal<string>()
   const [search, setSearch] = createDebouncedSignal("", 150)
   const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()
+  const deleteHint = useCommandShortcut("session.delete")
 
   const [searchResults, { refetch }] = createResource(
     () => ({ query: search(), filter: sync.session.query() }),
@@ -42,7 +42,6 @@ export function DialogSessionList() {
     },
   )
 
-  const pinKeybind = "ctrl+b"
   const currentSessionID = createMemo(() => (route.data.type === "session" ? route.data.sessionID : undefined))
 
   const sessions = createMemo(() => {
@@ -63,26 +62,41 @@ export function DialogSessionList() {
     return sorted[0]?.id ?? all.toSorted((a, b) => b.time.updated - a.time.updated)[0]?.id
   })
 
-  function createWorkspace() {
-    dialog.replace(() => (
-      <DialogWorkspaceCreate
-        onSelect={(workspaceID) =>
-          openWorkspaceSession({
-            dialog,
-            route,
-            sdk,
-            sync,
-            toast,
-            workspaceID,
-          })
-        }
-      />
-    ))
-  }
-
   function recover(session: NonNullable<ReturnType<typeof sessions>[number]>) {
     const workspace = project.workspace.get(session.workspaceID!)
     const list = () => dialog.replace(() => <DialogSessionList />)
+    const warp = async (selection: WorkspaceSelection) => {
+      const workspaceID = await (async () => {
+        if (selection.type === "none") return null
+        if (selection.type === "existing") return selection.workspaceID
+        const result = await sdk.client.experimental.workspace
+          .create({ type: selection.workspaceType, branch: null })
+          .catch(() => undefined)
+        const workspace = result?.data
+        if (!workspace) {
+          toast.show({
+            message: `Failed to create workspace: ${errorMessage(result?.error ?? "no response")}`,
+            variant: "error",
+          })
+          return
+        }
+        await project.workspace.sync()
+        return workspace.id
+      })()
+      if (workspaceID === undefined) return
+      await warpWorkspaceSession({
+        dialog,
+        sdk,
+        sync,
+        project,
+        toast,
+        sourceWorkspaceID: session.workspaceID,
+        workspaceID,
+        sessionID: session.id,
+        copyChanges: false,
+        done: list,
+      })
+    }
     dialog.replace(() => (
       <DialogSessionDeleteFailed
         session={session.title}
@@ -109,55 +123,59 @@ export function DialogSessionList() {
           return true
         }}
         onRestore={() => {
-          dialog.replace(() => (
-            <DialogWorkspaceCreate
-              onSelect={(workspaceID) =>
-                restoreWorkspaceSession({
-                  dialog,
-                  sdk,
-                  sync,
-                  project,
-                  toast,
-                  workspaceID,
-                  sessionID: session.id,
-                  done: list,
-                })
-              }
-            />
-          ))
+          void openWorkspaceSelect({
+            dialog,
+            sdk,
+            sync,
+            project,
+            toast,
+            onSelect: (selection) => {
+              void warp(selection)
+            },
+          })
           return false
         }}
       />
     ))
   }
 
+  function orderByRecency(sessionsList: NonNullable<ReturnType<typeof sessions>>) {
+    return sessionsList
+      .filter((x) => x.parentID === undefined)
+      .toSorted((a, b) => b.time.updated - a.time.updated)
+      .map((x) => x.id)
+  }
+
+  const [browseOrder] = createSignal<string[]>(orderByRecency(sync.data.session))
+
   const options = createMemo(() => {
     const today = new Date().toDateString()
     const all = sessions().filter((x) => x.parentID === undefined)
     const pinned = all.filter((x) => x.time.pinned !== undefined).toSorted((a, b) => (b.time.pinned ?? 0) - (a.time.pinned ?? 0))
-    const unpinned = all.filter((x) => x.time.pinned === undefined).toSorted((a, b) => {
-      const updatedDay = new Date(b.time.updated).setHours(0, 0, 0, 0) - new Date(a.time.updated).setHours(0, 0, 0, 0)
-      if (updatedDay !== 0) return updatedDay
-      return b.time.created - a.time.created
-    })
 
-    const foot = (session: (typeof all)[number], showDate: boolean) => {
+    const sessionMap = new Map(all.map((x) => [x.id, x]))
+
+    const searchResult = searchResults()
+    const unpinnedOrder = searchResult ? orderByRecency(searchResult) : browseOrder()
+
+    const unpinned = unpinnedOrder
+      .map((id) => sessionMap.get(id))
+      .filter((x) => x !== undefined && x.time.pinned === undefined)
+
+    const foot = (session: (typeof all)[number], showDate: boolean): JSX.Element | string => {
       if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES && session.workspaceID) {
         const workspace = project.workspace.get(session.workspaceID)
         const status = project.workspace.status(session.workspaceID) || "error"
-        const desc = workspace ? `${workspace.type}: ${workspace.name}` : "unknown"
-        return (
-          <>
-            {desc}{" "}
-            <span
-              style={{
-                fg: status === "error" ? theme.error : status === "disconnected" ? theme.textMuted : theme.success,
-              }}
-            >
-              ●
-            </span>
-          </>
-        )
+        if (workspace) {
+          return (
+            <WorkspaceLabel
+              type={workspace.type}
+              name={workspace.name}
+              status={status}
+            />
+          )
+        }
+        return <WorkspaceLabel type="unknown" name={session.workspaceID} status="error" />
       }
 
       return showDate ? Locale.shortDateTime(session.time.updated) : Locale.time(session.time.updated)
@@ -166,13 +184,14 @@ export function DialogSessionList() {
     const item = (session: (typeof all)[number], category: string, showDate: boolean) => {
       const deleting = toDelete() === session.id
       const status = sync.data.session_status?.[session.id]
+      const isWorking = status?.type === "busy" || status?.type === "retry"
       return {
-        title: deleting ? `Press ${keybind.print("session_delete")} again to confirm` : session.title,
+        title: deleting ? `Press ${deleteHint()} again to confirm` : session.title,
         bg: deleting ? theme.error : undefined,
         value: session.id,
         category,
         footer: foot(session, showDate),
-        gutter: status?.type === "busy" ? <Spinner /> : undefined,
+        gutter: isWorking ? () => <Spinner /> : undefined,
       }
     }
 
@@ -216,9 +235,9 @@ export function DialogSessionList() {
         })
         dialog.clear()
       }}
-      keybind={[
+      actions={[
         {
-          keybind: keybind.all.session_delete?.[0],
+          command: "session.delete",
           title: "delete",
           onTrigger: async (option) => {
             if (toDelete() === option.value) {
@@ -266,14 +285,14 @@ export function DialogSessionList() {
           },
         },
         {
-          keybind: keybind.all.session_rename?.[0],
+          command: "session.rename",
           title: "rename",
           onTrigger: async (option) => {
             dialog.replace(() => <DialogSessionRename session={option.value} />)
           },
         },
         {
-          keybind: Keybind.parse(pinKeybind)[0],
+          command: "session.bookmark",
           title: "bookmark",
           onTrigger: async (option) => {
             const session = sessions().find((s) => s.id === option.value)
@@ -283,15 +302,6 @@ export function DialogSessionList() {
               time: { pinned: session.time.pinned === undefined ? Date.now() : null },
             })
             setTimeout(() => selectRef()?.scrollToValue(option.value, true), 0)
-          },
-        },
-        {
-          keybind: Keybind.parse("ctrl+w")[0],
-          title: "new workspace",
-          side: "right",
-          disabled: !Flag.OPENCODE_EXPERIMENTAL_WORKSPACES,
-          onTrigger: () => {
-            createWorkspace()
           },
         },
       ]}

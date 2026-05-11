@@ -35,7 +35,6 @@ export type Event =
   | EventVcsBranchUpdated
   | EventWorkspaceReady
   | EventWorkspaceFailed
-  | EventWorkspaceRestore
   | EventWorkspaceStatus
   | EventWorktreeReady
   | EventWorktreeFailed
@@ -120,8 +119,8 @@ export type PermissionRequest = {
 }
 
 export type SnapshotFileDiff = {
-  file: string
-  patch: string
+  file?: string
+  patch?: string
   additions: number
   deletions: number
   status?: "added" | "deleted" | "modified"
@@ -267,6 +266,14 @@ export type SessionStatus =
       type: "retry"
       attempt: number
       message: string
+      action?: {
+        reason: string
+        provider: string
+        title: string
+        message: string
+        label: string
+        link?: string
+      }
       next: number
     }
   | {
@@ -765,6 +772,7 @@ export type Prompt = {
   text: string
   files?: Array<PromptFileAttachment>
   agents?: Array<PromptAgentAttachment>
+  references?: Array<PromptReferenceAttachment>
 }
 
 export type GlobalEvent = {
@@ -802,7 +810,6 @@ export type GlobalEvent = {
     | EventVcsBranchUpdated
     | EventWorkspaceReady
     | EventWorkspaceFailed
-    | EventWorkspaceRestore
     | EventWorkspaceStatus
     | EventWorktreeReady
     | EventWorktreeFailed
@@ -896,6 +903,26 @@ export type ServerConfig = {
   cors?: Array<string>
 }
 
+export type ReferenceConfigEntry =
+  | string
+  | {
+      /**
+       * Git repository URL, host/path reference, or GitHub owner/repo shorthand
+       */
+      repository: string
+      branch?: string
+    }
+  | {
+      /**
+       * Absolute path, ~/ path, or workspace-relative path to a local reference directory
+       */
+      path: string
+    }
+
+export type ReferenceConfig = {
+  [key: string]: ReferenceConfigEntry
+}
+
 export type PermissionActionConfig = "ask" | "allow" | "deny"
 
 export type PermissionObjectConfig = {
@@ -919,6 +946,9 @@ export type PermissionConfig =
       question?: PermissionActionConfig
       webfetch?: PermissionActionConfig
       websearch?: PermissionActionConfig
+      codesearch?: PermissionActionConfig
+      repo_clone?: PermissionRuleConfig
+      repo_overview?: PermissionRuleConfig
       lsp?: PermissionRuleConfig
       doom_loop?: PermissionActionConfig
       skill?: PermissionRuleConfig
@@ -1032,7 +1062,7 @@ export type ProviderConfig = {
         output: Array<"text" | "audio" | "image" | "video" | "pdf">
       }
       experimental?: boolean
-      status?: "alpha" | "beta" | "deprecated"
+      status?: "alpha" | "beta" | "deprecated" | "active"
       provider?: {
         npm?: string
         api?: string
@@ -1104,6 +1134,17 @@ export type McpRemoteConfig = {
  */
 export type LayoutConfig = "auto" | "stretch"
 
+export type ImageAttachmentConfig = {
+  auto_resize?: boolean
+  max_width?: number
+  max_height?: number
+  max_base64_bytes?: number
+}
+
+export type AttachmentConfig = {
+  image?: ImageAttachmentConfig
+}
+
 export type Config = {
   $schema?: string
   shell?: string
@@ -1122,6 +1163,7 @@ export type Config = {
     paths?: Array<string>
     urls?: Array<string>
   }
+  reference?: ReferenceConfig
   watcher?: {
     ignore?: Array<string>
   }
@@ -1157,6 +1199,7 @@ export type Config = {
     build?: AgentConfig
     general?: AgentConfig
     explore?: AgentConfig
+    scout?: AgentConfig
     title?: AgentConfig
     summary?: AgentConfig
     compaction?: AgentConfig
@@ -1216,6 +1259,7 @@ export type Config = {
   tools?: {
     [key: string]: boolean
   }
+  attachment?: AttachmentConfig
   enterprise?: {
     url?: string
   }
@@ -1329,6 +1373,10 @@ export type ConsoleState = {
   consoleManagedProviders: Array<string>
   activeOrgName?: string
   switchableOrgCount: number
+}
+
+export type EffectHttpApiErrorInternalServerError = {
+  _tag: "InternalServerError"
 }
 
 export type ToolListItem = {
@@ -1477,12 +1525,27 @@ export type VcsInfo = {
   default_branch?: string
 }
 
+export type VcsFileStatus = {
+  file: string
+  additions: number
+  deletions: number
+  status: "added" | "deleted" | "modified"
+}
+
 export type VcsFileDiff = {
   file: string
-  patch: string
+  patch?: string
   additions: number
   deletions: number
   status?: "added" | "deleted" | "modified"
+}
+
+export type VcsApplyError = {
+  name: "VcsApplyError"
+  data: {
+    message: string
+    reason: "non-git" | "not-clean"
+  }
 }
 
 export type Command = {
@@ -1562,6 +1625,13 @@ export type McpStatus =
 
 export type McpUnsupportedOAuthError = {
   error: string
+}
+
+export type NotFoundError = {
+  name: "NotFoundError"
+  data: {
+    message: string
+  }
 }
 
 export type EffectHttpApiErrorForbidden = {
@@ -1730,6 +1800,14 @@ export type Workspace = {
   directory: string | null
   extra: unknown | null
   projectID: string
+  timeUsed: number | "NaN" | "Infinity" | "-Infinity" | "Infinity" | "-Infinity" | "NaN"
+}
+
+export type WorkspaceWarpError = {
+  name: "WorkspaceWarpError"
+  data: {
+    message: string
+  }
 }
 
 export type SyncEventMessageUpdated = {
@@ -1878,9 +1956,11 @@ export type SyncEventSessionNextModelSwitched = {
   data: {
     timestamp: number
     sessionID: string
-    id: string
-    providerID: string
-    variant?: string
+    model: {
+      id: string
+      providerID: string
+      variant: string
+    }
   }
 }
 
@@ -1951,7 +2031,7 @@ export type SyncEventSessionNextStepStarted = {
     model: {
       id: string
       providerID: string
-      variant?: string
+      variant: string
     }
     snapshot?: string
   }
@@ -1990,10 +2070,7 @@ export type SyncEventSessionNextStepFailed = {
   data: {
     timestamp: number
     sessionID: string
-    error: {
-      type: string
-      message: string
-    }
+    error: SessionErrorUnknown
   }
 }
 
@@ -2191,10 +2268,7 @@ export type SyncEventSessionNextToolFailed = {
     timestamp: number
     sessionID: string
     callID: string
-    error: {
-      type: string
-      message: string
-    }
+    error: SessionErrorUnknown
     provider: {
       executed: boolean
       metadata?: {
@@ -2479,17 +2553,6 @@ export type EventWorkspaceFailed = {
   }
 }
 
-export type EventWorkspaceRestore = {
-  id: string
-  type: "workspace.restore"
-  properties: {
-    workspaceID: string
-    sessionID: string
-    total: number
-    step: number
-  }
-}
-
 export type EventWorkspaceStatus = {
   id: string
   type: "workspace.status"
@@ -2630,9 +2693,11 @@ export type EventSessionNextModelSwitched = {
   properties: {
     timestamp: number
     sessionID: string
-    id: string
-    providerID: string
-    variant?: string
+    model: {
+      id: string
+      providerID: string
+      variant: string
+    }
   }
 }
 
@@ -2652,6 +2717,18 @@ export type PromptFileAttachment = {
 
 export type PromptAgentAttachment = {
   name: string
+  source?: PromptSource
+}
+
+export type PromptReferenceAttachment = {
+  name: string
+  kind: "local" | "git" | "invalid"
+  uri?: string
+  repository?: string
+  branch?: string
+  target?: string
+  targetUri?: string
+  problem?: string
   source?: PromptSource
 }
 
@@ -2707,7 +2784,7 @@ export type EventSessionNextStepStarted = {
     model: {
       id: string
       providerID: string
-      variant?: string
+      variant: string
     }
     snapshot?: string
   }
@@ -2734,16 +2811,18 @@ export type EventSessionNextStepEnded = {
   }
 }
 
+export type SessionErrorUnknown = {
+  type: "unknown"
+  message: string
+}
+
 export type EventSessionNextStepFailed = {
   id: string
   type: "session.next.step.failed"
   properties: {
     timestamp: number
     sessionID: string
-    error: {
-      type: string
-      message: string
-    }
+    error: SessionErrorUnknown
   }
 }
 
@@ -2914,10 +2993,7 @@ export type EventSessionNextToolFailed = {
     timestamp: number
     sessionID: string
     callID: string
-    error: {
-      type: string
-      message: string
-    }
+    error: SessionErrorUnknown
     provider: {
       executed: boolean
       metadata?: {
@@ -3008,7 +3084,7 @@ export type SessionInfo = {
   model?: {
     id: string
     providerID: string
-    variant?: string
+    variant: string
   }
   time: {
     created: number
@@ -3044,7 +3120,7 @@ export type SessionMessageModelSwitched = {
   model: {
     id: string
     providerID: string
-    variant?: string
+    variant: string
   }
 }
 
@@ -3059,6 +3135,7 @@ export type SessionMessageUser = {
   text: string
   files?: Array<PromptFileAttachment>
   agents?: Array<PromptAgentAttachment>
+  references?: Array<PromptReferenceAttachment>
   type: "user"
 }
 
@@ -3138,10 +3215,7 @@ export type SessionMessageToolStateError = {
   structured: {
     [key: string]: unknown
   }
-  error: {
-    type: string
-    message: string
-  }
+  error: SessionErrorUnknown
 }
 
 export type SessionMessageAssistantTool = {
@@ -3181,7 +3255,7 @@ export type SessionMessageAssistant = {
   model: {
     id: string
     providerID: string
-    variant?: string
+    variant: string
   }
   content: Array<SessionMessageAssistantText | SessionMessageAssistantReasoning | SessionMessageAssistantTool>
   snapshot?: {
@@ -3199,10 +3273,7 @@ export type SessionMessageAssistant = {
       write: number
     }
   }
-  error?: {
-    type: string
-    message: string
-  }
+  error?: SessionErrorUnknown
 }
 
 export type SessionMessageCompaction = {
@@ -3240,17 +3311,10 @@ export type EventTuiToastShow1 = {
 }
 
 export type BadRequestError = {
-  data: unknown
-  errors: Array<{
-    [key: string]: unknown
-  }>
-  success: false
-}
-
-export type NotFoundError = {
-  name: "NotFoundError"
+  name: "BadRequest"
   data: {
     message: string
+    kind?: "Params" | "Headers" | "Query" | "Body" | "Payload"
   }
 }
 
@@ -3579,6 +3643,15 @@ export type ExperimentalConsoleGetData = {
   url: "/experimental/console"
 }
 
+export type ExperimentalConsoleGetErrors = {
+  /**
+   * InternalServerError
+   */
+  500: EffectHttpApiErrorInternalServerError
+}
+
+export type ExperimentalConsoleGetError = ExperimentalConsoleGetErrors[keyof ExperimentalConsoleGetErrors]
+
 export type ExperimentalConsoleGetResponses = {
   /**
    * Active Console provider metadata
@@ -3597,6 +3670,16 @@ export type ExperimentalConsoleListOrgsData = {
   }
   url: "/experimental/console/orgs"
 }
+
+export type ExperimentalConsoleListOrgsErrors = {
+  /**
+   * InternalServerError
+   */
+  500: EffectHttpApiErrorInternalServerError
+}
+
+export type ExperimentalConsoleListOrgsError =
+  ExperimentalConsoleListOrgsErrors[keyof ExperimentalConsoleListOrgsErrors]
 
 export type ExperimentalConsoleListOrgsResponses = {
   /**
@@ -4043,6 +4126,25 @@ export type VcsGetResponses = {
 
 export type VcsGetResponse = VcsGetResponses[keyof VcsGetResponses]
 
+export type VcsStatusData = {
+  body?: never
+  path?: never
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/vcs/status"
+}
+
+export type VcsStatusResponses = {
+  /**
+   * VCS status
+   */
+  200: Array<VcsFileStatus>
+}
+
+export type VcsStatusResponse = VcsStatusResponses[keyof VcsStatusResponses]
+
 export type VcsDiffData = {
   body?: never
   path?: never
@@ -4062,6 +4164,57 @@ export type VcsDiffResponses = {
 }
 
 export type VcsDiffResponse = VcsDiffResponses[keyof VcsDiffResponses]
+
+export type VcsDiffRawData = {
+  body?: never
+  path?: never
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/vcs/diff/raw"
+}
+
+export type VcsDiffRawResponses = {
+  /**
+   * Raw VCS diff
+   */
+  200: string
+}
+
+export type VcsDiffRawResponse = VcsDiffRawResponses[keyof VcsDiffRawResponses]
+
+export type VcsApplyData = {
+  body?: {
+    patch: string
+  }
+  path?: never
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/vcs/apply"
+}
+
+export type VcsApplyErrors = {
+  /**
+   * VcsApplyError
+   */
+  400: VcsApplyError
+}
+
+export type VcsApplyError2 = VcsApplyErrors[keyof VcsApplyErrors]
+
+export type VcsApplyResponses = {
+  /**
+   * VCS patch applied
+   */
+  200: {
+    applied: boolean
+  }
+}
+
+export type VcsApplyResponse = VcsApplyResponses[keyof VcsApplyResponses]
 
 export type CommandListData = {
   body?: never
@@ -4117,7 +4270,7 @@ export type AppSkillsResponses = {
    */
   200: Array<{
     name: string
-    description: string
+    description?: string
     location: string
     content: string
   }>
@@ -4594,7 +4747,7 @@ export type PtyRemoveData = {
 
 export type PtyRemoveErrors = {
   /**
-   * Not found
+   * NotFoundError
    */
   404: NotFoundError
 }
@@ -4624,7 +4777,7 @@ export type PtyGetData = {
 
 export type PtyGetErrors = {
   /**
-   * Not found
+   * NotFoundError
    */
   404: NotFoundError
 }
@@ -4694,7 +4847,7 @@ export type PtyConnectTokenErrors = {
    */
   403: EffectHttpApiErrorForbidden
   /**
-   * Not found
+   * NotFoundError
    */
   404: NotFoundError
 }
@@ -5093,7 +5246,7 @@ export type SessionDeleteErrors = {
    */
   400: BadRequestError
   /**
-   * Not found
+   * NotFoundError
    */
   404: NotFoundError
 }
@@ -5127,7 +5280,7 @@ export type SessionGetErrors = {
    */
   400: BadRequestError
   /**
-   * Not found
+   * NotFoundError
    */
   404: NotFoundError
 }
@@ -5168,7 +5321,7 @@ export type SessionUpdateErrors = {
    */
   400: BadRequestError
   /**
-   * Not found
+   * NotFoundError
    */
   404: NotFoundError
 }
@@ -5294,7 +5447,7 @@ export type SessionMessagesErrors = {
    */
   400: BadRequestError
   /**
-   * Not found
+   * NotFoundError
    */
   404: NotFoundError
 }
@@ -5419,7 +5572,7 @@ export type SessionMessageErrors = {
    */
   400: BadRequestError
   /**
-   * Not found
+   * NotFoundError
    */
   404: NotFoundError
 }
@@ -5451,6 +5604,19 @@ export type SessionForkData = {
   }
   url: "/session/{sessionID}/fork"
 }
+
+export type SessionForkErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+  /**
+   * NotFoundError
+   */
+  404: NotFoundError
+}
+
+export type SessionForkError = SessionForkErrors[keyof SessionForkErrors]
 
 export type SessionForkResponses = {
   /**
@@ -5547,13 +5713,13 @@ export type SessionUnshareData = {
 
 export type SessionUnshareErrors = {
   /**
-   * Bad request
-   */
-  400: BadRequestError
-  /**
-   * Not found
+   * NotFoundError
    */
   404: NotFoundError
+  /**
+   * InternalServerError
+   */
+  500: EffectHttpApiErrorInternalServerError
 }
 
 export type SessionUnshareError = SessionUnshareErrors[keyof SessionUnshareErrors]
@@ -5581,13 +5747,13 @@ export type SessionShareData = {
 
 export type SessionShareErrors = {
   /**
-   * Bad request
-   */
-  400: BadRequestError
-  /**
-   * Not found
+   * NotFoundError
    */
   404: NotFoundError
+  /**
+   * InternalServerError
+   */
+  500: EffectHttpApiErrorInternalServerError
 }
 
 export type SessionShareError = SessionShareErrors[keyof SessionShareErrors]
@@ -5623,7 +5789,7 @@ export type SessionSummarizeErrors = {
    */
   400: BadRequestError
   /**
-   * Not found
+   * NotFoundError
    */
   404: NotFoundError
 }
@@ -6025,6 +6191,38 @@ export type SyncReplayResponses = {
 
 export type SyncReplayResponse = SyncReplayResponses[keyof SyncReplayResponses]
 
+export type SyncStealData = {
+  body?: {
+    sessionID: string
+  }
+  path?: never
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/sync/steal"
+}
+
+export type SyncStealErrors = {
+  /**
+   * Bad request
+   */
+  400: BadRequestError
+}
+
+export type SyncStealError = SyncStealErrors[keyof SyncStealErrors]
+
+export type SyncStealResponses = {
+  /**
+   * Session stolen into workspace
+   */
+  200: {
+    sessionID: string
+  }
+}
+
+export type SyncStealResponse = SyncStealResponses[keyof SyncStealResponses]
+
 export type SyncHistoryListData = {
   body?: {
     [key: string]: number
@@ -6069,6 +6267,16 @@ export type V2SessionListData = {
   query?: {
     directory?: string
     workspace?: string
+    limit?: number
+    order?: "asc" | "desc"
+    path?: string
+    roots?: boolean | "true" | "false"
+    start?: number
+    search?: string
+    /**
+     * Opaque pagination cursor returned as cursor.previous or cursor.next in the previous response. Do not combine with order or filters.
+     */
+    cursor?: string
   }
   url: "/api/session"
 }
@@ -6186,6 +6394,12 @@ export type V2SessionMessagesData = {
   query?: {
     directory?: string
     workspace?: string
+    limit?: number
+    order?: "asc" | "desc"
+    /**
+     * Opaque pagination cursor returned as cursor.previous or cursor.next in the previous response. Do not combine with order.
+     */
+    cursor?: string
   }
   url: "/api/session/{sessionID}/message"
 }
@@ -6455,7 +6669,7 @@ export type TuiSelectSessionErrors = {
    */
   400: BadRequestError
   /**
-   * Not found
+   * NotFoundError
    */
   404: NotFoundError
 }
@@ -6591,6 +6805,26 @@ export type ExperimentalWorkspaceCreateResponses = {
 export type ExperimentalWorkspaceCreateResponse =
   ExperimentalWorkspaceCreateResponses[keyof ExperimentalWorkspaceCreateResponses]
 
+export type ExperimentalWorkspaceSyncListData = {
+  body?: never
+  path?: never
+  query?: {
+    directory?: string
+    workspace?: string
+  }
+  url: "/experimental/workspace/sync-list"
+}
+
+export type ExperimentalWorkspaceSyncListResponses = {
+  /**
+   * Workspace list synced
+   */
+  204: void
+}
+
+export type ExperimentalWorkspaceSyncListResponse =
+  ExperimentalWorkspaceSyncListResponses[keyof ExperimentalWorkspaceSyncListResponses]
+
 export type ExperimentalWorkspaceStatusData = {
   body?: never
   path?: never
@@ -6646,41 +6880,38 @@ export type ExperimentalWorkspaceRemoveResponses = {
 export type ExperimentalWorkspaceRemoveResponse =
   ExperimentalWorkspaceRemoveResponses[keyof ExperimentalWorkspaceRemoveResponses]
 
-export type ExperimentalWorkspaceSessionRestoreData = {
+export type ExperimentalWorkspaceWarpData = {
   body?: {
+    id: string | null
     sessionID: string
+    copyChanges?: boolean
   }
-  path: {
-    id: string
-  }
+  path?: never
   query?: {
     directory?: string
     workspace?: string
   }
-  url: "/experimental/workspace/{id}/session-restore"
+  url: "/experimental/workspace/warp"
 }
 
-export type ExperimentalWorkspaceSessionRestoreErrors = {
+export type ExperimentalWorkspaceWarpErrors = {
   /**
-   * Bad request
+   * WorkspaceWarpError | VcsApplyError
    */
-  400: BadRequestError
+  400: WorkspaceWarpError | VcsApplyError
 }
 
-export type ExperimentalWorkspaceSessionRestoreError =
-  ExperimentalWorkspaceSessionRestoreErrors[keyof ExperimentalWorkspaceSessionRestoreErrors]
+export type ExperimentalWorkspaceWarpError = ExperimentalWorkspaceWarpErrors[keyof ExperimentalWorkspaceWarpErrors]
 
-export type ExperimentalWorkspaceSessionRestoreResponses = {
+export type ExperimentalWorkspaceWarpResponses = {
   /**
-   * Session replay started
+   * Session warped
    */
-  200: {
-    total: number
-  }
+  204: void
 }
 
-export type ExperimentalWorkspaceSessionRestoreResponse =
-  ExperimentalWorkspaceSessionRestoreResponses[keyof ExperimentalWorkspaceSessionRestoreResponses]
+export type ExperimentalWorkspaceWarpResponse =
+  ExperimentalWorkspaceWarpResponses[keyof ExperimentalWorkspaceWarpResponses]
 
 export type PtyConnectData = {
   body?: never

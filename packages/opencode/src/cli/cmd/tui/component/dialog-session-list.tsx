@@ -160,7 +160,7 @@ export function DialogSessionList() {
 
     const unpinned = unpinnedOrder
       .map((id) => sessionMap.get(id))
-      .filter((x) => x !== undefined && x.time.pinned === undefined)
+      .filter((x): x is (typeof all)[number] => x !== undefined && x.time.pinned === undefined)
 
     const foot = (session: (typeof all)[number], showDate: boolean): JSX.Element | string => {
       if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES && session.workspaceID) {

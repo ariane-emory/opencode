@@ -299,7 +299,9 @@ export const Info = Schema.Struct({
       mcp_timeout: Schema.optional(PositiveInt).annotate({
         description: "Timeout in milliseconds for model context protocol (MCP) requests",
       }),
-      max_prompt_input_lines: Schema.optional(Schema.Number.check(Schema.isInt()).check(Schema.isBetween(1, 99))).annotate({
+      max_prompt_input_lines: Schema.optional(
+        Schema.Number.check(Schema.isInt(), Schema.isGreaterThanOrEqualTo(1), Schema.isLessThanOrEqualTo(99)),
+      ).annotate({
         description: "Maximum number of lines for the prompt input text box (1-99, default: 6)",
       }),
     }),

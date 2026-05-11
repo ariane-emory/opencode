@@ -1,4 +1,5 @@
-import type { TuiPlugin, TuiPluginApi, TuiPluginModule } from "@opencode-ai/plugin/tui"
+import type { TuiPlugin, TuiPluginApi } from "@opencode-ai/plugin/tui"
+import type { InternalTuiPlugin } from "../../plugin/internal"
 import { createMemo, For, Show, createSignal } from "solid-js"
 
 const id = "internal:sidebar-lsp"
@@ -10,7 +11,7 @@ function View(props: { api: TuiPluginApi }) {
   const off = createMemo(() => props.api.state.config.lsp === false)
 
   return (
-    <Show when={!off()}>
+    <Show when={!off() && list().length > 0}>
       <box>
         <box flexDirection="row" gap={1} onMouseDown={() => list().length > 2 && setOpen((x) => !x)}>
           <Show when={list().length > 2}>
@@ -21,9 +22,6 @@ function View(props: { api: TuiPluginApi }) {
           </text>
         </box>
         <Show when={list().length <= 2 || open()}>
-          <Show when={list().length === 0}>
-            <text fg={theme().textMuted}>LSPs will activate as files are read</text>
-          </Show>
           <For each={list()}>
             {(item) => (
               <box flexDirection="row" gap={1}>
@@ -58,7 +56,7 @@ const tui: TuiPlugin = async (api) => {
   })
 }
 
-const plugin: TuiPluginModule & { id: string } = {
+const plugin: InternalTuiPlugin = {
   id,
   tui,
 }

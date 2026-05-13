@@ -4,7 +4,7 @@
 
 | Status | # | Branch Name | PR | Remote | Commit Hash | Description |
 |--------|---|-------------|--------|----|-------------|-------------|
-| ☐ | 1 | feat/gignit--markdown-renderer | 273 | origin | TBD | |
+| ☑ | 1 | feat/gignit--markdown-renderer | 273 | origin | 0b32419385 | Clean merge |
 | ☐ | 2 | feat/rcdailey--thinking-indicator-hidden | 274 | origin | TBD | |
 | ☐ | 3 | feat/aspiers--readline-additions | 211 | origin | TBD | |
 | ☐ | 4 | feat/base-one-rebrand | 52 | origin | TBD | REMOVE animation effects on startup screen art. MUST NOT mess with background colouring of exit art! |

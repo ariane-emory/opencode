@@ -34,7 +34,6 @@ export const FileDiff = Schema.Struct({
 export type FileDiff = typeof FileDiff.Type
 
 const log = Log.create({ service: "snapshot" })
-const prune = "7.days"
 const limit = 2 * 1024 * 1024
 const core = ["-c", "core.longpaths=true", "-c", "core.symlinks=true"]
 const cfg = ["-c", "core.autocrlf=false", ...core]
@@ -45,6 +44,7 @@ interface GitResult {
   readonly stderr: string
 }
 
+const defaultRetentionDays = 7
 type State = Omit<Interface, "init">
 
 export interface Interface {
@@ -184,7 +184,14 @@ export const layer: Layer.Layer<
 
         const enabled = Effect.fnUntraced(function* () {
           if (state.vcs !== "git") return false
-          return (yield* config.get()).snapshot !== false
+          const snapshot = (yield* config.get()).snapshot
+          return snapshot !== false && snapshot !== 0
+        })
+
+        const retentionDays = Effect.fnUntraced(function* () {
+          const snapshot = (yield* config.get()).snapshot
+          if (typeof snapshot === "number") return snapshot
+          return defaultRetentionDays
         })
 
         const excludes = Effect.fnUntraced(function* () {
@@ -280,15 +287,40 @@ export const layer: Layer.Layer<
             Effect.gen(function* () {
               if (!(yield* enabled())) return
               if (!(yield* exists(state.gitdir))) return
-              const result = yield* git(args(["gc", `--prune=${prune}`]), { cwd: state.directory })
+              const days = yield* retentionDays()
+
+              // Remove pack files so old objects can't survive in packs
+              const packDir = path.join(state.gitdir, "objects", "pack")
+              if (yield* exists(packDir)) {
+                const entries = yield* fs.readDirectoryEntries(packDir).pipe(Effect.orDie)
+                for (const entry of entries) {
+                  yield* fs.remove(path.join(packDir, entry.name)).pipe(Effect.catch(() => Effect.void))
+                }
+              }
+
+              // Prune loose objects older than retention period
+              const result = yield* git(args(["prune", `--expire=${days}.days`]))
               if (result.code !== 0) {
-                log.warn("cleanup failed", {
+                log.warn("prune encountered errors (continuing cleanup)", {
                   exitCode: result.code,
                   stderr: result.stderr,
                 })
-                return
               }
-              log.info("cleanup", { prune })
+
+              // Remove empty object directories
+              const objectsDir = path.join(state.gitdir, "objects")
+              const entries = yield* fs.readDirectoryEntries(objectsDir).pipe(Effect.orDie)
+              for (const entry of entries) {
+                if (entry.type === "directory" && entry.name !== "pack" && entry.name !== "info") {
+                  const dirPath = path.join(objectsDir, entry.name)
+                  const dirEntries = yield* fs.readDirectoryEntries(dirPath).pipe(Effect.orDie)
+                  if (dirEntries.length === 0) {
+                    yield* fs.remove(dirPath).pipe(Effect.catch(() => Effect.void))
+                  }
+                }
+              }
+
+              log.info("cleanup", { retentionDays: days })
             }),
           )
         })
@@ -366,7 +398,7 @@ export const layer: Layer.Layer<
                   exitCode: checkout.code,
                   stderr: checkout.stderr,
                 })
-                return
+
               }
               log.error("failed to restore snapshot", {
                 snapshot,
@@ -405,7 +437,7 @@ export const layer: Layer.Layer<
                 })
                 if (tree.code === 0 && tree.text.trim()) {
                   log.info("file existed in snapshot but checkout failed, keeping", { file: op.file, hash: op.hash })
-                  return
+  
                 }
                 log.info("file did not exist in snapshot, deleting", { file: op.file, hash: op.hash })
                 yield* remove(op.file)
@@ -586,7 +618,7 @@ export const layer: Layer.Layer<
                       stderr: err,
                       refs: refs.length,
                     })
-                    return
+    
                   }
 
                   const fail = (msg: string, extra?: Record<string, string>) => {

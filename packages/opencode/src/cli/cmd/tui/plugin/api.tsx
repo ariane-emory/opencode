@@ -15,6 +15,7 @@ import { DialogSelect, type DialogSelectOption as SelectOption } from "../ui/dia
 import { Prompt } from "../component/prompt"
 import { Slot as HostSlot } from "./slots"
 import type { useToast } from "../ui/toast"
+import { reconcile } from "solid-js/store"
 import { InstallationVersion } from "@opencode-ai/core/installation/version"
 import * as Keymap from "../keymap"
 import { createCommandShim } from "./command-shim"
@@ -320,6 +321,12 @@ export function createTuiApi(input: Input): TuiPluginApi {
       },
     },
     state: stateApi(input.sync),
+    refresh: {
+      async mcp() {
+        const status = await input.sdk.client.mcp.status()
+        if (status.data) input.sync.set("mcp", reconcile(status.data))
+      },
+    },
     get client() {
       return input.sdk.client
     },

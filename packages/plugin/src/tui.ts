@@ -525,6 +525,9 @@ export type TuiPluginApi = {
   readonly tuiConfig: Frozen<TuiConfigView>
   kv: TuiKV
   state: TuiState
+  refresh: {
+    mcp: () => Promise<void>
+  }
   theme: TuiTheme
   client: OpencodeClient
   event: TuiEventBus

@@ -4,7 +4,6 @@ import { createSignal } from "solid-js"
 import { selectedForeground, useTheme } from "@tui/context/theme"
 import { useDialog, type DialogContext } from "@tui/ui/dialog"
 import { Link } from "@tui/ui/link"
-import { BgPulse } from "./bg-pulse"
 import { useBindings } from "../keymap"
 
 const GO_URL = "https://opencode.ai/go"
@@ -78,11 +77,7 @@ export function DialogRetryAction(props: DialogRetryActionProps) {
 
   return (
     <box>
-      {showGoTreatment() ? (
-        <box position="absolute" top={-PAD_TOP_OUTER} left={0} right={0} bottom={0} zIndex={0}>
-          <BgPulse />
-        </box>
-      ) : null}
+      {showGoTreatment() ? null : null}
       <box zIndex={1} paddingLeft={PAD_X} paddingRight={PAD_X} paddingBottom={1} gap={1}>
         <box flexDirection="row" justifyContent="space-between">
           <text attributes={TextAttributes.BOLD} fg={theme.text} bg={textBg()}>

@@ -57,7 +57,7 @@ describe("config HttpApi", () => {
           omniroute: {
             models: {
               "gpt-4o": {
-                status: "active",
+                status: "beta",
               },
             },
           },
@@ -77,7 +77,7 @@ describe("config HttpApi", () => {
         omniroute: {
           models: {
             "gpt-4o": {
-              status: "active",
+              status: "beta",
             },
           },
         },

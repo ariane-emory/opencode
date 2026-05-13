@@ -12,8 +12,8 @@ describe("provider model status schemas", () => {
     expect(Schema.decodeUnknownSync(ModelStatus)("active")).toBe("active")
   })
 
-  test("accepts active status across public provider schemas", () => {
-    expect(Schema.decodeUnknownSync(ConfigProvider.Model)({ status: "active" }).status).toBe("active")
+  test("accepts status across public provider schemas", () => {
+    expect(Schema.decodeUnknownSync(ConfigProvider.Model)({ status: "beta" }).status).toBe("beta")
     expect(
       Schema.decodeUnknownSync(ModelsDev.Model)({
         id: "test-model",

@@ -22,8 +22,9 @@ import { InstanceState } from "@/effect/instance-state"
 import { Context, Duration, Effect, Exit, Fiber, Layer, Option, Schema } from "effect"
 import { EffectFlock } from "@opencode-ai/core/util/effect-flock"
 import { containsPath } from "../project/instance-context"
+import { makeRuntime } from "@/effect/run-service"
 import { zod } from "@opencode-ai/core/effect-zod"
-import { NonNegativeInt, PositiveInt, withStatics, type DeepMutable } from "@opencode-ai/core/schema"
+import { ConfigBoolean, NonNegativeInt, PositiveInt, withStatics, type DeepMutable } from "@opencode-ai/core/schema"
 import { ConfigAgent } from "./agent"
 import { ConfigAttachment } from "./attachment"
 import { ConfigCommand } from "./command"
@@ -152,7 +153,7 @@ export const Info = Schema.Struct({
       ignore: Schema.optional(Schema.mutable(Schema.Array(Schema.String))),
     }),
   ),
-  snapshot: Schema.optional(Schema.Boolean).annotate({
+  snapshot: Schema.optional(ConfigBoolean).annotate({
     description:
       "Enable or disable snapshot tracking. When false, filesystem snapshots are not recorded and undoing or reverting will not undo/redo file changes. Defaults to true.",
   }),
@@ -162,10 +163,10 @@ export const Info = Schema.Struct({
     description:
       "Control sharing behavior:'manual' allows manual sharing via commands, 'auto' enables automatic sharing, 'disabled' disables all sharing",
   }),
-  autoshare: Schema.optional(Schema.Boolean).annotate({
+  autoshare: Schema.optional(ConfigBoolean).annotate({
     description: "@deprecated Use 'share' field instead. Share newly created sessions automatically",
   }),
-  autoupdate: Schema.optional(Schema.Union([Schema.Boolean, Schema.Literal("notify")])).annotate({
+  autoupdate: Schema.optional(Schema.Union([ConfigBoolean, Schema.Literal("notify")])).annotate({
     description:
       "Automatically update to the latest version. Set to true to auto-update, false to disable, or 'notify' to show update notifications",
   }),
@@ -224,7 +225,7 @@ export const Info = Schema.Struct({
       Schema.Union([
         ConfigMCP.Info,
         // Matches the legacy `{ enabled: false }` form used to disable a server.
-        Schema.Struct({ enabled: Schema.Boolean }),
+        Schema.Struct({ enabled: ConfigBoolean }),
       ]),
     ),
   ).annotate({ description: "MCP (Model Context Protocol) server configurations" }),
@@ -241,7 +242,7 @@ export const Info = Schema.Struct({
   }),
   layout: Schema.optional(ConfigLayout.Layout).annotate({ description: "@deprecated Always uses stretch layout." }),
   permission: Schema.optional(ConfigPermission.Info),
-  tools: Schema.optional(Schema.Record(Schema.String, Schema.Boolean)),
+  tools: Schema.optional(Schema.Record(Schema.String, ConfigBoolean)),
   attachment: Schema.optional(ConfigAttachment.Info).annotate({
     description: "Attachment processing configuration, including image size limits and resizing behavior",
   }),
@@ -265,10 +266,10 @@ export const Info = Schema.Struct({
   }),
   compaction: Schema.optional(
     Schema.Struct({
-      auto: Schema.optional(Schema.Boolean).annotate({
+      auto: Schema.optional(ConfigBoolean).annotate({
         description: "Enable automatic compaction when context is full (default: true)",
       }),
-      prune: Schema.optional(Schema.Boolean).annotate({
+      prune: Schema.optional(ConfigBoolean).annotate({
         description: "Enable pruning of old tool outputs (default: true)",
       }),
       tail_turns: Schema.optional(NonNegativeInt).annotate({
@@ -285,15 +286,15 @@ export const Info = Schema.Struct({
   ),
   experimental: Schema.optional(
     Schema.Struct({
-      disable_paste_summary: Schema.optional(Schema.Boolean),
-      batch_tool: Schema.optional(Schema.Boolean).annotate({ description: "Enable the batch tool" }),
-      openTelemetry: Schema.optional(Schema.Boolean).annotate({
+      disable_paste_summary: Schema.optional(ConfigBoolean),
+      batch_tool: Schema.optional(ConfigBoolean).annotate({ description: "Enable the batch tool" }),
+      openTelemetry: Schema.optional(ConfigBoolean).annotate({
         description: "Enable OpenTelemetry spans for AI SDK calls (using the 'experimental_telemetry' flag)",
       }),
       primary_tools: Schema.optional(Schema.mutable(Schema.Array(Schema.String))).annotate({
         description: "Tools that should only be available to primary agents.",
       }),
-      continue_loop_on_deny: Schema.optional(Schema.Boolean).annotate({
+      continue_loop_on_deny: Schema.optional(ConfigBoolean).annotate({
         description: "Continue the agent loop when a tool call is denied",
       }),
       mcp_timeout: Schema.optional(PositiveInt).annotate({
@@ -843,5 +844,39 @@ export const defaultLayer = layer.pipe(
   Layer.provide(Account.defaultLayer),
   Layer.provide(Npm.defaultLayer),
 )
+
+const { runPromise } = makeRuntime(Service, defaultLayer)
+
+export async function get() {
+  return runPromise((svc) => svc.get())
+}
+
+export async function getGlobal() {
+  return runPromise((svc) => svc.getGlobal())
+}
+
+export async function getConsoleState() {
+  return runPromise((svc) => svc.getConsoleState())
+}
+
+export async function update(config: Info) {
+  return runPromise((svc) => svc.update(config))
+}
+
+export async function updateGlobal(config: Info) {
+  return runPromise((svc) => svc.updateGlobal(config))
+}
+
+export async function invalidate() {
+  return runPromise((svc) => svc.invalidate())
+}
+
+export async function directories() {
+  return runPromise((svc) => svc.directories())
+}
+
+export async function waitForDependencies() {
+  return runPromise((svc) => svc.waitForDependencies())
+}
 
 export * as Config from "./config"

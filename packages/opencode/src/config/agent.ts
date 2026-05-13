@@ -3,7 +3,7 @@ export * as ConfigAgent from "./agent"
 import { Exit, Schema, SchemaGetter } from "effect"
 import { Bus } from "@/bus"
 import { zod } from "@opencode-ai/core/effect-zod"
-import { PositiveInt, withStatics } from "@opencode-ai/core/schema"
+import { ConfigBoolean, PositiveInt, withStatics } from "@opencode-ai/core/schema"
 import * as Log from "@opencode-ai/core/util/log"
 import { NamedError } from "@opencode-ai/core/util/error"
 import { Glob } from "@opencode-ai/core/util/glob"
@@ -29,13 +29,13 @@ const AgentSchema = Schema.StructWithRest(
     temperature: Schema.optional(Schema.Finite),
     top_p: Schema.optional(Schema.Finite),
     prompt: Schema.optional(Schema.String),
-    tools: Schema.optional(Schema.Record(Schema.String, Schema.Boolean)).annotate({
+    tools: Schema.optional(Schema.Record(Schema.String, ConfigBoolean)).annotate({
       description: "@deprecated Use 'permission' field instead",
     }),
-    disable: Schema.optional(Schema.Boolean),
+    disable: Schema.optional(ConfigBoolean),
     description: Schema.optional(Schema.String).annotate({ description: "Description of when to use the agent" }),
     mode: Schema.optional(Schema.Literals(["subagent", "primary", "all"])),
-    hidden: Schema.optional(Schema.Boolean).annotate({
+    hidden: Schema.optional(ConfigBoolean).annotate({
       description: "Hide this subagent from the @ autocomplete menu (default: false, only applies to mode: subagent)",
     }),
     options: Schema.optional(Schema.Record(Schema.String, Schema.Any)),

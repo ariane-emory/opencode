@@ -1,17 +1,16 @@
 import { Schema } from "effect"
 import { zod } from "@opencode-ai/core/effect-zod"
-import { PositiveInt, withStatics } from "@opencode-ai/core/schema"
-import { ModelStatus } from "@/provider/model-status"
+import { ConfigBoolean, PositiveInt, withStatics } from "@opencode-ai/core/schema"
 
 export const Model = Schema.Struct({
   id: Schema.optional(Schema.String),
   name: Schema.optional(Schema.String),
   family: Schema.optional(Schema.String),
   release_date: Schema.optional(Schema.String),
-  attachment: Schema.optional(Schema.Boolean),
-  reasoning: Schema.optional(Schema.Boolean),
-  temperature: Schema.optional(Schema.Boolean),
-  tool_call: Schema.optional(Schema.Boolean),
+  attachment: Schema.optional(ConfigBoolean),
+  reasoning: Schema.optional(ConfigBoolean),
+  temperature: Schema.optional(ConfigBoolean),
+  tool_call: Schema.optional(ConfigBoolean),
   interleaved: Schema.optional(
     Schema.Union([
       Schema.Literal(true),
@@ -49,8 +48,8 @@ export const Model = Schema.Struct({
       output: Schema.mutable(Schema.Array(Schema.Literals(["text", "audio", "image", "video", "pdf"]))),
     }),
   ),
-  experimental: Schema.optional(Schema.Boolean),
-  status: Schema.optional(ModelStatus),
+  experimental: Schema.optional(ConfigBoolean),
+  status: Schema.optional(Schema.Literals(["alpha", "beta", "deprecated"])),
   provider: Schema.optional(
     Schema.Struct({ npm: Schema.optional(Schema.String), api: Schema.optional(Schema.String) }),
   ),
@@ -61,7 +60,7 @@ export const Model = Schema.Struct({
       Schema.String,
       Schema.StructWithRest(
         Schema.Struct({
-          disabled: Schema.optional(Schema.Boolean).annotate({ description: "Disable this variant for the model" }),
+          disabled: Schema.optional(ConfigBoolean).annotate({ description: "Disable this variant for the model" }),
         }),
         [Schema.Record(Schema.String, Schema.Any)],
       ),
@@ -85,7 +84,7 @@ export const Info = Schema.Struct({
         enterpriseUrl: Schema.optional(Schema.String).annotate({
           description: "GitHub Enterprise URL for copilot authentication",
         }),
-        setCacheKey: Schema.optional(Schema.Boolean).annotate({
+        setCacheKey: Schema.optional(ConfigBoolean).annotate({
           description: "Enable promptCacheKey for this provider (default false)",
         }),
         timeout: Schema.optional(

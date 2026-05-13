@@ -1,6 +1,6 @@
 import { $ } from "bun"
 import matter from "gray-matter"
-import { ConfigMarkdown } from "../config"
+import * as ConfigMarkdown from "./markdown"
 import { substituteArguments } from "./substitute"
 
 export namespace MarkdownExpand {
@@ -44,7 +44,7 @@ export namespace MarkdownExpand {
       if (matches.length === 0) break
 
       const replacements = await Promise.all(
-        matches.map(async (match) => {
+        matches.map(async (match: RegExpExecArray) => {
           const cmd = match[1]
           try {
             // Wrap command in bash with positional parameters

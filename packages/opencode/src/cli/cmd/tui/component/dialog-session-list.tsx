@@ -19,7 +19,7 @@ import { WorkspaceLabel } from "./workspace-label"
 import { useCommandShortcut } from "../keymap"
 import { useKV } from "../context/kv"
 
-export function DialogSessionList() {
+export function DialogSessionList(props: { initialSessionID?: string } = {}) {
   const dialog = useDialog()
   const route = useRoute()
   const sync = useSync()
@@ -319,7 +319,8 @@ export function DialogSessionList() {
           command: "session.rename",
           title: "rename",
           onTrigger: async (option) => {
-            dialog.replace(() => <DialogSessionRename session={option.value} />)
+            const back = () => dialog.replace(() => <DialogSessionList initialSessionID={option.value} />)
+            dialog.replace(() => <DialogSessionRename session={option.value} onSuccess={back} onCancel={back} />)
           },
         },
         {

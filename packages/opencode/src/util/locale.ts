@@ -4,7 +4,9 @@ export function titlecase(str: string) {
 
 export function time(input: number): string {
   const date = new Date(input)
-  return date.toLocaleTimeString(undefined, { timeStyle: "short" })
+  const str = date.toLocaleTimeString(undefined, { timeStyle: "short" })
+  if (/^\d:/.test(str)) return " " + str
+  return str
 }
 
 export function datetime(input: number): string {

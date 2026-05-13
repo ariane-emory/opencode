@@ -12,6 +12,7 @@ import { WebFetchTool } from "./webfetch"
 import { WriteTool } from "./write"
 import { InvalidTool } from "./invalid"
 import { SkillTool } from "./skill"
+import { BookmarkCurrentSessionTool } from "./bookmark"
 import * as Tool from "./tool"
 import { Config } from "@/config/config"
 import { type ToolContext as PluginToolContext, type ToolDefinition } from "@opencode-ai/plugin"
@@ -130,7 +131,7 @@ export const layer: Layer.Layer<
     const greptool = yield* GrepTool
     const patchtool = yield* ApplyPatchTool
     const skilltool = yield* SkillTool
-    const agent = yield* Agent.Service
+    const bookmarktool = yield* BookmarkCurrentSessionTool
 
     const state = yield* InstanceState.make<State>(
       Effect.fn("ToolRegistry.state")(function* (ctx) {
@@ -160,7 +161,7 @@ export const layer: Layer.Layer<
                 const result = yield* Effect.promise(() => def.execute(args as any, pluginCtx))
                 const output = typeof result === "string" ? result : result.output
                 const metadata = typeof result === "string" ? {} : (result.metadata ?? {})
-                const info = yield* agent.get(toolCtx.agent)
+                const info = yield* agents.get(toolCtx.agent)
                 const out = yield* truncate.output(output, {}, info)
                 return {
                   title: "",
@@ -226,6 +227,7 @@ export const layer: Layer.Layer<
           repo_clone: Tool.init(repoClone),
           repo_overview: Tool.init(repoOverview),
           skill: Tool.init(skilltool),
+          bookmark: Tool.init(bookmarktool),
           patch: Tool.init(patchtool),
           question: Tool.init(question),
           lsp: Tool.init(lsptool),
@@ -249,6 +251,7 @@ export const layer: Layer.Layer<
             tool.search,
             ...(Flag.OPENCODE_EXPERIMENTAL_SCOUT ? [tool.code, tool.repo_clone, tool.repo_overview] : []),
             tool.skill,
+            tool.bookmark,
             tool.patch,
             ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [tool.lsp] : []),
             ...(Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE && Flag.OPENCODE_CLIENT === "cli" ? [tool.plan] : []),

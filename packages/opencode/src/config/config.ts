@@ -617,12 +617,13 @@ export const layer = Layer.effect(
 
           yield* ensureGitignore(dir).pipe(Effect.orDie)
 
+          const isValidSemVer = /^\d+\.\d+\.\d+/.test(InstallationVersion)
           const dep = yield* npmSvc
             .install(dir, {
               add: [
                 {
                   name: "@opencode-ai/plugin",
-                  version: InstallationLocal ? undefined : InstallationVersion,
+                  version: InstallationLocal || !isValidSemVer ? undefined : InstallationVersion,
                 },
               ],
             })

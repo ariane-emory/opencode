@@ -764,6 +764,17 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
           dialog.clear()
         },
       },
+      {
+        name: "app.toggle.markdown_all",
+        title: kv.get("markdown_all_messages", false)
+          ? "Render markdown: agent messages only"
+          : "Render markdown: all messages",
+        category: "System",
+        run: () => {
+          kv.set("markdown_all_messages", !kv.get("markdown_all_messages", false))
+          dialog.clear()
+        },
+      },
     ].map((command) => ({
       namespace: "palette",
       ...command,

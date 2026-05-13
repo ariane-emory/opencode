@@ -952,18 +952,13 @@ export function Prompt(props: PromptProps) {
           title: "Previous prompt history",
           category: "Prompt",
           run() {
-            if (input.cursorOffset !== 0) {
-              if (input.scrollY + input.visualCursor.visualRow === 0) input.cursorOffset = 0
-              return false
-            }
-
             const item = history.move(-1, input.plainText)
             if (!item) return false
             input.setText(item.input)
             setStore("prompt", item)
             setStore("mode", item.mode ?? "normal")
             restoreExtmarksFromParts(item.parts)
-            input.cursorOffset = 0
+            input.cursorOffset = input.plainText.length
           },
         },
       ],
@@ -984,15 +979,6 @@ export function Prompt(props: PromptProps) {
           title: "Next prompt history",
           category: "Prompt",
           run() {
-            if (input.cursorOffset !== input.plainText.length) {
-              if (
-                input.scrollY + input.visualCursor.visualRow ===
-                Math.max(0, input.editorView.getTotalVirtualLineCount() - 1)
-              )
-                input.cursorOffset = input.plainText.length
-              return false
-            }
-
             const item = history.move(1, input.plainText)
             if (!item) return false
             input.setText(item.input)

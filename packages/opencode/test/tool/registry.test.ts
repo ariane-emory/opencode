@@ -1,11 +1,11 @@
-import { afterEach, describe, expect } from "bun:test"
+import { afterEach, describe, expect, test } from "bun:test"
 import path from "path"
 import fs from "fs/promises"
 import { Effect, Layer } from "effect"
 import { CrossSpawnSpawner } from "@opencode-ai/core/cross-spawn-spawner"
 import { ToolRegistry } from "@/tool/registry"
 import { Flag } from "@opencode-ai/core/flag/flag"
-import { disposeAllInstances, TestInstance } from "../fixture/fixture"
+import { provideTestInstance, disposeAllInstances, TestInstance, tmpdir } from "../fixture/fixture"
 import { testEffect } from "../lib/effect"
 import { TestConfig } from "../fixture/config"
 import { AppFileSystem } from "@opencode-ai/core/filesystem"
@@ -216,4 +216,27 @@ describe("tool.registry", () => {
       expect(ids).toContain("cowsay")
     }),
   )
+
+  test("registers plan tools when experimental.plan_mode is enabled", async () => {
+    await using tmp = await tmpdir({
+      git: true,
+      config: {
+        experimental: {
+          plan_mode: true,
+        },
+      },
+    })
+
+    await provideTestInstance({
+      directory: tmp.path,
+      fn: async () => {
+        const registry = await Effect.gen(function* () {
+          const svc = yield* ToolRegistry.Service
+          return yield* svc.ids()
+        }).pipe(Effect.provide(ToolRegistry.defaultLayer), Effect.runPromise)
+        expect(registry).toContain("plan_exit")
+        expect(registry).toContain("plan_enter")
+      },
+    })
+  }, 30000)
 })

@@ -34,6 +34,7 @@ import {
   PermissionResponsePayload,
   PromptPayload,
   RevertPayload,
+  RewindPayload,
   ShellPayload,
   SummarizePayload,
   UpdatePayload,
@@ -213,6 +214,13 @@ export const sessionHandlers = HttpApiBuilder.group(InstanceHttpApi, "session", 
         Effect.mapError(() => new HttpApiError.BadRequest({})),
       )
       return yield* fork({ params: ctx.params, payload })
+    })
+
+    const rewind = Effect.fn("SessionHttpApi.rewind")(function* (ctx: {
+      params: { sessionID: SessionID }
+      payload: typeof RewindPayload.Type
+    }) {
+      return yield* SessionError.mapStorageNotFound(session.rewind({ sessionID: ctx.params.sessionID, messageID: ctx.payload.messageID }))
     })
 
     const abort = Effect.fn("SessionHttpApi.abort")(function* (ctx: { params: { sessionID: SessionID } }) {
@@ -411,6 +419,7 @@ export const sessionHandlers = HttpApiBuilder.group(InstanceHttpApi, "session", 
       .handle("remove", remove)
       .handle("update", update)
       .handleRaw("fork", forkRaw)
+      .handle("rewind", rewind)
       .handle("abort", abort)
       .handle("init", init)
       .handle("share", share)

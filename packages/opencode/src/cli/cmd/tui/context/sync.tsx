@@ -299,13 +299,14 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
         }
         case "message.removed": {
           const messages = store.message[event.properties.sessionID]
-          const result = Binary.search(messages, event.properties.messageID, (m) => m.id)
-          if (result.found) {
+          if (!messages) break
+          const idx = messages.findIndex((m) => m.id === event.properties.messageID)
+          if (idx >= 0) {
             setStore(
               "message",
               event.properties.sessionID,
               produce((draft) => {
-                draft.splice(result.index, 1)
+                draft.splice(idx, 1)
               }),
             )
           }
@@ -540,6 +541,8 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
           if (fullSyncedSessions.has(sessionID)) return
           const messagesLimit = store.config.experimental?.messages_limit
           const limit = messagesLimit === "none" ? undefined : messagesLimit ?? 100
+        },
+        async forceSync(sessionID: string) {
           const [session, messages, todo, diff] = await Promise.all([
             sdk.client.session.get({ sessionID }, { throwOnError: true }),
             sdk.client.session.messages({ sessionID, limit }),

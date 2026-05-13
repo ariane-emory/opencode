@@ -165,7 +165,6 @@ const context = createContext<{
   conceal: () => boolean
   showThinking: () => boolean
   showTimestamps: () => boolean
-  showAgentTimestamps: () => boolean
   showDetails: () => boolean
   showTps: () => boolean
   showGenericToolOutput: () => boolean
@@ -225,7 +224,6 @@ export function Session() {
   const [conceal, setConceal] = createSignal(true)
   const [showThinking, setShowThinking] = kv.signal("thinking_visibility", true)
   const [timestamps, setTimestamps] = kv.signal<"hide" | "show">("timestamps", "hide")
-  const [agentTimestamps, setAgentTimestamps] = kv.signal<"hide" | "show">("agent_timestamps", "hide")
   const [showDetails, setShowDetails] = kv.signal("tool_details_visibility", true)
   const [showAssistantMetadata, _setShowAssistantMetadata] = kv.signal("assistant_metadata_visibility", true)
   const [showScrollbar, setShowScrollbar] = kv.signal("scrollbar_visible", false)
@@ -728,6 +726,60 @@ export function Session() {
       category: "Session",
       run: () => {
         setConceal((prev) => !prev)
+        dialog.clear()
+      },
+    },
+    {
+    {
+      title: showTimestamps() ? "Hide timestamps" : "Show timestamps",
+      value: "session.toggle.timestamps",
+      category: "Session",
+      slash: {
+        name: "timestamps",
+        aliases: ["toggle-timestamps"],
+      },
+      run: () => {
+        setTimestamps((prev) => (prev === "show" ? "hide" : "show"))
+        dialog.clear()
+      },
+    },
+    {
+      title: showThinking() ? "Hide thinking" : "Show thinking",
+      value: "session.toggle.thinking",
+      category: "Session",
+      slash: {
+        name: "thinking",
+        aliases: ["toggle-thinking"],
+      },
+      run: () => {
+        setShowThinking((prev) => !prev)
+        dialog.clear()
+      },
+    },
+    {
+      title: showDetails() ? "Hide tool details" : "Show tool details",
+      value: "session.toggle.actions",
+      category: "Session",
+      run: () => {
+        setShowDetails((prev) => !prev)
+        dialog.clear()
+      },
+    },
+    {
+      title: "Toggle session scrollbar",
+      value: "session.toggle.scrollbar",
+      category: "Session",
+      run: () => {
+        setShowScrollbar((prev) => !prev)
+        dialog.clear()
+      },
+    },
+    {
+      title: showGenericToolOutput() ? "Hide generic tool output" : "Show generic tool output",
+      value: "session.toggle.generic_tool_output",
+      category: "Session",
+      run: () => {
+        setShowGenericToolOutput((prev) => !prev)
         dialog.clear()
       },
     },

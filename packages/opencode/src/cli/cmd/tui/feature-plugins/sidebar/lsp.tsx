@@ -30,7 +30,7 @@ function View(props: { api: TuiPluginApi }) {
           <Show when={list().length > 2}>
             <text fg={theme().text}>{open() ? "▼" : "▶"}</text>
           </Show>
-          <text fg={theme().text}>
+          <text fg={theme().accent}>
             <b>LSP</b>
           </text>
         </box>
@@ -52,9 +52,6 @@ function View(props: { api: TuiPluginApi }) {
               </box>
             )}
           </For>
-        </Show>
-      </box>
-    </Show>
         </Show>
       </box>
     </Show>

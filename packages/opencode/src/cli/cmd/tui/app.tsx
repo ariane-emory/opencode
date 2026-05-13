@@ -777,6 +777,16 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         },
       },
       {
+        name: "app.toggle.diff_style",
+        title: kv.get("diff_style", "auto") === "auto" ? "Use unified diff style" : "Use automatic diff style",
+        category: "System",
+        run: () => {
+          const current = kv.get("diff_style", "auto")
+          kv.set("diff_style", current === "auto" ? "unified" : "auto")
+          dialog.clear()
+        },
+      },
+      {
         name: "app.toggle.diffwrap",
         title: kv.get("diff_wrap_mode", "word") === "word" ? "Disable diff wrapping" : "Enable diff wrapping",
         category: "System",

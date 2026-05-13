@@ -668,7 +668,7 @@ export function Session() {
       slash: {
         name: "continue",
       },
-      onSelect: async (dialog) => {
+      onSelect: async (_dialog: DialogContext) => {
         const currentAgent = local.agent.current()?.name
         const currentModel = local.model.current()
         const result = await sdk.client.session.continue({

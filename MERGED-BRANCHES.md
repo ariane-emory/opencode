@@ -8,7 +8,7 @@
 | ☑ | 2 | feat/rcdailey--thinking-indicator-hidden | 274 | origin | d38a36c8f1 | Clean merge |
 | ☑ | 3 | feat/aspiers--readline-additions | 211 | origin | 970eadce1e | Clean merge |
 | ☑ | 4 | feat/base-one-rebrand | 52 | origin | d519ad267e | Conflicts: removed bg-pulse import from dialog-retry-action, fixed test type mismatches (active->beta status) |
-| ☐ | 5 | feat/sinister-quotes | 73 | origin | TBD | Placeholders MUST be SINISTER_PLACEHOLDERS array in packages/ui/src/constants/placeholders.ts, NO OTHER SOURCE! |
+| ☑ | 5 | feat/sinister-quotes | 73 | origin | d468d5c2af | Clean merge |
 | ☐ | 6 | feat/session-grouping | 194 | origin | TBD | |
 | ☐ | 7 | feat/session-bookmarks | 102 | origin | TBD | |
 | ☐ | 8 | fix/dialog-datetime-alignment | 113 | origin | TBD | Merge immediately after feat/session-bookmarks. MUST NOT be clobbered; combine with conflicting features! |

@@ -85,6 +85,7 @@ import { usePromptRef } from "../../context/prompt"
 import { useExit } from "../../context/exit"
 import { Filesystem } from "@/util/filesystem"
 import { PermissionPrompt } from "./permission"
+import { formatSessionTitle } from "../../util/session-title"
 import { QuestionPrompt } from "./question"
 import { DialogExportOptions } from "../../ui/dialog-export-options"
 import * as Model from "../../util/model"
@@ -345,7 +346,7 @@ export function Session() {
   const exit = useExit()
 
   createEffect(() => {
-    const title = Locale.truncate(session()?.title ?? "", 50)
+    const title = Locale.truncate(formatSessionTitle(session()?.title ?? ""), 50)
     const pad = (text: string) => text.padEnd(10, " ")
     const weak = (text: string) => UI.Style.TEXT_DIM + pad(text) + UI.Style.TEXT_NORMAL
     const logo = UI.logo("  ").split(/\r?\n/)

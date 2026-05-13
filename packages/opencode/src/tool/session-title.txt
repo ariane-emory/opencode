@@ -1,0 +1,3 @@
+Use this tool to retrieve the title of the current session.
+
+This tool returns the current session's title as a string. The title is initially set when the session is created and may possibly be updated using other tools at your disposal.

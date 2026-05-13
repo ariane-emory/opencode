@@ -49,6 +49,7 @@ import { DialogAlert } from "../../ui/dialog-alert"
 import { useToast } from "../../ui/toast"
 import { useKV } from "../../context/kv"
 import { createFadeIn } from "../../util/signal"
+import { useListContinuation } from "../list-continuation"
 import { DialogSkill } from "../dialog-skill"
 import {
   confirmWorkspaceFileChanges,
@@ -308,6 +309,9 @@ export function Prompt(props: PromptProps) {
     setDismissedEditorSelectionKey(editorSelectionKey(editorContext()))
     editor.clearSelection()
   }
+
+  const listContinuation = useListContinuation()
+
   const fileStyleId = syntax().getStyleId("extmark.file")!
   const agentStyleId = syntax().getStyleId("extmark.agent")!
   const pasteStyleId = syntax().getStyleId("extmark.paste")!
@@ -1010,7 +1014,13 @@ export function Prompt(props: PromptProps) {
     if (!store.prompt.input) return false
     const agent = local.agent.current()
     if (!agent) return false
-    const trimmed = store.prompt.input.trim()
+
+    const cleaned = listContinuation.cleanupForSubmit(store.prompt.input)
+    if (cleaned !== store.prompt.input) {
+      setStore("prompt", "input", cleaned)
+    }
+
+    const trimmed = cleaned.trim()
     if (trimmed === "exit" || trimmed === "quit" || trimmed === ":q") {
       void exit()
       return true
@@ -1081,7 +1091,7 @@ export function Prompt(props: PromptProps) {
     }
 
     const messageID = MessageID.ascending()
-    let inputText = store.prompt.input
+    let inputText = cleaned
 
     // Expand pasted text inline before submitting
     const allExtmarks = input.extmarks.getAllForTypeId(promptPartTypeId)
@@ -1540,7 +1550,32 @@ export function Prompt(props: PromptProps) {
                   e.preventDefault()
                   return
                 }
-                // Readline-style keybindings for prompt editing
+                if (e.name === "return") {
+                  e.preventDefault()
+                  const action = listContinuation.handleNewline(input.plainText, input.cursorOffset)
+                  if (action) {
+                    if (action.type === "continue") {
+                      input.insertText(action.insertText)
+                      if (action.renumber) {
+                        const offset = action.insertText.length
+                        const adjustedStart = action.renumber.start + offset
+                        const adjustedEnd = action.renumber.end + offset
+                        const before = input.plainText.slice(0, adjustedStart)
+                        const after = input.plainText.slice(adjustedEnd)
+                        input.setText(before + action.renumber.newText + after)
+                        input.cursorOffset = adjustedStart - 1
+                      }
+                    } else if (action.type === "clear") {
+                      const before = input.plainText.slice(0, action.deleteRange.start)
+                      const after = input.plainText.slice(action.deleteRange.end)
+                      input.setText(before + after)
+                      input.cursorOffset = action.cursorPosition
+                    }
+                  } else {
+                    input.insertText("\n")
+                  }
+                  return
+                }
                 if (e.ctrl && e.name === "v") {
                   void (async () => {
                     const content = await Clipboard.read()
@@ -1602,6 +1637,7 @@ export function Prompt(props: PromptProps) {
                     }
                     return
                   }
+
                   if (e.name === "up" && input.visualCursor.visualRow === 0) input.cursorOffset = 0
                   if (e.name === "down" && input.visualCursor.visualRow === input.height - 1)
                     input.cursorOffset = input.plainText.length

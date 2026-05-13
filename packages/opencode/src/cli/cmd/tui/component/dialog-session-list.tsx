@@ -333,7 +333,12 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
               }, 100)
               return
             }
+            const ref = selectRef()
+            if (ref) ref.skipAutoScroll = true
             setToDelete(option.value)
+            setTimeout(() => {
+              if (ref) ref.skipAutoScroll = false
+            }, 100)
           },
         },
         {

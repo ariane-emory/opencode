@@ -215,8 +215,11 @@ const KeybindOverrideShape = Object.fromEntries(
   Object.entries(Definitions).map(([name, item]) => [name, BindingValueSchema.optional().describe(item.description)]),
 ) as Record<KeybindName, z.ZodOptional<typeof BindingValueSchema>>
 
-export const Keybinds = z.strictObject(KeybindShape).describe("TUI keybinding configuration")
-export const KeybindOverrides = z.strictObject(KeybindOverrideShape).describe("TUI keybinding overrides")
+export const Keybinds = z.object(KeybindShape).catchall(BindingValueSchema).describe("TUI keybinding configuration")
+export const KeybindOverrides = z
+  .object(KeybindOverrideShape)
+  .catchall(BindingValueSchema.optional())
+  .describe("TUI keybinding overrides")
 export const Descriptions = Object.fromEntries(
   Object.entries(Definitions).map(([name, item]) => [name, item.description]),
 ) as Record<KeybindName, string>

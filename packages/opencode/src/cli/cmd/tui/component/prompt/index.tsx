@@ -48,7 +48,6 @@ import { DialogAlert } from "../../ui/dialog-alert"
 import { useToast } from "../../ui/toast"
 import { useKV } from "../../context/kv"
 import { createFadeIn } from "../../util/signal"
-import { useTextareaKeybindings } from "../textarea-keybindings"
 import { useListContinuation } from "../list-continuation"
 import { DialogSkill } from "../dialog-skill"
 import {
@@ -307,11 +306,8 @@ export function Prompt(props: PromptProps) {
     editor.clearSelection()
   }
 
-  const textareaKeybindings = useTextareaKeybindings()
   const listContinuation = useListContinuation()
 
-  // Filter out newline from keybindings so we can handle it in onKeyDown with list continuation
-  const promptKeybindings = createMemo(() => textareaKeybindings().filter((b) => b.action !== "newline"))
   const fileStyleId = syntax().getStyleId("extmark.file")!
   const agentStyleId = syntax().getStyleId("extmark.agent")!
   const pasteStyleId = syntax().getStyleId("extmark.paste")!
@@ -1501,29 +1497,25 @@ export function Prompt(props: PromptProps) {
                 syncExtmarksWithPromptParts()
                 setCursorVersion((value) => value + 1)
               }}
-              keyBindings={promptKeybindings()}
               onCursorChange={() => setCursorVersion((value) => value + 1)}
-              onKeyDown={async (e) => {
+              onKeyDown={(e) => {
                 if (props.disabled) {
                   e.preventDefault()
                   return
                 }
-                // Handle automatic list continuation on newline
-                if (keybind.match("input_newline", e)) {
+                if (e.name === "return") {
                   e.preventDefault()
                   const action = listContinuation.handleNewline(input.plainText, input.cursorOffset)
                   if (action) {
                     if (action.type === "continue") {
                       input.insertText(action.insertText)
                       if (action.renumber) {
-                        // Adjust offsets since insertText shifted subsequent content
                         const offset = action.insertText.length
                         const adjustedStart = action.renumber.start + offset
                         const adjustedEnd = action.renumber.end + offset
                         const before = input.plainText.slice(0, adjustedStart)
                         const after = input.plainText.slice(adjustedEnd)
                         input.setText(before + action.renumber.newText + after)
-                        // Cursor should be after the inserted new item
                         input.cursorOffset = adjustedStart - 1
                       }
                     } else if (action.type === "clear") {
@@ -1533,82 +1525,8 @@ export function Prompt(props: PromptProps) {
                       input.cursorOffset = action.cursorPosition
                     }
                   } else {
-                    // No list continuation - just insert a normal newline
                     input.insertText("\n")
                   }
-                  return
-                }
-                // Check clipboard for images before terminal-handled paste runs.
-                // This helps terminals that forward Ctrl+V to the app; Windows
-                // Terminal 1.25+ usually handles Ctrl+V before this path.
-                if (keybind.match("input_paste", e)) {
-                  const content = await Clipboard.read()
-                  if (content?.mime.startsWith("image/")) {
-                    e.preventDefault()
-                    await pasteAttachment({
-                      filename: "clipboard",
-                      mime: content.mime,
-                      content: content.data,
-                    })
-                    return
-                  }
-                  // If no image, let the default paste behavior continue
-                }
-                if (keybind.match("input_clear", e) && store.prompt.input !== "") {
-                  input.clear()
-                  input.extmarks.clear()
-                  setStore("prompt", {
-                    input: "",
-                    parts: [],
-                  })
-                  setStore("extmarkToPartIndex", new Map())
-                  return
-                }
-                if (keybind.match("app_exit", e)) {
-                  if (store.prompt.input === "") {
-                    await exit()
-                    // Don't preventDefault - let textarea potentially handle the event
-                    e.preventDefault()
-                    return
-                  }
-                }
-                if (e.name === "!" && input.visualCursor.offset === 0) {
-                  setStore("placeholder", randomIndex(shell().length))
-                  setStore("mode", "shell")
-                  e.preventDefault()
-                  return
-                }
-                if (store.mode === "shell") {
-                  if ((e.name === "backspace" && input.visualCursor.offset === 0) || e.name === "escape") {
-                    setStore("mode", "normal")
-                    e.preventDefault()
-                    return
-                  }
-                }
-                if (store.mode === "normal") autocomplete.onKeyDown(e)
-                if (!autocomplete.visible) {
-                  if (
-                    (keybind.match("history_previous", e) && input.cursorOffset === 0) ||
-                    (keybind.match("history_next", e) && input.cursorOffset === input.plainText.length)
-                  ) {
-                    const direction = keybind.match("history_previous", e) ? -1 : 1
-                    const item = history.move(direction, input.plainText)
-
-                    if (item) {
-                      input.setText(item.input)
-                      setStore("prompt", item)
-                      setStore("mode", item.mode ?? "normal")
-                      restoreExtmarksFromParts(item.parts)
-                      e.preventDefault()
-                      if (direction === -1) input.cursorOffset = 0
-                      if (direction === 1) input.cursorOffset = input.plainText.length
-                    }
-                    return
-                  }
-
-                  if (keybind.match("history_previous", e) && input.visualCursor.visualRow === 0) input.cursorOffset = 0
-                  if (keybind.match("history_next", e) && input.visualCursor.visualRow === input.height - 1)
-                    input.cursorOffset = input.plainText.length
                 }
               }}
               onSubmit={() => {

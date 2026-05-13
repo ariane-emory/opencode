@@ -149,7 +149,10 @@ export function DialogSessionList() {
   const [browseOrder] = createSignal<string[]>(orderByRecency(sync.data.session))
 
   const options = createMemo(() => {
+    if (!sync.ready) return []
     const today = new Date().toDateString()
+    const sessionsListLimit = sync.data.config.experimental?.session_list_limit
+    const limit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
 
     function parseSessionTitle(title: string): { group?: string; displayTitle: string } {
       const pipeIndex = title.indexOf("|")
@@ -220,13 +223,15 @@ export function DialogSessionList() {
 
     return [
       ...pinned.map((x) => item(x, "Bookmarks:", true)),
-      ...unpinned.map((x) => {
-        const parsed = parseSessionTitle(x.title)
-        const date = new Date(x.time.updated)
-        const category = parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString())
-        const showDate = !!parsed.group
-        return item(x, category, showDate, parsed.displayTitle)
-      }),
+      ...unpinned
+        .slice(0, limit)
+        .map((x) => {
+          const parsed = parseSessionTitle(x.title)
+          const date = new Date(x.time.updated)
+          const category = parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString())
+          const showDate = !!parsed.group
+          return item(x, category, showDate, parsed.displayTitle)
+        }),
     ]
   })
 

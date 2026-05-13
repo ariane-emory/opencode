@@ -8,7 +8,7 @@ import {
 } from "@opentui/core"
 import type { Binding } from "@opentui/keymap"
 import { useTheme, selectedForeground } from "@tui/context/theme"
-import { entries, filter, flatMap, groupBy, mapValues, pipe } from "remeda"
+import { entries, filter, flatMap, groupBy, mapValues, pipe, take } from "remeda"
 import { tieredMatch } from "@/util/tiered-match"
 import { smartCompare } from "@/util/smart-sort"
 import { batch, createEffect, createMemo, For, Show, type JSX, on } from "solid-js"
@@ -25,6 +25,7 @@ export interface DialogSelectProps<T> {
   title: string
   placeholder?: string
   options: DialogSelectOption<T>[]
+  sort?: boolean
   flat?: boolean
   ref?: (ref: DialogSelectRef<T>) => void
   onMove?: (option: DialogSelectOption<T>) => void

@@ -162,6 +162,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
         if (filter.length > 0) {
           moveTo(0, true)
         } else if (current) {
+          if (isDeepEqual(selected()?.value, current)) return
           const currentIndex = flat().findIndex((opt) => isDeepEqual(opt.value, current))
           if (currentIndex >= 0) {
             moveTo(currentIndex, true)
@@ -183,26 +184,28 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     setStore("selected", next)
     const option = selected()
     if (option) props.onMove?.(option)
-    if (!scroll) return
-    const target = scroll.getChildren().find((child: { id?: string }) => {
-      return child.id === JSON.stringify(selected()?.value)
-    })
-    if (!target) return
-    const y = target.y - scroll.y
-    if (center) {
-      const centerOffset = Math.floor(scroll.height / 2)
-      scroll.scrollBy(y - centerOffset)
-    } else {
-      if (y >= scroll.height) {
-        scroll.scrollBy(y - scroll.height + 1)
-      }
-      if (y < 0) {
-        scroll.scrollBy(y)
-        if (isDeepEqual(flat()[0].value, selected()?.value)) {
-          scroll.scrollTo(0)
+    setTimeout(() => {
+      if (!scroll) return
+      const target = scroll.getChildren().find((child: { id?: string }) => {
+        return child.id === JSON.stringify(selected()?.value)
+      })
+      if (!target) return
+      const y = target.y - scroll.y
+      if (center) {
+        const centerOffset = Math.floor(scroll.height / 2)
+        scroll.scrollBy(y - centerOffset)
+      } else {
+        if (y >= scroll.height) {
+          scroll.scrollBy(y - scroll.height + 1)
+        }
+        if (y < 0) {
+          scroll.scrollBy(y)
+          if (isDeepEqual(flat()[0].value, selected()?.value)) {
+            scroll.scrollTo(0)
+          }
         }
       }
-    }
+    }, 0)
   }
 
   function submit() {

@@ -876,11 +876,13 @@ Nested command template`,
       const config = await load()
 
       expect(config.command?.["hello"]).toEqual({
+        name: "hello",
         description: "Test command",
         template: "Hello from singular command",
       })
 
       expect(config.command?.["nested/child"]).toEqual({
+        name: "nested/child",
         description: "Nested command",
         template: "Nested command template",
       })
@@ -921,11 +923,13 @@ Nested command template`,
       const config = await load()
 
       expect(config.command?.["hello"]).toEqual({
+        name: "hello",
         description: "Test command",
         template: "Hello from plural commands",
       })
 
       expect(config.command?.["nested/child"]).toEqual({
+        name: "nested/child",
         description: "Nested command",
         template: "Nested command template",
       })

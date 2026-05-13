@@ -111,6 +111,7 @@ const appBindingCommands = [
   "app.toggle.scrollbar",
   "app.toggle.generic_tool_output",
   "app.toggle.sidebar",
+  "app.toggle.tps",
 ] as const
 
 function rendererConfig(_config: TuiConfig.Resolved): CliRendererConfig {
@@ -743,6 +744,15 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
 
           renderer.suspend()
           process.kill(0, "SIGTSTP")
+        },
+      },
+      {
+        name: "app.toggle.tps",
+        title: kv.get("tps_visibility", false) ? "Hide message TPS" : "Show message TPS",
+        category: "System",
+        run: () => {
+          kv.set("tps_visibility", !kv.get("tps_visibility", false))
+          dialog.clear()
         },
       },
       {

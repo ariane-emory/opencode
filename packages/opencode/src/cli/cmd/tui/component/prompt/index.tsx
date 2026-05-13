@@ -886,6 +886,45 @@ export function Prompt(props: PromptProps) {
     return {
       target: inputTarget,
       enabled: inputTarget() !== undefined && !props.disabled,
+      commands: [
+        {
+          name: "input.newline",
+          title: "Insert newline with list continuation",
+          category: "Input",
+          run() {
+            const action = listContinuation.handleNewline(input.plainText, input.cursorOffset)
+            if (action) {
+              if (action.type === "continue") {
+                input.insertText(action.insertText)
+                if (action.renumber) {
+                  const offset = action.insertText.length
+                  const adjustedStart = action.renumber.start + offset
+                  const adjustedEnd = action.renumber.end + offset
+                  const before = input.plainText.slice(0, adjustedStart)
+                  const after = input.plainText.slice(adjustedEnd)
+                  input.setText(before + action.renumber.newText + after)
+                  input.cursorOffset = adjustedStart - 1
+                }
+              } else if (action.type === "clear") {
+                const before = input.plainText.slice(0, action.deleteRange.start)
+                const after = input.plainText.slice(action.deleteRange.end)
+                input.setText(before + after)
+                input.cursorOffset = action.cursorPosition
+              }
+              return
+            }
+            input.insertText("\n")
+          },
+        },
+      ],
+      bindings: tuiConfig.keybinds.get("input_newline"),
+    }
+  })
+
+  useBindings(() => {
+    return {
+      target: inputTarget,
+      enabled: inputTarget() !== undefined && !props.disabled,
       bindings: tuiConfig.keybinds.get("prompt.paste"),
     }
   })
@@ -1548,32 +1587,6 @@ export function Prompt(props: PromptProps) {
               onKeyDown={(e: KeyEvent) => {
                 if (props.disabled) {
                   e.preventDefault()
-                  return
-                }
-                if (e.name === "return") {
-                  e.preventDefault()
-                  const action = listContinuation.handleNewline(input.plainText, input.cursorOffset)
-                  if (action) {
-                    if (action.type === "continue") {
-                      input.insertText(action.insertText)
-                      if (action.renumber) {
-                        const offset = action.insertText.length
-                        const adjustedStart = action.renumber.start + offset
-                        const adjustedEnd = action.renumber.end + offset
-                        const before = input.plainText.slice(0, adjustedStart)
-                        const after = input.plainText.slice(adjustedEnd)
-                        input.setText(before + action.renumber.newText + after)
-                        input.cursorOffset = adjustedStart - 1
-                      }
-                    } else if (action.type === "clear") {
-                      const before = input.plainText.slice(0, action.deleteRange.start)
-                      const after = input.plainText.slice(action.deleteRange.end)
-                      input.setText(before + after)
-                      input.cursorOffset = action.cursorPosition
-                    }
-                  } else {
-                    input.insertText("\n")
-                  }
                   return
                 }
                 if (e.ctrl && e.name === "v") {

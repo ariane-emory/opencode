@@ -1,6 +1,6 @@
 import type { TuiPlugin, TuiPluginApi } from "@opencode-ai/plugin/tui"
 import type { InternalTuiPlugin } from "../../plugin/internal"
-import { createMemo, Show } from "solid-js"
+import { createMemo, createSignal, onCleanup, onMount, Show } from "solid-js"
 import { Global } from "@opencode-ai/core/global"
 
 const id = "internal:sidebar-footer"
@@ -23,6 +23,19 @@ function View(props: { api: TuiPluginApi }) {
       parent: list.slice(0, -1).join("/"),
       name: list.at(-1) ?? "",
     }
+  })
+  const showSidebarClock = createMemo(() => props.api.kv.get("sidebar_clock_visible", true))
+
+  const formatTime = () => {
+    const now = new Date()
+    return now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false })
+  }
+
+  const [clockTime, setClockTime] = createSignal(formatTime())
+
+  onMount(() => {
+    const interval = setInterval(() => setClockTime(formatTime()), 10000)
+    onCleanup(() => clearInterval(interval))
   })
 
   return (
@@ -64,13 +77,18 @@ function View(props: { api: TuiPluginApi }) {
         <span style={{ fg: theme().textMuted }}>{path().parent}/</span>
         <span style={{ fg: theme().text }}>{path().name}</span>
       </text>
-      <text fg={theme().textMuted}>
-        <span style={{ fg: theme().success }}>•</span> <b>Base</b>
-        <span style={{ fg: theme().text }}>
-          <b>One</b>
-        </span>{" "}
-        <span>{props.api.app.version}</span>
-      </text>
+      <box flexDirection="row" justifyContent="space-between">
+        <text fg={theme().textMuted}>
+          <span style={{ fg: theme().success }}>•</span> <b>Base</b>
+          <span style={{ fg: theme().text }}>
+            <b>One</b>
+          </span>{" "}
+          <span>{props.api.app.version}</span>
+        </text>
+        <Show when={showSidebarClock()}>
+          <text fg={theme().accent}>🐈 {clockTime()}</text>
+        </Show>
+      </box>
     </box>
   )
 }

@@ -167,6 +167,7 @@ const context = createContext<{
   conceal: () => boolean
   showThinking: () => boolean
   showTimestamps: () => boolean
+  showAgentTimestamps: () => boolean
   showDetails: () => boolean
   showTps: () => boolean
   showGenericToolOutput: () => boolean
@@ -226,6 +227,7 @@ export function Session() {
   const [conceal, setConceal] = createSignal(true)
   const [showThinking, setShowThinking] = kv.signal("thinking_visibility", true)
   const [timestamps, setTimestamps] = kv.signal<"hide" | "show">("timestamps", "hide")
+  const [agentTimestamps, setAgentTimestamps] = kv.signal<"hide" | "show">("agent_timestamps", "hide")
   const [showDetails, setShowDetails] = kv.signal("tool_details_visibility", true)
   const [showAssistantMetadata, _setShowAssistantMetadata] = kv.signal("assistant_metadata_visibility", true)
   const [showScrollbar, setShowScrollbar] = kv.signal("scrollbar_visible", false)
@@ -684,7 +686,6 @@ export function Session() {
       },
     },
     {
-    {
       title: "Continue interrupted conversation",
       value: "session.continue",
       keybind: "session_continue",
@@ -732,7 +733,6 @@ export function Session() {
         dialog.clear()
       },
     },
-    {
     {
       title: showTimestamps() ? "Hide timestamps" : "Show timestamps",
       value: "session.toggle.timestamps",
@@ -1200,20 +1200,21 @@ export function Session() {
                   <Switch>
                     <Match when={message.id === revert()?.messageID}>
                       {(function () {
-                        const command = useCommandDialog()
-                        const [hover, setHover] = createSignal(false)
-                        const dialog = useDialog()
+                         const command = useCommandPalette()
+                         const redoShortcut = useCommandShortcut("session.redo")
+                         const [hover, setHover] = createSignal(false)
+                         const dialog = useDialog()
 
-                        const handleUnrevert = async () => {
-                          const confirmed = await DialogConfirm.show(
-                            dialog,
-                            "Confirm Redo",
-                            "Are you sure you want to restore the reverted messages?",
-                          )
-                          if (confirmed) {
-                            command.trigger("session.redo")
-                          }
-                        }
+                         const handleUnrevert = async () => {
+                           const confirmed = await DialogConfirm.show(
+                             dialog,
+                             "Confirm Redo",
+                             "Are you sure you want to restore the reverted messages?",
+                           )
+                           if (confirmed) {
+                             command.run("session.redo")
+                           }
+                         }
 
                         return (
                           <box
@@ -1234,7 +1235,7 @@ export function Session() {
                             >
                               <text fg={theme.textMuted}>{revert()!.reverted.length} message reverted</text>
                               <text fg={theme.textMuted}>
-                                <span style={{ fg: theme.text }}>{keybind.print("messages_redo")}</span> or /redo to
+                                <span style={{ fg: theme.text }}>{redoShortcut()}</span> or /redo to
                                 restore
                               </text>
                               <Show when={revert()!.diffFiles?.length}>
@@ -1699,7 +1700,6 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
               </Show>
               <Show when={!final() && elapsedTime()}>
                 <span style={{ fg: theme.textMuted }}> · running {Locale.duration(elapsedTime())}</span>
-              </Show>
               </Show>
               <Show when={props.message.error?.name === "MessageAbortedError"}>
                 <span style={{ fg: theme.textMuted }}> · interrupted</span>

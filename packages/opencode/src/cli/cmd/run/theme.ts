@@ -72,15 +72,19 @@ type Variant = {
 type ColorValue = HexColor | RefName | Variant | RGBA | number
 type ThemeJson = {
   defs?: Record<string, HexColor | RefName>
-  theme: Omit<Record<ThemeColor, ColorValue>, "selectedListItemText" | "backgroundMenu"> & {
+  theme: Omit<Record<ThemeColor, ColorValue>, "selectedListItemText" | "backgroundMenu" | "sessionTitle" | "toolOutput"> & {
     selectedListItemText?: ColorValue
     backgroundMenu?: ColorValue
+    sessionTitle?: ColorValue
+    toolOutput?: ColorValue
     thinkingOpacity?: number
   }
 }
 
 type SharedSyntaxTheme = TuiThemeCurrent & {
   _hasSelectedListItemText: boolean
+  sessionTitle: RGBA
+  toolOutput: RGBA
 }
 
 export const transparent = RGBA.fromValues(0, 0, 0, 0)
@@ -590,6 +594,8 @@ export async function resolveRunTheme(renderer: CliRenderer): Promise<RunTheme> 
     const syntaxTheme: SharedSyntaxTheme = {
       ...theme,
       _hasSelectedListItemText: true,
+      sessionTitle: theme.text,
+      toolOutput: theme.textMuted,
     }
     const syntax = shared.generateSyntax(syntaxTheme)
     return map(theme, splashTheme(theme, indexed), syntax, shared.generateSubtleSyntax(syntaxTheme))

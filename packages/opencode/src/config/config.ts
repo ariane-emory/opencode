@@ -389,7 +389,6 @@ export const Info = Schema.Struct({
         description:
           "Control dialog background overlay: 'full' = semi-transparent overlay (default), 'limited' = overlay only within dialog bounds, 'none' = no overlay",
       }),
-      }),
     }),
   ),
 })

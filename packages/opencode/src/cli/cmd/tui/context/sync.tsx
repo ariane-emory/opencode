@@ -541,8 +541,33 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
           if (fullSyncedSessions.has(sessionID)) return
           const messagesLimit = store.config.experimental?.messages_limit
           const limit = messagesLimit === "none" ? undefined : messagesLimit ?? 100
+          const [session, messages, todo, diff] = await Promise.all([
+            sdk.client.session.get({ sessionID }, { throwOnError: true }),
+            sdk.client.session.messages({ sessionID, limit }),
+            sdk.client.session.todo({ sessionID }),
+            sdk.client.session.diff({ sessionID }),
+          ])
+          setStore(
+            produce((draft) => {
+              const match = Binary.search(draft.session, sessionID, (s) => s.id)
+              if (match.found) draft.session[match.index] = session.data!
+              if (!match.found) draft.session.splice(match.index, 0, session.data!)
+              draft.todo[sessionID] = todo.data ?? []
+              const infos: (typeof draft.message)[string] = []
+              for (const message of messages.data ?? []) {
+                infos.push(message.info)
+                draft.part[message.info.id] = message.parts
+              }
+
+              draft.message[sessionID] = infos
+              draft.session_diff[sessionID] = diff.data ?? []
+            }),
+          )
+          fullSyncedSessions.add(sessionID)
         },
         async forceSync(sessionID: string) {
+          const messagesLimit = store.config.experimental?.messages_limit
+          const limit = messagesLimit === "none" ? undefined : messagesLimit ?? 100
           const [session, messages, todo, diff] = await Promise.all([
             sdk.client.session.get({ sessionID }, { throwOnError: true }),
             sdk.client.session.messages({ sessionID, limit }),

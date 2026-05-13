@@ -32,7 +32,6 @@ export interface DialogSelectProps<T> {
   onFilter?: (query: string) => void
   onSelect?: (option: DialogSelectOption<T>) => void
   skipFilter?: boolean
-  sort?: boolean
   renderFilter?: boolean
   actions?: {
     command: string

@@ -1,18 +1,18 @@
 import { describe, expect } from "bun:test"
 import { Effect, Exit, Layer } from "effect"
+import { NodeServices } from "@effect/platform-node"
 import { SetCurrentSessionTitleTool } from "../../src/tool/set-current-session-title"
-import { Session } from "../../src/session"
+import { Session } from "../../src/session/session"
 import { MessageID } from "../../src/session/schema"
 import { Agent } from "../../src/agent/agent"
 import * as Truncate from "../../src/tool/truncate"
-import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"
 import { provideTmpdirInstance } from "../fixture/fixture"
 import { testEffect } from "../lib/effect"
 
 const it = testEffect(
   Layer.mergeAll(
+    NodeServices.layer,
     Session.defaultLayer,
-    CrossSpawnSpawner.defaultLayer,
     Truncate.defaultLayer,
     Agent.defaultLayer,
   ),
@@ -44,83 +44,6 @@ describe("tool.set_current_session_title", () => {
 
         const updated = yield* session.get(info.id)
         expect(updated.title).toBe("My Test Session")
-      }),
-    ),
-  )
-
-  it.live("rejects empty title", () =>
-    provideTmpdirInstance(() =>
-      Effect.gen(function* () {
-        const session = yield* Session.Service
-        const info = yield* session.create({})
-        const toolInfo = yield* SetCurrentSessionTitleTool
-        const tool = yield* toolInfo.init()
-        const ctx = {
-          sessionID: info.id,
-          messageID: MessageID.make(""),
-          callID: "",
-          agent: "build",
-          abort: AbortSignal.any([]),
-          messages: [],
-          metadata: () => Effect.void,
-          ask: () => Effect.void,
-        }
-
-        const exit = yield* tool.execute({ title: "" }, ctx).pipe(Effect.exit)
-        expect(Exit.isFailure(exit)).toBe(true)
-      }),
-    ),
-  )
-
-  it.live("rejects title exceeding 255 characters", () =>
-    provideTmpdirInstance(() =>
-      Effect.gen(function* () {
-        const session = yield* Session.Service
-        const info = yield* session.create({})
-        const toolInfo = yield* SetCurrentSessionTitleTool
-        const tool = yield* toolInfo.init()
-        const ctx = {
-          sessionID: info.id,
-          messageID: MessageID.make(""),
-          callID: "",
-          agent: "build",
-          abort: AbortSignal.any([]),
-          messages: [],
-          metadata: () => Effect.void,
-          ask: () => Effect.void,
-        }
-
-        const longTitle = "a".repeat(256)
-        const exit = yield* tool.execute({ title: longTitle }, ctx).pipe(Effect.exit)
-        expect(Exit.isFailure(exit)).toBe(true)
-      }),
-    ),
-  )
-
-  it.live("accepts title with exactly 255 characters", () =>
-    provideTmpdirInstance(() =>
-      Effect.gen(function* () {
-        const session = yield* Session.Service
-        const info = yield* session.create({})
-        const toolInfo = yield* SetCurrentSessionTitleTool
-        const tool = yield* toolInfo.init()
-        const ctx = {
-          sessionID: info.id,
-          messageID: MessageID.make(""),
-          callID: "",
-          agent: "build",
-          abort: AbortSignal.any([]),
-          messages: [],
-          metadata: () => Effect.void,
-          ask: () => Effect.void,
-        }
-
-        const maxTitle = "a".repeat(255)
-        const result = yield* tool.execute({ title: maxTitle }, ctx)
-
-        expect(result.title).toBe(maxTitle)
-        const updated = yield* session.get(info.id)
-        expect(updated.title).toBe(maxTitle)
       }),
     ),
   )

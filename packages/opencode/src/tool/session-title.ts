@@ -12,14 +12,15 @@ export const GetCurrentSessionTitleTool = Tool.define(
     return {
       description: DESCRIPTION,
       parameters: Parameters,
-      execute: Effect.fn("GetCurrentSessionTitleTool.execute")(function* (_params, ctx) {
-        const info = yield* session.get(ctx.sessionID)
-        return {
-          title: "Retrieved session title",
-          output: info.title ?? "Unknown",
-          metadata: {},
-        }
-      }),
+      execute: (_params: Schema.Schema.Type<typeof Parameters>, ctx: Tool.Context) =>
+        Effect.gen(function* () {
+          const info = yield* session.get(ctx.sessionID)
+          return {
+            title: "Retrieved session title",
+            output: info.title ?? "Unknown",
+            metadata: {},
+          }
+        }).pipe(Effect.orDie),
     }
   }),
 )

@@ -239,7 +239,10 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
     if (!id) return
     options()
     setTimeout(() => {
-      selectRef()?.scrollToValue(id, true)
+      const ref = selectRef()
+      if (ref && !ref.skipAutoScroll) {
+        ref.scrollToValue(id, true)
+      }
     }, 0)
   })
 

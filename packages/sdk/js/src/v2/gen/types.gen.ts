@@ -1691,6 +1691,7 @@ export type Config = {
     continue_loop_on_deny?: boolean
     mcp_timeout?: number
     /**
+    /**
      * Enable experimental plan mode
      */
     plan_mode?: boolean
@@ -1706,6 +1707,10 @@ export type Config = {
      * Maximum number of lines for the prompt input text box (1-99, default: 6)
      */
     max_prompt_input_lines?: number
+    /**
+     * Control dialog background overlay: 'full' = semi-transparent overlay (default), 'limited' = overlay only within dialog bounds, 'none' = no overlay
+     */
+    dialog_background_overlay?: 'full' | 'limited' | 'none'
   }
 }
 

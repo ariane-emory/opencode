@@ -5,7 +5,6 @@ import path from "path"
 import { Config } from "@/config/config"
 import { Shell } from "../../src/shell/shell"
 import { ShellTool } from "../../src/tool/shell"
-import { Instance } from "../../src/project/instance"
 import { WithInstance } from "../../src/project/with-instance"
 import { Filesystem } from "@/util/filesystem"
 import { tmpdir } from "../fixture/fixture"
@@ -160,7 +159,119 @@ describe("tool.shell", () => {
     })
   })
 
-  test("falls back from terminal-only configured shell", async () => {
+  test("description includes shell information", async () => {
+    await WithInstance.provide({
+      directory: projectRoot,
+      fn: async () => {
+        const bash = await initBash()
+        expect(bash.description).toContain("Be aware: OS:")
+        expect(bash.description).toContain("Shell:")
+        const shellMatch = bash.description.match(/Shell: ([^\n]+)/)
+        expect(shellMatch).toBeTruthy()
+        expect(shellMatch?.[1]).toBeTruthy()
+      },
+    })
+  })
+
+  test("shell name detection is platform-aware", async () => {
+    await WithInstance.provide({
+      directory: projectRoot,
+      fn: async () => {
+        const bash = await initBash()
+        const detectedShell = bash.description.match(/Shell: ([^\n]+)/)?.[1]?.trim()
+
+        expect(detectedShell).toBeTruthy()
+
+        // Verify detected shell is appropriate for the platform
+        if (process.platform === "win32") {
+          expect(["cmd", "powershell"]).toContain(detectedShell!)
+        } else {
+          expect(["bash", "zsh", "fish", "ksh", "csh", "tcsh", "dash"]).toContain(detectedShell!)
+        }
+      },
+    })
+  })
+
+  test("description uses dynamic shell-specific language", async () => {
+    await WithInstance.provide({
+      directory: projectRoot,
+      fn: async () => {
+        const bash = await initBash()
+        const detectedShell = bash.description.match(/Shell: ([^\n]+)/)?.[1]?.trim()
+
+        expect(detectedShell).toBeTruthy()
+
+        // Should contain shell-specific command references
+        if (detectedShell) {
+          expect(bash.description).toContain(`${detectedShell} command`)
+          expect(bash.description).toContain(`${detectedShell} commands`)
+        }
+
+        expect(bash.description).toContain("persistent shell session")
+      },
+    })
+  })
+
+  test("shell-specific language works for different shell types", async () => {
+    // Test with different shell environments
+    const originalShell = process.env.SHELL
+
+    await WithInstance.provide({
+      directory: projectRoot,
+      fn: async () => {
+        try {
+          // Mock zsh shell environment
+          process.env.SHELL = "/bin/zsh"
+          Shell.acceptable.reset()
+          Shell.preferred.reset()
+          const bashZsh = await initBash()
+          expect(bashZsh.description).toContain("zsh command")
+          expect(bashZsh.description).toContain("zsh commands")
+
+          // Mock bash shell environment
+          process.env.SHELL = "/bin/bash"
+          Shell.acceptable.reset()
+          Shell.preferred.reset()
+          const bashBash = await initBash()
+          expect(bashBash.description).toContain("bash command")
+          expect(bashBash.description).toContain("bash commands")
+
+          // Mock ksh shell environment
+          process.env.SHELL = "/bin/ksh"
+          Shell.acceptable.reset()
+          Shell.preferred.reset()
+          const bashKsh = await initBash()
+          expect(bashKsh.description).toContain("ksh command")
+          expect(bashKsh.description).toContain("ksh commands")
+
+          // Mock fish shell environment
+          process.env.SHELL = "fish"
+          Shell.acceptable.reset()
+          Shell.preferred.reset()
+          const bashFish = await initBash()
+          expect(bashFish.description).toContain("fish command")
+          expect(bashFish.description).toContain("fish commands")
+
+          // Mock nu shell environment
+          process.env.SHELL = "nu"
+          Shell.acceptable.reset()
+          Shell.preferred.reset()
+          const bashNu = await initBash()
+          expect(bashNu.description).toContain("nu command")
+          expect(bashNu.description).toContain("nu commands")
+        } finally {
+          // Restore original shell
+          if (originalShell) {
+            process.env.SHELL = originalShell
+          } else {
+            delete process.env.SHELL
+          }
+        }
+      },
+    })
+  })
+
+  test("uses configured fish shell", async () => {
     await using tmp = await tmpdir({
       config: { shell: "fish" },
     })
@@ -168,21 +279,20 @@ describe("tool.shell", () => {
       directory: tmp.path,
       fn: async () => {
         const bash = await initBash()
-        const fallback = Shell.name(Shell.acceptable("fish"))
-        expect(fallback).not.toBe("fish")
-        expect(bash.description).toContain(fallback)
+        expect(Shell.name(Shell.acceptable("fish"))).toBe("fish")
+        expect(bash.description).toContain("fish")
 
         const result = await Effect.runPromise(
           bash.execute(
             {
-              command: "echo fallback",
-              description: "Echo fallback text",
+              command: "echo fish",
+              description: "Echo fish text",
             },
             ctx,
           ),
         )
         expect(result.metadata.exit).toBe(0)
-        expect(result.output).toContain("fallback")
+        expect(result.output).toContain("fish")
       },
     })
   })

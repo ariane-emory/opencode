@@ -27,6 +27,7 @@ import { editorSelectionKey, useEditorContext, type EditorSelection } from "@tui
 import { MessageID, PartID } from "@/session/schema"
 import { createStore, produce, unwrap } from "solid-js/store"
 import { usePromptHistory, type PromptInfo } from "./history"
+import { isWordChar, getWordBoundaries, lowercaseWord, uppercaseWord, capitalizeWord } from "./word"
 import { computePromptTraits } from "./traits"
 import { assign } from "./part"
 import { usePromptStash } from "./stash"
@@ -360,6 +361,7 @@ export function Prompt(props: PromptProps) {
     extmarkToPartIndex: Map<number, number>
     interrupt: number
     placeholder: number
+    killBuffer: string
   }>({
     placeholder: randomIndex(list().length),
     prompt: {
@@ -369,6 +371,7 @@ export function Prompt(props: PromptProps) {
     mode: "normal",
     extmarkToPartIndex: new Map(),
     interrupt: 0,
+    killBuffer: "",
   })
 
   createEffect(
@@ -1488,10 +1491,175 @@ export function Prompt(props: PromptProps) {
                 setCursorVersion((value) => value + 1)
               }}
               onCursorChange={() => setCursorVersion((value) => value + 1)}
-              onKeyDown={(e: { preventDefault(): void }) => {
+              onKeyDown={(e: KeyEvent) => {
                 if (props.disabled) {
                   e.preventDefault()
                   return
+                }
+                // Readline-style keybindings for prompt editing
+                if (e.ctrl && e.name === "v") {
+                  void (async () => {
+                    const content = await Clipboard.read()
+                    if (content?.mime.startsWith("image/")) {
+                      e.preventDefault()
+                      await pasteAttachment({
+                        filename: "clipboard",
+                        mime: content.mime,
+                        content: content.data,
+                      })
+                    }
+                  })()
+                  return
+                }
+                if (e.ctrl && e.name === "c" && store.prompt.input !== "") {
+                  input.clear()
+                  input.extmarks.clear()
+                  setStore("prompt", {
+                    input: "",
+                    parts: [],
+                  })
+                  setStore("extmarkToPartIndex", new Map())
+                  e.preventDefault()
+                  return
+                }
+                if (e.ctrl && e.name === "d" && store.prompt.input === "") {
+                  void exit()
+                  e.preventDefault()
+                  return
+                }
+                if (e.name === "!" && input.visualCursor.offset === 0) {
+                  setStore("placeholder", randomIndex(shell().length))
+                  setStore("mode", "shell")
+                  e.preventDefault()
+                  return
+                }
+                if (store.mode === "shell") {
+                  if ((e.name === "backspace" && input.visualCursor.offset === 0) || e.name === "escape") {
+                    setStore("mode", "normal")
+                    e.preventDefault()
+                    return
+                  }
+                }
+                if (!auto()?.visible) {
+                  if (
+                    (e.name === "up" && input.cursorOffset === 0) ||
+                    (e.name === "down" && input.cursorOffset === input.plainText.length)
+                  ) {
+                    const direction = e.name === "up" ? -1 : 1
+                    const item = history.move(direction, input.plainText)
+                    if (item) {
+                      input.setText(item.input)
+                      setStore("prompt", item)
+                      setStore("mode", item.mode ?? "normal")
+                      restoreExtmarksFromParts(item.parts)
+                      e.preventDefault()
+                      if (direction === -1) input.cursorOffset = 0
+                      if (direction === 1) input.cursorOffset = input.plainText.length
+                    }
+                    return
+                  }
+                  if (e.name === "up" && input.visualCursor.visualRow === 0) input.cursorOffset = 0
+                  if (e.name === "down" && input.visualCursor.visualRow === input.height - 1)
+                    input.cursorOffset = input.plainText.length
+                }
+                if (e.ctrl && e.name === "k") {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+                  const textToEnd = text.slice(cursorOffset)
+                  setStore("killBuffer", textToEnd)
+                }
+                if (e.ctrl && e.name === "t") {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+                  let char1Pos: number, char2Pos: number, newCursorOffset: number
+                  if (text.length < 2) {
+                    return
+                  } else if (cursorOffset === 0) {
+                    char1Pos = 0
+                    char2Pos = 1
+                    newCursorOffset = 1
+                  } else if (cursorOffset === text.length) {
+                    char1Pos = text.length - 2
+                    char2Pos = text.length - 1
+                    newCursorOffset = cursorOffset
+                  } else {
+                    char1Pos = cursorOffset - 1
+                    char2Pos = cursorOffset
+                    newCursorOffset = cursorOffset + 1
+                  }
+                  const char1 = text[char1Pos]
+                  const char2 = text[char2Pos]
+                  const newText =
+                    text.slice(0, char1Pos) +
+                    char2 +
+                    text.slice(char1Pos + 1, char2Pos) +
+                    char1 +
+                    text.slice(char2Pos + 1)
+                  input.setText(newText)
+                  input.cursorOffset = newCursorOffset
+                  setStore("prompt", "input", newText)
+                  e.preventDefault()
+                  return
+                }
+                if (e.meta && e.name === "d") {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+                  const boundaries = getWordBoundaries(text, cursorOffset)
+                  if (boundaries) {
+                    setStore("killBuffer", text.slice(boundaries.start, boundaries.end))
+                  }
+                }
+                if ((e.meta && e.name === "backspace") || (e.ctrl && e.name === "w")) {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+                  let start = cursorOffset
+                  while (start > 0 && !isWordChar(text[start - 1])) start--
+                  while (start > 0 && isWordChar(text[start - 1])) start--
+                  setStore("killBuffer", text.slice(start, cursorOffset))
+                }
+                if (
+                  (e.meta && e.name === "l") ||
+                  (e.meta && e.name === "u") ||
+                  (e.meta && e.name === "c")
+                ) {
+                  const text = input.plainText
+                  const cursorOffset = input.cursorOffset
+                  const selection = input.getSelection()
+                  const hasSelection = selection !== null
+                  let start: number, end: number
+                  if (hasSelection && selection) {
+                    start = selection.start
+                    end = selection.end
+                  } else {
+                    const boundaries = getWordBoundaries(text, cursorOffset)
+                    if (!boundaries) {
+                      e.preventDefault()
+                      return
+                    }
+                    start = boundaries.start
+                    end = boundaries.end
+                  }
+                  let newText: string
+                  if (e.meta && e.name === "l") {
+                    newText = lowercaseWord(text, start, end)
+                  } else if (e.meta && e.name === "u") {
+                    newText = uppercaseWord(text, start, end)
+                  } else {
+                    newText = capitalizeWord(text, start, end)
+                  }
+                  input.setText(newText)
+                  input.cursorOffset = end
+                  setStore("prompt", "input", newText)
+                  e.preventDefault()
+                  return
+                }
+                if (e.ctrl && e.name === "y") {
+                  if (store.killBuffer) {
+                    input.insertText(store.killBuffer)
+                    setStore("prompt", "input", input.plainText)
+                    e.preventDefault()
+                    return
+                  }
                 }
               }}
               onSubmit={() => {

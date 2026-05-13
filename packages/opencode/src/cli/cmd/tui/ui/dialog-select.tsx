@@ -9,10 +9,11 @@ import {
 import type { Binding } from "@opentui/keymap"
 import { useTheme, selectedForeground } from "@tui/context/theme"
 import { entries, filter, flatMap, groupBy, mapValues, pipe } from "remeda"
+import { tieredMatch } from "@/util/tiered-match"
+import { smartCompare } from "@/util/smart-sort"
 import { batch, createEffect, createMemo, For, Show, type JSX, on } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useTerminalDimensions } from "@opentui/solid"
-import * as fuzzysort from "fuzzysort"
 import { isDeepEqual } from "remeda"
 import { useDialog, type DialogContext } from "@tui/ui/dialog"
 import { Locale } from "@/util/locale"
@@ -98,23 +99,17 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
 
   const filtered = createMemo(() => {
     if (props.skipFilter || props.renderFilter === false) return props.options.filter((x) => x.disabled !== true)
-    const needle = store.filter.toLowerCase()
+    const needle = store.filter.toLowerCase().trim()
     const options = pipe(
       props.options,
       filter((x) => x.disabled !== true),
     )
     if (!needle) return options
 
-    // prioritize title matches (weight: 2) over category matches (weight: 1).
-    // users typically search by the item name, and not its category.
-    const result = fuzzysort
-      .go(needle, options, {
-        keys: ["title", "category"],
-        scoreFn: (r) => r[0].score * 2 + r[1].score,
-      })
-      .map((x) => x.obj)
-
-    return result
+    // **CRITICAL**: This tiered matching logic is the core feature of fix/modal-menus-filtered-order.
+    // It ensures prefix matches appear first, then substring matches, then description/category matches.
+    // DO NOT replace with simple fuzzysort or frecency sorting during merges!
+    return tieredMatch(options, needle)
   })
 
   // When the filter changes due to how TUI works, the mousemove might still be triggered
@@ -134,7 +129,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
       groupBy((x) => x.category ?? ""),
       (groups) => {
         if (!props.sort) return groups
-        return mapValues(groups, (x) => x.sort((a, b) => a.title.localeCompare(b.title)))
+        return mapValues(groups, (x) => x.sort((a, b) => smartCompare(a.title, b.title)))
       },
       entries(),
     )

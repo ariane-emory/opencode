@@ -49,6 +49,29 @@ export function shortDateTime(input: number): string {
   }
 }
 
+export function datetimeCompact(input: number): string {
+  const date = new Date(input)
+  const localTime = time(input)
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  const year = date.getFullYear()
+  const localDate = `${month}/${day}/${year}`
+  return `${localTime}  ${localDate}`
+}
+
+export function todayTimeOrDateTimeCompact(input: number) {
+  const date = new Date(input)
+  const now = new Date()
+  const isToday =
+    date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate()
+
+  if (isToday) {
+    return time(input)
+  } else {
+    return datetimeCompact(input)
+  }
+}
+
 export function number(num: number): string {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1) + "M"

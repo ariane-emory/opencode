@@ -6,7 +6,7 @@
 |--------|---|-------------|--------|----|-------------|-------------|
 | ☑ | 1 | feat/gignit--markdown-renderer | 273 | origin | 0b32419385 | Clean merge |
 | ☑ | 2 | feat/rcdailey--thinking-indicator-hidden | 274 | origin | d38a36c8f1 | Clean merge |
-| ☐ | 3 | feat/aspiers--readline-additions | 211 | origin | TBD | |
+| ☑ | 3 | feat/aspiers--readline-additions | 211 | origin | 970eadce1e | Clean merge |
 | ☐ | 4 | feat/base-one-rebrand | 52 | origin | TBD | REMOVE animation effects on startup screen art. MUST NOT mess with background colouring of exit art! |
 | ☐ | 5 | feat/sinister-quotes | 73 | origin | TBD | Placeholders MUST be SINISTER_PLACEHOLDERS array in packages/ui/src/constants/placeholders.ts, NO OTHER SOURCE! |
 | ☐ | 6 | feat/session-grouping | 194 | origin | TBD | |

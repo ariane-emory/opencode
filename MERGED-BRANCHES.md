@@ -11,7 +11,7 @@
 | ☑ | 5 | feat/sinister-quotes | 73 | origin | d468d5c2af | Clean merge |
 | ☑ | 6 | feat/session-grouping | 194 | origin | 73f6cf8c9b | Clean merge |
 | ☑ | 7 | feat/session-bookmarks | 102 | origin | 21c114d05a | Conflicts: combined session-grouping + bookmarks features in dialog-session-list.tsx, locale.ts |
-| ☐ | 8 | fix/dialog-datetime-alignment | 113 | origin | TBD | Merge immediately after feat/session-bookmarks. MUST NOT be clobbered; combine with conflicting features! |
+| ☑ | 8 | fix/dialog-datetime-alignment | 113 | origin | 99e7eada9e | Conflicts: locale.ts comment |
 | ☐ | 9 | feat/keybindable-commands | 48 | origin | TBD | |
 | ☐ | 10 | feat/automatic-list-continuation | 112 | origin | TBD | |
 | ☐ | 11 | feat/continue-command | 11 | origin | TBD | |

@@ -1890,8 +1890,7 @@ NOTE: At any point in time through this workflow you SHOULD feel free to ask the
       }
       const agentName = cmd.agent ?? input.agent ?? (yield* agents.defaultAgent())
 
-      const raw = input.arguments.match(argsRegex) ?? []
-      const args = raw.map((arg) => arg.replace(quoteTrimRegex, ""))
+      const args = input.arguments.match(argsRegex) ?? []
       const templateCommand = yield* Effect.promise(async () => cmd.template)
 
       const { result: withArgs, hasPlaceholders } = substituteArguments(templateCommand, args)
@@ -2194,6 +2193,7 @@ const bashRegex = /!`([^`]+)`/g
 // Match [Image N] as single token, quoted strings, or non-space sequences
 const argsRegex = /(?:\[Image\s+\d+\]|"[^"]*"|'[^']*'|[^\s"']+)/gi
 const quoteTrimRegex = /^["']|["']$/g
+const placeholderRegex = /\$(\d+)/g
 
 const { runPromise } = makeRuntime(Service, defaultLayer)
 

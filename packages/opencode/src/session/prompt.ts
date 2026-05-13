@@ -1,4 +1,5 @@
 import path from "path"
+import { substituteArguments } from "../config/substitute"
 import os from "os"
 import * as EffectZod from "@opencode-ai/core/effect-zod"
 import { SessionID, MessageID, PartID } from "./schema"
@@ -32,7 +33,6 @@ import { Command } from "../command"
 import { pathToFileURL, fileURLToPath } from "url"
 import { Config } from "@/config/config"
 import { ConfigMarkdown } from "@/config/markdown"
-import { substituteArguments } from "../config/substitute"
 import { SessionSummary } from "./summary"
 import { NamedError } from "@opencode-ai/core/util/error"
 import { SessionProcessor } from "./processor"
@@ -1894,6 +1894,8 @@ NOTE: At any point in time through this workflow you SHOULD feel free to ask the
       const templateCommand = yield* Effect.promise(async () => cmd.template)
 
       const { result: withArgs, hasPlaceholders } = substituteArguments(templateCommand, args)
+
+
       const usesArgumentsPlaceholder = templateCommand.includes("$ARGUMENTS")
       let template = withArgs.replaceAll("$ARGUMENTS", input.arguments)
 
@@ -2188,5 +2190,7 @@ const { runPromise } = makeRuntime(Service, defaultLayer)
 export async function continue_(input: ContinueInput) {
   return runPromise((svc) => svc.continue(ContinueInput.zod.parse(input)))
 }
+
+export { substituteArguments }
 
 export * as SessionPrompt from "./prompt"

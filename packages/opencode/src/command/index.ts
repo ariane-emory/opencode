@@ -3,7 +3,7 @@ import { InstanceState } from "@/effect/instance-state"
 import { EffectBridge } from "@/effect/bridge"
 import type { InstanceContext } from "@/project/instance"
 import { SessionID, MessageID } from "@/session/schema"
-import { Effect, Layer, Context, Schema } from "effect"
+import { Context, Effect, Layer, Schema } from "effect"
 import z from "zod"
 import { zod, ZodOverride } from "@opencode-ai/core/effect-zod"
 import { withStatics } from "@opencode-ai/core/schema"
@@ -51,6 +51,12 @@ export function hints(template: string) {
   const numbered = template.match(/\$\d+/g)
   if (numbered) {
     for (const match of [...new Set(numbered)].sort()) result.push(match)
+  }
+  const extended = template.match(/\$\{(\d+|\d*\.\.\d*)\}/g)
+  if (extended) {
+    for (const match of [...new Set(extended)].sort()) {
+      if (!result.includes(match)) result.push(match)
+    }
   }
   if (template.includes("$ARGUMENTS")) result.push("$ARGUMENTS")
   return result

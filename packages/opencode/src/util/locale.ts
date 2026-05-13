@@ -56,10 +56,10 @@ export function datetimeCompact(input: number): string {
   const day = date.getDate()
   const year = date.getFullYear()
   const localDate = `${month}/${day}/${year}`
-  return `${localTime}  ${localDate}`
+  return `${localTime} · ${localDate}`
 }
 
-export function todayTimeOrDateTimeCompact(input: number) {
+export function todayTimeOrDateTimeCompact(input: number): string {
   const date = new Date(input)
   const now = new Date()
   const isToday =

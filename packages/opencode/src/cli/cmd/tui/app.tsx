@@ -732,6 +732,17 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         },
       },
       {
+        name: "session.toggle.agent_timestamps_global",
+        title: kv.get("agent_timestamps", "hide") === "show" ? "Hide agent timestamps" : "Show agent timestamps",
+        category: "System",
+        slashName: "agent-timestamps",
+        run: () => {
+          const current = kv.get("agent_timestamps", "hide")
+          kv.set("agent_timestamps", current === "show" ? "hide" : "show")
+          dialog.clear()
+        },
+      },
+      {
         name: "terminal.suspend",
         title: "Suspend terminal",
         category: "System",

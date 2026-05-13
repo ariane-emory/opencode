@@ -21,8 +21,9 @@ import { AppFileSystem } from "@opencode-ai/core/filesystem"
 import { InstanceState } from "@/effect/instance-state"
 import { Context, Duration, Effect, Exit, Fiber, Layer, Option, Schema } from "effect"
 import { EffectFlock } from "@opencode-ai/core/util/effect-flock"
-import { containsPath } from "../project/instance-context"
 import { makeRuntime } from "@/effect/run-service"
+import { InstanceRef } from "@/effect/instance-ref"
+import { containsPath } from "../project/instance-context"
 import { zod } from "@opencode-ai/core/effect-zod"
 import { ConfigBoolean, NonNegativeInt, PositiveInt, withStatics, type DeepMutable } from "@opencode-ai/core/schema"
 import { ConfigAgent } from "./agent"
@@ -304,6 +305,9 @@ export const Info = Schema.Struct({
       }),
       plan_mode: Schema.optional(Schema.Boolean).annotate({
         description: "Enable experimental plan mode",
+      }),
+      enable_exa: Schema.optional(Schema.Boolean).annotate({
+        description: "Enable experimental Exa features",
       }),
     }),
   ),
@@ -890,6 +894,12 @@ export async function directories() {
 
 export async function waitForDependencies() {
   return runPromise((svc) => svc.waitForDependencies())
+}
+
+export async function experimentalEnableExa(): Promise<boolean> {
+  if (Flag.OPENCODE_ENABLE_EXA) return true
+  const config = await runPromise((svc) => svc.get())
+  return config.experimental?.enable_exa === true
 }
 
 export * as Config from "./config"

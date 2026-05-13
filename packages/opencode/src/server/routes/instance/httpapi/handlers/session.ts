@@ -25,6 +25,7 @@ import { HttpApiBuilder, HttpApiError, HttpApiSchema } from "effect/unstable/htt
 import { InstanceHttpApi } from "../api"
 import {
   CommandPayload,
+  ContinuePayload,
   DiffQuery,
   ForkPayload,
   InitPayload,
@@ -330,6 +331,22 @@ export const sessionHandlers = HttpApiBuilder.group(InstanceHttpApi, "session", 
       return yield* promptSvc.shell({ ...ctx.payload, sessionID: ctx.params.sessionID })
     })
 
+    const continue_ = Effect.fn("SessionHttpApi.continue")(function* (ctx: {
+      params: { sessionID: SessionID }
+      payload: typeof ContinuePayload.Type
+    }) {
+      return yield* promptSvc.continue({ ...ctx.payload, sessionID: ctx.params.sessionID }).pipe(
+        Effect.catchIf(
+          (err) =>
+            Session.BusyError.isInstance(err) ||
+            Session.NothingToContinueError.isInstance(err) ||
+            Session.InvalidContinueAgentError.isInstance(err),
+          () => Effect.fail(new HttpApiError.BadRequest({})),
+        ),
+        Effect.map(() => true),
+      )
+    })
+
     const revert = Effect.fn("SessionHttpApi.revert")(function* (ctx: {
       params: { sessionID: SessionID }
       payload: typeof RevertPayload.Type
@@ -403,6 +420,7 @@ export const sessionHandlers = HttpApiBuilder.group(InstanceHttpApi, "session", 
       .handle("promptAsync", promptAsync)
       .handle("command", command)
       .handle("shell", shell)
+      .handle("continue", continue_)
       .handle("revert", revert)
       .handle("unrevert", unrevert)
       .handle("permissionRespond", permissionRespond)

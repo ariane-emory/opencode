@@ -37,7 +37,11 @@ export const errorLayer = HttpRouter.middleware<{ handles: unknown }>()((effect)
           }),
         )
       }
-      if (error instanceof Session.BusyError) {
+      if (
+        error instanceof Session.BusyError ||
+        error instanceof Session.NothingToContinueError ||
+        error instanceof Session.InvalidContinueAgentError
+      ) {
         return Effect.succeed(
           HttpServerResponse.jsonUnsafe(new NamedError.Unknown({ message: error.message }).toObject(), {
             status: 400,

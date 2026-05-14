@@ -160,7 +160,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
       const displayTitle = title.slice(pipeIndex + 1).trim()
       if (!group) return { displayTitle }
       const capitalized = group.charAt(0).toUpperCase() + group.slice(1)
-      return { group: capitalized, displayTitle }
+      return { group: capitalized + ":", displayTitle }
     }
 
     const all = sessions().filter((x) => x.parentID === undefined)

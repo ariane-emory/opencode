@@ -211,7 +211,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
       const status = sync.data.session_status?.[session.id]
       const isWorking = status?.type === "busy" || status?.type === "retry"
       return {
-        title: deleting ? `Press ${deleteHint()} again to confirm` : (displayTitle || session.title),
+        title: deleting ? `Press ${deleteHint()} again to confirm` : (displayTitle ?? session.title),
         bg: deleting ? theme.error : undefined,
         value: session.id,
         category,

@@ -221,7 +221,10 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
     }
 
     return [
-      ...pinned.map((x) => item(x, "Bookmarks:", true)),
+      ...pinned.map((x) => {
+        const parsed = parseSessionTitle(x.title)
+        return item(x, "Bookmarks:", true, parsed.displayTitle)
+      }),
       ...unpinned
         .slice(0, limit)
         .map((x) => {

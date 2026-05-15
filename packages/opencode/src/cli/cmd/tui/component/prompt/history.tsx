@@ -65,7 +65,6 @@ export const { use: usePromptHistory, provider: PromptHistoryProvider } = create
         if (!store.history.length) return undefined
         const current = store.history.at(store.index)
         if (!current) return undefined
-        if (current.input !== input && input.length) return
         setStore(
           produce((draft) => {
             const next = store.index + direction

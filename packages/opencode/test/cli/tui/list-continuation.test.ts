@@ -173,8 +173,8 @@ describe("list-continuation", () => {
       const result = handleNewline(text, 12) // cursor at end of "2. "
       expect(result).toEqual({
         type: "clear",
-        deleteRange: { start: 9, end: 12 },
-        cursorPosition: 9,
+        deleteRange: { start: 8, end: 12 },
+        cursorPosition: 8,
       })
     })
 

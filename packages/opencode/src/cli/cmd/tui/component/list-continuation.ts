@@ -26,6 +26,8 @@ export type ListContinuationAction =
     }
   | { type: "clear"; deleteRange: { start: number; end: number }; cursorPosition: number }
 
+const NUMBERED_LIST_MARKER_ONLY = /^\d+$/
+
 export type LineInfo = {
   start: number
   end: number
@@ -210,6 +212,24 @@ export function handleNewline(text: string, cursorOffset: number): ListContinuat
   }
 }
 
+export function handleBackspace(text: string, cursorOffset: number): ListContinuationAction | null {
+  const line = getCurrentLine(text, cursorOffset)
+
+  if (cursorOffset !== line.end || line.start === 0) {
+    return null
+  }
+
+  if (!NUMBERED_LIST_MARKER_ONLY.test(line.text)) {
+    return null
+  }
+
+  return {
+    type: "clear",
+    deleteRange: { start: line.start - 1, end: line.end },
+    cursorPosition: line.start - 1,
+  }
+}
+
 /**
  * Removes trailing empty list items from text before submission.
  * For example, "1. foo\n2. " becomes "1. foo"
@@ -242,6 +262,7 @@ export function cleanupForSubmit(text: string): string {
  */
 export function useListContinuation() {
   return {
+    handleBackspace,
     handleNewline,
     cleanupForSubmit,
   }

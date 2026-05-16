@@ -906,6 +906,30 @@ export function Prompt(props: PromptProps) {
     return {
       target: inputTarget,
       enabled: inputTarget() !== undefined && !props.disabled,
+      commands: [
+        {
+          name: "input.backspace",
+          title: "Backspace with list cleanup",
+          category: "Input",
+          run() {
+            const action = listContinuation.handleBackspace(input.plainText, input.cursorOffset)
+            if (!action || action.type !== "clear") return false
+            const before = input.plainText.slice(0, action.deleteRange.start)
+            const after = input.plainText.slice(action.deleteRange.end)
+            input.setText(before + after)
+            input.cursorOffset = action.cursorPosition
+            setStore("prompt", "input", input.plainText)
+          },
+        },
+      ],
+      bindings: tuiConfig.keybinds.get("input_backspace"),
+    }
+  })
+
+  useBindings(() => {
+    return {
+      target: inputTarget,
+      enabled: inputTarget() !== undefined && !props.disabled,
       bindings: tuiConfig.keybinds.get("prompt.paste"),
     }
   })

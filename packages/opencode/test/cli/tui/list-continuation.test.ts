@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test"
 import {
   getCurrentLine,
   parseNumberedListItem,
+  handleBackspace,
   handleNewline,
   cleanupForSubmit,
   type LineInfo,
@@ -236,6 +237,36 @@ describe("list-continuation", () => {
           newText: "11. next",
         },
       })
+    })
+  })
+
+  describe("handleBackspace", () => {
+    test("returns clear action when deleting the last digit of an empty numbered line", () => {
+      const text = "1. foo\n2"
+      const result = handleBackspace(text, 8)
+      expect(result).toEqual({
+        type: "clear",
+        deleteRange: { start: 6, end: 8 },
+        cursorPosition: 6,
+      })
+    })
+
+    test("returns null for first line", () => {
+      const text = "2"
+      const result = handleBackspace(text, 1)
+      expect(result).toBeNull()
+    })
+
+    test("returns null when line still contains punctuation", () => {
+      const text = "1. foo\n2."
+      const result = handleBackspace(text, 9)
+      expect(result).toBeNull()
+    })
+
+    test("returns null when cursor is not at end of line", () => {
+      const text = "1. foo\n2"
+      const result = handleBackspace(text, 7)
+      expect(result).toBeNull()
     })
   })
 

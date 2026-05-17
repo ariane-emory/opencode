@@ -33,3 +33,13 @@ test("substituteArguments - $ARGUMENTS replaced", () => {
   const { result } = substituteArguments("args: $ARGUMENTS", ["a", "b", "c"])
   expect(result).toBe("args: a b c")
 })
+
+test("substituteArguments - preserves spaces inside a quoted single argument", () => {
+  const { result } = substituteArguments("title: $1", ["sync|Syncing dev with upstream/dev"])
+  expect(result).toBe("title: sync|Syncing dev with upstream/dev")
+})
+
+test("substituteArguments - preserves grouped quoted arguments in slices", () => {
+  const { result } = substituteArguments("$1 $2", ["sync|Syncing dev with upstream/dev", "tail one", "tail two"])
+  expect(result).toBe("sync|Syncing dev with upstream/dev tail one tail two")
+})

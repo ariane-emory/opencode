@@ -12,7 +12,7 @@ export function substituteArguments(
   }
 
   const hasPlaceholders = placeholders.length > 0
-  
+
   let result = template.replaceAll(placeholderRegex, (_, index) => {
     const position = Number(index)
     const argIndex = position - 1

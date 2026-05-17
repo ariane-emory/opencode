@@ -25,8 +25,6 @@ export function substituteArguments(
   template: string,
   args: string[],
 ): { result: string; hasPlaceholders: boolean } {
-  args = args.flatMap(arg => arg.split(/\s+/).filter(s => s.length > 0))
-
   const simplePlaceholders = template.match(placeholderRegex) ?? []
   const extendedPlaceholders = template.match(extendedPlaceholderRegex) ?? []
   const defaultPlaceholders = template.match(defaultPlaceholderRegex) ?? []

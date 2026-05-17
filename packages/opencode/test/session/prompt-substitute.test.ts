@@ -48,6 +48,11 @@ describe("SessionPrompt.substituteArguments", () => {
     expect(result.result).toBe("Hello bar")
   })
 
+  test("preserves spaces inside a single quoted command argument", () => {
+    const result = SessionPrompt.substituteArguments("$1\n\n${2..}", ["sync|Syncing dev with upstream/dev"])
+    expect(result.result).toBe("sync|Syncing dev with upstream/dev\n\n")
+  })
+
   test("${1} and $1 should behave the same (both return single arg)", () => {
     const extended = SessionPrompt.substituteArguments("Hello ${1}", ["foo", "bar"])
     const simple = SessionPrompt.substituteArguments("Hello $1", ["foo", "bar"])

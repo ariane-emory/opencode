@@ -1843,7 +1843,7 @@ NOTE: At any point in time through this workflow you should feel free to ask the
       }
       const agentName = cmd.agent ?? input.agent ?? (yield* agents.defaultAgent())
 
-      const args = input.arguments.match(argsRegex) ?? []
+      const args = parseCommandArguments(input.arguments)
       const templateCommand = yield* Effect.promise(async () => cmd.template)
 
       const placeholders = templateCommand.match(placeholderRegex) ?? []
@@ -2094,6 +2094,12 @@ export function createStructuredOutputTool(input: {
 const bashRegex = /!`([^`]+)`/g
 // Match [Image N] as single token, quoted strings, or non-space sequences
 const argsRegex = /(?:\[Image\s+\d+\]|"[^"]*"|'[^']*'|[^\s"']+)/gi
+const quoteTrimRegex = /^["']|["']$/g
 const placeholderRegex = /\$(\d+)/g
 
+export function parseCommandArguments(input: string) {
+  return (input.match(argsRegex) ?? []).map((arg) => arg.replace(quoteTrimRegex, ""))
+}
+
+export { substituteArguments }
 export * as SessionPrompt from "./prompt"

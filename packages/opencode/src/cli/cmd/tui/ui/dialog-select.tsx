@@ -174,22 +174,20 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
   )
 
   // Preserve highlighted selection when options reorder (e.g., favorite/unfavorite)
-  let lastSelectedValue: T | undefined
-
-  createEffect(() => {
-    const opt = selected()
-    if (opt) lastSelectedValue = opt.value
-  })
-
   createEffect(
-    on(flat, (newFlat) => {
-      if (store.filter.length > 0) return
-      if (!lastSelectedValue) return
-      const newIndex = newFlat.findIndex((opt) => isDeepEqual(opt.value, lastSelectedValue))
-      if (newIndex >= 0 && newIndex !== store.selected) {
-        moveTo(newIndex, false)
-      }
-    }),
+    on(
+      () => flat(),
+      (newFlat, prevFlat) => {
+        if (store.filter.length > 0) return
+        if (!prevFlat) return
+        const prevSelected = prevFlat[store.selected]
+        if (!prevSelected) return
+        const newIndex = newFlat.findIndex((opt) => isDeepEqual(opt.value, prevSelected.value))
+        if (newIndex >= 0 && newIndex !== store.selected) {
+          moveTo(newIndex, false)
+        }
+      },
+    ),
   )
 
   function move(direction: number) {

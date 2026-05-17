@@ -2101,5 +2101,4 @@ export function parseCommandArguments(input: string) {
   return (input.match(argsRegex) ?? []).map((arg) => arg.replace(quoteTrimRegex, ""))
 }
 
-export { substituteArguments }
 export * as SessionPrompt from "./prompt"

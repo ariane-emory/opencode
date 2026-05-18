@@ -7,6 +7,7 @@ import { Locale } from "@/util/locale"
 import { useProject } from "@tui/context/project"
 import { useTheme } from "../context/theme"
 import { useSDK } from "../context/sdk"
+import { useLocal } from "../context/local"
 import { Flag } from "@opencode-ai/core/flag/flag"
 import { DialogSessionRename } from "./dialog-session-rename"
 import { createDebouncedSignal } from "../util/signal"
@@ -26,12 +27,15 @@ export function DialogSessionList() {
   const project = useProject()
   const { theme } = useTheme()
   const sdk = useSDK()
+  const local = useLocal()
   const toast = useToast()
   const kv = useKV()
   const [toDelete, setToDelete] = createSignal<string>()
   const [search, setSearch] = createDebouncedSignal("", 150)
   const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()
   const deleteHint = useCommandShortcut("session.delete")
+  const quickSwitch1 = useCommandShortcut("session.quick_switch.1")
+  const quickSwitch9 = useCommandShortcut("session.quick_switch.9")
 
   const [searchResults, { refetch }] = createResource(
     () => ({ query: search(), filter: sync.session.query() }),
@@ -148,6 +152,17 @@ export function DialogSessionList() {
 
   const [browseOrder] = createSignal<string[]>(orderByRecency(sync.data.session))
 
+  const quickSwitchHint = createMemo(() => {
+    const first = quickSwitch1()
+    const last = quickSwitch9()
+    if (!first || !last) return undefined
+    return quickSwitchRange(first, last)
+  })
+  const quickSwitchFooterHints = createMemo(() => {
+    const hint = quickSwitchHint()
+    return hint && local.session.slots().length > 0 ? [{ title: "switch", label: hint }] : []
+  })
+
   const options = createMemo(() => {
     const today = new Date().toDateString()
     const all = sessions().filter((x) => x.parentID === undefined)
@@ -161,6 +176,8 @@ export function DialogSessionList() {
     const unpinned = unpinnedOrder
       .map((id) => sessionMap.get(id))
       .filter((x): x is (typeof all)[number] => x !== undefined && x.time.pinned === undefined)
+
+    const slotByID = new Map<string, number>(local.session.slots().map((id, i) => [id, i + 1]))
 
     const foot = (session: (typeof all)[number], showDate: boolean): JSX.Element | string => {
       if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES && session.workspaceID) {
@@ -185,13 +202,19 @@ export function DialogSessionList() {
       const deleting = toDelete() === session.id
       const status = sync.data.session_status?.[session.id]
       const isWorking = status?.type === "busy" || status?.type === "retry"
+      const slot = slotByID.get(session.id)
+      const gutter = isWorking
+        ? () => <Spinner />
+        : slot !== undefined
+          ? () => <text fg={theme.accent}>{slot}</text>
+          : undefined
       return {
         title: deleting ? `Press ${deleteHint()} again to confirm` : session.title,
         bg: deleting ? theme.error : undefined,
         value: session.id,
         category,
         footer: foot(session, showDate),
-        gutter: isWorking ? () => <Spinner /> : undefined,
+        gutter,
       }
     }
 
@@ -236,6 +259,13 @@ export function DialogSessionList() {
         dialog.clear()
       }}
       actions={[
+        {
+          command: "session.pin.toggle",
+          title: "pin/unpin",
+          onTrigger: (option: { value: string }) => {
+            local.session.togglePin(option.value)
+          },
+        },
         {
           command: "session.delete",
           title: "delete",
@@ -305,6 +335,13 @@ export function DialogSessionList() {
           },
         },
       ]}
+      footerHints={quickSwitchFooterHints()}
     />
   )
+}
+
+function quickSwitchRange(first: string, last: string) {
+  const prefix = first.slice(0, -1)
+  if (first.endsWith("1") && last === `${prefix}9`) return `${prefix}1-9`
+  return `${first} through ${last}`
 }

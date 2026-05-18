@@ -1,6 +1,6 @@
 {
   "name": "@opencode-ai/ui",
-  "version": "1.14.48",
+  "version": "1.15.4",
   "type": "module",
   "license": "MIT",
   "exports": {
@@ -8,6 +8,7 @@
     "./*": "./src/components/*.tsx",
     "./constants/placeholders": "./src/constants/placeholders.ts",
     "./constants/*": "./src/constants/*.ts",
+    "./session-diff": "./src/components/session-diff.ts",
     "./i18n/*": "./src/i18n/*.ts",
     "./pierre": "./src/pierre/index.ts",
     "./pierre/*": "./src/pierre/*.ts",

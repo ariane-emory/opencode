@@ -28,6 +28,7 @@ import { Format } from "@/format"
 import { Ripgrep } from "@/file/ripgrep"
 import * as Truncate from "@/tool/truncate"
 import { InstanceState } from "@/effect/instance-state"
+import { InstanceRef } from "@/effect/instance-ref"
 import { Reference } from "@/reference/reference"
 import { ProviderID, ModelID } from "@/provider/schema"
 import { ToolJsonSchema } from "@/tool/json-schema"
@@ -495,11 +496,15 @@ describe("tool.registry", () => {
 
     await provideTestInstance({
       directory: tmp.path,
-      fn: async () => {
+      fn: async (ctx) => {
         const registry = await Effect.gen(function* () {
           const svc = yield* ToolRegistry.Service
           return yield* svc.ids()
-        }).pipe(Effect.provide(ToolRegistry.defaultLayer), Effect.runPromise)
+        }).pipe(
+          Effect.provide(ToolRegistry.defaultLayer),
+          Effect.provideService(InstanceRef, ctx),
+          Effect.runPromise,
+        )
         expect(registry).toContain("plan_exit")
         expect(registry).toContain("plan_enter")
       },

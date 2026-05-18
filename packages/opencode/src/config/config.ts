@@ -761,7 +761,6 @@ export const layer = Layer.effect(
     })
 
     const experimentalPlanMode = Effect.fn("Config.experimentalPlanMode")(function* () {
-      if (Flag.OPENCODE_EXPERIMENTAL_PLAN_MODE) return true
       const config = yield* get()
       return config.experimental?.plan_mode === true
     })

@@ -6,9 +6,17 @@ import { Session } from "@/session/session"
 import { MessageV2 } from "../session/message-v2"
 import { Provider } from "@/provider/provider"
 import { InstanceState } from "@/effect/instance-state"
-import { MessageID, PartID } from "../session/schema"
+import { MessageID, PartID, SessionID } from "../session/schema"
 import EXIT_DESCRIPTION from "./plan-exit.txt"
 import ENTER_DESCRIPTION from "./plan-enter.txt"
+
+function getLastModel(sessionID: SessionID) {
+  for (const item of MessageV2.stream(sessionID)) {
+    if (item.info.role === "user") {
+      return item.info.model
+    }
+  }
+}
 
 export const Parameters = Schema.Struct({})
 

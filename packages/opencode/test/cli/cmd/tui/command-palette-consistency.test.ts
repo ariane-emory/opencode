@@ -36,12 +36,12 @@ describe("command palette consistency", () => {
 
     // These patterns should exist in app.tsx
     const expectedPatterns = [
-      'value: "app.toggle.timestamps"',
-      'value: "app.toggle.thinking"',
-      'value: "app.toggle.tooldetails"',
-      'value: "app.toggle.scrollbar"',
-      'value: "app.toggle.generic_tool_output"',
-      'value: "app.toggle.sidebar"',
+      'name: "app.toggle.timestamps"',
+      'name: "app.toggle.thinking"',
+      'name: "app.toggle.tooldetails"',
+      'name: "app.toggle.scrollbar"',
+      'name: "app.toggle.generic_tool_output"',
+      'name: "app.toggle.sidebar"',
     ]
 
     for (const pattern of expectedPatterns) {

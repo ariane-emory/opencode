@@ -7,6 +7,7 @@ import { Locale } from "@/util/locale"
 import { useProject } from "@tui/context/project"
 import { useTheme } from "../context/theme"
 import { useSDK } from "../context/sdk"
+import { useLocal } from "../context/local"
 import { Flag } from "@opencode-ai/core/flag/flag"
 import { DialogSessionRename } from "./dialog-session-rename"
 import { createDebouncedSignal } from "../util/signal"
@@ -25,10 +26,13 @@ export function DialogSessionList() {
   const project = useProject()
   const { theme } = useTheme()
   const sdk = useSDK()
+  const local = useLocal()
   const toast = useToast()
   const [toDelete, setToDelete] = createSignal<string>()
   const [search, setSearch] = createDebouncedSignal("", 150)
   const deleteHint = useCommandShortcut("session.delete")
+  const quickSwitch1 = useCommandShortcut("session.quick_switch.1")
+  const quickSwitch9 = useCommandShortcut("session.quick_switch.9")
 
   const [searchResults, { refetch }] = createResource(
     () => ({ query: search(), filter: sync.session.query() }),
@@ -128,6 +132,17 @@ export function DialogSessionList() {
 
   const [browseOrder] = createSignal<string[]>(orderByRecency(sync.data.session))
 
+  const quickSwitchHint = createMemo(() => {
+    const first = quickSwitch1()
+    const last = quickSwitch9()
+    if (!first || !last) return undefined
+    return quickSwitchRange(first, last)
+  })
+  const quickSwitchFooterHints = createMemo(() => {
+    const hint = quickSwitchHint()
+    return hint && local.session.slots().length > 0 ? [{ title: "switch", label: hint }] : []
+  })
+
   const options = createMemo(() => {
     const today = new Date().toDateString()
 
@@ -150,59 +165,76 @@ export function DialogSessionList() {
     const searchResult = searchResults()
     const displayOrder = searchResult ? orderByRecency(searchResult) : browseOrder()
 
-    return displayOrder
+    const pinned = local.session.pinned().filter((id) => sessionMap.has(id))
+    const pinnedSet = new Set(pinned)
+    const slotByID = new Map<string, number>(local.session.slots().map((id, i) => [id, i + 1]))
+
+    function buildOption(id: string, category: string) {
+      const x = sessionMap.get(id)
+      if (!x) return undefined
+      const parsed = parseSessionTitle(x.title)
+      const workspace = x.workspaceID ? project.workspace.get(x.workspaceID) : undefined
+
+      let footer: JSX.Element | string = ""
+      if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES) {
+        if (x.workspaceID) {
+          footer = workspace ? (
+            <WorkspaceLabel
+              type={workspace.type}
+              name={workspace.name}
+              status={project.workspace.status(x.workspaceID) ?? "error"}
+            />
+          ) : (
+            <WorkspaceLabel type="unknown" name={x.workspaceID} status="error" />
+          )
+        }
+      } else {
+        footer = parsed.group ? Locale.shortDateTime(x.time.updated) : Locale.time(x.time.updated)
+      }
+
+      const isDeleting = toDelete() === x.id
+      const status = sync.data.session_status?.[x.id]
+      const isWorking = status?.type === "busy" || status?.type === "retry"
+      const slot = slotByID.get(x.id)
+      const gutter = isWorking
+        ? () => <Spinner />
+        : slot !== undefined
+          ? () => <text fg={theme.accent}>{slot}</text>
+          : undefined
+      return {
+        title: isDeleting ? `Press ${deleteHint()} again to confirm` : (parsed.displayTitle || x.title),
+        bg: isDeleting ? theme.error : undefined,
+        value: x.id,
+        category,
+        footer,
+        gutter,
+      }
+    }
+
+    const remaining = displayOrder
+      .filter((id) => !pinnedSet.has(id))
       .map((id) => sessionMap.get(id))
       .filter((x) => x !== undefined)
       .toSorted((a, b) => {
         const aParsed = parseSessionTitle(a.title)
         const bParsed = parseSessionTitle(b.title)
-        // Grouped sessions come first
         if (aParsed.group && !bParsed.group) return -1
         if (!aParsed.group && bParsed.group) return 1
-        // Both grouped: sort by group name ASC, then updated DESC
         if (aParsed.group && bParsed.group) {
           const groupCompare = aParsed.group.localeCompare(bParsed.group)
           if (groupCompare !== 0) return groupCompare
           return b.time.updated - a.time.updated
         }
-        // Both ungrouped: maintain original display order
         return 0
       })
       .map((x) => {
         const parsed = parseSessionTitle(x.title)
-        const workspace = x.workspaceID ? project.workspace.get(x.workspaceID) : undefined
-
-        let footer: JSX.Element | string = ""
-        if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES) {
-          if (x.workspaceID) {
-            footer = workspace ? (
-              <WorkspaceLabel
-                type={workspace.type}
-                name={workspace.name}
-                status={project.workspace.status(x.workspaceID) ?? "error"}
-              />
-            ) : (
-              <WorkspaceLabel type="unknown" name={x.workspaceID} status="error" />
-            )
-          }
-        } else {
-          footer = parsed.group ? Locale.shortDateTime(x.time.updated) : Locale.time(x.time.updated)
-        }
-
         const date = new Date(x.time.updated)
-        let category = parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString())
-        const isDeleting = toDelete() === x.id
-        const status = sync.data.session_status?.[x.id]
-        const isWorking = status?.type === "busy" || status?.type === "retry"
-        return {
-          title: isDeleting ? `Press ${deleteHint()} again to confirm` : (parsed.displayTitle || x.title),
-          bg: isDeleting ? theme.error : undefined,
-          value: x.id,
-          category,
-          footer,
-          gutter: isWorking ? () => <Spinner /> : undefined,
-        }
+        return buildOption(x.id, parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString()))
       })
+      .filter((x) => x !== undefined)
+
+    return [...pinned.map((id) => buildOption(id, "Pinned")).filter((x) => x !== undefined), ...remaining]
   })
 
   onMount(() => {
@@ -227,6 +259,13 @@ export function DialogSessionList() {
         dialog.clear()
       }}
       actions={[
+        {
+          command: "session.pin.toggle",
+          title: "pin/unpin",
+          onTrigger: (option: { value: string }) => {
+            local.session.togglePin(option.value)
+          },
+        },
         {
           command: "session.delete",
           title: "delete",
@@ -283,6 +322,13 @@ export function DialogSessionList() {
           },
         },
       ]}
+      footerHints={quickSwitchFooterHints()}
     />
   )
+}
+
+function quickSwitchRange(first: string, last: string) {
+  const prefix = first.slice(0, -1)
+  if (first.endsWith("1") && last === `${prefix}9`) return `${prefix}1-9`
+  return `${first} through ${last}`
 }

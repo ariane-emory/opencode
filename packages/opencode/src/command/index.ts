@@ -1,8 +1,7 @@
 import { BusEvent } from "@/bus/bus-event"
 import { InstanceState } from "@/effect/instance-state"
 import { EffectBridge } from "@/effect/bridge"
-import type { InstanceContext } from "@/project/instance"
-import { Instance } from "@/project/instance"
+import type { InstanceContext } from "@/project/instance-context"
 import { InstanceRef } from "@/effect/instance-ref"
 import { SessionID, MessageID } from "@/session/schema"
 import { Effect, Layer, Context, Schema } from "effect"
@@ -43,14 +42,11 @@ export const Info = Schema.Struct({
   model: Schema.optional(Schema.String),
   source: Schema.optional(Schema.Literals(["command", "mcp", "skill"])),
   // Some command templates are lazy promises from MCP prompt resolution.
-  template: Schema.Unknown.annotate({ [ZodOverride]: z.promise(z.string()).or(z.string()) }),
+  template: Schema.Unknown,
   subtask: Schema.optional(Schema.Boolean),
   hints: Schema.Array(Schema.String),
-})
-  .annotate({ identifier: "Command" })
-  .pipe(withStatics((s) => ({ zod: zod(s) })))
+}).annotate({ identifier: "Command" })
 
-// for some reason zod is inferring `string` for z.promise(z.string()).or(z.string()) so we have to manually override it
 export type Info = Omit<Schema.Schema.Type<typeof Info>, "template"> & { template: Promise<string> | string }
 
 const commandCache = new Map<string, { command: Info; mtime: number; filePath: string }>()
@@ -296,7 +292,8 @@ export const layer = Layer.effect(
       const cfg = yield* config.get()
       if (cfg.experimental?.cache_command_markdown_files === false) {
         const instance = yield* InstanceRef
-        const worktree = instance?.worktree ?? Instance.worktree
+        if (!instance) return yield* Effect.die("InstanceRef not provided")
+        const worktree = instance.worktree
         const builtIn = createBuiltInCommands(worktree)
         if (builtIn[name]) return builtIn[name]
 
@@ -334,7 +331,8 @@ export const layer = Layer.effect(
       const cfg = yield* config.get()
       if (cfg.experimental?.cache_command_markdown_files === false) {
         const instance = yield* InstanceRef
-        const worktree = instance?.worktree ?? Instance.worktree
+        if (!instance) return yield* Effect.die("InstanceRef not provided")
+        const worktree = instance.worktree
         const dirs = yield* config.directories()
         const fresh = yield* Effect.promise(() => loadFreshCommandsWithMtime(dirs, worktree))
 

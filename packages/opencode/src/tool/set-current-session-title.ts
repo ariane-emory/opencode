@@ -1,15 +1,12 @@
-import z from "zod"
-import { Effect } from "effect"
+import { Effect, Schema } from "effect"
 import * as Tool from "./tool"
-import { Session } from "../session"
+import { Session } from "../session/session"
 import DESCRIPTION from "./set-current-session-title.txt"
 
-const parameters = z.object({
-  title: z
-    .string()
-    .min(1, "Title must be at least 1 character")
-    .max(255, "Title must be at most 255 characters")
-    .describe("The new title for the current session"),
+const parameters = Schema.Struct({
+  title: Schema.String.check(Schema.isMinLength(1)).check(Schema.isMaxLength(255)).annotate({
+    description: "The new title for the current session",
+  }),
 })
 
 type Metadata = {
@@ -25,7 +22,7 @@ export const SetCurrentSessionTitleTool = Tool.define<typeof parameters, Metadat
     return {
       description: DESCRIPTION,
       parameters,
-      execute: (params: z.infer<typeof parameters>, ctx: Tool.Context<Metadata>) =>
+      execute: (params, ctx: Tool.Context<Metadata>) =>
         Effect.gen(function* () {
           yield* ctx.ask({
             permission: "set_current_session_title",

@@ -1,11 +1,11 @@
 import { describe, expect } from "bun:test"
 import { Effect, Exit, Layer } from "effect"
 import { SetCurrentSessionTitleTool } from "../../src/tool/set-current-session-title"
-import { Session } from "../../src/session"
+import { Session } from "../../src/session/session"
 import { MessageID } from "../../src/session/schema"
 import { Agent } from "../../src/agent/agent"
 import * as Truncate from "../../src/tool/truncate"
-import * as CrossSpawnSpawner from "../../src/effect/cross-spawn-spawner"
+import { CrossSpawnSpawner } from "@opencode-ai/core/cross-spawn-spawner"
 import { provideTmpdirInstance } from "../fixture/fixture"
 import { testEffect } from "../lib/effect"
 
@@ -28,7 +28,7 @@ describe("tool.set_current_session_title", () => {
         const tool = yield* toolInfo.init()
         const ctx = {
           sessionID: info.id,
-          messageID: MessageID.make(""),
+          messageID: MessageID.make("msg_test"),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
@@ -57,7 +57,7 @@ describe("tool.set_current_session_title", () => {
         const tool = yield* toolInfo.init()
         const ctx = {
           sessionID: info.id,
-          messageID: MessageID.make(""),
+          messageID: MessageID.make("msg_test"),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
@@ -81,7 +81,7 @@ describe("tool.set_current_session_title", () => {
         const tool = yield* toolInfo.init()
         const ctx = {
           sessionID: info.id,
-          messageID: MessageID.make(""),
+          messageID: MessageID.make("msg_test"),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
@@ -106,7 +106,7 @@ describe("tool.set_current_session_title", () => {
         const tool = yield* toolInfo.init()
         const ctx = {
           sessionID: info.id,
-          messageID: MessageID.make(""),
+          messageID: MessageID.make("msg_test"),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
@@ -134,7 +134,7 @@ describe("tool.set_current_session_title", () => {
         const tool = yield* toolInfo.init()
         const ctx = {
           sessionID: info.id,
-          messageID: MessageID.make(""),
+          messageID: MessageID.make("msg_test"),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),
@@ -162,7 +162,7 @@ describe("tool.set_current_session_title", () => {
         const requests: Array<{ permission: string }> = []
         const ctx = {
           sessionID: info.id,
-          messageID: MessageID.make(""),
+          messageID: MessageID.make("msg_test"),
           callID: "",
           agent: "build",
           abort: AbortSignal.any([]),

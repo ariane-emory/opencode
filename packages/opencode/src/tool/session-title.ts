@@ -13,7 +13,9 @@ export const GetCurrentSessionTitleTool = Tool.define(
       description: DESCRIPTION,
       parameters: Parameters,
       execute: Effect.fn("GetCurrentSessionTitleTool.execute")(function* (_params, ctx) {
-        const info = yield* session.get(ctx.sessionID)
+        const info = yield* session.get(ctx.sessionID).pipe(
+          Effect.orElseSucceed(() => ({ title: undefined })),
+        )
         return {
           title: "Retrieved session title",
           output: info.title ?? "Unknown",

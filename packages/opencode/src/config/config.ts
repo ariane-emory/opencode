@@ -19,8 +19,8 @@ import { AppFileSystem } from "@opencode-ai/core/filesystem"
 import { InstanceState } from "@/effect/instance-state"
 import { Context, Duration, Effect, Exit, Fiber, Layer, Option, Schema } from "effect"
 import { EffectFlock } from "@opencode-ai/core/util/effect-flock"
-import { containsPath, type InstanceContext } from "../project/instance-context"
 import { makeRuntime } from "@/effect/run-service"
+import { containsPath, type InstanceContext } from "../project/instance-context"
 import { ConfigBoolean, NonNegativeInt, PositiveInt, type DeepMutable } from "@opencode-ai/core/schema"
 import { ConfigAgent } from "./agent"
 import { ConfigAttachment } from "./attachment"
@@ -291,6 +291,9 @@ export const Info = Schema.Struct({
       }),
       plan_mode: Schema.optional(Schema.Boolean).annotate({
         description: "Enable experimental plan mode",
+      }),
+      enable_exa: Schema.optional(Schema.Boolean).annotate({
+        description: "Enable experimental Exa features",
       }),
     }),
   ),
@@ -875,6 +878,19 @@ export async function directories() {
 
 export async function waitForDependencies() {
   return runPromise((svc) => svc.waitForDependencies())
+}
+
+export async function experimentalEnableExa(): Promise<boolean> {
+  if (envTruthy("OPENCODE_EXPERIMENTAL") || envTruthy("OPENCODE_ENABLE_EXA") || envTruthy("OPENCODE_EXPERIMENTAL_EXA")) {
+    return true
+  }
+  const config = await runPromise((svc) => svc.get())
+  return config.experimental?.enable_exa === true
+}
+
+function envTruthy(key: string) {
+  const value = process.env[key]?.toLowerCase()
+  return value === "true" || value === "1"
 }
 
 export * as Config from "./config"

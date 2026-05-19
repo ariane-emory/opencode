@@ -41,6 +41,7 @@ type Input = {
   theme: ReturnType<typeof useTheme>
   toast: ReturnType<typeof useToast>
   renderer: TuiPluginApi["renderer"]
+  attention: TuiPluginApi["attention"]
 }
 
 function routeRegister(routes: RouteMap, list: TuiRouteDefinition[], bump: () => void) {
@@ -148,6 +149,9 @@ function stateApi(sync: ReturnType<typeof useSync>): TuiPluginApi["state"] {
       count() {
         return sync.data.session.length
       },
+      get(sessionID) {
+        return sync.session.get(sessionID)
+      },
       diff(sessionID) {
         return (sync.data.session_diff[sessionID] ?? []).flatMap((item) =>
           item.file === undefined ? [] : [{ ...item, file: item.file }],
@@ -204,6 +208,7 @@ export function createTuiApi(input: Input): TuiPluginApi {
   }
   return {
     app: appApi(),
+    attention: input.attention,
     // Keep deprecated `api.command` working for v1 plugins; remove in v2.
     command: createCommandShim(input.keymap, input.dialog, input.tuiConfig.keybinds),
     keys: {

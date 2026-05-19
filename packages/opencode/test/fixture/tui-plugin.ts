@@ -216,6 +216,9 @@ export function createTuiPluginApi(opts: Opts = {}): HostPluginApi {
         }
       },
     },
+    refresh: {
+      mcp: async () => {},
+    },
     renderer,
     slots: {
       register: () => "fixture-slot",

@@ -173,7 +173,6 @@ const context = createContext<{
   thinkingMode: () => ThinkingMode
   showThinking: () => boolean
   showTimestamps: () => boolean
-  showAgentTimestamps: () => boolean
   showDetails: () => boolean
   showTps: () => boolean
   showGenericToolOutput: () => boolean
@@ -235,7 +234,6 @@ export function Session() {
   const thinkingMode = thinking.mode
   const showThinking = createMemo(() => true)
   const [timestamps, setTimestamps] = kv.signal<"hide" | "show">("timestamps", "hide")
-  const [agentTimestamps, setAgentTimestamps] = kv.signal<"hide" | "show">("agent_timestamps", "hide")
   const [showDetails, setShowDetails] = kv.signal("tool_details_visibility", true)
   const [showAssistantMetadata, _setShowAssistantMetadata] = kv.signal("assistant_metadata_visibility", true)
   const [showScrollbar, setShowScrollbar] = kv.signal("scrollbar_visible", false)

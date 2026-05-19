@@ -2347,13 +2347,13 @@ function Task(props: ToolProps<typeof TaskTool>) {
 
 function Edit(props: ToolProps<typeof EditTool>) {
   const ctx = use()
+  const kv = useKV()
   const { theme, syntax } = useTheme()
   const pathFormatter = usePathFormatter()
 
   const view = createMemo(() => {
-    const diffStyle = ctx.tui.diff_style
-    if (diffStyle === "stacked") return "unified"
-    // Default to "auto" behavior
+    const diffStyle = kv.get("diff_style", "auto")
+    if (diffStyle === "unified") return "unified"
     return ctx.width > 120 ? "split" : "unified"
   })
 
@@ -2400,14 +2400,15 @@ function Edit(props: ToolProps<typeof EditTool>) {
 
 function ApplyPatch(props: ToolProps<typeof ApplyPatchTool>) {
   const ctx = use()
+  const kv = useKV()
   const { theme, syntax } = useTheme()
   const pathFormatter = usePathFormatter()
 
   const files = createMemo(() => props.metadata.files ?? [])
 
   const view = createMemo(() => {
-    const diffStyle = ctx.tui.diff_style
-    if (diffStyle === "stacked") return "unified"
+    const diffStyle = kv.get("diff_style", "auto")
+    if (diffStyle === "unified") return "unified"
     return ctx.width > 120 ? "split" : "unified"
   })
 

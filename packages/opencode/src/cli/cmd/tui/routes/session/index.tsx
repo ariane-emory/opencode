@@ -169,6 +169,7 @@ const context = createContext<{
   thinkingMode: () => ThinkingMode
   showThinking: () => boolean
   showTimestamps: () => boolean
+  showAgentTimestamps: () => boolean
   showDetails: () => boolean
   showTps: () => boolean
   showGenericToolOutput: () => boolean
@@ -253,6 +254,7 @@ export function Session() {
     if (!sidebarOverlayEnabled()) return false
     return sidebarVisible() && !wide()
   })
+  const [agentTimestamps, setAgentTimestamps] = kv.signal<"hide" | "show">("agent_timestamps", "hide")
   const showTimestamps = createMemo(() => timestamps() === "show")
   const showAgentTimestamps = createMemo(() => agentTimestamps() === "show")
   const contentWidth = createMemo(() => dimensions().width - (sidebarVisible() && !sidebarOverlay() ? 42 : 0) - 4)
@@ -688,7 +690,6 @@ export function Session() {
       },
     },
     {
-    {
       title: conceal() ? "Disable code concealment" : "Enable code concealment",
       value: "session.toggle.conceal",
       category: "Session",
@@ -1112,7 +1113,8 @@ export function Session() {
                   <Switch>
                     <Match when={message.id === revert()?.messageID}>
                       {(function () {
-                        const command = useCommandDialog()
+                        const command = useCommandPalette()
+                        const redoShortcut = useCommandShortcut("session.redo")
                         const [hover, setHover] = createSignal(false)
                         const dialog = useDialog()
 
@@ -1123,7 +1125,7 @@ export function Session() {
                             "Are you sure you want to restore the reverted messages?",
                           )
                           if (confirmed) {
-                            command.trigger("session.redo")
+                            command.run("session.redo")
                           }
                         }
 
@@ -1146,7 +1148,7 @@ export function Session() {
                             >
                               <text fg={theme.textMuted}>{revert()!.reverted.length} message reverted</text>
                               <text fg={theme.textMuted}>
-                                <span style={{ fg: theme.text }}>{keybind.print("messages_redo")}</span> or /redo to
+                                <span style={{ fg: theme.text }}>{redoShortcut()}</span> or /redo to
                                 restore
                               </text>
                               <Show when={revert()!.diffFiles?.length}>

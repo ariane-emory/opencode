@@ -416,6 +416,7 @@ export function generateSystem(colors: TerminalColors, pick: "dark" | "light"): 
       markdownImage: ansi.blue,
       markdownImageText: ansi.cyan,
       markdownCodeBlock: fg,
+      sessionTitle: fg,
       syntaxComment: textMuted,
       syntaxKeyword: ansi.magenta,
       syntaxFunction: ansi.blue,

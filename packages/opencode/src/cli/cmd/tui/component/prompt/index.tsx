@@ -308,12 +308,7 @@ export function Prompt(props: PromptProps) {
     setDismissedEditorSelectionKey(editorSelectionKey(editorContext()))
     editor.clearSelection()
   }
-<<<<<<< HEAD
-
   const listContinuation = useListContinuation()
-
-=======
->>>>>>> fix/autocompletion-filtered-order
   const fileStyleId = syntax().getStyleId("extmark.file")!
   const agentStyleId = syntax().getStyleId("extmark.agent")!
   const pasteStyleId = syntax().getStyleId("extmark.paste")!
@@ -338,7 +333,6 @@ export function Prompt(props: PromptProps) {
     if (!props.disabled) input.cursorColor = theme.text
   })
 
-<<<<<<< HEAD
   // Resize textarea when placeholder changes (e.g., when switching sessions or when placeholder index changes)
   createEffect(() => {
     const placeholderText = props.sessionID ? undefined : PLACEHOLDERS[store.placeholder]
@@ -350,9 +344,6 @@ export function Prompt(props: PromptProps) {
       }, 0)
     }
   })
-
-=======
->>>>>>> fix/autocompletion-filtered-order
   const lastUserMessage = createMemo(() => {
     if (!props.sessionID) return undefined
     const messages = sync.data.message[props.sessionID]

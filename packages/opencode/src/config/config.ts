@@ -9,7 +9,15 @@ import { NamedError } from "@opencode-ai/core/util/error"
 import { Flag } from "@opencode-ai/core/flag/flag"
 import { Auth } from "../auth"
 import { Env } from "../env"
-import { applyEdits, modify } from "jsonc-parser"
+import {
+  type ParseError as JsoncParseError,
+  applyEdits,
+  modify,
+  parse as parseJsonc,
+  printParseErrorCode,
+} from "jsonc-parser"
+import type { ThemeJson } from "../cli/cmd/tui/context/theme"
+import { containsPath, type InstanceContext } from "../project/instance-context"
 import { InstallationLocal, InstallationVersion } from "@opencode-ai/core/installation/version"
 import { existsSync } from "fs"
 import { Account } from "@/account/account"
@@ -25,6 +33,7 @@ import { ConfigBoolean, NonNegativeInt, PositiveInt, type DeepMutable } from "@o
 import { ConfigAgent } from "./agent"
 import { ConfigAttachment } from "./attachment"
 import { ConfigCommand } from "./command"
+import { JsonError } from "./error"
 import { ConfigFormatter } from "./formatter"
 import { ConfigLayout } from "./layout"
 import { ConfigLSP } from "./lsp"
@@ -400,6 +409,46 @@ function globalConfigFile() {
     if (existsSync(file)) return file
   }
   return candidates[0]
+}
+
+export async function loadThemeFile(filepath: string): Promise<ThemeJson> {
+  log.info("loading theme", { path: filepath })
+  let text = await Bun.file(filepath)
+    .text()
+    .catch((err) => {
+      if (err.code === "ENOENT") return
+      throw new JsonError({ path: filepath }, { cause: err })
+    })
+  if (!text) {
+    throw new Error("Empty theme file")
+  }
+
+  const errors: JsoncParseError[] = []
+  const data = parseJsonc(text, errors, { allowTrailingComma: true })
+
+  if (errors.length) {
+    const lines = text.split("\n")
+    const errorDetails = errors
+      .map((e) => {
+        const beforeOffset = text.substring(0, e.offset).split("\n")
+        const line = beforeOffset.length
+        const column = beforeOffset[beforeOffset.length - 1].length + 1
+        const problemLine = lines[line - 1]
+
+        const error = `${printParseErrorCode(e.error)} at line ${line}, column ${column}`
+        if (!problemLine) return error
+
+        return `${error}\n   Line ${line}: ${problemLine}\n${"".padStart(column + 9)}^`
+      })
+      .join("\n")
+
+    throw new JsonError({
+      path: filepath,
+      message: `\n--- JSONC Input ---\n${text}\n--- Errors ---\n${errorDetails}\n--- End ---`,
+    })
+  }
+
+  return data as ThemeJson
 }
 
 function patchJsonc(input: string, patch: unknown, path: string[] = []): string {

@@ -140,9 +140,11 @@ export const Info = Schema.Struct({
       ignore: Schema.optional(Schema.mutable(Schema.Array(Schema.String))),
     }),
   ),
-  snapshot: Schema.optional(ConfigBoolean).annotate({
+  snapshot: Schema.optional(
+    Schema.Union([Schema.Boolean, NonNegativeInt])
+  ).annotate({
     description:
-      "Enable or disable snapshot tracking. When false, filesystem snapshots are not recorded and undoing or reverting will not undo/redo file changes. Defaults to true.",
+      "Enable or disable snapshot tracking. When false, filesystem snapshots are not recorded and undoing or reverting will not undo/redo file changes. Defaults to true. Can also be set to a number to specify how many days snapshots should be retained for.",
   }),
   // User-facing plugin config is stored as Specs; provenance gets attached later while configs are merged.
   plugin: Schema.optional(Schema.mutable(Schema.Array(ConfigPlugin.Spec))),

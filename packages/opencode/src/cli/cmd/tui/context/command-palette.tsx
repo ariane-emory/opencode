@@ -155,7 +155,7 @@ function CommandPaletteDialog(props: { run(command: string): void }) {
     ]
   }
 
-  return <DialogSelect ref={(value) => (ref = value)} title="Commands" options={list()} />
+  return <DialogSelect sort={true} ref={(value) => (ref = value)} title="Commands" options={list()} />
 }
 
 export function useCommandSlashes(): Accessor<readonly SlashEntry[]> {

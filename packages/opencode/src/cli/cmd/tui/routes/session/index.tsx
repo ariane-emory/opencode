@@ -1594,20 +1594,8 @@ function ReasoningPart(props: { last: boolean; part: ReasoningPart; message: Ass
             />
           </box>
         </Match>
-        <Match when={isDone()}>
-          {/* Settled: ▶ at the start as the click-to-expand cue. */}
-          <box id={"text-" + props.part.id} paddingLeft={3} marginTop={1} flexShrink={0} onMouseUp={toggle}>
-            <text fg={theme.textMuted} wrapMode="none">
-              {"▶ " +
-                (title()
-                  ? "Thought: " + title() + " · " + Locale.duration(duration())
-                  : "Thought for " + Locale.duration(duration()))}
-            </text>
-          </box>
-        </Match>
-        <Match when={true}>
-          {/* Streaming: leading animated spinner, no disclosure arrow yet — it
-              snaps in once reasoning settles, signalling "done, click to expand". */}
+        <Match when={!isDone()}>
+          {/* Streaming: leading animated spinner, hidden once reasoning settles. */}
           <box id={"text-" + props.part.id} paddingLeft={3} marginTop={1} flexShrink={0} onMouseUp={toggle}>
             <Spinner color={theme.textMuted}>{title() ? "Thinking: " + title() : "Thinking"}</Spinner>
           </box>

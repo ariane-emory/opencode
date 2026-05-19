@@ -289,6 +289,9 @@ export const Info = Schema.Struct({
       mcp_timeout: Schema.optional(PositiveInt).annotate({
         description: "Timeout in milliseconds for model context protocol (MCP) requests",
       }),
+      plan_mode: Schema.optional(Schema.Boolean).annotate({
+        description: "Enable experimental plan mode",
+      }),
     }),
   ),
 }).annotate({ identifier: "Config" })
@@ -318,6 +321,7 @@ export interface Interface {
   readonly invalidate: () => Effect.Effect<void>
   readonly directories: () => Effect.Effect<string[]>
   readonly waitForDependencies: () => Effect.Effect<void>
+  readonly experimentalPlanMode: () => Effect.Effect<boolean>
 }
 
 export class Service extends Context.Service<Service, Interface>()("@opencode/Config") {}
@@ -759,6 +763,11 @@ export const layer = Layer.effect(
       return yield* InstanceState.use(state, (s) => s.config)
     })
 
+    const experimentalPlanMode = Effect.fn("Config.experimentalPlanMode")(function* () {
+      const config = yield* get()
+      return config.experimental?.plan_mode === true
+    })
+
     const directories = Effect.fn("Config.directories")(function* () {
       return yield* InstanceState.use(state, (s) => s.directories)
     })
@@ -820,6 +829,7 @@ export const layer = Layer.effect(
       invalidate,
       directories,
       waitForDependencies,
+      experimentalPlanMode,
     })
   }),
 )

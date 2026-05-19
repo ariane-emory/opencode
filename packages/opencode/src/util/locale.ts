@@ -47,6 +47,54 @@ export function shortDateTime(input: number): string {
   }
 }
 
+export function datetimeCompact(input: number): string {
+  const date = new Date(input)
+  const localTime = time(input)
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  const year = date.getFullYear()
+  const localDate = `${month}/${day}/${year}`
+  return `${localTime}  ${localDate}`
+}
+
+export function todayTimeOrDateTimeCompact(input: number): string {
+  const date = new Date(input)
+  const now = new Date()
+  const isToday =
+    date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate()
+
+  if (isToday) {
+    return time(input)
+  } else {
+    return datetimeCompact(input)
+  }
+}
+
+export function todayTimeOrDateTimeCompact(input: number): string {
+>>>>>>> fix/inline-datetime-no-padding
+  const date = new Date(input)
+  const now = new Date()
+  const isToday =
+    date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate()
+
+<<<<<<< HEAD
+  const timeStr = time(input)
+
+  if (isToday) {
+    return timeStr
+  } else {
+    const month = date.toLocaleDateString(undefined, { month: "short" })
+    const day = date.getDate().toString().padStart(2, " ")
+    return `${month} ${day}, ${timeStr}`
+=======
+  if (isToday) {
+    return time(input)
+  } else {
+    return datetimeCompact(input)
+>>>>>>> fix/inline-datetime-no-padding
+  }
+}
+
 export function number(num: number): string {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1) + "M"

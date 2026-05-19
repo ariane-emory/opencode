@@ -4,7 +4,7 @@
 
 | Status | # | Branch Name | PR | Remote | Commit Hash | Description |
 |--------|---|-------------|----|--------|-------------|-------------|
-| ☐ | 1 | feat/gignit--markdown-renderer | 273 | origin | TBD |  |
+| ☑ | 1 | feat/gignit--markdown-renderer | 273 | origin | 3e7ea8950a | Added missing Flag.OPENCODE_EXPERIMENTAL_MARKDOWN and import |
 | ☐ | 2 | feat/rcdailey--thinking-indicator-hidden | 274 | origin | TBD |  |
 | ☐ | 3 | feat/aspiers--readline-additions | 211 | origin | TBD |  |
 | ☐ | 4 | feat/base-one-rebrand | 52 | origin | TBD | remember that, amongst it's many other changes, this branch is meant to REMOVE the animation effects on the art on the startup screen, and that you MUST NOT do anything that could mess with the background colouring of the art that is displayed after exiting the program! |

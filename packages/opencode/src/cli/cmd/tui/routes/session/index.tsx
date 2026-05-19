@@ -238,6 +238,7 @@ export function Session() {
   const [showAssistantMetadata, _setShowAssistantMetadata] = kv.signal("assistant_metadata_visibility", true)
   const [showScrollbar, setShowScrollbar] = kv.signal("scrollbar_visible", false)
   const [sidebarOverlayEnabled, setSidebarOverlayEnabled] = kv.signal("sidebar_overlay", true)
+  const [showSidebarScrollbar, setShowSidebarScrollbar] = kv.signal("sidebar_scrollbar_visible", true)
   const [diffWrapMode] = kv.signal<"word" | "none">("diff_wrap_mode", "word")
   const [_animationsEnabled, _setAnimationsEnabled] = kv.signal("animations_enabled", true)
   const [showTps, setShowTps] = kv.signal("tps_visibility", false)
@@ -1204,143 +1205,143 @@ export function Session() {
                 flexGrow={1}
                 scrollAcceleration={scrollAcceleration()}
               >
-                <box height={1} />
-                <For each={messages()}>
-                  {(message, index) => (
-                    <Switch>
-                      <Match when={message.id === revert()?.messageID}>
-                        {(function () {
-                          const command = useCommandPalette()
-                          const redoShortcut = useCommandShortcut("session.redo")
-                          const [hover, setHover] = createSignal(false)
-                          const dialog = useDialog()
+              <box height={1} />
+              <For each={messages()}>
+                {(message, index) => (
+                  <Switch>
+                    <Match when={message.id === revert()?.messageID}>
+                      {(function () {
+                        const command = useCommandDialog()
+                        const [hover, setHover] = createSignal(false)
+                        const dialog = useDialog()
 
-                          const handleUnrevert = async () => {
-                            const confirmed = await DialogConfirm.show(
-                              dialog,
-                              "Confirm Redo",
-                              "Are you sure you want to restore the reverted messages?",
-                            )
-                            if (confirmed) {
-                              command.run("session.redo")
-                            }
-                          }
-
-                          return (
-                            <box
-                              onMouseOver={() => setHover(true)}
-                              onMouseOut={() => setHover(false)}
-                              onMouseUp={handleUnrevert}
-                              marginTop={1}
-                              flexShrink={0}
-                              border={["left"]}
-                              customBorderChars={SplitBorder.customBorderChars}
-                              borderColor={theme.backgroundPanel}
-                            >
-                              <box
-                                paddingTop={1}
-                                paddingBottom={1}
-                                paddingLeft={2}
-                                backgroundColor={hover() ? theme.backgroundElement : theme.backgroundPanel}
-                              >
-                                <text fg={theme.textMuted}>{revert()!.reverted.length} message reverted</text>
-                                <text fg={theme.textMuted}>
-                                  <span style={{ fg: theme.text }}>{redoShortcut()}</span> or /redo to restore
-                                </text>
-                                <Show when={revert()!.diffFiles?.length}>
-                                  <box marginTop={1}>
-                                    <For each={revert()!.diffFiles}>
-                                      {(file) => (
-                                        <text fg={theme.text}>
-                                          {file.filename}
-                                          <Show when={file.additions > 0}>
-                                            <span style={{ fg: theme.diffAdded }}> +{file.additions}</span>
-                                          </Show>
-                                          <Show when={file.deletions > 0}>
-                                            <span style={{ fg: theme.diffRemoved }}> -{file.deletions}</span>
-                                          </Show>
-                                        </text>
-                                      )}
-                                    </For>
-                                  </box>
-                                </Show>
-                              </box>
-                            </box>
+                        const handleUnrevert = async () => {
+                          const confirmed = await DialogConfirm.show(
+                            dialog,
+                            "Confirm Redo",
+                            "Are you sure you want to restore the reverted messages?",
                           )
-                        })()}
-                      </Match>
-                      <Match when={revert()?.messageID && message.id >= revert()!.messageID}>
-                        <></>
-                      </Match>
-                      <Match when={message.role === "user"}>
-                        <UserMessage
-                          index={index()}
-                          onMouseUp={() => {
-                            if (renderer.getSelection()?.getSelectedText()) return
-                            dialog.replace(() => (
-                              <DialogMessage
-                                messageID={message.id}
-                                sessionID={route.sessionID}
-                                setPrompt={(promptInfo) => prompt?.set(promptInfo)}
-                              />
-                            ))
-                          }}
-                          message={message as UserMessage}
-                          parts={sync.data.part[message.id] ?? []}
-                          pending={pending()}
-                        />
-                      </Match>
-                      <Match when={message.role === "assistant"}>
-                        <AssistantMessage
-                          last={lastAssistant()?.id === message.id}
-                          message={message as AssistantMessage}
-                          parts={sync.data.part[message.id] ?? []}
-                        />
-                      </Match>
-                    </Switch>
-                  )}
-                </For>
-              </scrollbox>
-              <box flexShrink={0}>
-                <Show when={permissions().length > 0}>
-                  <PermissionPrompt request={permissions()[0]} />
-                </Show>
-                <Show when={permissions().length === 0 && questions().length > 0}>
-                  <QuestionPrompt request={questions()[0]} />
-                </Show>
-                <Show when={session()?.parentID}>
-                  <SubagentFooter />
-                </Show>
-                <Show when={visible()}>
-                  <TuiPluginRuntime.Slot
-                    name="session_prompt"
-                    mode="replace"
-                    session_id={route.sessionID}
+                          if (confirmed) {
+                            command.trigger("session.redo")
+                          }
+                        }
+
+                        return (
+                          <box
+                            onMouseOver={() => setHover(true)}
+                            onMouseOut={() => setHover(false)}
+                            onMouseUp={handleUnrevert}
+                            marginTop={1}
+                            flexShrink={0}
+                            border={["left"]}
+                            customBorderChars={SplitBorder.customBorderChars}
+                            borderColor={theme.backgroundPanel}
+                          >
+                            <box
+                              paddingTop={1}
+                              paddingBottom={1}
+                              paddingLeft={2}
+                              backgroundColor={hover() ? theme.backgroundElement : theme.backgroundPanel}
+                            >
+                              <text fg={theme.textMuted}>{revert()!.reverted.length} message reverted</text>
+                              <text fg={theme.textMuted}>
+                                <span style={{ fg: theme.text }}>{keybind.print("messages_redo")}</span> or /redo to
+                                restore
+                              </text>
+                              <Show when={revert()!.diffFiles?.length}>
+                                <box marginTop={1}>
+                                  <For each={revert()!.diffFiles}>
+                                    {(file) => (
+                                      <text fg={theme.text}>
+                                        {file.filename}
+                                        <Show when={file.additions > 0}>
+                                          <span style={{ fg: theme.diffAdded }}> +{file.additions}</span>
+                                        </Show>
+                                        <Show when={file.deletions > 0}>
+                                          <span style={{ fg: theme.diffRemoved }}> -{file.deletions}</span>
+                                        </Show>
+                                      </text>
+                                    )}
+                                  </For>
+                                </box>
+                              </Show>
+                            </box>
+                          </box>
+                        )
+                      })()}
+                    </Match>
+                    <Match when={revert()?.messageID && message.id >= revert()!.messageID}>
+                      <></>
+                    </Match>
+                    <Match when={message.role === "user"}>
+                      <UserMessage
+                        index={index()}
+                        onMouseUp={() => {
+                          if (renderer.getSelection()?.getSelectedText()) return
+                          dialog.replace(() => (
+                            <DialogMessage
+                              messageID={message.id}
+                              sessionID={route.sessionID}
+                              setPrompt={(promptInfo) => prompt?.set(promptInfo)}
+                            />
+                          ))
+                        }}
+                        message={message as UserMessage}
+                        parts={sync.data.part[message.id] ?? []}
+                        pending={pending()}
+                      />
+                    </Match>
+                    <Match when={message.role === "assistant"}>
+                      <AssistantMessage
+                        last={lastAssistant()?.id === message.id}
+                        message={message as AssistantMessage}
+                        parts={sync.data.part[message.id] ?? []}
+                      />
+                    </Match>
+                  </Switch>
+                )}
+              </For>
+            </scrollbox>
+            <box flexShrink={0}>
+              <Show when={permissions().length > 0}>
+                <PermissionPrompt request={permissions()[0]} />
+              </Show>
+              <Show when={permissions().length === 0 && questions().length > 0}>
+                <QuestionPrompt request={questions()[0]} />
+              </Show>
+              <Show when={session()?.parentID}>
+                <SubagentFooter />
+              </Show>
+              <Show when={visible()}>
+                <TuiPluginRuntime.Slot
+                  name="session_prompt"
+                  mode="replace"
+                  session_id={route.sessionID}
+                  visible={visible()}
+                  disabled={disabled()}
+                  on_submit={toBottom}
+                  ref={bind}
+                >
+                  <Prompt
                     visible={visible()}
-                    disabled={disabled()}
-                    on_submit={toBottom}
                     ref={bind}
-                  >
-                    <Prompt
-                      visible={visible()}
-                      ref={bind}
-                      disabled={disabled()}
-                      onSubmit={() => {
-                        toBottom()
-                      }}
-                      sessionID={route.sessionID}
-                      right={<TuiPluginRuntime.Slot name="session_prompt_right" session_id={route.sessionID} />}
-                    />
-                  </TuiPluginRuntime.Slot>
-                </Show>
-              </box>
-            </Show>
-            <Toast />
-          </box>
-          <Show when={sidebarVisible()}>
+                    disabled={disabled()}
+                    onSubmit={() => {
+                      toBottom()
+                    }}
+                    sessionID={route.sessionID}
+                    right={<TuiPluginRuntime.Slot name="session_prompt_right" session_id={route.sessionID} />}
+                  />
+                </TuiPluginRuntime.Slot>
+              </Show>
+            </box>
+          </Show>
+          <Toast />
+        </box>
+        <Show when={sidebarVisible()}>
             <Switch>
               <Match when={!sidebarOverlay()}>
-                <Sidebar sessionID={route.sessionID} />
+                <Sidebar sessionID={route.sessionID} showScrollbar={showSidebarScrollbar()} />
               </Match>
               <Match when={sidebarOverlay()}>
                 <box
@@ -1352,7 +1353,7 @@ export function Session() {
                   alignItems="flex-end"
                   backgroundColor={RGBA.fromInts(0, 0, 0, 70)}
                 >
-                  <Sidebar sessionID={route.sessionID} />
+                  <Sidebar sessionID={route.sessionID} showScrollbar={showSidebarScrollbar()} />
                 </box>
               </Match>
             </Switch>

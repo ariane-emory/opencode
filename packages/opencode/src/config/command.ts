@@ -3,6 +3,7 @@ export * as ConfigCommand from "./command"
 import * as Log from "@opencode-ai/core/util/log"
 import { Cause, Exit, Schema } from "effect"
 import { Glob } from "@opencode-ai/core/util/glob"
+import { ConfigBoolean } from "@opencode-ai/core/schema"
 import { configEntryNameFromPath } from "./entry-name"
 import { InvalidError } from "./error"
 import * as ConfigMarkdown from "./markdown"
@@ -15,7 +16,7 @@ export const Info = Schema.Struct({
   description: Schema.optional(Schema.String),
   agent: Schema.optional(Schema.String),
   model: Schema.optional(ConfigModelID),
-  subtask: Schema.optional(Schema.Boolean),
+  subtask: Schema.optional(ConfigBoolean),
 })
 
 export type Info = Schema.Schema.Type<typeof Info>

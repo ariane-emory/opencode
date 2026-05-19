@@ -386,7 +386,7 @@
       "name": "opencode",
       "version": "1.15.4",
       "bin": {
-        "opencode": "./bin/opencode",
+        "baseone": "./bin/baseone",
       },
       "dependencies": {
         "@actions/core": "1.11.1",

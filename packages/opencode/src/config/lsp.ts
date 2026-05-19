@@ -1,13 +1,12 @@
 export * as ConfigLSP from "./lsp"
 
 import { Schema } from "effect"
-import { zod } from "@opencode-ai/core/effect-zod"
-import { ConfigBoolean, withStatics } from "@opencode-ai/core/schema"
+import { ConfigBoolean } from "@opencode-ai/core/schema"
 import * as LSPServer from "../lsp/server"
 
 export const Disabled = Schema.Struct({
   disabled: Schema.Literal(true),
-}).pipe(withStatics((s) => ({ zod: zod(s) })))
+}).pipe((schema) => schema)
 
 export const Entry = Schema.Union([
   Disabled,
@@ -18,7 +17,7 @@ export const Entry = Schema.Union([
     env: Schema.optional(Schema.Record(Schema.String, Schema.String)),
     initialization: Schema.optional(Schema.Record(Schema.String, Schema.Unknown)),
   }),
-]).pipe(withStatics((s) => ({ zod: zod(s) })))
+]).pipe((schema) => schema)
 
 /**
  * For custom (non-builtin) LSP server entries, `extensions` is required so the
@@ -40,6 +39,6 @@ export const requiresExtensionsForCustomServers = Schema.makeFilter<
 
 export const Info = Schema.Union([ConfigBoolean, Schema.Record(Schema.String, Entry)])
   .check(requiresExtensionsForCustomServers)
-  .pipe(withStatics((s) => ({ zod: zod(s) })))
+  .pipe((schema) => schema)
 
 export type Info = Schema.Schema.Type<typeof Info>

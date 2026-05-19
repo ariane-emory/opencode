@@ -326,6 +326,9 @@ export const Info = Schema.Struct({
       primary_tools: Schema.optional(Schema.mutable(Schema.Array(Schema.String))).annotate({
         description: "Tools that should only be available to primary agents.",
       }),
+      cache_command_markdown_files: Schema.optional(ConfigBoolean).annotate({
+        description: "Cache command markdown files on first load. Set to false to reload command files on every execution.",
+      }),
       continue_loop_on_deny: Schema.optional(ConfigBoolean).annotate({
         description: "Continue the agent loop when a tool call is denied",
       }),

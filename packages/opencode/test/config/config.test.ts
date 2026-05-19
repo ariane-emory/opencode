@@ -1480,6 +1480,28 @@ test("migrates legacy tools config to permissions - deny", async () => {
   })
 })
 
+test("validates experimental messages_limit schema - rejects invalid values", async () => {
+  await using tmp = await tmpdir({
+    init: async (dir) => {
+      await Bun.write(
+        path.join(dir, "opencode.json"),
+        JSON.stringify({
+          $schema: "https://opencode.ai/config.json",
+          experimental: {
+            messages_limit: 0, // Invalid: must be >= 1
+          },
+        }),
+      )
+    },
+  })
+  await withTestInstance({
+    directory: tmp.path,
+    fn: async (ctx) => {
+      await expect(load(ctx)).rejects.toThrow()
+    },
+  })
+})
+
 test("migrates legacy write tool to edit permission", async () => {
   await using tmp = await tmpdir({
     init: async (dir) => {

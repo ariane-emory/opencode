@@ -343,6 +343,18 @@ export const Info = Schema.Struct({
       enable_exa: Schema.optional(Schema.Boolean).annotate({
         description: "Enable experimental Exa features",
       }),
+      messages_limit: Schema.optional(
+        Schema.Union([PositiveInt, Schema.Literal("none")]),
+      ).annotate({
+        description:
+          "Maximum number of message parts to load per session when syncing, or 'none' to load all messages",
+      }),
+      session_list_limit: Schema.optional(
+        Schema.Union([PositiveInt, Schema.Literal("none")]),
+      ).annotate({
+        description:
+          "Maximum number of sessions to display in session list, or 'none' to show all sessions",
+      }),
     }),
   ),
 }).annotate({ identifier: "Config" })

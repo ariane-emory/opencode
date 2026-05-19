@@ -451,7 +451,29 @@ export const getUsage = (input: { model: Provider.Model; usage: LanguageModelUsa
 
 export class BusyError extends Schema.TaggedErrorClass<BusyError>()("SessionBusyError", {
   sessionID: SessionID,
-}) {}
+}) {
+  static isInstance(input: unknown): input is BusyError {
+    return input instanceof BusyError
+  }
+}
+
+export class NothingToContinueError extends Error {
+  static isInstance(input: unknown): input is NothingToContinueError {
+    return input instanceof NothingToContinueError
+  }
+  constructor(public readonly sessionID: string) {
+    super(`Nothing to continue in session ${sessionID}`)
+  }
+}
+
+export class InvalidContinueAgentError extends Error {
+  static isInstance(input: unknown): input is InvalidContinueAgentError {
+    return input instanceof InvalidContinueAgentError
+  }
+  constructor(public readonly agent: string) {
+    super(`Invalid continue agent: ${agent}`)
+  }
+}
 
 export type NotFound = NotFoundError
 

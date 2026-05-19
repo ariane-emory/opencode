@@ -4,10 +4,7 @@ export function titlecase(str: string) {
 
 export function time(input: number): string {
   const date = new Date(input)
-  const str = date.toLocaleTimeString(undefined, { timeStyle: "short" })
-  // Pad single-digit hours with leading space for alignment (e.g., "9:38 PM" -> " 9:38 PM")
-  if (/^\d:/.test(str)) return " " + str
-  return str
+  return date.toLocaleTimeString(undefined, { timeStyle: "short" })
 }
 
 export function datetime(input: number): string {
@@ -30,23 +27,6 @@ export function todayTimeOrDateTime(input: number): string {
   }
 }
 
-export function shortDateTime(input: number): string {
-  const date = new Date(input)
-  const now = new Date()
-  const isToday =
-    date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate()
-
-  const timeStr = time(input)
-
-  if (isToday) {
-    return timeStr
-  } else {
-    const month = date.toLocaleDateString(undefined, { month: "short" })
-    const day = date.getDate().toString().padStart(2, " ")
-    return `${month} ${day}, ${timeStr}`
-  }
-}
-
 export function datetimeCompact(input: number): string {
   const date = new Date(input)
   const localTime = time(input)
@@ -54,7 +34,7 @@ export function datetimeCompact(input: number): string {
   const day = date.getDate()
   const year = date.getFullYear()
   const localDate = `${month}/${day}/${year}`
-  return `${localTime}  ${localDate}`
+  return `${localTime} · ${localDate}`
 }
 
 export function todayTimeOrDateTimeCompact(input: number): string {
@@ -67,31 +47,6 @@ export function todayTimeOrDateTimeCompact(input: number): string {
     return time(input)
   } else {
     return datetimeCompact(input)
-  }
-}
-
-export function todayTimeOrDateTimeCompact(input: number): string {
->>>>>>> fix/inline-datetime-no-padding
-  const date = new Date(input)
-  const now = new Date()
-  const isToday =
-    date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth() && date.getDate() === now.getDate()
-
-<<<<<<< HEAD
-  const timeStr = time(input)
-
-  if (isToday) {
-    return timeStr
-  } else {
-    const month = date.toLocaleDateString(undefined, { month: "short" })
-    const day = date.getDate().toString().padStart(2, " ")
-    return `${month} ${day}, ${timeStr}`
-=======
-  if (isToday) {
-    return time(input)
-  } else {
-    return datetimeCompact(input)
->>>>>>> fix/inline-datetime-no-padding
   }
 }
 

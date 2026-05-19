@@ -173,6 +173,7 @@ const context = createContext<{
   thinkingMode: () => ThinkingMode
   showThinking: () => boolean
   showTimestamps: () => boolean
+  showAgentTimestamps: () => boolean
   showDetails: () => boolean
   showTps: () => boolean
   showGenericToolOutput: () => boolean
@@ -234,6 +235,7 @@ export function Session() {
   const thinkingMode = thinking.mode
   const showThinking = createMemo(() => true)
   const [timestamps, setTimestamps] = kv.signal<"hide" | "show">("timestamps", "hide")
+  const [agentTimestamps, setAgentTimestamps] = kv.signal<"hide" | "show">("agent_timestamps", "hide")
   const [showDetails, setShowDetails] = kv.signal("tool_details_visibility", true)
   const [showAssistantMetadata, _setShowAssistantMetadata] = kv.signal("assistant_metadata_visibility", true)
   const [showScrollbar, setShowScrollbar] = kv.signal("scrollbar_visible", false)
@@ -257,6 +259,7 @@ export function Session() {
     return sidebarVisible() && !wide()
   })
   const showTimestamps = createMemo(() => timestamps() === "show")
+  const showAgentTimestamps = createMemo(() => agentTimestamps() === "show")
   const contentWidth = createMemo(() => dimensions().width - (sidebarVisible() && !sidebarOverlay() ? 42 : 0) - 4)
   const providers = createMemo(() => Model.index(sync.data.provider))
 
@@ -1171,6 +1174,7 @@ export function Session() {
           thinkingMode,
           showThinking,
           showTimestamps,
+          showAgentTimestamps,
           showDetails,
           showTps,
           showGenericToolOutput,
@@ -1641,6 +1645,9 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
               </span>{" "}
               <span style={{ fg: theme.text }}>{Locale.titlecase(props.message.mode)}</span>
               <span style={{ fg: theme.textMuted }}> · {model()}</span>
+              <Show when={ctx.showAgentTimestamps()}>
+                <span style={{ fg: theme.textMuted }}> · {Locale.todayTimeOrDateTimeCompact(props.message.time.created)}</span>
+              </Show>
               <Show when={duration()}>
                 <span style={{ fg: theme.textMuted }}> · {Locale.duration(duration())}</span>
               </Show>

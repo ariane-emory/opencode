@@ -145,6 +145,17 @@ export function DialogSessionList() {
 
   const options = createMemo(() => {
     const today = new Date().toDateString()
+
+    function parseSessionTitle(title: string): { group?: string; displayTitle: string } {
+      const pipeIndex = title.indexOf("|")
+      if (pipeIndex === -1) return { displayTitle: title }
+      const group = title.slice(0, pipeIndex).trim()
+      const displayTitle = title.slice(pipeIndex + 1).trim()
+      if (!group) return { displayTitle }
+      const capitalized = group.charAt(0).toUpperCase() + group.slice(1)
+      return { group: capitalized + ":", displayTitle }
+    }
+
     const sessionMap = new Map(
       sessions()
         .filter((x) => x.parentID === undefined)
@@ -161,6 +172,7 @@ export function DialogSessionList() {
     function buildOption(id: string, category: string) {
       const x = sessionMap.get(id)
       if (!x) return undefined
+      const parsed = parseSessionTitle(x.title)
       const workspace = x.workspaceID ? project.workspace.get(x.workspaceID) : undefined
 
       let footer: JSX.Element | string = ""
@@ -177,7 +189,7 @@ export function DialogSessionList() {
           )
         }
       } else {
-        footer = Locale.time(x.time.updated)
+        footer = parsed.group ? Locale.shortDateTime(x.time.updated) : Locale.time(x.time.updated)
       }
 
       const isDeleting = toDelete() === x.id
@@ -190,7 +202,7 @@ export function DialogSessionList() {
           ? () => <text fg={theme.accent}>{slot}</text>
           : undefined
       return {
-        title: isDeleting ? `Press ${deleteHint()} again to confirm` : x.title,
+        title: isDeleting ? `Press ${deleteHint()} again to confirm` : (parsed.displayTitle || x.title),
         bg: isDeleting ? theme.error : undefined,
         value: x.id,
         category,
@@ -201,11 +213,24 @@ export function DialogSessionList() {
 
     const remaining = displayOrder
       .filter((id) => !pinnedSet.has(id))
-      .map((id) => {
-        const x = sessionMap.get(id)
-        if (!x) return undefined
-        const label = new Date(x.time.updated).toDateString()
-        return buildOption(id, label === today ? "Today" : label)
+      .map((id) => sessionMap.get(id))
+      .filter((x) => x !== undefined)
+      .toSorted((a, b) => {
+        const aParsed = parseSessionTitle(a.title)
+        const bParsed = parseSessionTitle(b.title)
+        if (aParsed.group && !bParsed.group) return -1
+        if (!aParsed.group && bParsed.group) return 1
+        if (aParsed.group && bParsed.group) {
+          const groupCompare = aParsed.group.localeCompare(bParsed.group)
+          if (groupCompare !== 0) return groupCompare
+          return b.time.updated - a.time.updated
+        }
+        return 0
+      })
+      .map((x) => {
+        const parsed = parseSessionTitle(x.title)
+        const date = new Date(x.time.updated)
+        return buildOption(x.id, parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString()))
       })
       .filter((x) => x !== undefined)
 

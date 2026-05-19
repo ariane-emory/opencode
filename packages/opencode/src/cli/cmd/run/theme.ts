@@ -80,6 +80,7 @@ type ThemeJson = {
 }
 
 type SharedSyntaxTheme = TuiThemeCurrent & {
+  readonly toolOutput: RGBA
   _hasSelectedListItemText: boolean
 }
 
@@ -590,6 +591,7 @@ export async function resolveRunTheme(renderer: CliRenderer): Promise<RunTheme> 
     const syntaxTheme: SharedSyntaxTheme = {
       ...theme,
       _hasSelectedListItemText: true,
+      toolOutput: theme.text,
     }
     const syntax = shared.generateSyntax(syntaxTheme)
     return map(theme, splashTheme(theme, indexed), syntax, shared.generateSubtleSyntax(syntaxTheme))

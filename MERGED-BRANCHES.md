@@ -7,15 +7,15 @@
 | ☑ | 1 | feat/gignit--markdown-renderer | 273 | origin | 3e7ea8950a | Added missing Flag.OPENCODE_EXPERIMENTAL_MARKDOWN and import |
 | ☑ | 2 | feat/rcdailey--thinking-indicator-hidden | 274 | origin | eb3bc40415 | Clean merge |
 | ☑ | 3 | feat/aspiers--readline-additions | 211 | origin | 4da0c72432 | Clean merge |
-| ☐ | 4 | feat/base-one-rebrand | 52 | origin | TBD | remember that, amongst it's many other changes, this branch is meant to REMOVE the animation effects on the art on the startup screen, and that you MUST NOT do anything that could mess with the background colouring of the art that is displayed after exiting the program! |
-| ☐ | 5 | feat/sinister-quotes | 73 | origin | TBD | the placeholders used MUST be the SINISTER_PLACEHOLDERS array in this branch's packages/ui/src/constants/placeholders.ts file, NO OTHER PLACEHOLDER SOURCE/LOCATION IS PERMISSIBLE! |
-| ☐ | 6 | feat/session-grouping | 194 | origin | TBD |  |
-| ☐ | 7 | feat/session-bookmarks | 102 | origin | TBD |  |
-| ☐ | 8 | fix/dialog-datetime-alignment | 113 | origin | TBD | for best results, merge this one immediately after feat/session-bookmarks. This feature MUST not be clobbered; if there is a conflict, it MUST be combined with the other feature with which it is conflicting! |
-| ☐ | 9 | feat/keybindable-commands | 48 | origin | TBD |  |
-| ☐ | 10 | feat/automatic-list-continuation | 112 | origin | TBD |  |
-| ☐ | 11 | feat/continue-command | 11 | origin | TBD |  |
-| ☐ | 12 | feat/configurable-snapshot-lifespan | 157 | origin | TBD |  |
+| ☑ | 4 | feat/base-one-rebrand | 52 | origin | TBD | Removed bg-pulse animation component, kept background colouring |
+| ☑ | 5 | feat/sinister-quotes | 73 | origin | TBD | Clean merge |
+| ☑ | 6 | feat/session-grouping | 194 | origin | TBD | Clean merge |
+| ☑ | 7 | feat/session-bookmarks | 102 | origin | TBD | Combined with session-grouping in dialog-session-list.tsx and locale.ts |
+| ☑ | 8 | fix/dialog-datetime-alignment | 113 | origin | TBD | Combined time() function with padding comment |
+| ☑ | 9 | feat/keybindable-commands | 48 | origin | TBD | Combined custom slash commands and markdown toggle |
+| ☑ | 10 | feat/automatic-list-continuation | 112 | origin | TBD | Kept typed onKeyDown annotation |
+| ☑ | 11 | feat/continue-command | 11 | origin | TBD | Added overrides parameter to runLoop |
+| ☑ | 12 | feat/configurable-snapshot-lifespan | 157 | origin | 068c7f1da2 | Changed snapshot config to Union(Boolean, NonNegativeInt) |
 | ☐ | 13 | feat/configurable-new-plan-mode | 143 | origin | TBD |  |
 | ☐ | 14 | feat/improve-experimental-plan-mode-prompt | 232 | origin | TBD |  |
 | ☐ | 15 | feat/enable-exa-setting | 257 | origin | TBD |  |

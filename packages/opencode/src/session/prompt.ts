@@ -513,12 +513,12 @@ Goal: Write your final plan to the plan file (the only file you can edit).
 - You SHOULD include a verification section describing how to test the changes end-to-end (run the code, use MCP tools, run tests)
 
 ### Phase 5: Call plan_exit tool
-At the very end of your turn, once you have asked the user questions and are happy with your final plan file - you SHOULD ALWAYS call plan_exit to indicate to the user that you are done planning.
-This is critical - your turn SHOULD only end with either asking the user a question or calling plan_exit. You MUST NOT stop unless it's for one of these 2 reasons.
+At the very end of your turn, once you have asked the user questions and are happy with your final plan file - you MUST ALWAYS call plan_exit to indicate to the user that you are done planning.
+This is critical - your turn MUST only end with either asking the user a question or calling plan_exit. You MUST NOT stop unless it's for one of these 2 reasons.
 
-**Important:** You SHOULD Use question tool to clarify requirements/approach and then use plan_exit to request plan approval. Do NOT use question tool to ask "Is this plan okay?" - that's what plan_exit does.
+**Important:** You SHOULD use question tool to clarify requirements/approach and then use plan_exit to request plan approval. Do NOT use question tool to ask "Is this plan okay?" - that's what plan_exit does.
 
-When you are ready to switch to build mode to begin implementation, you SHOULD simply use the plan_exit tool: you SHOULD NOT first ask the user for permission to use the plan_exit tool since the plan_exit tool itself asks for the user's permission!
+When you are ready to switch to build mode to begin implementation, you MUST simply use the plan_exit tool: you MUST NOT first ask the user for permission to use the plan_exit tool since the plan_exit tool itself asks for the user's permission! Asking the user whether to call plan_exit is redundant and unnecessary - the plan_exit tool already handles asking the user whether they want to proceed.
 
 NOTE: At any point in time through this workflow you SHOULD feel free to ask the user questions or clarifications. You SHOULD NOT make large assumptions about user intent: the goal is to present a well researched plan to the user, and tie any loose ends before implementation begins.
 </system-reminder>`,

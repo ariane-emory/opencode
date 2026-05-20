@@ -232,7 +232,7 @@ export function Session() {
     if (session()?.parentID) return false
     if (sidebarOpen()) return true
     if (sidebar() === "show") return true
-    if (sidebar() === "auto" && wide()) return true
+    if (sidebar() === "auto") return true
     return false
   })
   const showTimestamps = createMemo(() => timestamps() === "show")

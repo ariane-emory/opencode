@@ -114,12 +114,12 @@ const appBindingCommands = [
   "app.toggle.diffwrap",
   "app.toggle.paste_summary",
   "app.toggle.session_directory_filter",
-  "app.toggle.timestamps",
-  "app.toggle.thinking",
-  "app.toggle.tooldetails",
-  "app.toggle.scrollbar",
-  "app.toggle.generic_tool_output",
-  "app.toggle.sidebar",
+  "session.toggle.timestamps",
+  "session.toggle.thinking",
+  "session.toggle.actions",
+  "session.toggle.scrollbar",
+  "session.toggle.generic_tool_output",
+  "session.sidebar.toggle",
 ] as const
 
 function rendererConfig(_config: TuiConfig.Resolved): CliRendererConfig {
@@ -797,7 +797,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         },
       },
       {
-        name: "app.toggle.timestamps",
+        name: "session.toggle.timestamps",
         title: kv.get("timestamps", "hide") === "show" ? "Hide timestamps" : "Show timestamps",
         category: "System",
         run: () => {
@@ -807,7 +807,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         },
       },
       {
-        name: "app.toggle.thinking",
+        name: "session.toggle.thinking",
         title: kv.get("thinking_visibility", true) ? "Hide thinking" : "Show thinking",
         category: "System",
         run: () => {
@@ -816,7 +816,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         },
       },
       {
-        name: "app.toggle.tooldetails",
+        name: "session.toggle.actions",
         title: kv.get("tool_details_visibility", true) ? "Hide tool details" : "Show tool details",
         category: "System",
         run: () => {
@@ -825,7 +825,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         },
       },
       {
-        name: "app.toggle.scrollbar",
+        name: "session.toggle.scrollbar",
         title: kv.get("scrollbar_visible", true) ? "Hide session scrollbar" : "Show session scrollbar",
         category: "System",
         run: () => {
@@ -834,7 +834,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         },
       },
       {
-        name: "app.toggle.generic_tool_output",
+        name: "session.toggle.generic_tool_output",
         title: kv.get("generic_tool_output_visibility", false) ? "Hide generic tool output" : "Show generic tool output",
         category: "System",
         run: () => {
@@ -843,7 +843,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         },
       },
       {
-        name: "app.toggle.sidebar",
+        name: "session.sidebar.toggle",
         title: kv.get("sidebar", "auto") === "auto" ? "Hide sidebar" : "Show sidebar",
         category: "System",
         run: () => {

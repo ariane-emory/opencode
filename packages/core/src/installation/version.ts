@@ -3,6 +3,6 @@ declare global {
   const OPENCODE_CHANNEL: string
 }
 
-export const InstallationVersion = typeof OPENCODE_VERSION === "string" ? OPENCODE_VERSION : "local"
-export const InstallationChannel = typeof OPENCODE_CHANNEL === "string" ? OPENCODE_CHANNEL : "latest"
-export const InstallationLocal = InstallationChannel === "local"
+export const InstallationVersion: string = "2026-05-19-16-17"
+export const InstallationChannel: string = "local"
+export const InstallationLocal = true

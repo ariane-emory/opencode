@@ -211,7 +211,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
       return showDate ? Locale.shortDateTime(session.time.updated) : Locale.time(session.time.updated)
     }
 
-    const item = (session: (typeof all)[number], category: string, showDate: boolean) => {
+    const item = (session: (typeof all)[number], category: string, showDate: boolean, displayTitle?: string) => {
       const deleting = toDelete() === session.id
       const status = sync.data.session_status?.[session.id]
       const isWorking = status?.type === "busy" || status?.type === "retry"
@@ -222,7 +222,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
           ? () => <text fg={theme.accent}>{slot}</text>
           : undefined
       return {
-        title: deleting ? `Press ${deleteHint()} again to confirm` : session.title,
+        title: deleting ? `Press ${deleteHint()} again to confirm` : (displayTitle ?? session.title),
         bg: deleting ? theme.error : undefined,
         value: session.id,
         category,
@@ -231,7 +231,10 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
       }
     }
 
-    const pinnedOptions = pinned.map((x) => item(x, "Bookmarks:", true))
+    const pinnedOptions = pinned.map((x) => {
+      const parsed = parseSessionTitle(x.title)
+      return item(x, "Bookmarks:", true, parsed.displayTitle)
+    })
 
     const unpinnedOptions = unpinned
       .toSorted((a, b) => {
@@ -249,7 +252,9 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
       .map((x) => {
         const parsed = parseSessionTitle(x.title)
         const date = new Date(x.time.updated)
-        return item(x, parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString()), false)
+        const category = parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString())
+        const showDate = !!parsed.group
+        return item(x, category, showDate, parsed.displayTitle)
       })
       .slice(0, limit)
 

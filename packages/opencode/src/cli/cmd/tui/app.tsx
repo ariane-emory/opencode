@@ -982,11 +982,15 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
       {
         name: "app.toggle.sidebar",
-        title: kv.get("sidebar", "auto") === "auto" ? "Hide sidebar" : "Show sidebar",
+        title: kv.get("sidebar", "auto") === "hide" ? "Show sidebar" : "Hide sidebar",
         category: "System",
         run: () => {
           const current = kv.get("sidebar", "auto")
-          kv.set("sidebar", current === "auto" ? "hide" : "auto")
+          let newValue: "show" | "hide" | "auto"
+          if (current === "auto") newValue = "show"
+          else if (current === "hide") newValue = "show"
+          else newValue = "hide"
+          kv.set("sidebar", newValue)
           dialog.clear()
         },
       },

@@ -41,7 +41,6 @@ import midnight from "./theme/midnight.json" with { type: "json" }
 import auraTransparent from "./theme/aura--transparent.json" with { type: "json" }
 import ayuTransparent from "./theme/ayu--transparent.json" with { type: "json" }
 import catppuccinTransparent from "./theme/catppuccin--transparent.json" with { type: "json" }
-import cobaltTransparent from "./theme/cobalt--transparent.json" with { type: "json" }
 import cyberpunk2077 from "./theme/cyberpunk2077.json" with { type: "json" }
 import cyberpunk2077Transparent from "./theme/cyberpunk2077--transparent.json" with { type: "json" }
 import draculaTransparent from "./theme/dracula--transparent.json" with { type: "json" }
@@ -177,7 +176,6 @@ export const DEFAULT_THEMES: Record<string, ThemeJson> = {
   ["aura--transparent"]: auraTransparent,
   ["ayu--transparent"]: ayuTransparent,
   ["catppuccin--transparent"]: catppuccinTransparent,
-  ["cobalt--transparent"]: cobaltTransparent,
   cyberpunk2077,
   ["cyberpunk2077--transparent"]: cyberpunk2077Transparent,
   ["dracula--transparent"]: draculaTransparent,

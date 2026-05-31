@@ -72,9 +72,11 @@ type Variant = {
 type ColorValue = HexColor | RefName | Variant | RGBA | number
 type ThemeJson = {
   defs?: Record<string, HexColor | RefName>
-  theme: Omit<Record<ThemeColor, ColorValue>, "selectedListItemText" | "backgroundMenu"> & {
+  theme: Omit<Record<ThemeColor, ColorValue>, "selectedListItemText" | "backgroundMenu" | "sessionTitle" | "toolOutput"> & {
     selectedListItemText?: ColorValue
     backgroundMenu?: ColorValue
+    sessionTitle?: ColorValue
+    toolOutput?: ColorValue
     thinkingOpacity?: number
   }
 }

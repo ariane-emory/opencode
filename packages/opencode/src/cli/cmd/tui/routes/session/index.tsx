@@ -1669,7 +1669,6 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
               <Show when={!final() && elapsedTime()}>
                 <span style={{ fg: theme.textMuted }}> · running {Locale.duration(elapsedTime())}</span>
               </Show>
-              </Show>
               <Show when={props.message.error?.name === "MessageAbortedError"}>
                 <span style={{ fg: theme.textMuted }}> · interrupted</span>
               </Show>

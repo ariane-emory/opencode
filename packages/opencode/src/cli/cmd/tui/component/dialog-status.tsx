@@ -7,7 +7,7 @@ import { useSync } from "@tui/context/sync"
 import { useLocal } from "@tui/context/local"
 import { useSDK } from "@tui/context/sdk"
 import { For, Match, Switch, Show, createMemo, createSignal } from "solid-js"
-import { Log } from "@/util/log"
+import * as Log from "@opencode-ai/core/util/log"
 
 export type DialogStatusProps = {}
 

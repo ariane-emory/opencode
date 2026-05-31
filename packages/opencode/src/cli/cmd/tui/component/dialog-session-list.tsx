@@ -18,6 +18,7 @@ import { DialogSessionDeleteFailed } from "./dialog-session-delete-failed"
 import { WorkspaceLabel } from "./workspace-label"
 import { useCommandShortcut } from "../keymap"
 import { useKV } from "../context/kv"
+import { useLocal } from "../context/local"
 
 export function DialogSessionList(props: { initialSessionID?: string } = {}) {
   const dialog = useDialog()
@@ -28,6 +29,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
   const sdk = useSDK()
   const toast = useToast()
   const kv = useKV()
+  const local = useLocal()
   const [toDelete, setToDelete] = createSignal<string>()
   const [search, setSearch] = createDebouncedSignal("", 150)
   const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()

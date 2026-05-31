@@ -49,6 +49,7 @@ import { DialogAlert } from "../../ui/dialog-alert"
 import { useToast } from "../../ui/toast"
 import { useKV } from "../../context/kv"
 import { createFadeIn } from "../../util/signal"
+import { useListContinuation } from "../list-continuation"
 import { DialogSkill } from "../dialog-skill"
 import {
   confirmWorkspaceFileChanges,
@@ -304,6 +305,9 @@ export function Prompt(props: PromptProps) {
     setDismissedEditorSelectionKey(editorSelectionKey(editorContext()))
     editor.clearSelection()
   }
+
+  const listContinuation = useListContinuation()
+
   const fileStyleId = syntax().getStyleId("extmark.file")!
   const agentStyleId = syntax().getStyleId("extmark.agent")!
   const pasteStyleId = syntax().getStyleId("extmark.paste")!
@@ -885,6 +889,69 @@ export function Prompt(props: PromptProps) {
     return {
       target: inputTarget,
       enabled: inputTarget() !== undefined && !props.disabled,
+      commands: [
+        {
+          name: "input.newline",
+          title: "Insert newline with list continuation",
+          category: "Input",
+          run() {
+            const action = listContinuation.handleNewline(input.plainText, input.cursorOffset)
+            if (action) {
+              if (action.type === "continue") {
+                input.insertText(action.insertText)
+                if (action.renumber) {
+                  const offset = action.insertText.length
+                  const adjustedStart = action.renumber.start + offset
+                  const adjustedEnd = action.renumber.end + offset
+                  const before = input.plainText.slice(0, adjustedStart)
+                  const after = input.plainText.slice(adjustedEnd)
+                  input.setText(before + action.renumber.newText + after)
+                  input.cursorOffset = adjustedStart - 1
+                }
+              } else if (action.type === "clear") {
+                const before = input.plainText.slice(0, action.deleteRange.start)
+                const after = input.plainText.slice(action.deleteRange.end)
+                input.setText(before + after)
+                input.cursorOffset = action.cursorPosition
+              }
+              return
+            }
+            input.insertText("\n")
+          },
+        },
+      ],
+      bindings: tuiConfig.keybinds.get("input_newline"),
+    }
+  })
+
+  useBindings(() => {
+    return {
+      target: inputTarget,
+      enabled: inputTarget() !== undefined && !props.disabled,
+      commands: [
+        {
+          name: "input.backspace",
+          title: "Backspace with list cleanup",
+          category: "Input",
+          run() {
+            const action = listContinuation.handleBackspace(input.plainText, input.cursorOffset)
+            if (!action || action.type !== "clear") return false
+            const before = input.plainText.slice(0, action.deleteRange.start)
+            const after = input.plainText.slice(action.deleteRange.end)
+            input.setText(before + after)
+            input.cursorOffset = action.cursorPosition
+            setStore("prompt", "input", input.plainText)
+          },
+        },
+      ],
+      bindings: tuiConfig.keybinds.get("input_backspace"),
+    }
+  })
+
+  useBindings(() => {
+    return {
+      target: inputTarget,
+      enabled: inputTarget() !== undefined && !props.disabled,
       bindings: tuiConfig.keybinds.get("prompt.paste"),
     }
   })
@@ -1044,7 +1111,13 @@ export function Prompt(props: PromptProps) {
     if (!store.prompt.input) return false
     const agent = local.agent.current()
     if (!agent) return false
-    const trimmed = store.prompt.input.trim()
+
+    const cleaned = listContinuation.cleanupForSubmit(store.prompt.input)
+    if (cleaned !== store.prompt.input) {
+      setStore("prompt", "input", cleaned)
+    }
+
+    const trimmed = cleaned.trim()
     if (trimmed === "exit" || trimmed === "quit" || trimmed === ":q") {
       void exit()
       return true
@@ -1115,7 +1188,7 @@ export function Prompt(props: PromptProps) {
     }
 
     const messageID = MessageID.ascending()
-    let inputText = store.prompt.input
+    let inputText = cleaned
 
     // Expand pasted text inline before submitting
     const allExtmarks = input.extmarks.getAllForTypeId(promptPartTypeId)

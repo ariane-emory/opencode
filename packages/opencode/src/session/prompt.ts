@@ -1,4 +1,5 @@
 import path from "path"
+import { substituteArguments } from "../config/substitute"
 import os from "os"
 import { SessionID, MessageID, PartID } from "./schema"
 import { MessageV2 } from "./message-v2"
@@ -1572,6 +1573,7 @@ export const layer = Layer.effect(
       const templateCommand = yield* Effect.promise(async () => cmd.template)
 
       const { result: withArgs, hasPlaceholders } = substituteArguments(templateCommand, args)
+
       const usesArgumentsPlaceholder = templateCommand.includes("$ARGUMENTS")
       let template = withArgs.replaceAll("$ARGUMENTS", input.arguments)
 
@@ -1875,5 +1877,7 @@ export async function continue_(input: ContinueInput, options?: { instance?: Ins
   }
   return runPromise((svc) => svc.continue(input))
 }
+
+export { substituteArguments }
 
 export * as SessionPrompt from "./prompt"

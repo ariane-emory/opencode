@@ -19,7 +19,7 @@ test("substituteArguments - multiple placeholders", () => {
   expect(hasPlaceholders).toBe(true)
 })
 
-test("substituteArguments - simple $N does not swallow", () => {
+test("substituteArguments - $N placeholders do not swallow", () => {
   const { result } = substituteArguments("$1 $2", ["a", "b", "c", "d"])
   expect(result).toBe("a b")
 })
@@ -42,4 +42,41 @@ test("substituteArguments - preserves spaces inside a quoted single argument", (
 test("substituteArguments - preserves grouped quoted arguments in slices", () => {
   const { result } = substituteArguments("$1 $2", ["sync|Syncing dev with upstream/dev", "tail one", "tail two"])
   expect(result).toBe("sync|Syncing dev with upstream/dev tail one tail two")
+})
+
+test("substituteArguments - ${N} syntax single arg", () => {
+  const { result, hasPlaceholders } = substituteArguments("hello ${1}", ["world"])
+  expect(result).toBe("hello world")
+  expect(hasPlaceholders).toBe(true)
+})
+
+test("substituteArguments - ${N..M} slice", () => {
+  const { result } = substituteArguments("${1..3}", ["a", "b", "c", "d"])
+  expect(result).toBe("a b c")
+})
+
+test("substituteArguments - ${N..} open-ended slice", () => {
+  const { result } = substituteArguments("${2..}", ["a", "b", "c", "d"])
+  expect(result).toBe("b c d")
+})
+
+test("substituteArguments - ${..M} slice from start", () => {
+  const { result } = substituteArguments("${..2}", ["a", "b", "c", "d"])
+  expect(result).toBe("a b")
+})
+
+test("substituteArguments - ${..} all arguments", () => {
+  const { result } = substituteArguments("all: ${..}", ["a", "b", "c"])
+  expect(result).toBe("all: a b c")
+})
+
+test("substituteArguments - $N with ${N..} does not swallow", () => {
+  const { result } = substituteArguments("Branch: $2, Args: ${3..}", [
+    "edit-branch-and-merge",
+    "feat/add-arianes-themes",
+    "foo",
+    "bar",
+    "baz",
+  ])
+  expect(result).toBe("Branch: feat/add-arianes-themes, Args: foo bar baz")
 })

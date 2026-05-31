@@ -1013,6 +1013,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         },
       },
       {
+      {
         name: "app.toggle.markdown_all",
         title: kv.get("markdown_all_messages", false)
           ? "Render markdown: agent messages only"
@@ -1053,6 +1054,17 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         category: "System",
         run: () => {
           kv.set("sidebar_scrollbar_visible", !kv.get("sidebar_scrollbar_visible", true))
+          dialog.clear()
+        },
+      },
+      {
+        name: "app.toggle.sidebar_session_id",
+        title: kv.get("sidebar_session_id_visible", false)
+          ? "Hide session ID in sidebar"
+          : "Show session ID in sidebar",
+        category: "System",
+        run: () => {
+          kv.set("sidebar_session_id_visible", !kv.get("sidebar_session_id_visible", false))
           dialog.clear()
         },
       },

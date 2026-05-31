@@ -3,7 +3,7 @@ import { useSync } from "@tui/context/sync"
 import { createMemo, Show, createSignal, onMount, onCleanup } from "solid-js"
 import { useTheme } from "../../context/theme"
 import { useTuiConfig } from "../../context/tui-config"
-import { InstallationChannel, InstallationVersion } from "@opencode-ai/core/installation/version"
+import { InstallationVersion } from "@opencode-ai/core/installation/version"
 import { TuiPluginRuntime } from "@/cli/cmd/tui/plugin/runtime"
 import { useKV } from "../../context/kv"
 
@@ -39,6 +39,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
     const interval = setInterval(() => setClockTime(formatTime()), 10000)
     onCleanup(() => clearInterval(interval))
   })
+  const showSessionID = createMemo(() => kv.get("sidebar_session_id_visible", false))
 
   return (
     <Show when={session()}>
@@ -76,7 +77,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
                     <b>{titleParts().group}</b> {titleParts().rest}
                   </Show>
                 </text>
-                <Show when={InstallationChannel !== "latest"}>
+                <Show when={showSessionID()}>
                   <text fg={theme.textMuted}>{props.sessionID}</text>
                 </Show>
                 <Show when={session()!.workspaceID}>

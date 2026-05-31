@@ -19,6 +19,7 @@ export const Info = Schema.Struct({
   agent: Schema.optional(Schema.String),
   model: Schema.optional(ConfigModelID),
   subtask: Schema.optional(ConfigBoolean),
+  ignored: Schema.optional(Schema.Boolean),
 })
 
 export type Info = Schema.Schema.Type<typeof Info>

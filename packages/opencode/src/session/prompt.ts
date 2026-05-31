@@ -1618,6 +1618,13 @@ export const layer = Layer.effect(
       }
 
       const templateParts = yield* resolvePromptParts(template)
+      if (cmd.ignored) {
+        for (const part of templateParts) {
+          if (part.type === "text") {
+            part.ignored = true
+          }
+        }
+      }
       const isSubtask = (agent.mode === "subagent" && cmd.subtask !== false) || cmd.subtask === true
       const parts = isSubtask
         ? [
@@ -1652,6 +1659,7 @@ export const layer = Layer.effect(
         agent: userAgent,
         parts,
         variant: input.variant,
+        noReply: cmd.ignored,
       })
       yield* bus.publish(Command.Event.Executed, {
         name: input.command,

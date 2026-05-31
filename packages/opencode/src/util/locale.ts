@@ -5,6 +5,8 @@ export function titlecase(str: string) {
 export function time(input: number): string {
   const date = new Date(input)
   const str = date.toLocaleTimeString(undefined, { timeStyle: "short" })
+  // Pad single-digit hours with leading space for alignment (e.g., "9:38 PM" -> " 9:38 PM")
+
   if (/^\d:/.test(str)) return " " + str
   return str
 }

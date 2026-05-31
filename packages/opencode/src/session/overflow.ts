@@ -12,9 +12,13 @@ export function usable(input: { cfg: Config.Info; model: Provider.Model; outputT
   const reserved =
     input.cfg.compaction?.reserved ??
     Math.min(COMPACTION_BUFFER, ProviderTransform.maxOutputTokens(input.model, input.outputTokenMax))
-  return input.model.limit.input
+  const baseUsable = input.model.limit.input
     ? Math.max(0, input.model.limit.input - reserved)
     : Math.max(0, context - ProviderTransform.maxOutputTokens(input.model, input.outputTokenMax))
+
+  const threshold = input.cfg.experimental?.context_compaction_threshold ?? 100
+  const thresholdMultiplier = threshold / 100
+  return Math.floor(baseUsable * thresholdMultiplier)
 }
 
 export function isOverflow(input: {

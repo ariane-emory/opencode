@@ -12,6 +12,7 @@ export const { use: useKV, provider: KVProvider } = createSimpleContext({
   init: () => {
     const [ready, setReady] = createSignal(false)
     const [store, setStore] = createStore<Record<string, any>>()
+    const ephemeral: Record<string, any> = {}
     const filePath = path.join(Global.Path.state, "kv.json")
     const lock = `tui-kv:${filePath}`
     // Queue same-process writes so rapid updates persist in order.
@@ -69,6 +70,12 @@ export const { use: useKV, provider: KVProvider } = createSimpleContext({
           .catch((error) => {
             console.error("Failed to write KV state", { filePath, error })
           })
+      },
+      getEphemeral(key: string, defaultValue?: any) {
+        return ephemeral[key] ?? defaultValue
+      },
+      setEphemeral(key: string, value: any) {
+        ephemeral[key] = value
       },
     }
     return result

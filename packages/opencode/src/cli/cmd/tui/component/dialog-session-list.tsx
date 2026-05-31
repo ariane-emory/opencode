@@ -1,8 +1,8 @@
 import { useDialog } from "@tui/ui/dialog"
-import { DialogSelect } from "@tui/ui/dialog-select"
+import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { useRoute } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
-import { createMemo, createResource, createSignal, onMount, type JSX } from "solid-js"
+import { createEffect, createMemo, createResource, createSignal, onMount, type JSX } from "solid-js"
 import { Locale } from "@/util/locale"
 import { useProject } from "@tui/context/project"
 import { useTheme } from "../context/theme"
@@ -18,6 +18,7 @@ import { errorMessage } from "@/util/error"
 import { DialogSessionDeleteFailed } from "./dialog-session-delete-failed"
 import { WorkspaceLabel } from "./workspace-label"
 import { useCommandShortcut } from "../keymap"
+import { useKV } from "../context/kv"
 
 export function DialogSessionList() {
   const dialog = useDialog()
@@ -28,8 +29,10 @@ export function DialogSessionList() {
   const sdk = useSDK()
   const local = useLocal()
   const toast = useToast()
+  const kv = useKV()
   const [toDelete, setToDelete] = createSignal<string>()
   const [search, setSearch] = createDebouncedSignal("", 150)
+  const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()
   const deleteHint = useCommandShortcut("session.delete")
   const quickSwitch1 = useCommandShortcut("session.quick_switch.1")
   const quickSwitch9 = useCommandShortcut("session.quick_switch.9")
@@ -44,7 +47,24 @@ export function DialogSessionList() {
   )
 
   const currentSessionID = createMemo(() => (route.data.type === "session" ? route.data.sessionID : undefined))
-  const sessions = createMemo(() => searchResults() ?? sync.data.session)
+
+  const sessions = createMemo(() => {
+    const results = searchResults()
+    if (results === undefined) return sync.data.session
+    return results.map((result) => sync.data.session.find((s) => s.id === result.id) ?? result)
+  })
+
+  const defaultSessionID = createMemo(() => {
+    const last = kv.getEphemeral("last_session_id")
+    if (last) {
+      const session = sessions().find((s) => s.id === last)
+      if (session) return session.id
+    }
+
+    const all = sessions().filter((x) => x.parentID === undefined)
+    const sorted = all.filter((x) => x.time.pinned === undefined).toSorted((a, b) => b.time.updated - a.time.updated)
+    return sorted[0]?.id ?? all.toSorted((a, b) => b.time.updated - a.time.updated)[0]?.id
+  })
 
   function recover(session: NonNullable<ReturnType<typeof sessions>[number]>) {
     const workspace = project.workspace.get(session.workspaceID!)
@@ -156,85 +176,90 @@ export function DialogSessionList() {
       return { group: capitalized + ":", displayTitle }
     }
 
-    const sessionMap = new Map(
-      sessions()
-        .filter((x) => x.parentID === undefined)
-        .map((x) => [x.id, x]),
-    )
+    const all = sessions().filter((x) => x.parentID === undefined)
+    const pinned = all.filter((x) => x.time.pinned !== undefined).toSorted((a, b) => (b.time.pinned ?? 0) - (a.time.pinned ?? 0))
+
+    const sessionMap = new Map(all.map((x) => [x.id, x]))
 
     const searchResult = searchResults()
-    const displayOrder = searchResult ? orderByRecency(searchResult) : browseOrder()
+    const unpinnedOrder = searchResult ? orderByRecency(searchResult) : browseOrder()
 
-    const pinned = local.session.pinned().filter((id) => sessionMap.has(id))
-    const pinnedSet = new Set(pinned)
+    const unpinned = unpinnedOrder
+      .map((id) => sessionMap.get(id))
+      .filter((x): x is (typeof all)[number] => x !== undefined && x.time.pinned === undefined)
+
     const slotByID = new Map<string, number>(local.session.slots().map((id, i) => [id, i + 1]))
 
-    function buildOption(id: string, category: string) {
-      const x = sessionMap.get(id)
-      if (!x) return undefined
-      const parsed = parseSessionTitle(x.title)
-      const workspace = x.workspaceID ? project.workspace.get(x.workspaceID) : undefined
-
-      let footer: JSX.Element | string = ""
-      if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES) {
-        if (x.workspaceID) {
-          footer = workspace ? (
+    const foot = (session: (typeof all)[number], showDate: boolean): JSX.Element | string => {
+      if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES && session.workspaceID) {
+        const workspace = project.workspace.get(session.workspaceID)
+        const status = project.workspace.status(session.workspaceID) || "error"
+        if (workspace) {
+          return (
             <WorkspaceLabel
               type={workspace.type}
               name={workspace.name}
-              status={project.workspace.status(x.workspaceID) ?? "error"}
+              status={status}
             />
-          ) : (
-            <WorkspaceLabel type="unknown" name={x.workspaceID} status="error" />
           )
         }
-      } else {
-        footer = parsed.group ? Locale.shortDateTime(x.time.updated) : Locale.time(x.time.updated)
+        return <WorkspaceLabel type="unknown" name={session.workspaceID} status="error" />
       }
 
-      const isDeleting = toDelete() === x.id
-      const status = sync.data.session_status?.[x.id]
+      return showDate ? Locale.shortDateTime(session.time.updated) : Locale.time(session.time.updated)
+    }
+
+    const item = (session: (typeof all)[number], category: string, showDate: boolean) => {
+      const deleting = toDelete() === session.id
+      const parsed = parseSessionTitle(session.title)
+      const status = sync.data.session_status?.[session.id]
       const isWorking = status?.type === "busy" || status?.type === "retry"
-      const slot = slotByID.get(x.id)
+      const slot = slotByID.get(session.id)
       const gutter = isWorking
         ? () => <Spinner />
         : slot !== undefined
           ? () => <text fg={theme.accent}>{slot}</text>
           : undefined
       return {
-        title: isDeleting ? `Press ${deleteHint()} again to confirm` : (parsed.displayTitle || x.title),
-        bg: isDeleting ? theme.error : undefined,
-        value: x.id,
+        title: deleting ? `Press ${deleteHint()} again to confirm` : (parsed.displayTitle || session.title),
+        bg: deleting ? theme.error : undefined,
+        value: session.id,
         category,
-        footer,
+        footer: foot(session, showDate),
         gutter,
       }
     }
 
-    const remaining = displayOrder
-      .filter((id) => !pinnedSet.has(id))
-      .map((id) => sessionMap.get(id))
-      .filter((x) => x !== undefined)
-      .toSorted((a, b) => {
-        const aParsed = parseSessionTitle(a.title)
-        const bParsed = parseSessionTitle(b.title)
-        if (aParsed.group && !bParsed.group) return -1
-        if (!aParsed.group && bParsed.group) return 1
-        if (aParsed.group && bParsed.group) {
-          const groupCompare = aParsed.group.localeCompare(bParsed.group)
-          if (groupCompare !== 0) return groupCompare
-          return b.time.updated - a.time.updated
-        }
-        return 0
-      })
-      .map((x) => {
+    const sortedUnpinned = [...unpinned].toSorted((a, b) => {
+      const aParsed = parseSessionTitle(a.title)
+      const bParsed = parseSessionTitle(b.title)
+      if (aParsed.group && !bParsed.group) return -1
+      if (!aParsed.group && bParsed.group) return 1
+      if (aParsed.group && bParsed.group) {
+        const groupCompare = aParsed.group.localeCompare(bParsed.group)
+        if (groupCompare !== 0) return groupCompare
+        return b.time.updated - a.time.updated
+      }
+      return 0
+    })
+
+    return [
+      ...pinned.map((x) => item(x, "Bookmarks:", true)),
+      ...sortedUnpinned.map((x) => {
         const parsed = parseSessionTitle(x.title)
         const date = new Date(x.time.updated)
-        return buildOption(x.id, parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString()))
-      })
-      .filter((x) => x !== undefined)
+        return item(x, parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString()), false)
+      }),
+    ]
+  })
 
-    return [...pinned.map((id) => buildOption(id, "Pinned")).filter((x) => x !== undefined), ...remaining]
+  createEffect(() => {
+    const id = currentSessionID() ?? defaultSessionID()
+    if (!id) return
+    options()
+    setTimeout(() => {
+      selectRef()?.scrollToValue(id, true)
+    }, 0)
   })
 
   onMount(() => {
@@ -243,10 +268,11 @@ export function DialogSessionList() {
 
   return (
     <DialogSelect
+      ref={setSelectRef}
       title="Sessions"
       options={options()}
       skipFilter={true}
-      current={currentSessionID()}
+      current={currentSessionID() ?? defaultSessionID()}
       onFilter={setSearch}
       onMove={() => {
         setToDelete(undefined)
@@ -319,6 +345,19 @@ export function DialogSessionList() {
           title: "rename",
           onTrigger: async (option) => {
             dialog.replace(() => <DialogSessionRename session={option.value} />)
+          },
+        },
+        {
+          command: "session.bookmark",
+          title: "bookmark",
+          onTrigger: async (option) => {
+            const session = sessions().find((s) => s.id === option.value)
+            if (!session) return
+            await sdk.client.session.update({
+              sessionID: option.value,
+              time: { pinned: session.time.pinned === undefined ? Date.now() : null },
+            })
+            setTimeout(() => selectRef()?.scrollToValue(option.value, true), 0)
           },
         },
       ]}

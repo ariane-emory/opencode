@@ -75,5 +75,5 @@ export function CommandPaletteDialog() {
     ]
   }
 
-  return <DialogSelect ref={(value) => (ref = value)} title="Commands" options={list()} />
+  return <DialogSelect sort={true} ref={(value) => (ref = value)} title="Commands" options={list()} />
 }

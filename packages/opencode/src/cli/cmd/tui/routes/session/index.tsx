@@ -243,6 +243,7 @@ export function Session() {
   const [showAssistantMetadata, _setShowAssistantMetadata] = kv.signal("assistant_metadata_visibility", true)
   const [showScrollbar, setShowScrollbar] = kv.signal("scrollbar_visible", false)
   const [sidebarOverlayEnabled, setSidebarOverlayEnabled] = kv.signal("sidebar_overlay", true)
+  const [showSidebarScrollbar, setShowSidebarScrollbar] = kv.signal("sidebar_scrollbar_visible", true)
   const [diffWrapMode] = kv.signal<"word" | "none">("diff_wrap_mode", "word")
   const [_animationsEnabled, _setAnimationsEnabled] = kv.signal("animations_enabled", true)
   const [showTps, setShowTps] = kv.signal("tps_visibility", false)
@@ -1295,78 +1296,78 @@ export function Session() {
                           )
                         })()}
                       </Match>
-                      <Match when={revert()?.messageID && message.id >= revert()!.messageID}>
-                        <></>
-                      </Match>
-                      <Match when={message.role === "user"}>
-                        <UserMessage
-                          index={index()}
-                          onMouseUp={() => {
-                            if (renderer.getSelection()?.getSelectedText()) return
-                            dialog.replace(() => (
-                              <DialogMessage
-                                messageID={message.id}
-                                sessionID={route.sessionID}
-                                setPrompt={(promptInfo) => prompt?.set(promptInfo)}
-                              />
-                            ))
-                          }}
-                          message={message as UserMessage}
-                          parts={sync.data.part[message.id] ?? []}
-                          pending={pending()}
-                        />
-                      </Match>
-                      <Match when={message.role === "assistant"}>
-                        <AssistantMessage
-                          last={lastAssistant()?.id === message.id}
-                          message={message as AssistantMessage}
-                          parts={sync.data.part[message.id] ?? []}
-                        />
-                      </Match>
-                    </Switch>
-                  )}
-                </For>
-              </scrollbox>
-              <box flexShrink={0}>
-                <Show when={permissions().length > 0}>
-                  <PermissionPrompt request={permissions()[0]} />
-                </Show>
-                <Show when={permissions().length === 0 && questions().length > 0}>
-                  <QuestionPrompt request={questions()[0]} />
-                </Show>
-                <Show when={session()?.parentID}>
-                  <SubagentFooter />
-                </Show>
-                <Show when={visible()}>
-                  <TuiPluginRuntime.Slot
-                    name="session_prompt"
-                    mode="replace"
-                    session_id={route.sessionID}
+                    <Match when={revert()?.messageID && message.id >= revert()!.messageID}>
+                      <></>
+                    </Match>
+                    <Match when={message.role === "user"}>
+                      <UserMessage
+                        index={index()}
+                        onMouseUp={() => {
+                          if (renderer.getSelection()?.getSelectedText()) return
+                          dialog.replace(() => (
+                            <DialogMessage
+                              messageID={message.id}
+                              sessionID={route.sessionID}
+                              setPrompt={(promptInfo) => prompt?.set(promptInfo)}
+                            />
+                          ))
+                        }}
+                        message={message as UserMessage}
+                        parts={sync.data.part[message.id] ?? []}
+                        pending={pending()}
+                      />
+                    </Match>
+                    <Match when={message.role === "assistant"}>
+                      <AssistantMessage
+                        last={lastAssistant()?.id === message.id}
+                        message={message as AssistantMessage}
+                        parts={sync.data.part[message.id] ?? []}
+                      />
+                    </Match>
+                  </Switch>
+                )}
+              </For>
+            </scrollbox>
+            <box flexShrink={0}>
+              <Show when={permissions().length > 0}>
+                <PermissionPrompt request={permissions()[0]} />
+              </Show>
+              <Show when={permissions().length === 0 && questions().length > 0}>
+                <QuestionPrompt request={questions()[0]} />
+              </Show>
+              <Show when={session()?.parentID}>
+                <SubagentFooter />
+              </Show>
+              <Show when={visible()}>
+                <TuiPluginRuntime.Slot
+                  name="session_prompt"
+                  mode="replace"
+                  session_id={route.sessionID}
+                  visible={visible()}
+                  disabled={disabled()}
+                  on_submit={toBottom}
+                  ref={bind}
+                >
+                  <Prompt
                     visible={visible()}
-                    disabled={disabled()}
-                    on_submit={toBottom}
                     ref={bind}
-                  >
-                    <Prompt
-                      visible={visible()}
-                      ref={bind}
-                      disabled={disabled()}
-                      onSubmit={() => {
-                        toBottom()
-                      }}
-                      sessionID={route.sessionID}
-                      right={<TuiPluginRuntime.Slot name="session_prompt_right" session_id={route.sessionID} />}
-                    />
-                  </TuiPluginRuntime.Slot>
-                </Show>
-              </box>
-            </Show>
-            <Toast />
-          </box>
-          <Show when={sidebarVisible()}>
+                    disabled={disabled()}
+                    onSubmit={() => {
+                      toBottom()
+                    }}
+                    sessionID={route.sessionID}
+                    right={<TuiPluginRuntime.Slot name="session_prompt_right" session_id={route.sessionID} />}
+                  />
+                </TuiPluginRuntime.Slot>
+              </Show>
+            </box>
+          </Show>
+          <Toast />
+        </box>
+        <Show when={sidebarVisible()}>
             <Switch>
               <Match when={!sidebarOverlay()}>
-                <Sidebar sessionID={route.sessionID} />
+                <Sidebar sessionID={route.sessionID} showScrollbar={showSidebarScrollbar()} />
               </Match>
               <Match when={sidebarOverlay()}>
                 <box
@@ -1378,7 +1379,7 @@ export function Session() {
                   alignItems="flex-end"
                   backgroundColor={RGBA.fromInts(0, 0, 0, 70)}
                 >
-                  <Sidebar sessionID={route.sessionID} />
+                  <Sidebar sessionID={route.sessionID} showScrollbar={showSidebarScrollbar()} />
                 </box>
               </Match>
             </Switch>

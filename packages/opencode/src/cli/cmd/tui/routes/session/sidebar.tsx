@@ -11,7 +11,7 @@ import { getScrollAcceleration } from "../../util/scroll"
 import { parseSessionTitleParts } from "../../util/session-title"
 import { WorkspaceLabel } from "../../component/workspace-label"
 
-export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
+export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrollbar?: boolean }) {
   const project = useProject()
   const sync = useSync()
   const { theme } = useTheme()
@@ -56,6 +56,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
           flexGrow={1}
           scrollAcceleration={scrollAcceleration()}
           verticalScrollbarOptions={{
+            visible: props.showScrollbar,
             trackOptions: {
               backgroundColor: theme.background,
               foregroundColor: theme.borderActive,

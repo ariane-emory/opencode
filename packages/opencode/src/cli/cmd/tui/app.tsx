@@ -1013,6 +1013,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         },
       },
       {
+<<<<<<< HEAD
         name: "app.toggle.markdown_all",
         title: kv.get("markdown_all_messages", false)
           ? "Render markdown: agent messages only"
@@ -1044,6 +1045,15 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
             kv.set("sidebar_clock_visible", next)
             return next
           })
+          dialog.clear()
+        },
+      },
+      {
+        name: "app.toggle.sidebar_scrollbar",
+        title: kv.get("sidebar_scrollbar_visible", true) ? "Hide sidebar scrollbar" : "Show sidebar scrollbar",
+        category: "System",
+        run: () => {
+          kv.set("sidebar_scrollbar_visible", !kv.get("sidebar_scrollbar_visible", true))
           dialog.clear()
         },
       },

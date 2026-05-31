@@ -41,9 +41,14 @@ import { Truncate } from "@/tool/truncate"
 import { Image } from "@/image/image"
 import { decodeDataUrl } from "@/util/data-url"
 import { Process } from "@/util/process"
-import { Cause, Effect, Exit, Latch, Layer, Option, Scope, Context, Schema, Types } from "effect"
+import { Cause, Effect, Exit, Latch, Layer, Option, Scope, Context, Schema, Types, ManagedRuntime } from "effect"
+import * as Observability from "@opencode-ai/core/effect/observability"
+import { memoMap } from "@opencode-ai/core/effect/memo-map"
 import * as EffectLogger from "@opencode-ai/core/effect/logger"
 import { InstanceState } from "@/effect/instance-state"
+import { InstanceRef } from "@/effect/instance-ref"
+import { makeRuntime } from "@/effect/run-service"
+import type { InstanceContext } from "@/project/instance-context"
 import { TaskTool, type TaskPromptOps } from "@/tool/task"
 import { SessionRunState } from "./run-state"
 import { RuntimeFlags } from "@/effect/runtime-flags"
@@ -93,6 +98,7 @@ export interface Interface {
   readonly loop: (input: LoopInput) => Effect.Effect<MessageV2.WithParts>
   readonly shell: (input: ShellInput) => Effect.Effect<MessageV2.WithParts, Session.BusyError>
   readonly command: (input: CommandInput) => Effect.Effect<MessageV2.WithParts, Image.Error>
+  readonly continue: (input: ContinueInput) => Effect.Effect<MessageV2.WithParts, Session.BusyError | Image.Error>
   readonly resolvePromptParts: (template: string) => Effect.Effect<PromptInput["parts"]>
 }
 
@@ -1265,8 +1271,14 @@ export const layer = Layer.effect(
       } satisfies MessageV2.WithParts
     })
 
-    const runLoop: (sessionID: SessionID) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.run")(
-      function* (sessionID: SessionID) {
+    const runLoop: (
+      sessionID: SessionID,
+      overrides?: { agent?: string; model?: { providerID: ProviderID; modelID: ModelID } },
+    ) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.run")(
+      function* (
+        sessionID: SessionID,
+        overrides?: { agent?: string; model?: { providerID: ProviderID; modelID: ModelID } },
+      ) {
         const ctx = yield* InstanceState.context
         const slog = elog.with({ sessionID })
         let structured: unknown
@@ -1282,6 +1294,14 @@ export const layer = Layer.effect(
           const { user: lastUser, assistant: lastAssistant, finished: lastFinished, tasks } = MessageV2.latest(msgs)
 
           if (!lastUser) throw new Error("No user message found in stream. This should never happen.")
+
+          const agentToUse = overrides?.agent ?? lastUser.agent
+          const modelToUse = overrides?.model ?? lastUser.model
+          if (overrides?.agent || overrides?.model) {
+            yield* sessions.updateMessage({ ...lastUser, agent: agentToUse, model: modelToUse })
+            lastUser.agent = agentToUse
+            lastUser.model = modelToUse
+          }
 
           const lastAssistantMsg = msgs.findLast(
             (msg) => msg.info.role === "assistant" && msg.info.id === lastAssistant?.id,
@@ -1524,7 +1544,7 @@ export const layer = Layer.effect(
     const loop: (input: LoopInput) => Effect.Effect<MessageV2.WithParts> = Effect.fn(
       "SessionPrompt.loop",
     )(function* (input: LoopInput) {
-      return yield* state.ensureRunning(input.sessionID, lastAssistantForLoop(input.sessionID), runLoop(input.sessionID))
+      return yield* state.ensureRunning(input.sessionID, lastAssistantForLoop(input.sessionID), runLoop(input.sessionID, { agent: input.agent, model: input.model }))
     })
 
     const shell: (input: ShellInput) => Effect.Effect<MessageV2.WithParts, Session.BusyError> = Effect.fn(
@@ -1651,12 +1671,54 @@ export const layer = Layer.effect(
       return result
     })
 
+    const continue_ = Effect.fn("SessionPrompt.continue")(function* (input: ContinueInput) {
+      yield* state.assertNotBusy(input.sessionID)
+      if (input.agent) {
+        const agent = yield* agents.get(input.agent)
+        if (!agent || agent.mode === "subagent" || agent.hidden) throw new Session.InvalidContinueAgentError(input.agent)
+      }
+
+      const last = (yield* MessageV2.filterCompactedEffect(input.sessionID)).findLast(
+        (msg): msg is MessageV2.WithParts & { info: MessageV2.Assistant } => msg.info.role === "assistant",
+      )
+      if (!last) throw new Session.NothingToContinueError(input.sessionID)
+
+      if (
+        last.info.finish &&
+        last.info.finish !== "tool-calls" &&
+        !last.parts.some(
+          (part) => part.type === "tool" && (part.state.status === "pending" || part.state.status === "running"),
+        ) &&
+        !last.info.error
+      ) {
+        return yield* prompt({
+          sessionID: input.sessionID,
+          agent: input.agent,
+          model: input.model,
+          parts: [{ type: "text", text: "continue" }],
+        })
+      }
+
+      last.info.error = undefined
+      last.info.finish = "tool-calls"
+      last.info.time.completed ??= Date.now()
+      yield* sessions.updateMessage(last.info)
+
+      yield* sessions.touch(input.sessionID)
+      return yield* state.ensureRunning(
+        input.sessionID,
+        lastAssistant(input.sessionID),
+        runLoop(input.sessionID, { agent: input.agent, model: input.model }),
+      )
+    })
+
     return Service.of({
       cancel,
       prompt,
       loop,
       shell,
       command,
+      continue: continue_,
       resolvePromptParts,
     })
   }),
@@ -1728,7 +1790,16 @@ export type PromptInput = Schema.Schema.Type<typeof PromptInput>
 
 export class LoopInput extends Schema.Class<LoopInput>("SessionPrompt.LoopInput")({
   sessionID: SessionID,
+  agent: Schema.optional(Schema.String),
+  model: Schema.optional(ModelRef),
 }) {}
+
+export const ContinueInput = Schema.Struct({
+  sessionID: SessionID,
+  agent: Schema.optional(Schema.String),
+  model: Schema.optional(ModelRef),
+})
+export type ContinueInput = Schema.Schema.Type<typeof ContinueInput>
 
 export const ShellInput = Schema.Struct({
   sessionID: SessionID,
@@ -1800,5 +1871,21 @@ const bashRegex = /!`([^`]+)`/g
 const argsRegex = /(?:\[Image\s+\d+\]|"[^"]*"|'[^']*'|[^\s"']+)/gi
 const placeholderRegex = /\$(\d+)/g
 const quoteTrimRegex = /^["']|["']$/g
+
+const { runPromise } = makeRuntime(Service, defaultLayer)
+
+export async function continue_(input: ContinueInput, options?: { instance?: InstanceContext }) {
+  const { instance } = options ?? {}
+  if (instance) {
+    const rt = ManagedRuntime.make(
+      defaultLayer.pipe(Layer.provideMerge(Observability.layer)),
+      { memoMap },
+    )
+    return rt.runPromise(
+      Service.use((svc) => svc.continue(input)).pipe(Effect.provideService(InstanceRef, instance)),
+    )
+  }
+  return runPromise((svc) => svc.continue(input))
+}
 
 export * as SessionPrompt from "./prompt"

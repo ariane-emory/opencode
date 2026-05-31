@@ -67,6 +67,7 @@ export const SummarizePayload = Schema.Struct({
 export const PromptPayload = Schema.Struct(Struct.omit(SessionPrompt.PromptInput.fields, ["sessionID"]))
 export const CommandPayload = Schema.Struct(Struct.omit(SessionPrompt.CommandInput.fields, ["sessionID"]))
 export const ShellPayload = Schema.Struct(Struct.omit(SessionPrompt.ShellInput.fields, ["sessionID"]))
+export const ContinuePayload = Schema.Struct(Struct.omit(SessionPrompt.ContinueInput.fields, ["sessionID"]))
 export const RevertPayload = Schema.Struct(Struct.omit(SessionRevert.RevertInput.fields, ["sessionID"]))
 export const PermissionResponsePayload = Schema.Struct({
   response: Permission.Reply,
@@ -93,6 +94,7 @@ export const SessionPaths = {
   promptAsync: `${root}/:sessionID/prompt_async`,
   command: `${root}/:sessionID/command`,
   shell: `${root}/:sessionID/shell`,
+  continue: `${root}/:sessionID/continue`,
   revert: `${root}/:sessionID/revert`,
   unrevert: `${root}/:sessionID/unrevert`,
   permissions: `${root}/:sessionID/permissions/:permissionID`,
@@ -361,6 +363,19 @@ export const SessionApi = HttpApi.make("session")
             identifier: "session.shell",
             summary: "Run shell command",
             description: "Execute a shell command within the session context and return the AI's response.",
+          }),
+        ),
+        HttpApiEndpoint.post("continue", SessionPaths.continue, {
+          params: { sessionID: SessionID },
+          payload: ContinuePayload,
+          success: described(Schema.Boolean, "Conversation continued"),
+          error: [HttpApiError.BadRequest, HttpApiError.NotFound],
+        }).annotateMerge(
+          OpenApi.annotations({
+            identifier: "session.continue",
+            summary: "Continue interrupted conversation",
+            description:
+              "Continue a conversation that was interrupted by resuming the existing assistant turn without creating a new user message.",
           }),
         ),
         HttpApiEndpoint.post("revert", SessionPaths.revert, {

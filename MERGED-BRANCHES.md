@@ -7,7 +7,7 @@
 | ☑ | 1 | feat/gignit--markdown-renderer | #273 | 7b80805817 | Clean merge. Added Flag import and OPENCODE_EXPERIMENTAL_MARKDOWN flag to fix typecheck |
 | ☑ | 2 | feat/rcdailey--thinking-indicator-hidden | #274 | 6b73b95e2d | Clean merge |
 | ☑ | 3 | feat/aspiers--readline-additions | #211 | bb14ba2683 | Clean merge |
-| ☐ | 4 | feat/base-one-rebrand | #52 | TBD | REMOVE animation effects on startup screen art; MUST NOT mess with background colouring of art displayed after exiting |
+| ☑ | 4 | feat/base-one-rebrand | #52 | 0e32fc1d4f | Conflict in flag.ts; resolved by using rebrand's envWithFallback pattern for OPENCODE_EXPERIMENTAL_MARKDOWN |
 | ☐ | 5 | feat/sinister-quotes | #73 | TBD | Placeholders MUST be SINISTER_PLACEHOLDERS array; NO OTHER PLACEHOLDER SOURCE/LOCATION IS PERMISSIBLE |
 | ☐ | 6 | feat/session-grouping | #194 | TBD | |
 | ☐ | 7 | feat/session-bookmarks | #102 | TBD | |

@@ -122,6 +122,7 @@ const appBindingCommands = [
   "app.heap_snapshot",
   "terminal.suspend",
   "terminal.title.toggle",
+  "app.toggle.sidebar_overlay",
   "app.toggle.animations",
   "app.toggle.file_context",
   "app.toggle.diffwrap",
@@ -914,6 +915,15 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
             if (!next) renderer.setTerminalTitle("")
             return next
           })
+          dialog.clear()
+        },
+      },
+      {
+        name: "app.toggle.sidebar_overlay",
+        title: kv.get("sidebar_overlay", true) ? "Disable sidebar overlay" : "Enable sidebar overlay",
+        category: "System",
+        run: () => {
+          kv.set("sidebar_overlay", !kv.get("sidebar_overlay", true))
           dialog.clear()
         },
       },

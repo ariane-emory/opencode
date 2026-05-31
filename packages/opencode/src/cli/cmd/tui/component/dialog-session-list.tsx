@@ -164,6 +164,7 @@ export function DialogSessionList() {
   })
 
   const options = createMemo(() => {
+    if (!sync.ready) return []
     const today = new Date().toDateString()
 
     function parseSessionTitle(title: string): { group?: string; displayTitle: string } {
@@ -175,6 +176,9 @@ export function DialogSessionList() {
       const capitalized = group.charAt(0).toUpperCase() + group.slice(1)
       return { group: capitalized + ":", displayTitle }
     }
+
+    const sessionsListLimit = sync.data.config.experimental?.session_list_limit
+    const limit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
 
     const all = sessions().filter((x) => x.parentID === undefined)
     const pinned = all.filter((x) => x.time.pinned !== undefined).toSorted((a, b) => (b.time.pinned ?? 0) - (a.time.pinned ?? 0))
@@ -241,7 +245,7 @@ export function DialogSessionList() {
         return b.time.updated - a.time.updated
       }
       return 0
-    })
+    }).slice(0, limit)
 
     return [
       ...pinned.map((x) => item(x, "Bookmarks:", true)),

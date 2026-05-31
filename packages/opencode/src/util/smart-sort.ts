@@ -24,6 +24,9 @@ export function smartCompare(a: string, b: string): number {
 }
 
 /**
+ * Extract number tokens from model-like strings such as "gemini-2.5-flash"
+ * so that newer versions sort before older ones.
+ */
 function compareVersionTokens(a: string, b: string): number {
   const tokensA = extractVersionTokens(a)
   const tokensB = extractVersionTokens(b)

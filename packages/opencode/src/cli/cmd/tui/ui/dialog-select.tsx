@@ -33,9 +33,6 @@ export interface DialogSelectProps<T> {
   skipFilter?: boolean
   sort?: boolean
   renderFilter?: boolean
-  keybind?: {
-    keybind?: Keybind.Info
-  }
   actions?: {
     command: string
     title: string

@@ -321,9 +321,13 @@ export const layer: Layer.Layer<
     })
 
     const tools: Interface["tools"] = Effect.fn("ToolRegistry.tools")(function* (input) {
+      const cfg = yield* config.get()
       const filtered = (yield* all()).filter((tool) => {
         if (tool.id === WebSearchTool.id) {
-          return webSearchEnabled(input.providerID, { exa: flags.enableExa, parallel: flags.enableParallel })
+          return webSearchEnabled(input.providerID, {
+            exa: flags.enableExa || cfg.experimental?.enable_exa === true,
+            parallel: flags.enableParallel,
+          })
         }
 
         const usePatch =

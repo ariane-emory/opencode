@@ -246,12 +246,12 @@ export const layer: Layer.Layer<
           skill: Tool.init(skilltool),
           bookmark: Tool.init(bookmarktool),
           patch: Tool.init(patchtool),
-          sessiontitle: Tool.init(sessiontitle),
+          getSessionTitle: Tool.init(sessiontitle),
           question: Tool.init(question),
           lsp: Tool.init(lsptool),
           plan: Tool.init(plan),
           planEnter: Tool.init(planEnter),
-          sessiontitle: Tool.init(sessiontitletool),
+          setSessionTitle: Tool.init(sessiontitletool),
         })
 
         return {
@@ -273,7 +273,7 @@ export const layer: Layer.Layer<
             tool.skill,
             tool.bookmark,
             tool.patch,
-            tool.sessiontitle,
+            tool.setSessionTitle,
             ...(flags.experimentalLspTool ? [tool.lsp] : []),
             ...((flags.experimentalPlanMode || (yield* config.experimentalPlanMode())) && flags.client === "cli"
               ? [tool.plan, tool.planEnter]

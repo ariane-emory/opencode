@@ -9,7 +9,7 @@
 | ☑ | 3 | feat/aspiers--readline-additions | #211 | bb14ba2683 | Clean merge |
 | ☑ | 4 | feat/base-one-rebrand | #52 | 0e32fc1d4f | Conflict in flag.ts; resolved by using rebrand's envWithFallback pattern for OPENCODE_EXPERIMENTAL_MARKDOWN |
 | ☑ | 5 | feat/sinister-quotes | #73 | 5f47279b87 | Clean merge |
-| ☐ | 6 | feat/session-grouping | #194 | TBD | |
+| ☑ | 6 | feat/session-grouping | #194 | 0c90151e44 | Clean merge |
 | ☐ | 7 | feat/session-bookmarks | #102 | TBD | |
 | ☐ | 8 | fix/dialog-datetime-alignment | #113 | TBD | Merge immediately after feat/session-bookmarks; MUST not be clobbered; combine with conflicting features |
 | ☐ | 9 | feat/keybindable-commands | #48 | TBD | |

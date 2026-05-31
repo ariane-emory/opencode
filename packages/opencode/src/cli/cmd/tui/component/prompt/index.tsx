@@ -1557,7 +1557,11 @@ export function Prompt(props: PromptProps) {
       }),
     }
   })
-  const maxHeight = createMemo(() => tuiConfig.prompt?.max_height ?? Math.max(6, Math.floor(dimensions().height / 3)))
+  const maxHeight = createMemo(() =>
+    sync.data.config.experimental?.max_prompt_input_lines ??
+    tuiConfig.prompt?.max_height ??
+    Math.max(6, Math.floor(dimensions().height / 3)),
+  )
 
   // Check if current session has pending permissions
   const hasPermission = createMemo(() => {

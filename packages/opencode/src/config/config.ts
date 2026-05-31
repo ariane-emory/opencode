@@ -23,7 +23,6 @@ import { FetchHttpClient, HttpClient, HttpClientRequest, HttpClientResponse } fr
 import { EffectFlock } from "@opencode-ai/core/util/effect-flock"
 import { makeRuntime } from "@/effect/run-service"
 import { containsPath, type InstanceContext } from "../project/instance-context"
-import { makeRuntime } from "@/effect/run-service"
 import { ConfigBoolean, NonNegativeInt, PositiveInt, type DeepMutable } from "@opencode-ai/core/schema"
 import { ConfigAgent } from "./agent"
 import { ConfigAttachment } from "./attachment"
@@ -310,7 +309,6 @@ export const Info = Schema.Struct({
       }),
       enable_exa: Schema.optional(Schema.Boolean).annotate({
         description: "Enable experimental Exa features",
-      }),
       }),
     }),
   ),
@@ -944,7 +942,6 @@ export async function experimentalEnableExa(): Promise<boolean> {
 function envTruthy(key: string) {
   const value = process.env[key]?.toLowerCase()
   return value === "true" || value === "1"
-}
 }
 
 export * as Config from "./config"

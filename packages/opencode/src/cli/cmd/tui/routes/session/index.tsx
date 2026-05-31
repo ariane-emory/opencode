@@ -21,7 +21,7 @@ import { useSync } from "@tui/context/sync"
 import { useEvent } from "@tui/context/event"
 import { SplitBorder } from "@tui/component/border"
 import { Spinner } from "@tui/component/spinner"
-import { selectedForeground, useTheme } from "@tui/context/theme"
+import { generateSubtleSyntax, selectedForeground, useTheme } from "@tui/context/theme"
 import { BoxRenderable, ScrollBoxRenderable, addDefaultParsers, TextAttributes, RGBA } from "@opentui/core"
 import { Prompt, type PromptRef } from "@tui/component/prompt"
 import type {
@@ -53,8 +53,8 @@ import type { SkillTool } from "@/tool/skill"
 import { useRenderer, useTerminalDimensions, type JSX } from "@opentui/solid"
 import { useSDK } from "@tui/context/sdk"
 import { useEditorContext } from "@tui/context/editor"
-import type { DialogContext } from "@tui/ui/dialog"
 import { useDialog } from "../../ui/dialog"
+import { DialogAlert } from "../../ui/dialog-alert"
 import { TodoItem } from "../../component/todo-item"
 import { DialogMessage } from "./dialog-message"
 import type { PromptInfo } from "../../component/prompt/history"
@@ -82,14 +82,14 @@ import * as Model from "../../util/model"
 import { formatTranscript } from "../../util/transcript"
 import { UI } from "@/cli/ui.ts"
 import { useTuiConfig } from "../../context/tui-config"
-import { nextThinkingMode, reasoningTitle, useThinkingMode, type ThinkingMode } from "../../context/thinking"
+import { nextThinkingMode, reasoningSummary, useThinkingMode, type ThinkingMode } from "../../context/thinking"
 import { getScrollAcceleration } from "../../util/scroll"
+import { collapseToolOutput } from "../../util/collapse-tool-output"
 import { TuiPluginRuntime } from "@/cli/cmd/tui/plugin/runtime"
 import { DialogRetryAction } from "../../component/dialog-retry-action"
 import { SessionRetry } from "@/session/retry"
 import { getRevertDiffFiles } from "../../util/revert-diff"
-import { useCommandPalette } from "../../context/command-palette"
-import { useBindings, useCommandShortcut } from "../../keymap"
+import { OPENCODE_BASE_MODE, useBindings, useCommandShortcut, useOpencodeKeymap } from "../../keymap"
 import { PathFormatterProvider, usePathFormatter } from "../../context/path-format"
 
 addDefaultParsers(parsers.parsers)
@@ -134,12 +134,6 @@ const sessionBindingCommands = [
   "session.toggle.actions",
   "session.toggle.scrollbar",
   "session.toggle.generic_tool_output",
-  "session.page.up",
-  "session.page.down",
-  "session.line.up",
-  "session.line.down",
-  "session.half.page.up",
-  "session.half.page.down",
   "session.first",
   "session.last",
   "session.messages_last_user",
@@ -153,6 +147,17 @@ const sessionBindingCommands = [
   "session.child.next",
   "session.child.previous",
 ] as const
+
+const sessionGlobalBindingCommands = [
+  "session.page.up",
+  "session.page.down",
+  "session.line.up",
+  "session.line.down",
+  "session.half.page.up",
+  "session.half.page.down",
+] as const
+
+const sessionGlobalUnfocusedBindingCommands = ["session.first", "session.last"] as const
 
 const context = createContext<{
   width: number
@@ -311,7 +316,7 @@ export function Session() {
     seeded = true
     r.set(route.prompt)
   }
-  const command = useCommandPalette()
+  const keymap = useOpencodeKeymap()
   const dialog = useDialog()
   const renderer = useRenderer()
 
@@ -411,15 +416,19 @@ export function Session() {
 
   const local = useLocal()
 
+  function enterChild(sessionID: string) {
+    navigate({
+      type: "session",
+      sessionID,
+    })
+    const status = sync.data.session_status[sessionID]
+    if (status?.type === "retry") void DialogAlert.show(dialog, "Retry Error", status.message)
+  }
+
   function moveFirstChild() {
     if (children().length === 1) return
     const next = children().find((x) => !!x.parentID)
-    if (next) {
-      navigate({
-        type: "session",
-        sessionID: next.id,
-      })
-    }
+    if (next) enterChild(next.id)
   }
 
   function moveChild(direction: number) {
@@ -430,12 +439,7 @@ export function Session() {
 
     if (next >= sessions.length) next = 0
     if (next < 0) next = sessions.length - 1
-    if (sessions[next]) {
-      navigate({
-        type: "session",
-        sessionID: sessions[next].id,
-      })
-    }
+    if (sessions[next]) enterChild(sessions[next].id)
   }
 
   function childSessionHandler(func: () => void) {
@@ -967,7 +971,14 @@ export function Session() {
 
           if (options.openWithoutSaving) {
             // Just open in editor without saving
-            await Editor.open({ value: transcript, renderer })
+            await Editor.open({
+              value: transcript,
+              renderer,
+              cwd:
+                (project.instance.path().worktree === "/" ? undefined : project.instance.path().worktree) ||
+                project.instance.directory() ||
+                process.cwd(),
+            })
           } else {
             const exportDir = process.cwd()
             const filename = options.filename.trim()
@@ -976,7 +987,14 @@ export function Session() {
             await Filesystem.write(filepath, transcript)
 
             // Open with EDITOR if available
-            const result = await Editor.open({ value: transcript, renderer })
+            const result = await Editor.open({
+              value: transcript,
+              renderer,
+              cwd:
+                (project.instance.path().worktree === "/" ? undefined : project.instance.path().worktree) ||
+                project.instance.directory() ||
+                process.cwd(),
+            })
             if (result !== undefined) {
               await Filesystem.write(filepath, result)
             }
@@ -995,8 +1013,8 @@ export function Session() {
       category: "Session",
       hidden: true,
       run: () => {
-        moveFirstChild()
         dialog.clear()
+        moveFirstChild()
       },
     },
     {
@@ -1023,8 +1041,8 @@ export function Session() {
       hidden: true,
       enabled: !!session()?.parentID,
       run: childSessionHandler(() => {
-        moveChild(1)
         dialog.clear()
+        moveChild(1)
       }),
     },
     {
@@ -1034,8 +1052,8 @@ export function Session() {
       hidden: true,
       enabled: !!session()?.parentID,
       run: childSessionHandler(() => {
-        moveChild(-1)
         dialog.clear()
+        moveChild(-1)
       }),
     },
   ])
@@ -1056,7 +1074,16 @@ export function Session() {
   }))
 
   useBindings(() => ({
-    enabled: command.matcher,
+    bindings: tuiConfig.keybinds.gather("session.global", sessionGlobalBindingCommands),
+  }))
+
+  useBindings(() => ({
+    enabled: () => renderer.currentFocusedEditor === null,
+    bindings: tuiConfig.keybinds.gather("session.global.unfocused", sessionGlobalUnfocusedBindingCommands),
+  }))
+
+  useBindings(() => ({
+    mode: OPENCODE_BASE_MODE,
     bindings: tuiConfig.keybinds.gather("session", sessionBindingCommands),
   }))
 
@@ -1127,71 +1154,70 @@ export function Session() {
                 flexGrow={1}
                 scrollAcceleration={scrollAcceleration()}
               >
-              <box height={1} />
-              <For each={messages()}>
-                {(message, index) => (
-                  <Switch>
-                    <Match when={message.id === revert()?.messageID}>
-                      {(function () {
-                        const command = useCommandDialog()
-                        const [hover, setHover] = createSignal(false)
-                        const dialog = useDialog()
+                <box height={1} />
+                <For each={messages()}>
+                  {(message, index) => (
+                    <Switch>
+                      <Match when={message.id === revert()?.messageID}>
+                        {(function () {
+                          const redoShortcut = useCommandShortcut("session.redo")
+                          const [hover, setHover] = createSignal(false)
+                          const dialog = useDialog()
 
-                        const handleUnrevert = async () => {
-                          const confirmed = await DialogConfirm.show(
-                            dialog,
-                            "Confirm Redo",
-                            "Are you sure you want to restore the reverted messages?",
-                          )
-                          if (confirmed) {
-                            command.trigger("session.redo")
+                          const handleUnrevert = async () => {
+                            const confirmed = await DialogConfirm.show(
+                              dialog,
+                              "Confirm Redo",
+                              "Are you sure you want to restore the reverted messages?",
+                            )
+                            if (confirmed) {
+                              keymap.dispatchCommand("session.redo")
+                            }
                           }
-                        }
 
-                        return (
-                          <box
-                            onMouseOver={() => setHover(true)}
-                            onMouseOut={() => setHover(false)}
-                            onMouseUp={handleUnrevert}
-                            marginTop={1}
-                            flexShrink={0}
-                            border={["left"]}
-                            customBorderChars={SplitBorder.customBorderChars}
-                            borderColor={theme.backgroundPanel}
-                          >
+                          return (
                             <box
-                              paddingTop={1}
-                              paddingBottom={1}
-                              paddingLeft={2}
-                              backgroundColor={hover() ? theme.backgroundElement : theme.backgroundPanel}
+                              onMouseOver={() => setHover(true)}
+                              onMouseOut={() => setHover(false)}
+                              onMouseUp={handleUnrevert}
+                              marginTop={1}
+                              flexShrink={0}
+                              border={["left"]}
+                              customBorderChars={SplitBorder.customBorderChars}
+                              borderColor={theme.backgroundPanel}
                             >
-                              <text fg={theme.textMuted}>{revert()!.reverted.length} message reverted</text>
-                              <text fg={theme.textMuted}>
-                                <span style={{ fg: theme.text }}>{keybind.print("messages_redo")}</span> or /redo to
-                                restore
-                              </text>
-                              <Show when={revert()!.diffFiles?.length}>
-                                <box marginTop={1}>
-                                  <For each={revert()!.diffFiles}>
-                                    {(file) => (
-                                      <text fg={theme.text}>
-                                        {file.filename}
-                                        <Show when={file.additions > 0}>
-                                          <span style={{ fg: theme.diffAdded }}> +{file.additions}</span>
-                                        </Show>
-                                        <Show when={file.deletions > 0}>
-                                          <span style={{ fg: theme.diffRemoved }}> -{file.deletions}</span>
-                                        </Show>
-                                      </text>
-                                    )}
-                                  </For>
-                                </box>
-                              </Show>
+                              <box
+                                paddingTop={1}
+                                paddingBottom={1}
+                                paddingLeft={2}
+                                backgroundColor={hover() ? theme.backgroundElement : theme.backgroundPanel}
+                              >
+                                <text fg={theme.textMuted}>{revert()!.reverted.length} message reverted</text>
+                                <text fg={theme.textMuted}>
+                                  <span style={{ fg: theme.text }}>{redoShortcut()}</span> or /redo to restore
+                                </text>
+                                <Show when={revert()!.diffFiles?.length}>
+                                  <box marginTop={1}>
+                                    <For each={revert()!.diffFiles}>
+                                      {(file) => (
+                                        <text fg={theme.text}>
+                                          {file.filename}
+                                          <Show when={file.additions > 0}>
+                                            <span style={{ fg: theme.diffAdded }}> +{file.additions}</span>
+                                          </Show>
+                                          <Show when={file.deletions > 0}>
+                                            <span style={{ fg: theme.diffRemoved }}> -{file.deletions}</span>
+                                          </Show>
+                                        </text>
+                                      )}
+                                    </For>
+                                  </box>
+                                </Show>
+                              </box>
                             </box>
-                          </box>
-                        )
-                      })()}
-                    </Match>
+                          )
+                        })()}
+                      </Match>
                     <Match when={revert()?.messageID && message.id >= revert()!.messageID}>
                       <></>
                     </Match>
@@ -1500,7 +1526,7 @@ const PART_MAPPING = {
 }
 
 function ReasoningPart(props: { last: boolean; part: ReasoningPart; message: AssistantMessage }) {
-  const { theme, subtleSyntax } = useTheme()
+  const { theme } = useTheme()
   const ctx = use()
   // Collapsed by default in hide mode: a single line throughout, so the
   // layout never shifts. Click to open the full markdown block, click to close.
@@ -1518,10 +1544,8 @@ function ReasoningPart(props: { last: boolean; part: ReasoningPart; message: Ass
     const end = props.part.time.end
     return end === undefined ? 0 : Math.max(0, end - props.part.time.start)
   })
-  // OpenAI / Copilot / opencode-via-OpenAI emit `**Title**\n\n<body>` summary
-  // blocks. Surface the title both while streaming and after settling so the
-  // collapsed line carries real signal, not just a duration.
-  const title = createMemo(() => reasoningTitle(content()))
+  const summary = createMemo(() => reasoningSummary(content()))
+  const syntax = createMemo(() => generateSubtleSyntax(theme))
 
   const toggle = () => {
     if (!inMinimal()) return
@@ -1530,50 +1554,75 @@ function ReasoningPart(props: { last: boolean; part: ReasoningPart; message: Ass
 
   return (
     <Show when={content()}>
-      <Switch>
-        <Match when={!inMinimal() || expanded()}>
-          {/* Full markdown block: `show` mode, or `hide` after the user opens it. */}
-          <box
-            id={"text-" + props.part.id}
-            paddingLeft={2}
-            marginTop={1}
-            flexDirection="column"
-            border={["left"]}
-            customBorderChars={SplitBorder.customBorderChars}
-            borderColor={theme.backgroundElement}
-            onMouseUp={toggle}
-          >
+      <box id={"text-" + props.part.id} paddingLeft={3} marginTop={1} flexDirection="column" flexShrink={0}>
+        <box onMouseUp={toggle}>
+          <ReasoningHeader
+            toggleable={inMinimal()}
+            open={!inMinimal() || expanded()}
+            done={isDone()}
+            title={summary().title}
+            duration={isDone() ? Locale.duration(duration()) : undefined}
+          />
+        </box>
+        <Show when={(!inMinimal() || expanded()) && summary().body}>
+          <box paddingLeft={inMinimal() ? 2 : 0} marginTop={1}>
             <code
               filetype="markdown"
               drawUnstyledText={false}
               streaming={true}
-              syntaxStyle={subtleSyntax()}
-              content={(inMinimal() ? "▼ " : "") + (isDone() ? "_Thought:_ " : "_Thinking:_ ") + content()}
+              syntaxStyle={syntax()}
+              content={summary().body}
               conceal={ctx.conceal()}
               fg={theme.textMuted}
             />
           </box>
-        </Match>
-        <Match when={isDone()}>
-          {/* Settled: ▶ at the start as the click-to-expand cue. */}
-          <box id={"text-" + props.part.id} paddingLeft={3} marginTop={1} flexShrink={0} onMouseUp={toggle}>
-            <text fg={theme.textMuted} wrapMode="none">
-              {"▶ " +
-                (title()
-                  ? "Thought: " + title() + " · " + Locale.duration(duration())
-                  : "Thought for " + Locale.duration(duration()))}
-            </text>
-          </box>
-        </Match>
-        <Match when={true}>
-          {/* Streaming: leading animated spinner, no disclosure arrow yet — it
-              snaps in once reasoning settles, signalling "done, click to expand". */}
-          <box id={"text-" + props.part.id} paddingLeft={3} marginTop={1} flexShrink={0} onMouseUp={toggle}>
-            <Spinner color={theme.textMuted}>{title() ? "Thinking: " + title() : "Thinking"}</Spinner>
-          </box>
-        </Match>
-      </Switch>
+        </Show>
+      </box>
     </Show>
+  )
+}
+
+function ReasoningHeader(props: {
+  toggleable: boolean
+  open: boolean
+  done: boolean
+  title: string | null
+  duration?: string
+}) {
+  const { theme } = useTheme()
+  const fg = () =>
+    props.open
+      ? RGBA.fromValues(theme.warning.r, theme.warning.g, theme.warning.b, theme.thinkingOpacity)
+      : theme.warning
+
+  return (
+    <Switch>
+      <Match when={!props.done}>
+        <box flexDirection="row">
+          <Spinner color={fg()}>{props.title ? "Thinking: " + props.title : "Thinking"}</Spinner>
+        </box>
+      </Match>
+      <Match when={true}>
+        <text fg={fg()} wrapMode="none">
+          <Show when={props.toggleable}>
+            <span>{props.open ? "- " : "+ "}</span>
+          </Show>
+          <span>Thought</span>
+          <Show when={props.title || props.duration}>
+            <span>: </span>
+          </Show>
+          <Show when={props.title}>
+            <span>{props.title}</span>
+          </Show>
+          <Show when={props.duration}>
+            <span>
+              {props.title ? " · " : ""}
+              {props.duration}
+            </span>
+          </Show>
+        </text>
+      </Match>
+    </Switch>
   )
 }
 
@@ -1697,12 +1746,12 @@ function GenericTool(props: ToolProps<any>) {
   const ctx = use()
   const output = createMemo(() => props.output?.trim() ?? "")
   const [expanded, setExpanded] = createSignal(false)
-  const lines = createMemo(() => output().split("\n"))
   const maxLines = 3
-  const overflow = createMemo(() => lines().length > maxLines)
+  const maxChars = createMemo(() => maxLines * Math.max(20, ctx.width - 6))
+  const collapsed = createMemo(() => collapseToolOutput(output(), maxLines, maxChars()))
   const limited = createMemo(() => {
-    if (expanded() || !overflow()) return output()
-    return [...lines().slice(0, maxLines), "…"].join("\n")
+    if (expanded() || !collapsed().overflow) return output()
+    return collapsed().output
   })
 
   return (
@@ -1717,11 +1766,11 @@ function GenericTool(props: ToolProps<any>) {
       <BlockTool
         title={`# ${props.tool} ${input(props.input)}`}
         part={props.part}
-        onClick={overflow() ? () => setExpanded((prev) => !prev) : undefined}
+        onClick={collapsed().overflow ? () => setExpanded((prev) => !prev) : undefined}
       >
         <box gap={1}>
           <text fg={theme.text}>{limited()}</text>
-          <Show when={overflow()}>
+          <Show when={collapsed().overflow}>
             <text fg={theme.textMuted}>{expanded() ? "Click to collapse" : "Click to expand"}</text>
           </Show>
         </box>
@@ -1733,6 +1782,7 @@ function GenericTool(props: ToolProps<any>) {
 function InlineTool(props: {
   icon: string
   iconColor?: RGBA
+  color?: RGBA
   complete: any
   pending: string
   spinner?: boolean
@@ -1754,6 +1804,7 @@ function InlineTool(props: {
   })
 
   const fg = createMemo(() => {
+    if (props.color) return props.color
     if (permission()) return theme.warning
     if (hover() && props.onClick) return theme.text
     if (props.complete) return theme.textMuted
@@ -1872,14 +1923,16 @@ function BlockTool(props: {
 function Shell(props: ToolProps<typeof ShellTool>) {
   const { theme } = useTheme()
   const pathFormatter = usePathFormatter()
+  const ctx = use()
   const isRunning = createMemo(() => props.part.state.status === "running")
   const output = createMemo(() => stripAnsi(props.metadata.output?.trim() ?? ""))
   const [expanded, setExpanded] = createSignal(false)
-  const lines = createMemo(() => output().split("\n"))
-  const overflow = createMemo(() => lines().length > 10)
+  const maxLines = 10
+  const maxChars = createMemo(() => maxLines * Math.max(20, ctx.width - 6))
+  const collapsed = createMemo(() => collapseToolOutput(output(), maxLines, maxChars()))
   const limited = createMemo(() => {
-    if (expanded() || !overflow()) return output()
-    return [...lines().slice(0, 10), "…"].join("\n")
+    if (expanded() || !collapsed().overflow) return output()
+    return collapsed().output
   })
 
   const workdirDisplay = createMemo(() => {
@@ -1903,14 +1956,14 @@ function Shell(props: ToolProps<typeof ShellTool>) {
           title={title()}
           part={props.part}
           spinner={isRunning()}
-          onClick={overflow() ? () => setExpanded((prev) => !prev) : undefined}
+          onClick={collapsed().overflow ? () => setExpanded((prev) => !prev) : undefined}
         >
           <box gap={1}>
             <text fg={theme.text}>$ {props.input.command}</text>
             <Show when={output()}>
               <text fg={theme.text}>{limited()}</text>
             </Show>
-            <Show when={overflow()}>
+            <Show when={collapsed().overflow}>
               <text fg={theme.textMuted}>{expanded() ? "Click to collapse" : "Click to expand"}</text>
             </Show>
           </box>
@@ -2036,8 +2089,10 @@ function WebSearch(props: ToolProps<typeof WebSearchTool>) {
 }
 
 function Task(props: ToolProps<typeof TaskTool>) {
+  const { theme } = useTheme()
   const { navigate } = useRoute()
   const sync = useSync()
+  const dialog = useDialog()
 
   onMount(() => {
     if (props.metadata.sessionId && !sync.data.message[props.metadata.sessionId]?.length)
@@ -2059,6 +2114,11 @@ function Task(props: ToolProps<typeof TaskTool>) {
   )
 
   const isRunning = createMemo(() => props.part.state.status === "running")
+  const retry = createMemo(() => {
+    const status = sync.data.session_status[props.metadata.sessionId ?? ""]
+    if (status?.type !== "retry") return
+    return status
+  })
 
   const duration = createMemo(() => {
     const first = messages().find((x) => x.role === "user")?.time.created
@@ -2073,7 +2133,10 @@ function Task(props: ToolProps<typeof TaskTool>) {
       props.metadata.background === true ? `${props.input.description} (background)` : props.input.description
     let content = [`${Locale.titlecase(props.input.subagent_type ?? "General")} Task — ${description}`]
 
-    if (isRunning() && tools().length > 0) {
+    const retrying = retry()
+    if (isRunning() && retrying) {
+      content.push(`↳ ${Locale.truncate(retrying.message, 80)} [retrying attempt #${retrying.attempt}]`)
+    } else if (isRunning() && tools().length > 0) {
       // content[0] += ` · ${tools().length} toolcalls`
       if (current()) {
         const state = current()!.state
@@ -2096,6 +2159,7 @@ function Task(props: ToolProps<typeof TaskTool>) {
   return (
     <InlineTool
       icon="│"
+      color={retry() ? theme.error : undefined}
       spinner={isRunning()}
       complete={props.input.description}
       pending="Delegating..."
@@ -2104,6 +2168,8 @@ function Task(props: ToolProps<typeof TaskTool>) {
         if (props.metadata.sessionId) {
           navigate({ type: "session", sessionID: props.metadata.sessionId })
         }
+        const status = retry()
+        if (status) void DialogAlert.show(dialog, "Retry Error", status.message)
       }}
     >
       {content()}

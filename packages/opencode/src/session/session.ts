@@ -21,7 +21,7 @@ import { lt } from "drizzle-orm"
 import { or } from "drizzle-orm"
 import { SyncEvent } from "../sync"
 import type { SQL } from "drizzle-orm"
-import { PartTable, SessionTable } from "./session.sql"
+import { MessageTable, PartTable, SessionTable } from "./session.sql"
 import { ProjectTable } from "../project/project.sql"
 import { Storage } from "@/storage/storage"
 import * as Log from "@opencode-ai/core/util/log"
@@ -40,6 +40,7 @@ import { Global } from "@opencode-ai/core/global"
 import { Effect, Layer, Option, Context, Schema, Types } from "effect"
 import { NonNegativeInt, optionalOmitUndefined } from "@opencode-ai/core/schema"
 import { RuntimeFlags } from "@/effect/runtime-flags"
+import { SessionRunState } from "./run-state"
 
 const log = Log.create({ service: "session" })
 
@@ -487,6 +488,7 @@ export interface Interface {
     workspaceID?: WorkspaceID
   }) => Effect.Effect<Info>
   readonly fork: (input: { sessionID: SessionID; messageID?: MessageID }) => Effect.Effect<Info, NotFound>
+  readonly rewind: (input: { sessionID: SessionID; messageID: MessageID }) => Effect.Effect<Info, NotFound>
   readonly touch: (sessionID: SessionID) => Effect.Effect<void>
   readonly get: (id: SessionID) => Effect.Effect<Info, NotFound>
   readonly setTitle: (input: { sessionID: SessionID; title: string }) => Effect.Effect<void>
@@ -539,7 +541,7 @@ const db = <T>(fn: (d: Parameters<typeof Database.use>[0] extends (trx: infer D)
 export const layer: Layer.Layer<
   Service,
   never,
-  BackgroundJob.Service | Bus.Service | Storage.Service | SyncEvent.Service | RuntimeFlags.Service
+  BackgroundJob.Service | Bus.Service | Storage.Service | SyncEvent.Service | RuntimeFlags.Service | SessionRunState.Service
 > = Layer.effect(
   Service,
   Effect.gen(function* () {
@@ -548,6 +550,7 @@ export const layer: Layer.Layer<
     const storage = yield* Storage.Service
     const sync = yield* SyncEvent.Service
     const flags = yield* RuntimeFlags.Service
+    const runState = yield* SessionRunState.Service
 
     const createNext = Effect.fn("Session.createNext")(function* (input: {
       id?: SessionID
@@ -717,9 +720,11 @@ export const layer: Layer.Layer<
       })
       const msgs = yield* messages({ sessionID: input.sessionID })
       const idMap = new Map<string, MessageID>()
+      let reachedTarget = !input.messageID
 
       for (const msg of msgs) {
-        if (input.messageID && msg.info.id >= input.messageID) break
+        if (input.messageID && msg.info.id === input.messageID) reachedTarget = true
+        if (reachedTarget) break
         const newID = MessageID.ascending()
         idMap.set(msg.info.id, newID)
 
@@ -845,6 +850,26 @@ export const layer: Layer.Layer<
       return input.partID
     })
 
+    const rewind = Effect.fn("Session.rewind")(function* (input: {
+      sessionID: SessionID
+      messageID: MessageID
+    }) {
+      const msgs = yield* messages({ sessionID: input.sessionID })
+      let remove = false
+      for (const msg of msgs) {
+        if (msg.info.id === input.messageID) remove = true
+        if (!remove) continue
+        yield* removeMessage({
+          sessionID: input.sessionID,
+          messageID: msg.info.id,
+        })
+      }
+      if (!remove) {
+        throw new NotFoundError({ message: `Message not found in session: ${input.messageID}` })
+      }
+      return yield* get(input.sessionID)
+    })
+
     const updatePartDelta = Effect.fnUntraced(function* (input: {
       sessionID: SessionID
       messageID: MessageID
@@ -876,6 +901,7 @@ export const layer: Layer.Layer<
       list,
       create,
       fork,
+      rewind,
       touch,
       get,
       setTitle,
@@ -906,6 +932,7 @@ export const defaultLayer = layer.pipe(
   Layer.provide(Storage.defaultLayer),
   Layer.provide(SyncEvent.defaultLayer),
   Layer.provide(RuntimeFlags.defaultLayer),
+  Layer.provide(SessionRunState.defaultLayer),
 )
 
 const cancelBackgroundJobs = Effect.fn("Session.cancelBackgroundJobs")(function* (

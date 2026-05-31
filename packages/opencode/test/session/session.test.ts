@@ -13,6 +13,7 @@ import { Storage } from "@/storage/storage"
 import { SyncEvent } from "@/sync"
 import { RuntimeFlags } from "@/effect/runtime-flags"
 import { BackgroundJob } from "@/background/job"
+import { SessionRunState } from "@/session/run-state"
 
 void Log.init({ print: false })
 
@@ -24,6 +25,7 @@ const it = testEffect(
       Layer.provide(SyncEvent.defaultLayer),
       Layer.provide(RuntimeFlags.layer({ experimentalWorkspaces: false })),
       Layer.provide(BackgroundJob.defaultLayer),
+      Layer.provide(SessionRunState.defaultLayer),
     ),
     CrossSpawnSpawner.defaultLayer,
   ),

@@ -2,11 +2,15 @@ import { createStore } from "solid-js/store"
 import { createMemo, For, Match, Show, Switch } from "solid-js"
 import { Portal, useRenderer, useTerminalDimensions, type JSX } from "@opentui/solid"
 import type { TextareaRenderable } from "@opentui/core"
+import "opentui-spinner/solid"
 import { useTheme, selectedForeground } from "../../context/theme"
 import type { PermissionRequest } from "@opencode-ai/sdk/v2"
 import { useSDK } from "../../context/sdk"
 import { SplitBorder } from "../../component/border"
 import { useSync } from "../../context/sync"
+import { useLocal } from "../../context/local"
+import { useKV } from "../../context/kv"
+import { createPulseFrames, createPulseColors } from "../../ui/spinner"
 import { useProject } from "../../context/project"
 import path from "path"
 import { LANGUAGE_EXTENSIONS } from "@/lsp/language"
@@ -532,6 +536,8 @@ function Prompt<const T extends Record<string, string>>(props: {
   onSelect: (option: keyof T) => void
 }) {
   const { theme } = useTheme()
+  const local = useLocal()
+  const kv = useKV()
   const tuiConfig = useTuiConfig()
   const dimensions = useTerminalDimensions()
   const keys = Object.keys(props.options) as (keyof T)[]
@@ -542,6 +548,20 @@ function Prompt<const T extends Record<string, string>>(props: {
   const narrow = createMemo(() => dimensions().width < 80)
   const fullscreenHint = useCommandShortcut("permission.prompt.fullscreen")
 
+  const pulseSpinnerDef = createMemo(() => {
+    const current = local.agent.current()
+    const color = current ? local.agent.color(current.name) : theme.primary
+    return {
+      frames: createPulseFrames({
+        color,
+        style: "blocks",
+      }),
+      color: createPulseColors({
+        color,
+        minAlpha: 0.15,
+      }),
+    }
+  })
   useBindings(() => ({
     mode: OPENCODE_BASE_MODE,
     commands: [
@@ -675,6 +695,10 @@ function Prompt<const T extends Record<string, string>>(props: {
         alignItems={narrow() ? "flex-start" : "center"}
       >
         <box flexDirection="row" gap={1} flexShrink={0}>
+          <Show when={kv.get("animations_enabled", true)} fallback={<text fg={theme.textMuted}>[⋯]</text>}>
+            {/* @ts-ignore */}
+            <spinner color={pulseSpinnerDef().color} frames={pulseSpinnerDef().frames} interval={40} />
+          </Show>
           <For each={keys}>
             {(option) => (
               <box

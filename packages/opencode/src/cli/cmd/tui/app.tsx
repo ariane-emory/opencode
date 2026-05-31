@@ -17,6 +17,7 @@ import {
   batch,
   Show,
   on,
+  untrack,
 } from "solid-js"
 import { win32DisableProcessedInput, win32FlushInputBuffer, win32InstallCtrlCGuard } from "./win32"
 import { Flag } from "@opencode-ai/core/flag/flag"
@@ -449,6 +450,42 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
   const [terminalTitleEnabled, setTerminalTitleEnabled] = createSignal(kv.get("terminal_title_enabled", true))
   const [pasteSummaryEnabled, setPasteSummaryEnabled] = createSignal(
     kv.get("paste_summary_enabled", !sync.data.config.experimental?.disable_paste_summary),
+  )
+  const customSlashBindings = createMemo(() =>
+    tuiConfig.keybinds.bindings.filter(
+      (binding): binding is (typeof tuiConfig.keybinds.bindings)[number] & { cmd: string } =>
+        typeof binding.cmd === "string" && binding.cmd.startsWith("/"),
+    ),
+  )
+  const customSlashCommands = createMemo(() =>
+    Array.from(new Set(customSlashBindings().map((binding) => binding.cmd))).map((slash) => ({
+      namespace: "palette",
+      name: slash,
+      title: `Run ${slash}`,
+      category: "Prompt",
+      hidden: true,
+      run: () => {
+        const commandName = slash.slice(1)
+        const exists = sync.data.command.some((item) => item.name === commandName)
+        if (!exists) {
+          toast.show({
+            variant: "error",
+            message: `Command not found: ${commandName}`,
+            duration: 3000,
+          })
+          return
+        }
+
+        const current = promptRef.current
+        if (!current) return
+        const existingInput = current.current.input.trim()
+        current.set({
+          input: existingInput ? `${slash} ${existingInput}` : slash,
+          parts: current.current.parts,
+        })
+        current.submit()
+      },
+    })),
   )
 
   // Update terminal window title based on current route and session
@@ -944,10 +981,15 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
           dialog.clear()
         },
       },
-    ].map((command) => ({
-      namespace: "palette",
-      ...command,
-    })),
+      ...customSlashCommands(),
+    ].map((command) =>
+      "namespace" in command
+        ? command
+        : {
+            namespace: "palette",
+            ...command,
+          },
+    ),
   )
 
   useBindings(() => ({
@@ -973,6 +1015,24 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
     bindings: tuiConfig.keybinds.gather("app_exit", ["app.exit"]),
   }))
 
+  useBindings(() => ({
+    enabled: command.matcher,
+    bindings: customSlashBindings(),
+  }))
+
+  createEffect(() => {
+    const currentModel = local.model.current()
+    if (!currentModel) return
+    if (currentModel.providerID === "openrouter" && !kv.get("openrouter_warning", false)) {
+      untrack(() => {
+        DialogAlert.show(
+          dialog,
+          "Warning",
+          "While openrouter is a convenient way to access LLMs your request will often be routed to subpar providers that do not work well in our testing.\n\nFor reliable access to models check out OpenCode Zen\nhttps://opencode.ai/zen",
+        ).then(() => kv.set("openrouter_warning", true))
+      })
+    }
+  })
   event.on(TuiEvent.CommandExecute.type, (evt) => {
     keymap.dispatchCommand(evt.properties.command)
   })

@@ -13,6 +13,7 @@ import { ConfigModelID } from "./model-id"
 const log = Log.create({ service: "config" })
 
 export const Info = Schema.Struct({
+  name: Schema.optional(Schema.String),
   template: Schema.String,
   description: Schema.optional(Schema.String),
   agent: Schema.optional(Schema.String),

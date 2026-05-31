@@ -32,6 +32,7 @@ import {
   StyledText,
   SyntaxStyle,
 } from "@opentui/core"
+import { Flag } from "@opencode-ai/core/flag/flag"
 import { Prompt, type PromptRef } from "@tui/component/prompt"
 import type {
   AssistantMessage,

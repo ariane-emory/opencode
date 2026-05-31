@@ -1241,6 +1241,30 @@ export const layer = Layer.effect(
       throw new Error("Impossible")
     })
 
+    const lastAssistantForLoop = Effect.fnUntraced(function* (sessionID: SessionID) {
+      const exit = yield* lastAssistant(sessionID).pipe(Effect.exit)
+      if (Exit.isSuccess(exit)) return exit.value
+      const ctx = yield* InstanceState.context
+      const now = Date.now()
+      return {
+        info: {
+          id: MessageID.ascending(),
+          sessionID,
+          role: "assistant" as const,
+          time: { created: now, completed: now },
+          parentID: MessageID.ascending(),
+          modelID: ModelID.make("big-pickle"),
+          providerID: ProviderID.opencode,
+          mode: "code",
+          agent: "opencode",
+          path: { cwd: ctx.directory, root: ctx.worktree },
+          cost: 0,
+          tokens: { input: 0, output: 0, reasoning: 0, cache: { read: 0, write: 0 } },
+        },
+        parts: [],
+      } satisfies MessageV2.WithParts
+    })
+
     const runLoop: (sessionID: SessionID) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.run")(
       function* (sessionID: SessionID) {
         const ctx = yield* InstanceState.context
@@ -1497,10 +1521,10 @@ export const layer = Layer.effect(
       },
     )
 
-    const loop: (input: LoopInput) => Effect.Effect<MessageV2.WithParts> = Effect.fn("SessionPrompt.loop")(function* (
-      input: LoopInput,
-    ) {
-      return yield* state.ensureRunning(input.sessionID, lastAssistant(input.sessionID), runLoop(input.sessionID))
+    const loop: (input: LoopInput) => Effect.Effect<MessageV2.WithParts> = Effect.fn(
+      "SessionPrompt.loop",
+    )(function* (input: LoopInput) {
+      return yield* state.ensureRunning(input.sessionID, lastAssistantForLoop(input.sessionID), runLoop(input.sessionID))
     })
 
     const shell: (input: ShellInput) => Effect.Effect<MessageV2.WithParts, Session.BusyError> = Effect.fn(

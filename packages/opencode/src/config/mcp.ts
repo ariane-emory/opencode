@@ -1,5 +1,5 @@
 import { Schema } from "effect"
-import { PositiveInt } from "@opencode-ai/core/schema"
+import { ConfigBoolean, PositiveInt } from "@opencode-ai/core/schema"
 
 export const Local = Schema.Struct({
   type: Schema.Literal("local").annotate({ description: "Type of MCP server connection" }),
@@ -9,7 +9,7 @@ export const Local = Schema.Struct({
   environment: Schema.optional(Schema.Record(Schema.String, Schema.String)).annotate({
     description: "Environment variables to set when running the MCP server",
   }),
-  enabled: Schema.optional(Schema.Boolean).annotate({
+  enabled: Schema.optional(ConfigBoolean).annotate({
     description: "Enable or disable the MCP server on startup",
   }),
   timeout: Schema.optional(PositiveInt).annotate({
@@ -39,7 +39,7 @@ export type OAuth = Schema.Schema.Type<typeof OAuth>
 export const Remote = Schema.Struct({
   type: Schema.Literal("remote").annotate({ description: "Type of MCP server connection" }),
   url: Schema.String.annotate({ description: "URL of the remote MCP server" }),
-  enabled: Schema.optional(Schema.Boolean).annotate({
+  enabled: Schema.optional(ConfigBoolean).annotate({
     description: "Enable or disable the MCP server on startup",
   }),
   headers: Schema.optional(Schema.Record(Schema.String, Schema.String)).annotate({

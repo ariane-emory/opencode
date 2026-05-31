@@ -1567,8 +1567,7 @@ export const layer = Layer.effect(
       }
       const agentName = cmd.agent ?? input.agent
 
-      const raw = input.arguments.match(argsRegex) ?? []
-      const args = raw.map((arg) => arg.replace(quoteTrimRegex, ""))
+      const args = parseCommandArguments(input.arguments)
       const templateCommand = yield* Effect.promise(async () => cmd.template)
 
       const { result: withArgs, hasPlaceholders } = substituteArguments(templateCommand, args)
@@ -1870,6 +1869,11 @@ const bashRegex = /!`([^`]+)`/g
 // Match [Image N] as single token, quoted strings, or non-space sequences
 const argsRegex = /(?:\[Image\s+\d+\]|"[^"]*"|'[^']*'|[^\s"']+)/gi
 const quoteTrimRegex = /^["']|["']$/g
+const placeholderRegex = /\$(\d+)/g
+
+export function parseCommandArguments(input: string) {
+  return (input.match(argsRegex) ?? []).map((arg) => arg.replace(quoteTrimRegex, ""))
+}
 
 const { runPromise } = makeRuntime(Service, defaultLayer)
 

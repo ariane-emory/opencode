@@ -7,7 +7,6 @@ import { Locale } from "@/util/locale"
 import { useProject } from "@tui/context/project"
 import { useTheme } from "../context/theme"
 import { useSDK } from "../context/sdk"
-import { useLocal } from "../context/local"
 import { Flag } from "@opencode-ai/core/flag/flag"
 import { DialogSessionRename } from "./dialog-session-rename"
 import { createDebouncedSignal } from "../util/signal"
@@ -27,7 +26,6 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
   const project = useProject()
   const { theme } = useTheme()
   const sdk = useSDK()
-  const local = useLocal()
   const toast = useToast()
   const kv = useKV()
   const [toDelete, setToDelete] = createSignal<string>()
@@ -151,16 +149,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
 
   const [browseOrder] = createSignal<string[]>(orderByRecency(sync.data.session))
 
-  const quickSwitchHint = createMemo(() => {
-    const first = quickSwitch1()
-    const last = quickSwitch9()
-    if (!first || !last) return undefined
-    return quickSwitchRange(first, last)
-  })
-  const quickSwitchFooterHints = createMemo(() => {
-    const hint = quickSwitchHint()
-    return hint && local.session.slots().length > 0 ? [{ title: "switch", label: hint }] : []
-  })
+
 
   const options = createMemo(() => {
     if (!sync.ready) return []
@@ -288,15 +277,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
         })
         dialog.clear()
       }}
-      actions={[
-        {
-          command: "session.pin.toggle",
-          title: "pin/unpin",
-          onTrigger: (option: { value: string }) => {
-            local.session.togglePin(option.value)
-          },
-        },
-        {
+      actions={[{
           command: "session.delete",
           title: "delete",
           onTrigger: async (option) => {
@@ -384,13 +365,6 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
           },
         },
       ]}
-      footerHints={quickSwitchFooterHints()}
     />
   )
-}
-
-function quickSwitchRange(first: string, last: string) {
-  const prefix = first.slice(0, -1)
-  if (first.endsWith("1") && last === `${prefix}9`) return `${prefix}1-9`
-  return `${first} through ${last}`
 }

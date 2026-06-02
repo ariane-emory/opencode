@@ -679,6 +679,21 @@ export function Session() {
         dialog.clear()
         if (result.data) toBottom()
       },
+      run: async () => {
+        const currentAgent = local.agent.current()?.name
+        const currentModel = local.model.current()
+        const result = await sdk.client.session.continue({
+          sessionID: route.sessionID,
+          agent: currentAgent,
+          model: currentModel ? {
+            providerID: currentModel.providerID,
+            modelID: currentModel.modelID,
+          } : undefined,
+        })
+
+        dialog.clear()
+        if (result.data) toBottom()
+      },
     },
     {
       title: sidebarVisible() ? "Hide sidebar" : "Show sidebar",

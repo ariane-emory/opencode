@@ -138,6 +138,7 @@ const sessionBindingCommands = [
   "session.timeline",
   "session.fork",
   "session.compact",
+  "session.continue",
   "session.unshare",
   "session.undo",
   "session.redo",

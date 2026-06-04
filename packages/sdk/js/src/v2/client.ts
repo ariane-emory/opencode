@@ -1,4 +1,9 @@
 export * from "./gen/types.gen.js"
+export type {
+  FileSystemBinaryContent as LocationFileSystemBinaryContent,
+  FileSystemEntry as LocationFileSystemEntry,
+  FileSystemTextContent as LocationFileSystemTextContent,
+} from "./gen/types.gen.js"
 
 import { createClient } from "./gen/client/client.gen.js"
 import { type Config } from "./gen/client/types.gen.js"
@@ -17,15 +22,31 @@ function pick(value: string | null, fallback?: string, encode?: (value: string) 
 function rewrite(request: Request, values: { directory?: string; workspace?: string }) {
   if (request.method !== "GET" && request.method !== "HEAD") return request
 
-  const value = pick(request.headers.get("x-opencode-workspace"), values.workspace)
-  if (!value) return request
-
   const url = new URL(request.url)
-  if (!url.searchParams.has("workspace")) {
-    url.searchParams.set("workspace", value)
+  let changed = false
+
+  for (const [name, key] of [
+    ["x-opencode-directory", "directory"],
+    ["x-opencode-workspace", "workspace"],
+  ] as const) {
+    const value = pick(
+      request.headers.get(name),
+      key === "directory" ? values.directory : values.workspace,
+      key === "directory" ? encodeURIComponent : undefined,
+    )
+    if (!value) continue
+    for (const query of url.pathname.startsWith("/api/") ? [key, `location[${key}]`] : [key]) {
+      if (!url.searchParams.has(query)) {
+        url.searchParams.set(query, value)
+      }
+    }
+    changed = true
   }
 
+  if (!changed) return request
+
   const next = new Request(url, request)
+  next.headers.delete("x-opencode-directory")
   next.headers.delete("x-opencode-workspace")
   return next
 }

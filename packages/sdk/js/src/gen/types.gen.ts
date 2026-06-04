@@ -1385,6 +1385,14 @@ export type Config = {
      * Tools that should only be available to primary agents.
      */
     primary_tools?: Array<string>
+    /**
+     * Maximum number of message parts to load per session when syncing, or 'none' to load all messages
+     */
+    messages_limit?: number | "none"
+    /**
+     * Maximum number of sessions to display in session list, or 'none' to show all sessions
+     */
+    session_list_limit?: number | "none"
   }
 }
 

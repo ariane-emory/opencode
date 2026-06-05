@@ -1,12 +1,16 @@
 import { Config } from "effect"
 
-function truthy(key: string) {
+export function truthy(key: string) {
   const value = process.env[key]?.toLowerCase()
   return value === "true" || value === "1"
 }
 
 function envWithFallback(primary: string, fallback: string) {
   return process.env[primary] ?? process.env[fallback]
+}
+
+function enabledByExperimental(key: string) {
+  return process.env[key] === undefined ? truthyWithFallback("BASEONE_EXPERIMENTAL", "OPENCODE_EXPERIMENTAL") : truthy(key)
 }
 
 function truthyWithFallback(primary: string, fallback: string) {
@@ -61,6 +65,9 @@ export const Flag = {
   // external tooling set these env vars at runtime.
   get OPENCODE_DISABLE_PROJECT_CONFIG() {
     return truthyWithFallback("BASEONE_DISABLE_PROJECT_CONFIG", "OPENCODE_DISABLE_PROJECT_CONFIG")
+  },
+  get OPENCODE_EXPERIMENTAL_REFERENCES() {
+    return enabledByExperimental("OPENCODE_EXPERIMENTAL_REFERENCES")
   },
   get OPENCODE_TUI_CONFIG() {
     return envWithFallback("BASEONE_TUI_CONFIG", "OPENCODE_TUI_CONFIG")

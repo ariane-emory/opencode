@@ -1,4 +1,3 @@
-import { BusEvent } from "@/bus/bus-event"
 import { InstanceState } from "@/effect/instance-state"
 import { EffectBridge } from "@/effect/bridge"
 import type { InstanceContext } from "@/project/instance-context"
@@ -13,6 +12,7 @@ import * as ConfigMarkdown from "../config/markdown"
 import { Glob } from "@opencode-ai/core/util/glob"
 import { MCP } from "../mcp"
 import { Skill } from "../skill"
+import { EventV2 } from "@opencode-ai/core/event"
 import PROMPT_INITIALIZE from "./template/initialize.txt"
 import PROMPT_REVIEW from "./template/review.txt"
 
@@ -21,15 +21,15 @@ type State = {
 }
 
 export const Event = {
-  Executed: BusEvent.define(
-    "command.executed",
-    Schema.Struct({
+  Executed: EventV2.define({
+    type: "command.executed",
+    schema: {
       name: Schema.String,
       sessionID: SessionID,
       arguments: Schema.String,
       messageID: MessageID,
-    }),
-  ),
+    },
+  }),
 }
 
 export const Info = Schema.Struct({

@@ -299,7 +299,6 @@ export const layer = Layer.effect(
         .pipe(Effect.catchCause((cause) => elog.error("failed to generate title", { error: Cause.squash(cause) })))
     })
 
-
     const handleSubtask = Effect.fn("SessionPrompt.handleSubtask")(function* (input: {
       task: SessionV1.SubtaskPart
       model: Provider.Model

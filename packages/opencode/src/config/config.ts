@@ -109,7 +109,7 @@ async function resolveLoadedPlugins<T extends { plugin?: ConfigPluginV1.Spec[] }
   return config
 }
 
-export type Layout = ConfigLayout.Layout
+export type Layout = ConfigV1.Layout
 
 type Info = ConfigV1.Info & {
   // plugin_origins is derived state, not a persisted config field. It keeps each winning plugin spec together

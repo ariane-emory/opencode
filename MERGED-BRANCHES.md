@@ -8,7 +8,7 @@
 | ☑ | 2 | feat/rcdailey--thinking-indicator-hidden | 274 | f7a3822380 | Clean merge |
 | ☑ | 3 | feat/aspiers--readline-additions | 211 | 5bdea8ce92 | Clean merge |
 | ☑ | 4 | feat/base-one-rebrand | 52 | a5ae617aa1 | Clean merge - removes animation effects, adds rebrand |
-| ☐ | 5 | feat/sinister-quotes | 73 | TBD | Placeholders **MUST** be SINISTER_PLACEHOLDERS array only |
+| ☑ | 5 | feat/sinister-quotes | 73 | 0d8ee0de08 | Clean merge - SINISTER_PLACEHOLDERS in packages/ui/src/constants/placeholders.ts |
 | ☐ | 6 | feat/session-grouping | 194 | TBD | |
 | ☐ | 7 | feat/session-bookmarks | 102 | TBD | |
 | ☐ | 8 | fix/dialog-datetime-alignment | 113 | TBD | Merge immediately after feat/session-bookmarks; **MUST NOT** be clobbered |

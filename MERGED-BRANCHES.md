@@ -9,10 +9,10 @@
 | ☑ | 3 | feat/aspiers--readline-additions | 211 | 5bdea8ce92 | Clean merge |
 | ☑ | 4 | feat/base-one-rebrand | 52 | a5ae617aa1 | Clean merge - removes animation effects, adds rebrand |
 | ☑ | 5 | feat/sinister-quotes | 73 | 0d8ee0de08 | Clean merge - SINISTER_PLACEHOLDERS in packages/ui/src/constants/placeholders.ts |
-| ☐ | 6 | feat/session-grouping | 194 | TBD | |
-| ☐ | 7 | feat/session-bookmarks | 102 | TBD | |
-| ☐ | 8 | fix/dialog-datetime-alignment | 113 | TBD | Merge immediately after feat/session-bookmarks; **MUST NOT** be clobbered |
-| ☐ | 9 | feat/keybindable-commands | 48 | TBD | |
+| ☑ | 6 | feat/session-grouping | 194 | 48c3c69c7e | Clean merge - session grouping in dialog, sidebar, locale util |
+| ☑ | 7 | feat/session-bookmarks | 102 | b12b61e3a2 | Conflict resolution: merged parseSessionTitle + pinned sessions |
+| ☑ | 8 | fix/dialog-datetime-alignment | 113 | 8469297763 | Conflict: kept alignment comment in locale.ts |
+| ☑ | 9 | feat/keybindable-commands | 48 | b8e8d3ccdf | Conflict: merged markdown toggle + customSlashCommands; fixed undefined command.matcher |
 | ☐ | 10 | feat/automatic-list-continuation | 112 | TBD | |
 | ☐ | 11 | feat/continue-command | 11 | TBD | |
 | ☐ | 12 | feat/configurable-snapshot-lifespan | 157 | TBD | |

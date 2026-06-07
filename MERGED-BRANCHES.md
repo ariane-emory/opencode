@@ -5,7 +5,7 @@
 | Status | # | Branch Name | PR | Commit Hash | Description |
 |--------|---|-------------|------|-------------|-------------|
 | ☑ | 1 | feat/gignit--markdown-renderer | 273 | 6549587221 | Fixed Flag.OPENCODE_EXPERIMENTAL_MARKDOWN -> process.env check |
-| ☐ | 2 | feat/rcdailey--thinking-indicator-hidden | 274 | TBD | |
+| ☑ | 2 | feat/rcdailey--thinking-indicator-hidden | 274 | f7a3822380 | Clean merge |
 | ☐ | 3 | feat/aspiers--readline-additions | 211 | TBD | |
 | ☐ | 4 | feat/base-one-rebrand | 52 | TBD | **REMOVE** animation effects on startup screen art; **MUST NOT** mess with background colouring of art displayed after exiting |
 | ☐ | 5 | feat/sinister-quotes | 73 | TBD | Placeholders **MUST** be SINISTER_PLACEHOLDERS array only |

@@ -272,7 +272,7 @@ export function SessionSwitcherDialog() {
           title: "pin/unpin",
           onTrigger: (option: { value: string }) => {
             local.session.togglePin(option.value)
-            queueMicrotask(() => select?.moveTo(option.value))
+            queueMicrotask(() => select?.scrollToValue(option.value))
           },
         },
         {

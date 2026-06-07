@@ -20,8 +20,8 @@ import { InstanceState } from "@/effect/instance-state"
 import { Context, Duration, Effect, Exit, Fiber, Layer, Option, Schema } from "effect"
 import { FetchHttpClient, HttpClient, HttpClientRequest, HttpClientResponse } from "effect/unstable/http"
 import { EffectFlock } from "@opencode-ai/core/util/effect-flock"
-import { containsPath, type InstanceContext } from "../project/instance-context"
 import { makeRuntime } from "@/effect/run-service"
+import { containsPath, type InstanceContext } from "../project/instance-context"
 import { ConfigV1 } from "@opencode-ai/core/v1/config/config"
 import { ConfigPermissionV1 } from "@opencode-ai/core/v1/config/permission"
 import { ConfigPluginV1 } from "@opencode-ai/core/v1/config/plugin"
@@ -718,6 +718,19 @@ export async function directories() {
 
 export async function waitForDependencies() {
   return runPromise((svc) => svc.waitForDependencies())
+}
+
+export async function experimentalEnableExa(): Promise<boolean> {
+  if (envTruthy("OPENCODE_EXPERIMENTAL") || envTruthy("OPENCODE_ENABLE_EXA") || envTruthy("OPENCODE_EXPERIMENTAL_EXA")) {
+    return true
+  }
+  const config = await runPromise((svc) => svc.get())
+  return config.experimental?.enable_exa === true
+}
+
+function envTruthy(key: string) {
+  const value = process.env[key]?.toLowerCase()
+  return value === "true" || value === "1"
 }
 
 export * as Config from "./config"

@@ -381,6 +381,7 @@ export function generateSystem(colors: TerminalColors, pick: "dark" | "light"): 
       info: ansi.cyan,
       text: fg,
       textMuted,
+      sessionTitle: fg,
       selectedListItemText: bg,
       background: alpha(bg, 0),
       backgroundPanel: grays[2],

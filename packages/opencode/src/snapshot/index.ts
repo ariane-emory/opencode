@@ -29,7 +29,6 @@ export const FileDiff = Schema.Struct({
 export type FileDiff = typeof FileDiff.Type
 
 const log = Log.create({ service: "snapshot" })
-const prune = "7.days"
 const limit = 2 * 1024 * 1024
 const core = ["-c", "core.longpaths=true", "-c", "core.symlinks=true"]
 const cfg = ["-c", "core.autocrlf=false", ...core]
@@ -40,6 +39,7 @@ interface GitResult {
   readonly stderr: string
 }
 
+const defaultRetentionDays = 7
 type State = Omit<Interface, "init">
 
 export interface Interface {
@@ -106,260 +106,292 @@ export const layer: Layer.Layer<Service, never, FSUtil.Service | AppProcess.Serv
           ),
         )
 
-        const ignore = Effect.fnUntraced(function* (files: string[]) {
-          if (!files.length) return new Set<string>()
-          const check = yield* git(
-            [
-              ...quote,
-              "--git-dir",
-              path.join(state.worktree, ".git"),
-              "--work-tree",
-              state.worktree,
-              "check-ignore",
-              "--no-index",
-              "--stdin",
-              "-z",
-            ],
-            {
-              cwd: state.directory,
-              stdin: feed(files),
-            },
-          )
-          if (check.code !== 0 && check.code !== 1) return new Set<string>()
-          return new Set(check.text.split("\0").filter(Boolean))
-        })
-
-        const drop = Effect.fnUntraced(function* (files: string[]) {
-          if (!files.length) return
-          yield* git(
-            [
-              ...cfg,
-              ...args(["rm", "--cached", "-f", "--ignore-unmatch", "--pathspec-from-file=-", "--pathspec-file-nul"]),
-            ],
-            {
-              cwd: state.directory,
-              stdin: feed(files),
-            },
-          )
-        })
-
-        const stage = Effect.fnUntraced(function* (files: string[]) {
-          if (!files.length) return
-          const result = yield* git(
-            [...cfg, ...args(["add", "--all", "--sparse", "--pathspec-from-file=-", "--pathspec-file-nul"])],
-            {
-              cwd: state.directory,
-              stdin: feed(files),
-            },
-          )
-          if (result.code === 0) return
-          log.warn("failed to add snapshot files", {
-            exitCode: result.code,
-            stderr: result.stderr,
-          })
-        })
-
-        const exists = (file: string) => fs.exists(file).pipe(Effect.orDie)
-        const read = (file: string) => fs.readFileString(file).pipe(Effect.catch(() => Effect.succeed("")))
-        const remove = (file: string) => fs.remove(file).pipe(Effect.catch(() => Effect.void))
-        const locked = <A, E, R>(fx: Effect.Effect<A, E, R>) => lock(state.gitdir).withPermits(1)(fx)
-
-        const enabled = Effect.fnUntraced(function* () {
-          if (state.vcs !== "git") return false
-          return (yield* config.get()).snapshot !== false
-        })
-
-        const excludes = Effect.fnUntraced(function* () {
-          const result = yield* git(["rev-parse", "--path-format=absolute", "--git-path", "info/exclude"], {
-            cwd: state.worktree,
-          })
-          const file = result.text.trim()
-          if (!file) return
-          if (!(yield* exists(file))) return
-          return file
-        })
-
-        const sync = Effect.fnUntraced(function* (list: string[] = []) {
-          const file = yield* excludes()
-          const target = path.join(state.gitdir, "info", "exclude")
-          const text = [
-            file ? (yield* read(file)).trimEnd() : "",
-            ...list.map((item) => `/${item.replaceAll("\\", "/")}`),
-          ]
-            .filter(Boolean)
-            .join("\n")
-          yield* fs.ensureDir(path.join(state.gitdir, "info")).pipe(Effect.orDie)
-          yield* fs.writeFileString(target, text ? `${text}\n` : "").pipe(Effect.orDie)
-        })
-
-        const add = Effect.fnUntraced(function* () {
-          yield* sync()
-          const [diff, other] = yield* Effect.all(
-            [
-              git([...quote, ...args(["diff-files", "--name-only", "-z", "--", "."])], {
+          const ignore = Effect.fnUntraced(function* (files: string[]) {
+            if (!files.length) return new Set<string>()
+            const check = yield* git(
+              [
+                ...quote,
+                "--git-dir",
+                path.join(state.worktree, ".git"),
+                "--work-tree",
+                state.worktree,
+                "check-ignore",
+                "--no-index",
+                "--stdin",
+                "-z",
+              ],
+              {
                 cwd: state.directory,
-              }),
-              git([...quote, ...args(["ls-files", "--others", "--exclude-standard", "-z", "--", "."])], {
+                stdin: feed(files),
+              },
+            )
+            if (check.code !== 0 && check.code !== 1) return new Set<string>()
+            return new Set(check.text.split("\0").filter(Boolean))
+          })
+
+          const drop = Effect.fnUntraced(function* (files: string[]) {
+            if (!files.length) return
+            yield* git(
+              [
+                ...cfg,
+                ...args(["rm", "--cached", "-f", "--ignore-unmatch", "--pathspec-from-file=-", "--pathspec-file-nul"]),
+              ],
+              {
                 cwd: state.directory,
-              }),
-            ],
-            { concurrency: 2 },
-          )
-          if (diff.code !== 0 || other.code !== 0) {
-            log.warn("failed to list snapshot files", {
-              diffCode: diff.code,
-              diffStderr: diff.stderr,
-              otherCode: other.code,
-              otherStderr: other.stderr,
+                stdin: feed(files),
+              },
+            )
+          })
+
+          const stage = Effect.fnUntraced(function* (files: string[]) {
+            if (!files.length) return
+            const result = yield* git(
+              [...cfg, ...args(["add", "--all", "--sparse", "--pathspec-from-file=-", "--pathspec-file-nul"])],
+              {
+                cwd: state.directory,
+                stdin: feed(files),
+              },
+            )
+            if (result.code === 0) return
+            log.warn("failed to add snapshot files", {
+              exitCode: result.code,
+              stderr: result.stderr,
             })
-            return
-          }
+          })
 
-          const tracked = diff.text.split("\0").filter(Boolean)
-          const untracked = other.text.split("\0").filter(Boolean)
-          const all = Array.from(new Set([...tracked, ...untracked]))
-          if (!all.length) return
+          const exists = (file: string) => fs.exists(file).pipe(Effect.orDie)
+          const read = (file: string) => fs.readFileString(file).pipe(Effect.catch(() => Effect.succeed("")))
+          const remove = (file: string) => fs.remove(file).pipe(Effect.catch(() => Effect.void))
+          const locked = <A, E, R>(fx: Effect.Effect<A, E, R>) => lock(state.gitdir).withPermits(1)(fx)
 
-          // Resolve source-repo ignore rules against the exact candidate set.
-          // --no-index keeps this pattern-based even when a path is already tracked.
-          const ignored = yield* ignore(all)
+          const enabled = Effect.fnUntraced(function* () {
+            if (state.vcs !== "git") return false
+            const snapshot = (yield* config.get()).snapshot
+            return snapshot !== false && snapshot !== 0
+          })
 
-          // Remove newly-ignored files from snapshot index to prevent re-adding
-          if (ignored.size > 0) {
-            const ignoredFiles = Array.from(ignored)
-            log.info("removing gitignored files from snapshot", { count: ignoredFiles.length })
-            yield* drop(ignoredFiles)
-          }
+          const retentionDays = Effect.fnUntraced(function* () {
+            const snapshot = (yield* config.get()).snapshot
+            if (typeof snapshot === "number") return snapshot
+            return defaultRetentionDays
+          })
 
-          const allow = all.filter((item) => !ignored.has(item))
-          if (!allow.length) return
+          const excludes = Effect.fnUntraced(function* () {
+            const result = yield* git(["rev-parse", "--path-format=absolute", "--git-path", "info/exclude"], {
+              cwd: state.worktree,
+            })
+            const file = result.text.trim()
+            if (!file) return
+            if (!(yield* exists(file))) return
+            return file
+          })
 
-          const large = new Set(
-            (yield* Effect.all(
-              allow.map((item) =>
-                fs
-                  .stat(path.join(state.directory, item))
-                  .pipe(Effect.catch(() => Effect.void))
-                  .pipe(
-                    Effect.map((stat) => {
-                      if (!stat || stat.type !== "File") return
-                      const size = typeof stat.size === "bigint" ? Number(stat.size) : stat.size
-                      return size > limit ? item : undefined
-                    }),
-                  ),
-              ),
-              { concurrency: 8 },
-            )).filter((item): item is string => Boolean(item)),
-          )
-          const block = new Set(untracked.filter((item) => large.has(item)))
-          yield* sync(Array.from(block))
-          // Stage only the allowed candidate paths so snapshot updates stay scoped.
-          yield* stage(allow.filter((item) => !block.has(item)))
-        })
+          const sync = Effect.fnUntraced(function* (list: string[] = []) {
+            const file = yield* excludes()
+            const target = path.join(state.gitdir, "info", "exclude")
+            const text = [
+              file ? (yield* read(file)).trimEnd() : "",
+              ...list.map((item) => `/${item.replaceAll("\\", "/")}`),
+            ]
+              .filter(Boolean)
+              .join("\n")
+            yield* fs.ensureDir(path.join(state.gitdir, "info")).pipe(Effect.orDie)
+            yield* fs.writeFileString(target, text ? `${text}\n` : "").pipe(Effect.orDie)
+          })
 
-        const cleanup = Effect.fnUntraced(function* () {
-          return yield* locked(
-            Effect.gen(function* () {
-              if (!(yield* enabled())) return
-              if (!(yield* exists(state.gitdir))) return
-              const result = yield* git(args(["gc", `--prune=${prune}`]), { cwd: state.directory })
-              if (result.code !== 0) {
-                log.warn("cleanup failed", {
+          const add = Effect.fnUntraced(function* () {
+            yield* sync()
+            const [diff, other] = yield* Effect.all(
+              [
+                git([...quote, ...args(["diff-files", "--name-only", "-z", "--", "."])], {
+                  cwd: state.directory,
+                }),
+                git([...quote, ...args(["ls-files", "--others", "--exclude-standard", "-z", "--", "."])], {
+                  cwd: state.directory,
+                }),
+              ],
+              { concurrency: 2 },
+            )
+            if (diff.code !== 0 || other.code !== 0) {
+              log.warn("failed to list snapshot files", {
+                diffCode: diff.code,
+                diffStderr: diff.stderr,
+                otherCode: other.code,
+                otherStderr: other.stderr,
+              })
+              return
+            }
+
+            const tracked = diff.text.split("\0").filter(Boolean)
+            const untracked = other.text.split("\0").filter(Boolean)
+            const all = Array.from(new Set([...tracked, ...untracked]))
+            if (!all.length) return
+
+            // Resolve source-repo ignore rules against the exact candidate set.
+            // --no-index keeps this pattern-based even when a path is already tracked.
+            const ignored = yield* ignore(all)
+
+            // Remove newly-ignored files from snapshot index to prevent re-adding
+            if (ignored.size > 0) {
+              const ignoredFiles = Array.from(ignored)
+              log.info("removing gitignored files from snapshot", { count: ignoredFiles.length })
+              yield* drop(ignoredFiles)
+            }
+
+            const allow = all.filter((item) => !ignored.has(item))
+            if (!allow.length) return
+
+            const large = new Set(
+              (yield* Effect.all(
+                allow.map((item) =>
+                  fs
+                    .stat(path.join(state.directory, item))
+                    .pipe(Effect.catch(() => Effect.void))
+                    .pipe(
+                      Effect.map((stat) => {
+                        if (!stat || stat.type !== "File") return
+                        const size = typeof stat.size === "bigint" ? Number(stat.size) : stat.size
+                        return size > limit ? item : undefined
+                      }),
+                    ),
+                ),
+                { concurrency: 8 },
+              )).filter((item): item is string => Boolean(item)),
+            )
+            const block = new Set(untracked.filter((item) => large.has(item)))
+            yield* sync(Array.from(block))
+            // Stage only the allowed candidate paths so snapshot updates stay scoped.
+            yield* stage(allow.filter((item) => !block.has(item)))
+          })
+
+          const cleanup = Effect.fnUntraced(function* () {
+            return yield* locked(
+              Effect.gen(function* () {
+                if (!(yield* enabled())) return
+                if (!(yield* exists(state.gitdir))) return
+                const days = yield* retentionDays()
+
+                // Remove pack files so old objects can't survive in packs
+                const packDir = path.join(state.gitdir, "objects", "pack")
+                if (yield* exists(packDir)) {
+                  const entries = yield* fs.readDirectoryEntries(packDir).pipe(Effect.orDie)
+                  for (const entry of entries) {
+                    yield* fs.remove(path.join(packDir, entry.name)).pipe(Effect.catch(() => Effect.void))
+                  }
+                }
+
+                // Prune loose objects older than retention period
+                const result = yield* git(args(["prune", `--expire=${days}.days`]))
+                if (result.code !== 0) {
+                  log.warn("prune encountered errors (continuing cleanup)", {
+                    exitCode: result.code,
+                    stderr: result.stderr,
+                  })
+                }
+
+                // Remove empty object directories
+                const objectsDir = path.join(state.gitdir, "objects")
+                const entries = yield* fs.readDirectoryEntries(objectsDir).pipe(Effect.orDie)
+                for (const entry of entries) {
+                  if (entry.type === "directory" && entry.name !== "pack" && entry.name !== "info") {
+                    const dirPath = path.join(objectsDir, entry.name)
+                    const dirEntries = yield* fs.readDirectoryEntries(dirPath).pipe(Effect.orDie)
+                    if (dirEntries.length === 0) {
+                      yield* fs.remove(dirPath).pipe(Effect.catch(() => Effect.void))
+                    }
+                  }
+                }
+
+                log.info("cleanup", { retentionDays: days })
+              }),
+            )
+          })
+
+          const track = Effect.fnUntraced(function* () {
+            return yield* locked(
+              Effect.gen(function* () {
+                if (!(yield* enabled())) return
+                const existed = yield* exists(state.gitdir)
+                yield* fs.ensureDir(state.gitdir).pipe(Effect.orDie)
+                if (!existed) {
+                  yield* git(["init"], {
+                    env: { GIT_DIR: state.gitdir, GIT_WORK_TREE: state.worktree },
+                  })
+                  yield* git(["--git-dir", state.gitdir, "config", "core.autocrlf", "false"])
+                  yield* git(["--git-dir", state.gitdir, "config", "core.longpaths", "true"])
+                  yield* git(["--git-dir", state.gitdir, "config", "core.symlinks", "true"])
+                  yield* git(["--git-dir", state.gitdir, "config", "core.fsmonitor", "false"])
+                  log.info("initialized")
+                }
+                yield* add()
+                const result = yield* git(args(["write-tree"]), { cwd: state.directory })
+                const hash = result.text.trim()
+                log.info("tracking", { hash, cwd: state.directory, git: state.gitdir })
+                return hash
+              }),
+            )
+          })
+
+          const patch = Effect.fnUntraced(function* (hash: string) {
+            return yield* locked(
+              Effect.gen(function* () {
+                yield* add()
+                const result = yield* git(
+                  [...quote, ...args(["diff", "--cached", "--no-ext-diff", "--name-only", hash, "--", "."])],
+                  {
+                    cwd: state.directory,
+                  },
+                )
+                if (result.code !== 0) {
+                  log.warn("failed to get diff", { hash, exitCode: result.code })
+                  return { hash, files: [] }
+                }
+                const files = result.text
+                  .trim()
+                  .split("\n")
+                  .map((x) => x.trim())
+                  .filter(Boolean)
+
+                // Hide ignored-file removals from the user-facing patch output.
+                const ignored = yield* ignore(files)
+
+                return {
+                  hash,
+                  files: files
+                    .filter((item) => !ignored.has(item))
+                    .map((x) => path.join(state.worktree, x).replaceAll("\\", "/")),
+                }
+              }),
+            )
+          })
+
+          const restore = Effect.fnUntraced(function* (snapshot: string) {
+            return yield* locked(
+              Effect.gen(function* () {
+                log.info("restore", { commit: snapshot })
+                const result = yield* git([...core, ...args(["read-tree", snapshot])], { cwd: state.worktree })
+                if (result.code === 0) {
+                  const checkout = yield* git([...core, ...args(["checkout-index", "-a", "-f"])], {
+                    cwd: state.worktree,
+                  })
+                  if (checkout.code === 0) return
+                  log.error("failed to restore snapshot", {
+                    snapshot,
+                    exitCode: checkout.code,
+                    stderr: checkout.stderr,
+                  })
+                  return
+                }
+                log.error("failed to restore snapshot", {
+                  snapshot,
                   exitCode: result.code,
                   stderr: result.stderr,
                 })
-                return
-              }
-              log.info("cleanup", { prune })
-            }),
-          )
-        })
+              }),
+            )
+          })
 
-        const track = Effect.fnUntraced(function* () {
-          return yield* locked(
-            Effect.gen(function* () {
-              if (!(yield* enabled())) return
-              const existed = yield* exists(state.gitdir)
-              yield* fs.ensureDir(state.gitdir).pipe(Effect.orDie)
-              if (!existed) {
-                yield* git(["init"], {
-                  env: { GIT_DIR: state.gitdir, GIT_WORK_TREE: state.worktree },
-                })
-                yield* git(["--git-dir", state.gitdir, "config", "core.autocrlf", "false"])
-                yield* git(["--git-dir", state.gitdir, "config", "core.longpaths", "true"])
-                yield* git(["--git-dir", state.gitdir, "config", "core.symlinks", "true"])
-                yield* git(["--git-dir", state.gitdir, "config", "core.fsmonitor", "false"])
-                log.info("initialized")
-              }
-              yield* add()
-              const result = yield* git(args(["write-tree"]), { cwd: state.directory })
-              const hash = result.text.trim()
-              log.info("tracking", { hash, cwd: state.directory, git: state.gitdir })
-              return hash
-            }),
-          )
-        })
-
-        const patch = Effect.fnUntraced(function* (hash: string) {
-          return yield* locked(
-            Effect.gen(function* () {
-              yield* add()
-              const result = yield* git(
-                [...quote, ...args(["diff", "--cached", "--no-ext-diff", "--name-only", hash, "--", "."])],
-                {
-                  cwd: state.directory,
-                },
-              )
-              if (result.code !== 0) {
-                log.warn("failed to get diff", { hash, exitCode: result.code })
-                return { hash, files: [] }
-              }
-              const files = result.text
-                .trim()
-                .split("\n")
-                .map((x) => x.trim())
-                .filter(Boolean)
-
-              // Hide ignored-file removals from the user-facing patch output.
-              const ignored = yield* ignore(files)
-
-              return {
-                hash,
-                files: files
-                  .filter((item) => !ignored.has(item))
-                  .map((x) => path.join(state.worktree, x).replaceAll("\\", "/")),
-              }
-            }),
-          )
-        })
-
-        const restore = Effect.fnUntraced(function* (snapshot: string) {
-          return yield* locked(
-            Effect.gen(function* () {
-              log.info("restore", { commit: snapshot })
-              const result = yield* git([...core, ...args(["read-tree", snapshot])], { cwd: state.worktree })
-              if (result.code === 0) {
-                const checkout = yield* git([...core, ...args(["checkout-index", "-a", "-f"])], {
-                  cwd: state.worktree,
-                })
-                if (checkout.code === 0) return
-                log.error("failed to restore snapshot", {
-                  snapshot,
-                  exitCode: checkout.code,
-                  stderr: checkout.stderr,
-                })
-                return
-              }
-              log.error("failed to restore snapshot", {
-                snapshot,
-                exitCode: result.code,
-                stderr: result.stderr,
-              })
-            }),
-          )
-        })
-
-        const revert = Effect.fnUntraced(function* (patches: Patch[]) {
+          const revert = Effect.fnUntraced(function* (patches: Patch[]) {
           return yield* locked(
             Effect.gen(function* () {
               const ops: { hash: string; file: string; rel: string }[] = []

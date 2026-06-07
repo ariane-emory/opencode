@@ -465,6 +465,22 @@ export function Session() {
     if (sessions[next]) enterChild(sessions[next].id)
   }
 
+  function toggleChildSession() {
+    if (session()?.parentID) {
+      // Currently in child, go to parent
+      const parentID = session()?.parentID
+      if (parentID) {
+        navigate({
+          type: "session",
+          sessionID: parentID,
+        })
+      }
+    } else {
+      // Currently in primary, go to first child
+      moveFirstChild()
+    }
+  }
+
   function childSessionHandler(func: () => void) {
     return () => {
       if (!session()?.parentID || dialog.stack.length > 0) return
@@ -1097,6 +1113,16 @@ export function Session() {
         }
         dialog.clear()
       }),
+    },
+    {
+      title: session()?.parentID ? "Return to parent session" : "Show child sessions",
+      value: "session.child.toggle",
+      keybind: "session_child_toggle",
+      category: "Session",
+      run: () => {
+        toggleChildSession()
+        dialog.clear()
+      },
     },
     {
       title: "Next child session",

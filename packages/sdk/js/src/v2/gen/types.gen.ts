@@ -2252,6 +2252,7 @@ export type Config = {
       model?: string
       variant?: string
       subtask?: boolean
+      ignored?: boolean
     }
   }
   skills?: {
@@ -2713,6 +2714,7 @@ export type Command = {
   source?: "command" | "mcp" | "skill"
   template: string
   subtask?: boolean
+  ignored?: boolean
   hints: Array<string>
 }
 

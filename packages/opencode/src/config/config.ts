@@ -9,7 +9,15 @@ import fsNode from "fs/promises"
 import { Flag } from "@opencode-ai/core/flag/flag"
 import { Auth } from "../auth"
 import { Env } from "../env"
-import { applyEdits, modify } from "jsonc-parser"
+import {
+  type ParseError as JsoncParseError,
+  applyEdits,
+  modify,
+  parse as parseJsonc,
+  printParseErrorCode,
+} from "jsonc-parser"
+import type { ThemeJson } from "../cli/cmd/tui/context/theme"
+import { containsPath, type InstanceContext } from "../project/instance-context"
 import { InstallationLocal, InstallationVersion } from "@opencode-ai/core/installation/version"
 import { existsSync } from "fs"
 import { Account } from "@/account/account"
@@ -22,12 +30,12 @@ import { z } from "zod"
 import { FetchHttpClient, HttpClient, HttpClientRequest, HttpClientResponse } from "effect/unstable/http"
 import { EffectFlock } from "@opencode-ai/core/util/effect-flock"
 import { makeRuntime } from "@/effect/run-service"
-import { containsPath, type InstanceContext } from "../project/instance-context"
 import { ConfigV1 } from "@opencode-ai/core/v1/config/config"
 import { ConfigPermissionV1 } from "@opencode-ai/core/v1/config/permission"
 import { ConfigPluginV1 } from "@opencode-ai/core/v1/config/plugin"
 import { ConfigAgent } from "./agent"
 import { ConfigCommand } from "./command"
+import { JsonError } from "@opencode-ai/core/v1/config/error"
 import { ConfigManaged } from "./managed"
 import { ConfigParse } from "./parse"
 import { ConfigPaths } from "./paths"
@@ -193,6 +201,46 @@ function globalConfigFile() {
     if (existsSync(file)) return file
   }
   return candidates[0]
+}
+
+export async function loadThemeFile(filepath: string): Promise<ThemeJson> {
+  log.info("loading theme", { path: filepath })
+  let text = await Bun.file(filepath)
+    .text()
+    .catch((err) => {
+      if (err.code === "ENOENT") return
+      throw new JsonError({ path: filepath }, { cause: err })
+    })
+  if (!text) {
+    throw new Error("Empty theme file")
+  }
+
+  const errors: JsoncParseError[] = []
+  const data = parseJsonc(text, errors, { allowTrailingComma: true })
+
+  if (errors.length) {
+    const lines = text.split("\n")
+    const errorDetails = errors
+      .map((e) => {
+        const beforeOffset = text.substring(0, e.offset).split("\n")
+        const line = beforeOffset.length
+        const column = beforeOffset[beforeOffset.length - 1].length + 1
+        const problemLine = lines[line - 1]
+
+        const error = `${printParseErrorCode(e.error)} at line ${line}, column ${column}`
+        if (!problemLine) return error
+
+        return `${error}\n   Line ${line}: ${problemLine}\n${"".padStart(column + 9)}^`
+      })
+      .join("\n")
+
+    throw new JsonError({
+      path: filepath,
+      message: `\n--- JSONC Input ---\n${text}\n--- Errors ---\n${errorDetails}\n--- End ---`,
+    })
+  }
+
+  return data as ThemeJson
 }
 
 function patchJsonc(input: string, patch: unknown, path: string[] = []): string {

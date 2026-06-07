@@ -128,6 +128,12 @@ const appBindingCommands = [
   "app.toggle.paste_summary",
   "app.toggle.session_directory_filter",
   "app.toggle.tps",
+  "session.toggle.timestamps",
+  "session.toggle.thinking",
+  "session.toggle.actions",
+  "session.toggle.scrollbar",
+  "session.toggle.generic_tool_output",
+  "session.sidebar.toggle",
 ] as const
 
 export function tuiRendererConfig(_config: TuiConfig.Resolved): CliRendererConfig {
@@ -1024,6 +1030,16 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         },
       },
       {
+        name: "session.toggle.timestamps",
+        title: kv.get("timestamps", "hide") === "show" ? "Hide timestamps" : "Show timestamps",
+        category: "System",
+        run: () => {
+          const current = kv.get("timestamps", "hide")
+          kv.set("timestamps", current === "show" ? "hide" : "show")
+          dialog.clear()
+        },
+      },
+      {
         name: "app.toggle.clear_prompt_history",
         title: kv.get("clear_prompt_save_history", false)
           ? "Don't include cleared prompts in history"
@@ -1031,6 +1047,15 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         category: "System",
         run: () => {
           kv.set("clear_prompt_save_history", !kv.get("clear_prompt_save_history", false))
+          dialog.clear()
+        },
+      },
+      {
+        name: "session.toggle.thinking",
+        title: kv.get("thinking_visibility", true) ? "Hide thinking" : "Show thinking",
+        category: "System",
+        run: () => {
+          kv.set("thinking_visibility", !kv.get("thinking_visibility", true))
           dialog.clear()
         },
       },
@@ -1048,11 +1073,29 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         },
       },
       {
+        name: "session.toggle.actions",
+        title: kv.get("tool_details_visibility", true) ? "Hide tool details" : "Show tool details",
+        category: "System",
+        run: () => {
+          kv.set("tool_details_visibility", !kv.get("tool_details_visibility", true))
+          dialog.clear()
+        },
+      },
+      {
         name: "app.toggle.sidebar_scrollbar",
         title: kv.get("sidebar_scrollbar_visible", true) ? "Hide sidebar scrollbar" : "Show sidebar scrollbar",
         category: "System",
         run: () => {
           kv.set("sidebar_scrollbar_visible", !kv.get("sidebar_scrollbar_visible", true))
+          dialog.clear()
+        },
+      },
+      {
+        name: "session.toggle.scrollbar",
+        title: kv.get("scrollbar_visible", true) ? "Hide session scrollbar" : "Show session scrollbar",
+        category: "System",
+        run: () => {
+          kv.set("scrollbar_visible", !kv.get("scrollbar_visible", true))
           dialog.clear()
         },
       },
@@ -1064,6 +1107,25 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         category: "System",
         run: () => {
           kv.set("sidebar_session_id_visible", !kv.get("sidebar_session_id_visible", false))
+          dialog.clear()
+        },
+      },
+      {
+        name: "session.toggle.generic_tool_output",
+        title: kv.get("generic_tool_output_visibility", false) ? "Hide generic tool output" : "Show generic tool output",
+        category: "System",
+        run: () => {
+          kv.set("generic_tool_output_visibility", !kv.get("generic_tool_output_visibility", false))
+          dialog.clear()
+        },
+      },
+      {
+        name: "session.sidebar.toggle",
+        title: kv.get("sidebar", "auto") === "auto" ? "Hide sidebar" : "Show sidebar",
+        category: "System",
+        run: () => {
+          const current = kv.get("sidebar", "auto")
+          kv.set("sidebar", current === "auto" ? "hide" : "auto")
           dialog.clear()
         },
       },

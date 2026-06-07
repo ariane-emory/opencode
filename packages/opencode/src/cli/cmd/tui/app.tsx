@@ -449,6 +449,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
     renderer.clearSelection()
   }
   const [terminalTitleEnabled, setTerminalTitleEnabled] = createSignal(kv.get("terminal_title_enabled", true))
+  const [sidebarClockEnabled, setSidebarClockEnabled] = createSignal(kv.get("sidebar_clock_visible", true))
   const [pasteSummaryEnabled, setPasteSummaryEnabled] = createSignal(
     kv.get("paste_summary_enabled", !sync.data.config.experimental?.disable_paste_summary),
   )
@@ -1033,6 +1034,19 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
           dialog.clear()
         },
       },
+      {
+        name: "app.toggle.sidebar_clock",
+        title: sidebarClockEnabled() ? "Hide sidebar clock" : "Show sidebar clock",
+        category: "System",
+        run: () => {
+          setSidebarClockEnabled((prev) => {
+            const next = !prev
+            kv.set("sidebar_clock_visible", next)
+            return next
+          })
+          dialog.clear()
+        },
+      },
       ...customSlashCommands(),
     ].map((command) =>
       "namespace" in command
@@ -1042,6 +1056,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
             ...command,
           },
     ),
+
   )
 
   useBindings(() => ({

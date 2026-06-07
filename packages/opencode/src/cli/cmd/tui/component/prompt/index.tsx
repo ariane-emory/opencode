@@ -94,6 +94,7 @@ export type PromptRef = {
 import { SINISTER_PLACEHOLDERS as PLACEHOLDERS } from "@opencode-ai/ui/constants/placeholders"
 const SHELL_PLACEHOLDERS = ["ls -la", "git status", "pwd"]
 
+
 const money = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
@@ -322,6 +323,7 @@ export function Prompt(props: PromptProps) {
 
   const listContinuation = useListContinuation()
 
+
   const fileStyleId = syntax().getStyleId("extmark.file")!
   const agentStyleId = syntax().getStyleId("extmark.agent")!
   const pasteStyleId = syntax().getStyleId("extmark.paste")!
@@ -358,6 +360,7 @@ export function Prompt(props: PromptProps) {
       }, 0)
     }
   })
+
 
   const lastUserMessage = createMemo(() => {
     if (!props.sessionID) return undefined

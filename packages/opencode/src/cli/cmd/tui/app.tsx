@@ -980,6 +980,17 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
           dialog.clear()
         },
       },
+      {
+        name: "app.toggle.clear_prompt_history",
+        title: kv.get("clear_prompt_save_history", false)
+          ? "Don't include cleared prompts in history"
+          : "Include cleared prompts in history",
+        category: "System",
+        run: () => {
+          kv.set("clear_prompt_save_history", !kv.get("clear_prompt_save_history", false))
+          dialog.clear()
+        },
+      },
       ...customSlashCommands(),
     ].map((command) =>
       "namespace" in command

@@ -22,6 +22,7 @@ export function DialogMessage(props: {
 
   return (
     <DialogSelect
+      sort={true}
       title="Message Actions"
       options={[
         {

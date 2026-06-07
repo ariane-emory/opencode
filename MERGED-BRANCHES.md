@@ -28,32 +28,32 @@
 | ☑ | 22 | fix/history-navigation-key-commands | 237 | Clean merge | |
 | ☑ | 23 | fix/build-with-short-version | 240 | Clean merge | Adds version.test.ts |
 | ☑ | 24 | fix/autocompletion-filtered-order | 76 | b079b52b7c | Conflicts in prompt/index.tsx; fixed Keybind.Info type |
-| ☐ | 25 | fix/modal-menus-filtered-order | 77 | TBD | |
-| ☐ | 26 | fix/config-package-json-pollution | 176 | TBD | Prevents package.json pollution with non-SemVer versions |
-| ☐ | 27 | fix/session-list-viewport-jumping | 197 | TBD | |
-| ☐ | 28 | fix/merging-multiple-configs | 205 | TBD | |
-| ☐ | 29 | fix/markdown-codeblock-theme-property | 222 | TBD | |
-| ☐ | 30 | fix/persist-sidebar | 80 | TBD | Persistent sidebar state; **MUST NOT** return to auto state after show/hide; sidebar **MUST NOT** be affected by window width |
-| ☐ | 31 | feat/persist-sidebar-group-folding-states | 98 | TBD | Do not let this get clobbered |
-| ☐ | 32 | feat/persistant-sidebar-overlay-behaviour | 71 | TBD | |
-| ☐ | 33 | feat/opeoginni--display-message-tps | 83 | TBD | |
-| ☐ | 34 | feat/kv-diff-style-clean | 134 | TBD | |
-| ☐ | 35 | feat/global-compaction-threshold | 63 | TBD | |
-| ☐ | 36 | feat/configurable-message-and-session-limit | 177 | TBD | Both `experimental._message__limit` and `experimental.session_list_limit` **MUST** accept positive integers or "none" |
-| ☐ | 37 | feat/experimental-dont-cache-command-markdown | 252 | TBD | |
-| ☐ | 38 | feat/jsonc-user-themes | 97 | TBD | |
-| ☐ | 39 | feat/improve-shell-tool-git-advice | 279 | TBD | **MUST** combine with feat/shell-tool-unblacklist-fish changes |
-| ☐ | 40 | feat/shell-tool-unblacklist-fish-and-extend-dynamic-naming | 278 | TBD | **MUST** combine with feat/improve-shell-tool-git-advice changes; **NO** shells blacklisted |
-| ☐ | 41 | feat/edit-tool-description | 142 | TBD | |
-| ☐ | 42 | feat/renaming-doesnt-close-session-list | 233 | TBD | |
-| ☐ | 43 | feat/session-child-toggle-key | 238 | TBD | |
-| ☐ | 44 | feat/get-session-title | 144 | TBD | |
-| ☐ | 45 | feat/set-session-title | 106 | TBD | |
-| ☐ | 46 | feat/no-disabled-lsps-in-sidebar | 186 | TBD | LSPs **MUST NOT** display when disabled in config; do not clobber |
-| ☐ | 47 | fix/inline-datetime-no-padding | 275 | TBD | Adds `datetimeCompact()` and `todayTimeOrDateTimeCompact()` to locale.ts; **MUST** be merged before feat/agent-timestamps |
-| ☐ | 48 | feat/agent-timestamps | 191 | TBD | **MUST** use `Locale.todayTimeOrDateTimeCompact()` for inline timestamps |
-| ☐ | 49 | feat/rewind-modal-option | 192 | TBD | |
-| ☐ | 50 | feat/alphabetize-command-palette-groups | 195 | TBD | |
+| ☑ | 25 | fix/modal-menus-filtered-order | 77 | b5c06f033a | Conflicts in autocomplete.tsx, dialog-select.tsx, smart-sort.ts |
+| ☑ | 26 | fix/config-package-json-pollution | 176 | 5bbeb3452e | Clean merge |
+| ☑ | 27 | fix/session-list-viewport-jumping | 197 | e3ec3e7109 | Clean merge |
+| ☑ | 28 | fix/merging-multiple-configs | 205 | 0a9288d5fb | Clean merge - adds deepRemoveDefaults with zod |
+| ☑ | 29 | fix/markdown-codeblock-theme-property | 222 | 9faa108abe | Clean merge |
+| ☑ | 30 | fix/persist-sidebar | 80 | 298fe1272c | Conflicts in prompt/index.tsx; added zod import to config.ts |
+| ☑ | 31 | feat/persist-sidebar-group-folding-states | 98 | 713427806b | Clean merge |
+| ☑ | 32 | feat/persistant-sidebar-overlay-behaviour | 71 | 6bdfad3d15 | Clean merge |
+| ☑ | 33 | feat/opeoginni--display-message-tps | 83 | 3bc8ed3a82 | Clean merge |
+| ☑ | 34 | feat/kv-diff-style-clean | 134 | 83b018fbb2 | Conflict in permission.tsx: kept HEAD imports |
+| ☑ | 35 | feat/global-compaction-threshold | 63 | eaad1a9f20 | Clean merge |
+| ☑ | 36 | feat/configurable-message-and-session-limit | 177 | f0db1a6fdb | Conflicts in config.ts, dialog-session-list.tsx, types.gen.ts |
+| ☑ | 37 | feat/experimental-dont-cache-command-markdown | 252 | 1473858563 | Conflict in command/index.ts: combined imports |
+| ☑ | 38 | feat/jsonc-user-themes | 97 | 381bd36a4c | Conflict in config.ts; fixed duplicate import |
+| ☑ | 39 | feat/improve-shell-tool-git-advice | 279 | 79405dbaa8 | Clean merge |
+| ☑ | 40 | feat/shell-tool-unblacklist-fish-and-extend-dynamic-naming | 278 | 26177b1f99 | Clean merge |
+| ☑ | 41 | feat/edit-tool-description | 142 | e506d6eb34 | Clean merge |
+| ☑ | 42 | feat/renaming-doesnt-close-session-list | 233 | f2ef435578 | Conflict in dialog-session-list.tsx |
+| ☑ | 43 | feat/session-child-toggle-key | 238 | a9c6615454 | Clean merge |
+| ☑ | 44 | feat/get-session-title | 144 | 3ae82d3948 | Conflict in registry.ts |
+| ☑ | 45 | feat/set-session-title | 106 | 1d95b8723f | Conflicts in registry.ts; renamed duplicate keys |
+| ☑ | 46 | feat/no-disabled-lsps-in-sidebar | 186 | 3b5ae1e5be | Conflict in sidebar/lsp.tsx |
+| ☑ | 47 | fix/inline-datetime-no-padding | 275 | 831e94ad33 | Conflicts in locale.ts; added SessionMessageSynthetic import |
+| ☑ | 48 | feat/agent-timestamps | 191 | 0c0773d1cb | Conflicts in locale.ts, index.tsx; added agentTimestamps KV signal + context type |
+| ☑ | 49 | feat/rewind-modal-option | 192 | 20bd6a4def | Conflicts in app.tsx, index.tsx, session.ts; kept agent timestamps + sidebar overlay |
+| ☑ | 50 | feat/alphabetize-command-palette-groups | 195 | d0f68d273a | Conflict in dialog-select.tsx; kept smartCompare sorting |
 | ☐ | 51 | feat/taller-dialogs | 196 | TBD | |
 | ☐ | 52 | feat/add-arianes-themes | 212 | TBD | |
 | ☐ | 53 | feat/sidebar-clock | 207 | TBD | |

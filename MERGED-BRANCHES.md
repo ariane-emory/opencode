@@ -13,21 +13,21 @@
 | ☑ | 7 | feat/session-bookmarks | 102 | b12b61e3a2 | Conflict resolution: merged parseSessionTitle + pinned sessions |
 | ☑ | 8 | fix/dialog-datetime-alignment | 113 | 8469297763 | Conflict: kept alignment comment in locale.ts |
 | ☑ | 9 | feat/keybindable-commands | 48 | b8e8d3ccdf | Conflict: merged markdown toggle + customSlashCommands; fixed undefined command.matcher |
-| ☐ | 10 | feat/automatic-list-continuation | 112 | TBD | |
-| ☐ | 11 | feat/continue-command | 11 | TBD | |
-| ☐ | 12 | feat/configurable-snapshot-lifespan | 157 | TBD | |
-| ☐ | 13 | feat/configurable-new-plan-mode | 143 | TBD | |
-| ☐ | 14 | feat/improve-experimental-plan-mode-prompt | 232 | TBD | |
-| ☐ | 15 | feat/enable-exa-setting | 257 | TBD | |
-| ☐ | 16 | feat/canceled-prompts-in-history | 151 | TBD | **MUST** add new item to command palette; do not clobber |
-| ☐ | 17 | feat/permission-spinner | 36 | TBD | |
-| ☐ | 18 | feat/opencode-expand | 67 | TBD | |
-| ☐ | 19 | refactor/shared-substitute | 203 | TBD | |
-| ☐ | 20 | feat/argument-range-syntax | 149 | TBD | |
-| ☐ | 21 | feat/default-arguments | 217 | TBD | **MUST NOT** reintroduce swallowing behaviour that feat/argument-range-syntax eliminated |
-| ☐ | 22 | fix/history-navigation-key-commands | 237 | TBD | |
-| ☐ | 23 | fix/build-with-short-version | 240 | TBD | Uses short timestamp version for integration branches |
-| ☐ | 24 | fix/autocompletion-filtered-order | 76 | TBD | |
+| ☑ | 10 | feat/automatic-list-continuation | 112 | 65d3bee6f4 | Conflict: kept KeyEvent type annotation in prompt |
+| ☑ | 11 | feat/continue-command | 11 | 66ae0cf8b5 | Conflicts in prompt.ts: kept lastAssistantForLoop + added overrides to runLoop/loop |
+| ☑ | 12 | feat/configurable-snapshot-lifespan | 157 | 3d44f08f91 | Clean merge |
+| ☑ | 13 | feat/configurable-new-plan-mode | 143 | Clean merge | Adds plan mode config |
+| ☑ | 14 | feat/improve-experimental-plan-mode-prompt | 232 | Clean merge | Updates plan-mode.txt |
+| ☑ | 15 | feat/enable-exa-setting | 259 | 994fc83afa | Conflict in config.ts: combined exports; fixed duplicate makeRuntime import |
+| ☑ | 16 | feat/canceled-prompts-in-history | 151 | a37589220b | Conflict in app.tsx: combined markdown toggle + clear_prompt_history + customSlashCommands |
+| ☑ | 17 | feat/permission-spinner | 36 | Clean merge | |
+| ☑ | 18 | feat/opencode-expand | 67 | Clean merge | Adds expand.ts, config/expand.ts, config/substitute.ts |
+| ☑ | 19 | refactor/shared-substitute | 203 | 6fd5bd11e9 | Conflicts in substitute.ts and prompt.ts: simple resolution |
+| ☑ | 20 | feat/argument-range-syntax | 149 | 674a0edc52 | Complex conflicts in substitute.ts, prompt.ts, substitute.test.ts; fixed duplicate import |
+| ☑ | 21 | feat/default-arguments | 217 | c2fe97f623 | Complex conflicts: synthesized whitespace splitting + range syntax + default arguments |
+| ☑ | 22 | fix/history-navigation-key-commands | 237 | Clean merge | |
+| ☑ | 23 | fix/build-with-short-version | 240 | Clean merge | Adds version.test.ts |
+| ☑ | 24 | fix/autocompletion-filtered-order | 76 | b079b52b7c | Conflicts in prompt/index.tsx; fixed Keybind.Info type |
 | ☐ | 25 | fix/modal-menus-filtered-order | 77 | TBD | |
 | ☐ | 26 | fix/config-package-json-pollution | 176 | TBD | Prevents package.json pollution with non-SemVer versions |
 | ☐ | 27 | fix/session-list-viewport-jumping | 197 | TBD | |

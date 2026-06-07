@@ -10,6 +10,16 @@ export const externalID = (prefix: string, input: ExternalID) =>
   `${prefix}_${Hash.sha256(JSON.stringify([input.namespace, input.key]))}`
 
 /**
+ * Boolean that also accepts 1/0 for compatibility with numeric config values.
+ */
+export const ConfigBoolean = Schema.Union([Schema.Boolean, Schema.Literals([1, 0])]).pipe(
+  Schema.decodeTo(Schema.Boolean, {
+    decode: SchemaGetter.transform((value) => (typeof value === "boolean" ? value : value === 1)),
+    encode: SchemaGetter.transform((value) => value),
+  }),
+)
+
+/**
  * Integer greater than zero.
  */
 export const PositiveInt = Schema.Int.check(Schema.isGreaterThan(0))

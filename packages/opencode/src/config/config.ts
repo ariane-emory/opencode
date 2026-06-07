@@ -21,6 +21,7 @@ import { Context, Duration, Effect, Exit, Fiber, Layer, Option, Schema } from "e
 import { FetchHttpClient, HttpClient, HttpClientRequest, HttpClientResponse } from "effect/unstable/http"
 import { EffectFlock } from "@opencode-ai/core/util/effect-flock"
 import { containsPath, type InstanceContext } from "../project/instance-context"
+import { makeRuntime } from "@/effect/run-service"
 import { ConfigV1 } from "@opencode-ai/core/v1/config/config"
 import { ConfigPermissionV1 } from "@opencode-ai/core/v1/config/permission"
 import { ConfigPluginV1 } from "@opencode-ai/core/v1/config/plugin"
@@ -675,5 +676,39 @@ export const defaultLayer = layer.pipe(
   Layer.provide(Npm.defaultLayer),
   Layer.provide(FetchHttpClient.layer),
 )
+
+const { runPromise } = makeRuntime(Service, defaultLayer)
+
+export async function get() {
+  return runPromise((svc) => svc.get())
+}
+
+export async function getGlobal() {
+  return runPromise((svc) => svc.getGlobal())
+}
+
+export async function getConsoleState() {
+  return runPromise((svc) => svc.getConsoleState())
+}
+
+export async function update(config: Info) {
+  return runPromise((svc) => svc.update(config))
+}
+
+export async function updateGlobal(config: Info) {
+  return runPromise((svc) => svc.updateGlobal(config))
+}
+
+export async function invalidate() {
+  return runPromise((svc) => svc.invalidate())
+}
+
+export async function directories() {
+  return runPromise((svc) => svc.directories())
+}
+
+export async function waitForDependencies() {
+  return runPromise((svc) => svc.waitForDependencies())
+}
 
 export * as Config from "./config"

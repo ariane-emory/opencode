@@ -1694,6 +1694,7 @@ function AssistantMessage(props: { message: AssistantMessage; parts: Part[]; las
               <Show when={ctx.showAgentTimestamps()}>
                 <span style={{ fg: theme.textMuted }}> · {Locale.todayTimeOrDateTimeCompact(props.message.time.created)}</span>
               </Show>
+
               <Show when={duration()}>
                 <span style={{ fg: theme.textMuted }}> · {Locale.duration(duration())}</span>
               </Show>

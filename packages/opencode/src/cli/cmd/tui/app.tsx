@@ -900,6 +900,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
           dialog.clear()
         },
       },
+
       {
         name: "terminal.suspend",
         title: "Suspend terminal",

@@ -1397,7 +1397,7 @@ function UserMessage(props: {
           >
             <Show when={ctx.markdownAll()} fallback={<text fg={theme.text}>{text()}</text>}>
               <Switch>
-                <Match when={Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+                <Match when={process.env.OPENCODE_EXPERIMENTAL_MARKDOWN}>
                   <markdown
                     syntaxStyle={tui.syntax()}
                     streaming={false}
@@ -1405,7 +1405,7 @@ function UserMessage(props: {
                     conceal={ctx.conceal()}
                   />
                 </Match>
-                <Match when={!Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+                <Match when={!process.env.OPENCODE_EXPERIMENTAL_MARKDOWN}>
                   <box flexDirection="column">
                     <Index each={segments()}>
                       {(segment) => (
@@ -1700,7 +1700,7 @@ function TextPart(props: { last: boolean; part: TextPart; message: AssistantMess
     <Show when={props.part.text?.trim()}>
       <box id={"text-" + props.part.id} paddingLeft={3} marginTop={1} flexShrink={0}>
         <Switch>
-          <Match when={Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+          <Match when={process.env.OPENCODE_EXPERIMENTAL_MARKDOWN}>
             <markdown
               syntaxStyle={tui.syntax()}
               streaming={true}
@@ -1712,7 +1712,7 @@ function TextPart(props: { last: boolean; part: TextPart; message: AssistantMess
               bg={theme.background}
             />
           </Match>
-          <Match when={!Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+          <Match when={!process.env.OPENCODE_EXPERIMENTAL_MARKDOWN}>
             <box flexDirection="column">
               <Index each={segments()}>
                 {(segment) => (

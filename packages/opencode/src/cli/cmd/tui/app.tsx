@@ -1047,6 +1047,15 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
           dialog.clear()
         },
       },
+      {
+        name: "app.toggle.sidebar_scrollbar",
+        title: kv.get("sidebar_scrollbar_visible", true) ? "Hide sidebar scrollbar" : "Show sidebar scrollbar",
+        category: "System",
+        run: () => {
+          kv.set("sidebar_scrollbar_visible", !kv.get("sidebar_scrollbar_visible", true))
+          dialog.clear()
+        },
+      },
       ...customSlashCommands(),
     ].map((command) =>
       "namespace" in command
@@ -1056,7 +1065,6 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
             ...command,
           },
     ),
-
   )
 
   useBindings(() => ({

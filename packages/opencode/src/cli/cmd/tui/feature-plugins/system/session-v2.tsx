@@ -24,6 +24,7 @@ import type {
   SessionMessageCompaction,
   SessionMessageModelSwitched,
   SessionMessageShell,
+  SessionMessageSynthetic,
   SessionMessageUser,
   ToolFileContent,
   ToolTextContent,
@@ -166,32 +167,59 @@ function UserMessage(props: { message: SessionMessageUser; index: number }) {
       customBorderChars={SplitBorder.customBorderChars}
       marginTop={props.index === 0 ? 0 : 1}
       flexShrink={0}
+    >
+      <box paddingTop={1} paddingBottom={1} paddingLeft={2} backgroundColor={theme.backgroundPanel}>
+        <Show
+          when={props.message.text.trim()}
+          fallback={
+            <MissingData label="User message text" detail={`Message ${props.message.id} has no text field content.`} />
+          }
+        >
+          <text fg={theme.text}>{props.message.text}</text>
+        </Show>
+        <Show when={attachments().length}>
+          <box flexDirection="row" paddingTop={1} gap={1} flexWrap="wrap">
+            <For each={props.message.files ?? []}>
+              {(file) => (
+                <text fg={theme.text}>
+                  <span style={{ bg: theme.secondary, fg: theme.background }}> {file.mime} </span>
+                  <span style={{ bg: theme.backgroundElement, fg: theme.textMuted }}> {file.name ?? file.uri} </span>
+                </text>
+              )}
+            </For>
+            <For each={props.message.agents ?? []}>
+              {(agent) => (
+                <text fg={theme.text}>
+                  <span style={{ bg: theme.accent, fg: theme.background }}> agent </span>
+                  <span style={{ bg: theme.backgroundElement, fg: theme.textMuted }}> {agent.name} </span>
+                </text>
+              )}
+            </For>
+          </box>
+        </Show>
+        <text fg={theme.textMuted}>{Locale.todayTimeOrDateTimeCompact(props.message.time.created)}</text>
+      </box>
+    </box>
+  )
+}
+
+function SyntheticMessage(props: { message: SessionMessageSynthetic; index: number }) {
+  const { theme } = useTheme()
+  return (
+    <box
+      id={props.message.id}
+      border={["left"]}
+      borderColor={theme.backgroundElement}
+      customBorderChars={SplitBorder.customBorderChars}
+      marginTop={props.index === 0 ? 0 : 1}
+      paddingLeft={2}
       paddingTop={1}
       paddingBottom={1}
-      paddingLeft={2}
       backgroundColor={theme.backgroundPanel}
+      flexShrink={0}
     >
+      <text fg={theme.textMuted}>Synthetic</text>
       <text fg={theme.text}>{props.message.text}</text>
-      <Show when={attachments().length}>
-        <box flexDirection="row" paddingTop={1} gap={1} flexWrap="wrap">
-          <For each={props.message.files ?? []}>
-            {(file) => (
-              <text fg={theme.text}>
-                <span style={{ bg: theme.secondary, fg: theme.background }}> {file.mime} </span>
-                <span style={{ bg: theme.backgroundElement, fg: theme.textMuted }}> {file.name ?? file.uri} </span>
-              </text>
-            )}
-          </For>
-          <For each={props.message.agents ?? []}>
-            {(agent) => (
-              <text fg={theme.text}>
-                <span style={{ bg: theme.accent, fg: theme.background }}> agent </span>
-                <span style={{ bg: theme.backgroundElement, fg: theme.textMuted }}> {agent.name} </span>
-              </text>
-            )}
-          </For>
-        </box>
-      </Show>
     </box>
   )
 }

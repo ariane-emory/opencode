@@ -1,4 +1,4 @@
-import { afterEach, describe, expect } from "bun:test"
+import { afterEach, describe, expect, test } from "bun:test"
 import path from "path"
 import fs from "fs/promises"
 import { fileURLToPath, pathToFileURL } from "url"
@@ -7,7 +7,7 @@ import { CrossSpawnSpawner } from "@opencode-ai/core/cross-spawn-spawner"
 import { Database } from "@opencode-ai/core/database/database"
 import { ToolRegistry } from "@/tool/registry"
 import { Tool } from "@/tool/tool"
-import { disposeAllInstances, TestInstance } from "../fixture/fixture"
+import { provideTestInstance, disposeAllInstances, TestInstance, tmpdir } from "../fixture/fixture"
 import { testEffect } from "../lib/effect"
 import { TestConfig } from "../fixture/config"
 import { FSUtil } from "@opencode-ai/core/fs-util"
@@ -29,6 +29,7 @@ import { Format } from "@/format"
 import { Ripgrep } from "@opencode-ai/core/filesystem/ripgrep"
 import * as Truncate from "@/tool/truncate"
 import { InstanceState } from "@/effect/instance-state"
+import { InstanceRef } from "@/effect/instance-ref"
 import { Reference } from "@/reference/reference"
 import { RepositoryCache } from "@/reference/repository-cache"
 
@@ -536,4 +537,31 @@ describe("tool.registry", () => {
       expect(ids).toContain("cowsay")
     }),
   )
+
+  test("registers plan tools when experimental.plan_mode is enabled", async () => {
+    await using tmp = await tmpdir({
+      git: true,
+      config: {
+        experimental: {
+          plan_mode: true,
+        },
+      },
+    })
+
+    await provideTestInstance({
+      directory: tmp.path,
+      fn: async (ctx) => {
+        const registry = await Effect.gen(function* () {
+          const svc = yield* ToolRegistry.Service
+          return yield* svc.ids()
+        }).pipe(
+          Effect.provide(ToolRegistry.defaultLayer),
+          Effect.provideService(InstanceRef, ctx),
+          Effect.runPromise,
+        )
+        expect(registry).toContain("plan_exit")
+        expect(registry).toContain("plan_enter")
+      },
+    })
+  }, 30000)
 })

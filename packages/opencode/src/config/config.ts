@@ -110,6 +110,8 @@ async function resolveLoadedPlugins<T extends { plugin?: ConfigPluginV1.Spec[] }
   return config
 }
 
+export type Layout = ConfigV1.Layout
+
 type Info = ConfigV1.Info & {
   // plugin_origins is derived state, not a persisted config field. It keeps each winning plugin spec together
   // with the file and scope it came from so later runtime code can make location-sensitive decisions.
@@ -132,6 +134,7 @@ export interface Interface {
   readonly invalidate: () => Effect.Effect<void>
   readonly directories: () => Effect.Effect<string[]>
   readonly waitForDependencies: () => Effect.Effect<void>
+  readonly experimentalPlanMode: () => Effect.Effect<boolean>
 }
 
 export class Service extends Context.Service<Service, Interface>()("@opencode/Config") {}
@@ -602,6 +605,11 @@ export const layer = Layer.effect(
       return yield* InstanceState.use(state, (s) => s.config)
     })
 
+    const experimentalPlanMode = Effect.fn("Config.experimentalPlanMode")(function* () {
+      const config = yield* get()
+      return config.experimental?.plan_mode === true
+    })
+
     const directories = Effect.fn("Config.directories")(function* () {
       return yield* InstanceState.use(state, (s) => s.directories)
     })
@@ -663,6 +671,7 @@ export const layer = Layer.effect(
       invalidate,
       directories,
       waitForDependencies,
+      experimentalPlanMode,
     })
   }),
 )

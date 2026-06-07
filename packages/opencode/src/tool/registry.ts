@@ -27,6 +27,7 @@ import { WebSearchTool } from "./websearch"
 import * as Log from "@opencode-ai/core/util/log"
 import { LspTool } from "./lsp"
 import * as Truncate from "./truncate"
+import { SetCurrentSessionTitleTool } from "./set-current-session-title"
 import { ApplyPatchTool } from "./apply_patch"
 import { GetCurrentSessionTitleTool } from "./session-title"
 import { Glob } from "@opencode-ai/core/util/glob"
@@ -137,6 +138,7 @@ export const layer: Layer.Layer<
     const skilltool = yield* SkillTool
     const bookmarktool = yield* BookmarkCurrentSessionTool
     const sessiontitle = yield* GetCurrentSessionTitleTool
+    const sessiontitletool = yield* SetCurrentSessionTitleTool
     const agent = yield* Agent.Service
 
     const state = yield* InstanceState.make<State>(
@@ -247,6 +249,7 @@ export const layer: Layer.Layer<
           lsp: Tool.init(lsptool),
           plan: Tool.init(plan),
           planEnter: Tool.init(planEnter),
+          sessiontitle: Tool.init(sessiontitletool),
         })
 
         return {
@@ -272,6 +275,7 @@ export const layer: Layer.Layer<
             ...((flags.experimentalPlanMode || (yield* config.experimentalPlanMode())) && flags.client === "cli"
               ? [tool.plan, tool.planEnter]
               : []),
+            tool.sessiontitle,
           ],
           task: tool.task,
           read: tool.read,

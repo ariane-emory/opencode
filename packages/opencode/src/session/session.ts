@@ -109,6 +109,7 @@ export function fromRow(row: SessionRow): Info {
       updated: row.time_updated,
       compacting: row.time_compacting ?? undefined,
       archived: row.time_archived ?? undefined,
+      pinned: row.time_pinned ?? undefined,
     },
   }
 }
@@ -144,6 +145,7 @@ export function toRow(info: Info) {
     time_updated: info.time.updated,
     time_compacting: info.time.compacting,
     time_archived: info.time.archived,
+    time_pinned: info.time.pinned ?? null,
   }
 }
 
@@ -184,8 +186,6 @@ const Share = Schema.Struct({
   url: Schema.String,
 })
 
-// Legacy HTTP accepted negative values here. Keep archive timestamps permissive
-// while excluding non-finite values that cannot round-trip through JSON.
 export const ArchivedTimestamp = Schema.Finite
 
 const Time = Schema.Struct({
@@ -193,6 +193,7 @@ const Time = Schema.Struct({
   updated: NonNegativeInt,
   compacting: optionalOmitUndefined(NonNegativeInt),
   archived: optionalOmitUndefined(ArchivedTimestamp),
+  pinned: optionalOmitUndefined(NonNegativeInt),
 })
 
 const Revert = Schema.Struct({
@@ -271,6 +272,10 @@ export const SetArchivedInput = Schema.Struct({
   sessionID: SessionID,
   time: Schema.optional(ArchivedTimestamp),
 })
+export const SetPinnedInput = Schema.Struct({
+  sessionID: SessionID,
+  time: Schema.optional(Schema.NullOr(NonNegativeInt)),
+})
 export const SetMetadataInput = Schema.Struct({
   sessionID: SessionID,
   metadata: Metadata,
@@ -323,6 +328,7 @@ const UpdatedTime = Schema.Struct({
   updated: Schema.optional(Schema.NullOr(NonNegativeInt)),
   compacting: Schema.optional(Schema.NullOr(NonNegativeInt)),
   archived: Schema.optional(Schema.NullOr(ArchivedTimestamp)),
+  pinned: Schema.optional(Schema.NullOr(NonNegativeInt)),
 })
 
 const UpdatedInfo = Schema.Struct({
@@ -475,6 +481,7 @@ export interface Interface {
   readonly get: (id: SessionID) => Effect.Effect<Info, NotFound>
   readonly setTitle: (input: { sessionID: SessionID; title: string }) => Effect.Effect<void>
   readonly setArchived: (input: { sessionID: SessionID; time?: number }) => Effect.Effect<void>
+  readonly setPinned: (input: { sessionID: SessionID; time?: number | null }) => Effect.Effect<void>
   readonly setMetadata: (input: typeof SetMetadataInput.Type) => Effect.Effect<void>
   readonly setPermission: (input: { sessionID: SessionID; permission: PermissionV1.Ruleset }) => Effect.Effect<void>
   readonly setRevert: (input: {
@@ -770,6 +777,9 @@ export const layer: Layer.Layer<
           yield* updatePart(p)
         }
       }
+      if (original.time.pinned !== undefined) {
+        yield* setPinned({ sessionID: session.id, time: original.time.pinned })
+      }
       return session
     })
 
@@ -802,6 +812,10 @@ export const layer: Layer.Layer<
 
     const setMetadata = Effect.fn("Session.setMetadata")(function* (input: typeof SetMetadataInput.Type) {
       yield* patch(input.sessionID, { metadata: input.metadata, time: { updated: Date.now() } }).pipe(Effect.orDie)
+    })
+
+    const setPinned = Effect.fn("Session.setPinned")(function* (input: { sessionID: SessionID; time?: number | null }) {
+      yield* patch(input.sessionID, { time: { pinned: input.time ?? undefined } }).pipe(Effect.orDie)
     })
 
     const setPermission = Effect.fn("Session.setPermission")(function* (input: {
@@ -941,6 +955,7 @@ export const layer: Layer.Layer<
       get,
       setTitle,
       setArchived,
+      setPinned,
       setMetadata,
       setPermission,
       setRevert,

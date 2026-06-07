@@ -54,39 +54,39 @@
 | ☑ | 48 | feat/agent-timestamps | 191 | 0c0773d1cb | Conflicts in locale.ts, index.tsx; added agentTimestamps KV signal + context type |
 | ☑ | 49 | feat/rewind-modal-option | 192 | 20bd6a4def | Conflicts in app.tsx, index.tsx, session.ts; kept agent timestamps + sidebar overlay |
 | ☑ | 50 | feat/alphabetize-command-palette-groups | 195 | d0f68d273a | Conflict in dialog-select.tsx; kept smartCompare sorting |
-| ☐ | 51 | feat/taller-dialogs | 196 | TBD | |
-| ☐ | 52 | feat/add-arianes-themes | 212 | TBD | |
-| ☐ | 53 | feat/sidebar-clock | 207 | TBD | |
-| ☐ | 54 | feat/alphabetical-message-modal | 219 | TBD | |
-| ☐ | 55 | feat/toggle-sidebar-scrollbar | 224 | TBD | |
-| ☐ | 56 | feat/full-datetimes-in-fork-and-timeline-dialogues | 223 | TBD | |
-| ☐ | 57 | feat/configurable-maximum-prompt-input-size | 242 | TBD | |
-| ☐ | 58 | feat/clickable-sidebar-mcps | 227 | TBD | |
-| ☐ | 59 | feat/clickable-dialogue-mcps | 225 | TBD | |
-| ☐ | 60 | feat/clickable-status-mcps | 241 | TBD | |
-| ☐ | 61 | feat/ignored-commands | 216 | TBD | |
-| ☐ | 62 | feat/dialogue-background-overlay-setting | 249 | TBD | |
-| ☐ | 63 | fix/no-split-database | 235 | TBD | |
-| ☐ | 64 | feat/elapsed-timer | 54 | TBD | |
-| ☐ | 65 | fix/rfc2119-question-tool | 118 | TBD | |
-| ☐ | 66 | feat/sidebar-header-accent-colours | 229 | TBD | |
-| ☐ | 67 | feat/distinct-title-colour | 226 | TBD | **MUST** be compatible with feat/session-grouping title formatting |
-| ☐ | 68 | feat/tool-output-colour | 230 | TBD | |
-| ☐ | 69 | fix/autocompletion-input-enter-keybindings | 277 | TBD | |
-| ☐ | 70 | fix/escape-from-status | 245 | TBD | |
-| ☐ | 71 | fix/restore-footer | 175 | TBD | Restores footer removed in previous version; **MUST NOT** be clobbered |
-| ☐ | 72 | feat/remove-canned-jokes | 247 | TBD | |
-| ☐ | 73 | fix/session-list-delete-selection | 255 | TBD | |
-| ☐ | 74 | feat/kimi-with-claude-system-prompt | 246 | TBD | |
-| ☐ | 75 | fix/less-bottom-padding | 263 | TBD | |
-| ☐ | 76 | fix/session-timestamp-regression | 268 | TBD | |
-| ☐ | 77 | feat/persistent-session-id-in-sidebar-toggle | 276 | TBD | |
-| ☐ | 78 | fix/preserve-quotes-in-arguments | 239 | TBD | |
-| ☐ | 79 | feat/command-palette-consistency | 244 | TBD | **MOVE** items from Session to System category; **MUST NOT** duplicate into both categories |
-| ☐ | 80 | fix/model-selection-follows-favorite | 280 | TBD | |
-| ☐ | 81 | fix/integration-version-plugin-compatibility | 281 | TBD | |
-| ☐ | 82 | fix/hide-session-pinning-feature | 282 | TBD | |
-| ☐ | 83 | fix/variant-list-toast-no-variants | 283 | TBD | |
+| ☑ | 51 | feat/taller-dialogs | 196 | ced2c6c255 | Clean merge |
+| ☑ | 52 | feat/add-arianes-themes | 212 | 371d8f8908 | Clean merge, adds 50 theme JSON files |
+| ☑ | 53 | feat/sidebar-clock | 207 | 4019aa0179 | Conflicts in app.tsx, footer.tsx, sidebar.tsx |
+| ☑ | 54 | feat/alphabetical-message-modal | 219 | 8e738d9b85 | Conflict in dialog-select.tsx |
+| ☑ | 55 | feat/toggle-sidebar-scrollbar | 224 | d50ac667b0 | Conflicts in app.tsx, index.tsx |
+| ☑ | 56 | feat/full-datetimes-in-fork-and-timeline-dialogues | 223 | 8fe9c715ae | Conflict in locale.ts |
+| ☑ | 57 | feat/configurable-maximum-prompt-input-size | 242 | e18ee2707b | Conflicts in config.ts, types.gen.ts |
+| ☑ | 58 | feat/clickable-sidebar-mcps | 227 | 3254b391cc | Conflict in mcp.tsx |
+| ☑ | 59 | feat/clickable-dialogue-mcps | 225 | 42bf1cf27a | Clean merge |
+| ☑ | 60 | feat/clickable-status-mcps | 241 | e67a58c180 | Bug fix: removed nonexistent Log import |
+| ☑ | 61 | feat/ignored-commands | 216 | 90a2b31fd3 | Clean merge |
+| ☑ | 62 | feat/dialogue-background-overlay-setting | 249 | 439f1179a4 | Conflicts in config.ts, types.gen.ts |
+| ☑ | 63 | fix/no-split-database | 235 | 5d19cf367a | Clean merge |
+| ☑ | 64 | feat/elapsed-timer | 54 | d10a4f7bc6 | Conflicts in index.tsx |
+| ☑ | 65 | fix/rfc2119-question-tool | 118 | 7af4885368 | Clean merge |
+| ☑ | 66 | feat/sidebar-header-accent-colours | 229 | bcf5bf62f3 | Conflict in lsp.tsx |
+| ☑ | 67 | feat/distinct-title-colour | 226 | b54cdc3121 | Conflict in sidebar.tsx; added sessionTitle to theme |
+| ☑ | 68 | feat/tool-output-colour | 230 | d7fbe7cd23 | Conflicts in theme.tsx; added toolOutput to theme |
+| ☑ | 69 | fix/autocompletion-input-enter-keybindings | 277 | 4a33a35b16 | Clean merge |
+| ☑ | 70 | fix/escape-from-status | 245 | 455c877396 | Clean merge |
+| ☑ | 71 | fix/restore-footer | 175 | 8bb269c888 | Conflict in index.tsx |
+| ☑ | 72 | feat/remove-canned-jokes | 247 | df41ee27ba | Clean merge |
+| ☑ | 73 | fix/session-list-delete-selection | 255 | 8036c6349e | Conflicts in dialog-select.tsx |
+| ☑ | 74 | feat/kimi-with-claude-system-prompt | 246 | 551783b2a3 | Clean merge |
+| ☑ | 75 | fix/less-bottom-padding | 263 | 4c1d215195 | Clean merge |
+| ☑ | 76 | fix/session-timestamp-regression | 268 | e6ae3b3bb6 | Clean merge |
+| ☑ | 77 | feat/persistent-session-id-in-sidebar-toggle | 276 | e1c862fd75 | Conflicts in app.tsx, sidebar.tsx |
+| ☑ | 78 | fix/preserve-quotes-in-arguments | 239 | 2ac352b549 | Conflict in prompt-substitute.test.ts |
+| ☑ | 79 | feat/command-palette-consistency | 244 | f162a7f3ab | Conflicts in app.tsx, index.tsx; combined all toggle commands |
+| ☑ | 80 | fix/model-selection-follows-favorite | 280 | 6447296136 | Clean merge |
+| ☑ | 81 | fix/integration-version-plugin-compatibility | 281 | ce3ef8aa39 | Clean merge |
+| ☑ | 82 | fix/hide-session-pinning-feature | 282 | d63365b86a | Conflict in dialog-session-list.tsx |
+| ☑ | 83 | fix/variant-list-toast-no-variants | 283 | fe3b04e0b1 | Clean merge |
 
 ## Merge Log
 

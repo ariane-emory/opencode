@@ -1885,4 +1885,6 @@ export async function continue_(input: ContinueInput, options?: { instance?: Ins
   return runPromise((svc) => svc.continue(input))
 }
 
+export { substituteArguments }
+
 export * as SessionPrompt from "./prompt"

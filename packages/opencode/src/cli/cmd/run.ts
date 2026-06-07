@@ -23,6 +23,9 @@ import { Filesystem } from "@/util/filesystem"
 import { createOpencodeClient, type OpencodeClient, type ToolPart } from "@opencode-ai/sdk/v2"
 import { FormatError, FormatUnknownError } from "../error"
 import { INTERACTIVE_INPUT_ERROR, resolveInteractiveStdin } from "./run/runtime.stdin"
+import { loadTheme } from "../theme-loader"
+import type { MarkdownTheme } from "../markdown-renderer"
+import { TuiConfig } from "@/cli/cmd/tui/config/tui"
 
 type ModelInput = Parameters<OpencodeClient["session"]["prompt"]>[0]["model"]
 
@@ -603,6 +606,8 @@ export const RunCommand = effectCmd({
       }
 
       async function execute(sdk: OpencodeClient) {
+        const theme: MarkdownTheme | undefined = await TuiConfig.get().then((c: { theme?: string }) => loadTheme(c.theme)).catch(() => loadTheme())
+
         const sess = await session(sdk)
         if (!sess?.id) {
           UI.error("Session not found")
@@ -689,7 +694,7 @@ export const RunCommand = effectCmd({
                   continue
                 }
                 UI.empty()
-                UI.println(text)
+                process.stdout.write(UI.markdown(text, theme) + EOL)
                 UI.empty()
               }
 

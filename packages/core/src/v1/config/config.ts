@@ -206,6 +206,10 @@ export const Info = Schema.Struct({
       ).annotate({
         description: "Maximum number of lines for the prompt input text box (1-99, default: 6)",
       }),
+      dialog_background_overlay: Schema.optional(Schema.Literals(["full", "limited", "none"])).annotate({
+        description:
+          "Control dialog background overlay: 'full' = semi-transparent overlay (default), 'limited' = overlay only within dialog bounds, 'none' = no overlay",
+      }),
       policies: Schema.optional(Schema.mutable(Schema.Array(ConfigExperimental.Policy))).annotate({
         description: "Policy statements applied to supported resources, such as provider access",
       }),

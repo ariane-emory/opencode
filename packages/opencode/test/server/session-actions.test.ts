@@ -1,18 +1,354 @@
-import { afterEach, describe, expect, mock } from "bun:test"
-import { Effect, Layer } from "effect"
-import { Session as SessionNs } from "@/session/session"
+import { afterEach, describe, expect, mock, test } from "bun:test"
+import { Cause, Effect, Layer, Exit } from "effect"
+import { SessionV1 } from "@opencode-ai/core/v1/session"
+import { Session as SessionNs, NothingToContinueError, InvalidContinueAgentError } from "@/session/session"
+import { MessageV2 } from "../../src/session/message-v2"
+import { ModelV2 } from "@opencode-ai/core/model"
+import { ProviderV2 } from "@opencode-ai/core/provider"
+import { MessageID, PartID, type SessionID } from "../../src/session/schema"
+import { SessionPrompt } from "../../src/session/prompt"
 import * as Log from "@opencode-ai/core/util/log"
+import { AppLayer } from "@/effect/app-runtime"
 import { disposeAllInstances, TestInstance } from "../fixture/fixture"
-import { testEffect } from "../lib/effect"
+import { testEffect, testEffectShared } from "../lib/effect"
 import { httpApiLayer, requestInDirectory } from "./httpapi-layer"
 
 void Log.init({ print: false })
 
 const it = testEffect(Layer.mergeAll(SessionNs.defaultLayer, httpApiLayer))
 
+const itContinue = testEffectShared(AppLayer)
+
 afterEach(async () => {
   mock.restore()
   await disposeAllInstances()
+})
+
+function userEffect(sessionID: SessionID, text: string, model = "test") {
+  return Effect.gen(function* () {
+    const msg = yield* SessionNs.Service.use((svc) =>
+      svc.updateMessage({
+        id: MessageID.ascending(),
+        role: "user",
+        sessionID,
+        agent: "build",
+        model: { providerID: ProviderV2.ID.make("test"), modelID: ModelV2.ID.make(model) },
+        time: { created: Date.now() },
+      }),
+    )
+    yield* SessionNs.Service.use((svc) =>
+      svc.updatePart({
+        id: PartID.ascending(),
+        sessionID,
+        messageID: msg.id,
+        type: "text",
+        text,
+      }),
+    )
+    return msg
+  })
+}
+
+function assistantEffect(sessionID: SessionID, parentID: string, opts?: Partial<SessionV1.Assistant>) {
+  return Effect.gen(function* () {
+    const msg = yield* SessionNs.Service.use((svc) =>
+      svc.updateMessage({
+        id: MessageID.ascending(),
+        role: "assistant" as const,
+        sessionID,
+        parentID: MessageID.make(parentID),
+        mode: "build",
+        agent: "build",
+        path: { cwd: "/tmp", root: "/tmp" },
+        cost: 0,
+        tokens: { input: 0, output: 0, reasoning: 0, cache: { read: 0, write: 0 } },
+        modelID: ModelV2.ID.make("test"),
+        providerID: ProviderV2.ID.make("test"),
+        time: { created: Date.now(), completed: Date.now() },
+        ...opts,
+      }),
+    )
+    yield* SessionNs.Service.use((svc) =>
+      svc.updatePart({
+        id: PartID.ascending(),
+        sessionID,
+        messageID: msg.id,
+        type: "text",
+        text: "assistant response",
+      }),
+    )
+    return msg
+  })
+}
+
+describe("continue logic", () => {
+  itContinue.instance(
+    "throws when no assistant message exists",
+    () =>
+      Effect.gen(function* () {
+        const session = yield* SessionNs.Service.use((svc) => svc.create({}))
+        yield* userEffect(session.id, "hello")
+
+        const exit = yield* SessionPrompt.Service.use((svc) => svc.continue({ sessionID: session.id })).pipe(
+          Effect.exit,
+        )
+
+        expect(Exit.isFailure(exit)).toBe(true)
+        if (Exit.isFailure(exit)) {
+          const err = Cause.squash(exit.cause)
+          expect(err).toBeInstanceOf(SessionNs.NothingToContinueError)
+          if (err instanceof SessionNs.NothingToContinueError) {
+            expect(err.sessionID).toBe(session.id)
+          }
+        }
+
+        yield* SessionNs.Service.use((svc) => svc.remove(session.id)).pipe(Effect.exit)
+      }),
+    { git: true },
+  )
+
+  itContinue.instance(
+    "sends new prompt when assistant finished normally",
+    () =>
+      Effect.gen(function* () {
+        const session = yield* SessionNs.Service.use((svc) => svc.create({}))
+        const usr = yield* userEffect(session.id, "hello")
+        yield* assistantEffect(session.id, usr.id, { finish: "stop" })
+
+        yield* SessionPrompt.Service.use((svc) => svc.continue({ sessionID: session.id })).pipe(
+          Effect.exit,
+        )
+
+        const msgs = yield* SessionNs.Service.use((svc) => svc.messages({ sessionID: session.id }))
+        const users = msgs.filter((msg) => msg.info.role === "user")
+        expect(users.length).toBe(2)
+
+        yield* SessionNs.Service.use((svc) => svc.remove(session.id)).pipe(Effect.exit)
+      }),
+    { git: true },
+  )
+
+  itContinue.instance(
+    "patches interrupted assistant and preserves output",
+    () =>
+      Effect.gen(function* () {
+        const session = yield* SessionNs.Service.use((svc) => svc.create({}))
+        const usr = yield* userEffect(session.id, "hello")
+        yield* assistantEffect(session.id, usr.id, {
+          finish: "stop",
+          error: { name: "MessageAbortedError", data: { message: "cancelled" } },
+        })
+
+        yield* SessionPrompt.Service.use((svc) => svc.continue({ sessionID: session.id })).pipe(
+          Effect.exit,
+        )
+
+        const msgs = yield* SessionNs.Service.use((svc) => svc.messages({ sessionID: session.id }))
+        const ast = msgs.findLast((msg) => msg.info.role === "assistant")
+        expect(ast).toBeDefined()
+        if (ast?.info.role === "assistant") {
+          expect(ast.info.error).toBeUndefined()
+          expect(ast.info.finish).toBe("tool-calls")
+        }
+        expect(ast?.parts[0]?.type).toBe("text")
+
+        yield* SessionNs.Service.use((svc) => svc.remove(session.id)).pipe(Effect.exit)
+      }),
+    { git: true },
+  )
+
+  itContinue.instance(
+    "does not create a new user message when resuming tool calls",
+    () =>
+      Effect.gen(function* () {
+        const session = yield* SessionNs.Service.use((svc) => svc.create({}))
+        const usr = yield* userEffect(session.id, "hello")
+        const ast = yield* assistantEffect(session.id, usr.id, { finish: "stop" })
+
+        yield* SessionNs.Service.use((svc) =>
+          svc.updatePart({
+            id: PartID.ascending(),
+            sessionID: session.id,
+            messageID: ast.id,
+            type: "tool",
+            callID: "call_1",
+            tool: "bash",
+            state: {
+              status: "pending",
+              input: { command: "echo hi" },
+              raw: '{"command":"echo hi"}',
+            },
+          }),
+        )
+
+        yield* SessionPrompt.Service.use((svc) => svc.continue({ sessionID: session.id })).pipe(
+          Effect.exit,
+        )
+
+        const msgs = yield* SessionNs.Service.use((svc) => svc.messages({ sessionID: session.id }))
+        const users = msgs.filter((msg) => msg.info.role === "user")
+        expect(users.length).toBe(1)
+
+        yield* SessionNs.Service.use((svc) => svc.remove(session.id)).pipe(Effect.exit)
+      }),
+    { git: true },
+  )
+
+  itContinue.instance(
+    "updates the resumed model when continue receives an override",
+    () =>
+      Effect.gen(function* () {
+        const session = yield* SessionNs.Service.use((svc) => svc.create({}))
+        const usr = yield* userEffect(session.id, "hello", "old")
+        yield* assistantEffect(session.id, usr.id, { finish: undefined })
+
+        yield* SessionPrompt.Service.use((svc) =>
+          svc.continue({
+            sessionID: session.id,
+            model: {
+              providerID: ProviderV2.ID.make("test"),
+              modelID: ModelV2.ID.make("new"),
+            },
+          }),
+        ).pipe(Effect.exit)
+
+        const msgs = yield* SessionNs.Service.use((svc) => svc.messages({ sessionID: session.id }))
+        const next = msgs.findLast((msg) => msg.info.role === "user")
+        expect(next?.info.role).toBe("user")
+        if (next?.info.role === "user") {
+          expect(String(next.info.model.modelID)).toBe("new")
+          expect(String(next.info.model.providerID)).toBe("test")
+        }
+
+        yield* SessionNs.Service.use((svc) => svc.remove(session.id)).pipe(Effect.exit)
+      }),
+    { git: true },
+  )
+
+  itContinue.instance(
+    "updates the resumed agent when continue receives an override",
+    () =>
+      Effect.gen(function* () {
+        const session = yield* SessionNs.Service.use((svc) => svc.create({}))
+        const usr = yield* userEffect(session.id, "hello")
+        yield* assistantEffect(session.id, usr.id, { finish: undefined })
+
+        yield* SessionPrompt.Service.use((svc) =>
+          svc.continue({
+            sessionID: session.id,
+            agent: "plan",
+          }),
+        ).pipe(Effect.exit)
+
+        const msgs = yield* SessionNs.Service.use((svc) => svc.messages({ sessionID: session.id }))
+        const next = msgs.findLast((msg) => msg.info.role === "user")
+        expect(next?.info.role).toBe("user")
+        if (next?.info.role === "user") {
+          expect(next.info.agent).toBe("plan")
+        }
+
+        yield* SessionNs.Service.use((svc) => svc.remove(session.id)).pipe(Effect.exit)
+      }),
+    { git: true },
+  )
+
+  itContinue.instance(
+    "updates the resumed agent and model together",
+    () =>
+      Effect.gen(function* () {
+        const session = yield* SessionNs.Service.use((svc) => svc.create({}))
+        const usr = yield* userEffect(session.id, "hello", "old")
+        yield* assistantEffect(session.id, usr.id, { finish: undefined })
+
+        yield* SessionPrompt.Service.use((svc) =>
+          svc.continue({
+            sessionID: session.id,
+            agent: "plan",
+            model: {
+              providerID: ProviderV2.ID.make("test"),
+              modelID: ModelV2.ID.make("new"),
+            },
+          }),
+        ).pipe(Effect.exit)
+
+        const msgs = yield* SessionNs.Service.use((svc) => svc.messages({ sessionID: session.id }))
+        const next = msgs.findLast((msg) => msg.info.role === "user")
+        expect(next?.info.role).toBe("user")
+        if (next?.info.role === "user") {
+          expect(next.info.agent).toBe("plan")
+          expect(String(next.info.model.modelID)).toBe("new")
+        }
+
+        yield* SessionNs.Service.use((svc) => svc.remove(session.id)).pipe(Effect.exit)
+      }),
+    { git: true },
+  )
+
+  itContinue.instance(
+    "rejects non-primary continue agents",
+    () =>
+      Effect.gen(function* () {
+        const session = yield* SessionNs.Service.use((svc) => svc.create({}))
+        const usr = yield* userEffect(session.id, "hello")
+        yield* assistantEffect(session.id, usr.id, { finish: undefined })
+
+        const exit = yield* SessionPrompt.Service.use((svc) =>
+          svc.continue({
+            sessionID: session.id,
+            agent: "general",
+          }),
+        ).pipe(Effect.exit)
+
+        expect(Exit.isFailure(exit)).toBe(true)
+        if (Exit.isFailure(exit)) {
+          expect(Cause.squash(exit.cause)).toBeInstanceOf(SessionNs.InvalidContinueAgentError)
+        }
+
+        yield* SessionNs.Service.use((svc) => svc.remove(session.id)).pipe(Effect.exit)
+      }),
+    { git: true },
+  )
+
+  itContinue.instance(
+    "uses the selected primary agent for finished-assistant fallback",
+    () =>
+      Effect.gen(function* () {
+        const session = yield* SessionNs.Service.use((svc) => svc.create({}))
+        const usr = yield* userEffect(session.id, "hello")
+        yield* assistantEffect(session.id, usr.id, { finish: "stop" })
+
+        yield* SessionPrompt.Service.use((svc) =>
+          svc.continue({
+            sessionID: session.id,
+            agent: "plan",
+          }),
+        ).pipe(Effect.exit)
+
+        const msgs = yield* SessionNs.Service.use((svc) => svc.messages({ sessionID: session.id }))
+        const next = msgs.findLast((msg) => msg.info.role === "user")
+        expect(next?.info.role).toBe("user")
+        if (next?.info.role === "user") {
+          expect(next.info.agent).toBe("plan")
+        }
+
+        yield* SessionNs.Service.use((svc) => svc.remove(session.id)).pipe(Effect.exit)
+      }),
+    { git: true },
+  )
+
+  test("NothingToContinueError exposes the session id", () => {
+    const err = new NothingToContinueError("test-session-id")
+    expect(err).toBeInstanceOf(Error)
+    expect(err.sessionID).toBe("test-session-id")
+    expect(err.message).toBe("Nothing to continue in session test-session-id")
+  })
+
+  test("InvalidContinueAgentError exposes the agent", () => {
+    const err = new InvalidContinueAgentError("general")
+    expect(err).toBeInstanceOf(Error)
+    expect(err.agent).toBe("general")
+    expect(err.message).toBe("Invalid continue agent: general")
+  })
 })
 
 describe("session action routes", () => {
@@ -68,8 +404,8 @@ describe("session action routes", () => {
         expect(reset.status).toBe(200)
         expect(((yield* reset.json) as SessionNs.Info).metadata).toEqual({})
 
-        yield* SessionNs.Service.use((svc) => svc.remove(fork.id).pipe(Effect.ignore))
-        yield* SessionNs.Service.use((svc) => svc.remove(session.id).pipe(Effect.ignore))
+        yield* SessionNs.Service.use((svc) => svc.remove(fork.id)).pipe(Effect.exit)
+        yield* SessionNs.Service.use((svc) => svc.remove(session.id)).pipe(Effect.exit)
       }),
     { git: true },
   )
@@ -80,7 +416,7 @@ describe("session action routes", () => {
       Effect.gen(function* () {
         const test = yield* TestInstance
         const session = yield* Effect.acquireRelease(SessionNs.use.create({}), (created) =>
-          SessionNs.use.remove(created.id).pipe(Effect.ignore),
+          SessionNs.use.remove(created.id).pipe(Effect.exit),
         )
 
         const res = yield* requestInDirectory(`/session/${session.id}/abort`, test.directory, { method: "POST" })

@@ -400,7 +400,7 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       const fatal = input.fatal ?? true
       const workspace = project.workspace.current()
       const projectPromise = project.sync()
-      const configPromise = sdk.client.config.get({ workspace }, { throwOnError: true })
+      const configPromise = sdk.client.config.get({ workspace }, { throwOnError: true }).then((x) => x)
       const sessionListPromise = projectPromise.then(async () => {
         const config = (await configPromise).data!
         const sessionsListLimit = config.experimental?.session_list_limit
@@ -412,13 +412,13 @@ export const { use: useSync, provider: SyncProvider } = createSimpleContext({
       })
 
       // blocking - include session.list when continuing a session
-      const providersPromise = sdk.client.config.providers({ workspace }, { throwOnError: true })
-      const providerListPromise = sdk.client.provider.list({ workspace }, { throwOnError: true })
+      const providersPromise = sdk.client.config.providers({ workspace }, { throwOnError: true }).then((x) => x)
+      const providerListPromise = sdk.client.provider.list({ workspace }, { throwOnError: true }).then((x) => x)
       const consoleStatePromise = sdk.client.experimental.console
         .get({ workspace }, { throwOnError: true })
         .then((x) => x.data)
         .catch(() => emptyConsoleState)
-      const agentsPromise = sdk.client.app.agents({ workspace }, { throwOnError: true })
+      const agentsPromise = sdk.client.app.agents({ workspace }, { throwOnError: true }).then((x) => x)
 
       const blockingRequests: { name: string; promise: Promise<unknown> }[] = [
         { name: "config.providers", promise: providersPromise },

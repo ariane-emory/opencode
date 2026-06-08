@@ -1,5 +1,6 @@
 import { render, TimeToFirstDraw, useRenderer, useTerminalDimensions } from "@opentui/solid"
 import { createDefaultOpenTuiKeymap } from "@opentui/keymap/opentui"
+
 import * as Clipboard from "@tui/util/clipboard"
 import * as Selection from "@tui/util/selection"
 import * as TuiAudio from "@tui/util/audio"
@@ -234,9 +235,12 @@ async function mountTui(input: TuiInput & { keymap: ReturnType<typeof createDefa
   if (renderer.isDestroyed) return
 
   await render(() => {
-    return (
+    try {
+    const eb = (
       <ErrorBoundary
-        fallback={(error, reset) => <ErrorComponent error={error} reset={reset} exit={input.exit} mode={mode} />}
+        fallback={(error, reset) => {
+          return <ErrorComponent error={error} reset={reset} exit={input.exit} mode={mode} />
+        }}
       >
         <OpencodeKeymapProvider keymap={input.keymap}>
           <ArgsProvider {...input.args}>
@@ -294,6 +298,10 @@ async function mountTui(input: TuiInput & { keymap: ReturnType<typeof createDefa
         </OpencodeKeymapProvider>
       </ErrorBoundary>
     )
+    return eb
+    } catch (e) {
+      return <text>Render error</text>
+    }
   }, renderer)
 }
 
@@ -423,9 +431,7 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
     config: tuiConfig,
     dispose: () => attention.dispose(),
   })
-    .catch((error) => {
-      console.error("Failed to load TUI plugins", error)
-    })
+    .catch(() => {})
     .finally(() => {
       setReady(true)
     })

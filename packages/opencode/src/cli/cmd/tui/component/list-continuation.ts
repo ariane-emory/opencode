@@ -201,14 +201,10 @@ export function handleNewline(text: string, cursorOffset: number): ListContinuat
     }
   }
 
-  // Line is empty (just the list marker) - clear the line
-  // Include preceding newline if not on first line to avoid leaving trailing newlines
-  const isFirstLine = line.start === 0
-  const deleteStart = isFirstLine ? line.start : line.start - 1
   return {
     type: "clear",
-    deleteRange: { start: deleteStart, end: line.end },
-    cursorPosition: deleteStart,
+    deleteRange: { start: line.start, end: line.end },
+    cursorPosition: line.start,
   }
 }
 

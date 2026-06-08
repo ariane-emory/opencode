@@ -6,3 +6,4 @@ Usage notes:
 - The title must be between 1 and 255 characters
 - Choose a concise, descriptive title that helps identify the session's purpose
 - This is useful in custom slash commands to automatically title sessions based on their context
+- You SHOULD only use this tool when explicitly requested to set the session title by the user!

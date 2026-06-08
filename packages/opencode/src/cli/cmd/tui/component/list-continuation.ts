@@ -225,8 +225,8 @@ export function handleBackspace(text: string, cursorOffset: number): ListContinu
 
   return {
     type: "clear",
-    deleteRange: { start: line.start - 1, end: line.end },
-    cursorPosition: line.start - 1,
+    deleteRange: { start: line.start, end: line.end },
+    cursorPosition: line.start,
   }
 }
 

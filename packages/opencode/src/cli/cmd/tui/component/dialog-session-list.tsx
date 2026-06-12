@@ -2,7 +2,7 @@ import { useDialog } from "@tui/ui/dialog"
 import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { useRoute } from "@tui/context/route"
 import { useSync } from "@tui/context/sync"
-import { createEffect, createMemo, createResource, createSignal, onMount, type JSX } from "solid-js"
+import { createMemo, createResource, createSignal, onMount, type JSX } from "solid-js"
 import { Locale } from "@/util/locale"
 import { useProject } from "@tui/context/project"
 import { useTheme } from "../context/theme"
@@ -246,15 +246,6 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
       ...pinned.map((x) => item(x, "Bookmarks:", true)),
       ...grouped,
     ]
-  })
-
-  createEffect(() => {
-    const id = currentSessionID() ?? defaultSessionID()
-    if (!id) return
-    options()
-    setTimeout(() => {
-      selectRef()?.scrollToValue(id, true)
-    }, 0)
   })
 
   onMount(() => {

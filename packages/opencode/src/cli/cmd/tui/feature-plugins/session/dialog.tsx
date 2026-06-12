@@ -256,6 +256,7 @@ export function SessionSwitcherDialog() {
       current={currentSessionID()}
       onFilter={setSearch}
       onMove={(option) => {
+        if (toDelete() === option.value) return
         setToDelete(undefined)
         scheduleFocused(option.value)
       }}

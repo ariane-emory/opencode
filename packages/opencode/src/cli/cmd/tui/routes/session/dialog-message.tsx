@@ -32,14 +32,24 @@ export function DialogMessage(props: {
     const maxContentChars = 500
     const previewLines: string[] = []
     let chars = 0
+    let truncated = false
     for (const line of lines) {
-      if (previewLines.length >= maxContentLines) break
-      if (chars + line.length > maxContentChars && previewLines.length > 0) break
+      if (previewLines.length >= maxContentLines) {
+        truncated = true
+        break
+      }
+      if (chars + line.length > maxContentChars && previewLines.length > 0) {
+        truncated = true
+        break
+      }
       previewLines.push(line)
       chars += line.length + 1
     }
-    const preview = ["Are you sure you want to rewind to this message?", ...previewLines]
-    if (lines.length > previewLines.length || chars >= maxContentChars) preview.push("...")
+    while (previewLines.length > 0 && previewLines.at(-1)!.trim().length === 0) {
+      previewLines.pop()
+    }
+    const preview = ["Are you sure you want to rewind to this message?", "", ...previewLines]
+    if (truncated) preview.push("...")
     return preview.join("\n")
   }
 

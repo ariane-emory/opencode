@@ -1,5 +1,5 @@
 import { TextAttributes } from "@opentui/core"
-import { useTheme } from "../context/theme"
+import { useTheme, selectedForeground } from "../context/theme"
 import { useDialog, type DialogContext } from "./dialog"
 import { createStore } from "solid-js/store"
 import { For } from "solid-js"
@@ -63,27 +63,38 @@ export function DialogConfirm(props: DialogConfirmProps) {
           esc
         </text>
       </box>
-      <box paddingBottom={1}>
-        <text fg={theme.textMuted}>{props.message}</text>
+      <box paddingBottom={1} gap={1} flexDirection="column">
+        {props.message.split("\n").map((line, i) => (
+          <text
+            fg={i === 0 ? theme.text : theme.textMuted}
+            attributes={i === 0 ? TextAttributes.BOLD : undefined}
+          >
+            {line}
+          </text>
+        ))}
       </box>
       <box flexDirection="row" justifyContent="flex-end" paddingBottom={1}>
         <For each={["cancel", "confirm"] as const}>
-          {(key) => (
-            <box
-              paddingLeft={1}
-              paddingRight={1}
-              backgroundColor={key === store.active ? theme.primary : undefined}
-              onMouseUp={() => {
-                if (key === "confirm") props.onConfirm?.()
-                if (key === "cancel") props.onCancel?.()
-                dialog.clear()
-              }}
-            >
-              <text fg={key === store.active ? theme.selectedListItemText : theme.textMuted}>
-                {Locale.titlecase(key === "cancel" ? (props.label ?? key) : key)}
-              </text>
-            </box>
-          )}
+          {(key) => {
+            const active = key === store.active
+            const fg = active ? selectedForeground(theme, theme.primary) : theme.textMuted
+            return (
+              <box
+                paddingLeft={1}
+                paddingRight={1}
+                backgroundColor={active ? theme.primary : undefined}
+                onMouseUp={() => {
+                  if (key === "confirm") props.onConfirm?.()
+                  if (key === "cancel") props.onCancel?.()
+                  dialog.clear()
+                }}
+              >
+                <text fg={fg}>
+                  {Locale.titlecase(key === "cancel" ? (props.label ?? key) : key)}
+                </text>
+              </box>
+            )
+          }}
         </For>
       </box>
     </box>

@@ -51,7 +51,7 @@ export function DialogConfirm(props: DialogConfirmProps) {
           </text>
         </box>
       </box>
-      <box paddingBottom={1} gap={1} flexDirection="column">
+      <box flexDirection="column">
         {props.message.split("\n").map((line, i) => (
           <text
             fg={i === 0 ? theme.text : theme.textMuted}

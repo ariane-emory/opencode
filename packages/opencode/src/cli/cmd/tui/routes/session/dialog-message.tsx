@@ -22,7 +22,7 @@ export function DialogMessage(props: {
   const route = useRoute()
 
   function buildMessagePreview(messageID: string): string {
-    const parts = sync.data.part[messageID]
+    const parts = sync.data.part[messageID] ?? []
     const text = parts.reduce((agg, part) => {
       if (part.type === "text" && !part.synthetic) {
         agg += part.text
@@ -96,47 +96,59 @@ export function DialogMessage(props: {
           title: "Rewind",
           value: "session.rewind",
           description: "remove selected and later messages",
-          onSelect: async (dialog) => {
+          onSelect: (dialog) => {
             const msg = message()
             if (!msg) return
 
-            const confirmed = await DialogConfirm.show(
-              dialog,
-              "Rewind to Message?",
-              buildMessagePreview(msg.id),
-            )
-            if (!confirmed) return
-
-            const promptInfo = props.setPrompt
-              ? sync.data.part[msg.id].reduce(
-                  (agg, part) => {
-                    if (part.type === "text") {
-                      if (!part.synthetic) agg.input += part.text
-                    }
-                    if (part.type === "file") agg.parts.push(part)
-                    return agg
-                  },
-                  { input: "", parts: [] as PromptInfo["parts"] },
+            setTimeout(async () => {
+              let confirmed: boolean | undefined
+              try {
+                confirmed = await DialogConfirm.show(
+                  dialog,
+                  "Rewind to Message?",
+                  buildMessagePreview(msg.id),
                 )
-              : undefined
+              } catch (error) {
+                toast.show({
+                  title: "Rewind failed",
+                  message: errorMessage(error),
+                  variant: "error",
+                })
+                return
+              }
+              if (!confirmed) return
 
-            try {
-              await sdk.client.session.rewind({
-                sessionID: props.sessionID,
-                messageID: msg.id,
-              })
+              const promptInfo = props.setPrompt
+                ? (sync.data.part[msg.id] ?? []).reduce(
+                    (agg, part) => {
+                      if (part.type === "text") {
+                        if (!part.synthetic) agg.input += part.text
+                      }
+                      if (part.type === "file") agg.parts.push(part)
+                      return agg
+                    },
+                    { input: "", parts: [] as PromptInfo["parts"] },
+                  )
+                : undefined
 
-              await sync.session.forceSync(props.sessionID)
+              try {
+                await sdk.client.session.rewind({
+                  sessionID: props.sessionID,
+                  messageID: msg.id,
+                })
 
-              if (promptInfo) props.setPrompt?.(promptInfo)
-              dialog.clear()
-            } catch (error) {
-              toast.show({
-                title: "Rewind failed",
-                message: errorMessage(error),
-                variant: "error",
-              })
-            }
+                await sync.session.forceSync(props.sessionID)
+
+                if (promptInfo) props.setPrompt?.(promptInfo)
+                dialog.clear()
+              } catch (error) {
+                toast.show({
+                  title: "Rewind failed",
+                  message: errorMessage(error),
+                  variant: "error",
+                })
+              }
+            }, 0)
           },
         },
         {

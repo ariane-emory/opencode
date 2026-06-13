@@ -75,26 +75,22 @@ export function DialogConfirm(props: DialogConfirmProps) {
       </box>
       <box flexDirection="row" justifyContent="flex-end" paddingBottom={1}>
         <For each={["cancel", "confirm"] as const}>
-          {(key) => {
-            const active = key === store.active
-            const fg = active ? selectedForeground(theme, theme.primary) : theme.textMuted
-            return (
-              <box
-                paddingLeft={1}
-                paddingRight={1}
-                backgroundColor={active ? theme.primary : undefined}
-                onMouseUp={() => {
-                  if (key === "confirm") props.onConfirm?.()
-                  if (key === "cancel") props.onCancel?.()
-                  dialog.clear()
-                }}
-              >
-                <text fg={fg}>
-                  {Locale.titlecase(key === "cancel" ? (props.label ?? key) : key)}
-                </text>
-              </box>
-            )
-          }}
+          {(key) => (
+            <box
+              paddingLeft={1}
+              paddingRight={1}
+              backgroundColor={key === store.active ? theme.primary : undefined}
+              onMouseUp={() => {
+                if (key === "confirm") props.onConfirm?.()
+                if (key === "cancel") props.onCancel?.()
+                dialog.clear()
+              }}
+            >
+              <text fg={key === store.active ? selectedForeground(theme, theme.primary) : theme.textMuted}>
+                {Locale.titlecase(key === "cancel" ? (props.label ?? key) : key)}
+              </text>
+            </box>
+          )}
         </For>
       </box>
     </box>

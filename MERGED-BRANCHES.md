@@ -17,7 +17,7 @@
 | ☑ | 11 | feat/continue-command | 11 | 66ae0cf8b5 | Conflicts in prompt.ts: kept lastAssistantForLoop + added overrides to runLoop/loop |
 | ☑ | 12 | feat/configurable-snapshot-lifespan | 157 | 3d44f08f91 | Clean merge |
 | ☑ | 13 | feat/configurable-new-plan-mode | 143 | Clean merge | Adds plan mode config |
-| ☑ | 14 | feat/improve-experimental-plan-mode-prompt | 232 | Clean merge | Updates plan-mode.txt |
+| ☑ | 14 | feat/improve-experimental-plan-mode-prompt | 232 | Clean merge (re-merged from updated remote) | Updates plan-mode.txt |
 | ☑ | 15 | feat/enable-exa-setting | 259 | 994fc83afa | Conflict in config.ts: combined exports; fixed duplicate makeRuntime import |
 | ☑ | 16 | feat/canceled-prompts-in-history | 151 | a37589220b | Conflict in app.tsx: combined markdown toggle + clear_prompt_history + customSlashCommands |
 | ☑ | 17 | feat/permission-spinner | 36 | Clean merge | |

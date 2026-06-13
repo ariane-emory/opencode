@@ -31,10 +31,9 @@ export function DialogMessage(props: {
     }, "")
     const lines = text.split("\n").filter((line) => line.length > 0)
     const previewLines = lines.slice(0, 10)
-    const suffix = lines.length > 10 ? "\n..." : ""
-    return ["Are you sure you want to rewind to this message?", "", ...previewLines, suffix]
-      .filter((line) => line !== undefined)
-      .join("\n")
+    const preview = ["Are you sure you want to rewind to this message?", ...previewLines]
+    if (lines.length > 10) preview.push("...")
+    return preview.join("\n")
   }
 
   return (

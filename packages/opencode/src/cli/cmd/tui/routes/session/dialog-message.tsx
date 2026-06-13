@@ -24,15 +24,22 @@ export function DialogMessage(props: {
   function buildMessagePreview(messageID: string): string {
     const parts = sync.data.part[messageID] ?? []
     const text = parts.reduce((agg, part) => {
-      if (part.type === "text" && !part.synthetic) {
-        agg += part.text
-      }
+      if (part.type === "text" && !part.synthetic) agg += part.text
       return agg
     }, "")
-    const lines = text.split("\n").filter((line) => line.length > 0)
-    const previewLines = lines.slice(0, 10)
+    const lines = text.split("\n")
+    const maxContentLines = 10
+    const maxContentChars = 500
+    const previewLines: string[] = []
+    let chars = 0
+    for (const line of lines) {
+      if (previewLines.length >= maxContentLines) break
+      if (chars + line.length > maxContentChars && previewLines.length > 0) break
+      previewLines.push(line)
+      chars += line.length + 1
+    }
     const preview = ["Are you sure you want to rewind to this message?", ...previewLines]
-    if (lines.length > 10) preview.push("...")
+    if (lines.length > previewLines.length || chars >= maxContentChars) preview.push("...")
     return preview.join("\n")
   }
 

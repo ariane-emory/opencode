@@ -237,7 +237,9 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
       .map((x) => {
         const parsed = parseSessionTitle(x.title)
         const date = new Date(x.time.updated)
-        return item(x, parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString()), false)
+        const category = parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString())
+        const showDate = !!parsed.group
+        return item(x, category, showDate)
       })
       .filter((x) => x !== undefined)
       .slice(0, limit)

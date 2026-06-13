@@ -36,9 +36,14 @@ export function DialogConfirm(props: DialogConfirmProps) {
         <text attributes={TextAttributes.BOLD} fg={theme.text}>
           {props.title}
         </text>
-        <text fg={theme.textMuted} onMouseUp={() => dialog.clear()}>
-          esc
-        </text>
+        <box flexDirection="row" gap={2}>
+          <text fg={theme.textMuted} onMouseUp={() => { props.onConfirm?.(); dialog.clear() }}>
+            enter
+          </text>
+          <text fg={theme.textMuted} onMouseUp={() => dialog.clear()}>
+            esc
+          </text>
+        </box>
       </box>
       <box paddingBottom={1} gap={1} flexDirection="column">
         {props.message.split("\n").map((line, i) => (

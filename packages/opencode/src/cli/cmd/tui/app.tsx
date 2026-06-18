@@ -126,6 +126,7 @@ const appBindingCommands = [
   "app.toggle.diffwrap",
   "app.toggle.paste_summary",
   "app.toggle.session_directory_filter",
+  "session.toggle.thinking",
 ] as const
 
 export function tuiRendererConfig(_config: TuiConfig.Resolved): CliRendererConfig {
@@ -926,6 +927,16 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
         run: async () => {
           kv.set("session_directory_filter_enabled", !kv.get("session_directory_filter_enabled", true))
           await sync.session.refresh()
+          dialog.clear()
+        },
+      },
+      {
+        name: "session.toggle.thinking",
+        title: kv.get("thinking_mode", "hide") === "show" ? "Collapse thinking" : "Expand thinking",
+        category: "System",
+        run: () => {
+          const current = kv.get("thinking_mode", "hide")
+          kv.set("thinking_mode", current === "show" ? "hide" : "show")
           dialog.clear()
         },
       },

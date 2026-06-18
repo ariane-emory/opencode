@@ -82,7 +82,7 @@ import * as Model from "../../util/model"
 import { formatTranscript } from "../../util/transcript"
 import { UI } from "@/cli/ui.ts"
 import { useTuiConfig } from "../../context/tui-config"
-import { nextThinkingMode, reasoningSummary, useThinkingMode, type ThinkingMode } from "../../context/thinking"
+import { reasoningSummary, useThinkingMode, type ThinkingMode } from "../../context/thinking"
 import { getScrollAcceleration } from "../../util/scroll"
 import { collapseToolOutput } from "../../util/collapse-tool-output"
 import { TuiPluginRuntime } from "@/cli/cmd/tui/plugin/runtime"
@@ -130,7 +130,6 @@ const sessionBindingCommands = [
   "session.sidebar.toggle",
   "session.toggle.conceal",
   "session.toggle.timestamps",
-  "session.toggle.thinking",
   "session.toggle.actions",
   "session.toggle.scrollbar",
   "session.toggle.generic_tool_output",
@@ -689,23 +688,6 @@ export function Session() {
       },
       run: () => {
         setTimestamps((prev) => (prev === "show" ? "hide" : "show"))
-        dialog.clear()
-      },
-    },
-    {
-      title: (() => {
-        const next = nextThinkingMode(thinkingMode())
-        if (next === "hide") return "Collapse thinking"
-        return "Expand thinking"
-      })(),
-      value: "session.toggle.thinking",
-      category: "Session",
-      slash: {
-        name: "thinking",
-        aliases: ["toggle-thinking"],
-      },
-      run: () => {
-        thinking.set(nextThinkingMode(thinkingMode()))
         dialog.clear()
       },
     },

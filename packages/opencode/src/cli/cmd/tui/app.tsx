@@ -1065,10 +1065,11 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
       },
       {
         name: "session.toggle.thinking",
-        title: kv.get("thinking_visibility", true) ? "Hide thinking" : "Show thinking",
+        title: kv.get("thinking_mode", "hide") === "show" ? "Collapse thinking" : "Expand thinking",
         category: "System",
         run: () => {
-          kv.set("thinking_visibility", !kv.get("thinking_visibility", true))
+          const current = kv.get("thinking_mode", "hide")
+          kv.set("thinking_mode", current === "show" ? "hide" : "show")
           dialog.clear()
         },
       },

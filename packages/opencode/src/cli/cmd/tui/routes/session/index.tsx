@@ -95,7 +95,7 @@ import { formatTranscript } from "../../util/transcript"
 import { UI } from "@/cli/ui.ts"
 import { useTuiConfig } from "../../context/tui-config"
 import { renderMarkdownThemedStyled, parseMarkdownSegments } from "@/cli/markdown-renderer"
-import { nextThinkingMode, reasoningSummary, useThinkingMode, type ThinkingMode } from "../../context/thinking"
+import { reasoningSummary, useThinkingMode, type ThinkingMode } from "../../context/thinking"
 import { getScrollAcceleration } from "../../util/scroll"
 import { collapseToolOutput } from "../../util/collapse-tool-output"
 import { TuiPluginRuntime } from "@/cli/cmd/tui/plugin/runtime"
@@ -148,6 +148,10 @@ const sessionBindingCommands = [
   "session.line.down",
   "session.half.page.up",
   "session.half.page.down",
+  "session.toggle.timestamps",
+  "session.toggle.actions",
+  "session.toggle.scrollbar",
+  "session.toggle.generic_tool_output",
   "session.first",
   "session.last",
   "session.messages_last_user",

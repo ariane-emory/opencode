@@ -45,6 +45,9 @@ export const Info = Schema.Struct({
   reference: Schema.optional(ConfigReferenceV1.Info).annotate({
     description: "Named git or local directory references that can be mentioned as @alias or @alias/path",
   }),
+  references: Schema.optional(ConfigReferenceV1.Info).annotate({
+    description: "@deprecated Use 'reference' instead. Named git or local directory references (upstream alias)",
+  }),
   watcher: Schema.optional(Schema.Struct({ ignore: Schema.optional(Schema.mutable(Schema.Array(Schema.String))) })),
   snapshot: Schema.optional(
     Schema.Union([Schema.Boolean, NonNegativeInt])

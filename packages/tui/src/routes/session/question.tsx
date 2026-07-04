@@ -39,6 +39,12 @@ export function QuestionPrompt(props: { request: QuestionRequest; directory?: st
   const other = createMemo(() => custom() && store.selected === options().length)
   const input = createMemo(() => store.custom[store.tab] ?? "")
   const multi = createMemo(() => question()?.multiple === true)
+  const submitKey = createMemo(() => {
+    const bindings = tuiConfig.keybinds.get("input.submit")
+    const key = bindings[0]?.key
+    if (!key) return "enter"
+    return typeof key === "string" ? key : "enter"
+  })
   const customPicked = createMemo(() => {
     const value = input()
     if (!value) return false
@@ -158,8 +164,8 @@ export function QuestionPrompt(props: { request: QuestionRequest; directory?: st
         },
       },
       ...tuiConfig.keybinds.get("prompt.clear"),
-      {
-        key: "return",
+      ...tuiConfig.keybinds.get("input.submit").map((binding) => ({
+        ...binding,
         desc: "Submit answer edit",
         group: "Question",
         cmd: () => {
@@ -202,7 +208,7 @@ export function QuestionPrompt(props: { request: QuestionRequest; directory?: st
           pick(text, true)
           setStore("editing", false)
         },
-      },
+      })),
     ],
   }))
 
@@ -249,7 +255,12 @@ export function QuestionPrompt(props: { request: QuestionRequest; directory?: st
         },
         ...(confirm()
           ? [
-              { key: "return", desc: "Submit answer", group: "Question", cmd: () => submit() },
+              ...tuiConfig.keybinds.get("input.submit").map((binding) => ({
+                ...binding,
+                desc: "Submit answer",
+                group: "Question",
+                cmd: () => submit(),
+              })),
               { key: "escape", desc: "Reject question", group: "Question", cmd: () => reject() },
               ...tuiConfig.keybinds.get("app.exit"),
             ]
@@ -277,7 +288,12 @@ export function QuestionPrompt(props: { request: QuestionRequest; directory?: st
               },
               { key: "down", desc: "Next answer", group: "Question", cmd: () => moveTo((store.selected + 1) % total) },
               { key: "j", desc: "Next answer", group: "Question", cmd: () => moveTo((store.selected + 1) % total) },
-              { key: "return", desc: "Select answer", group: "Question", cmd: () => selectOption() },
+              ...tuiConfig.keybinds.get("input.submit").map((binding) => ({
+                ...binding,
+                desc: "Select answer",
+                group: "Question",
+                cmd: () => selectOption(),
+              })),
               { key: "escape", desc: "Reject question", group: "Question", cmd: () => reject() },
               ...tuiConfig.keybinds.get("app.exit"),
             ]),
@@ -498,7 +514,7 @@ export function QuestionPrompt(props: { request: QuestionRequest; directory?: st
             </text>
           </Show>
           <text fg={theme.text}>
-            enter{" "}
+            {submitKey()}{" "}
             <span style={{ fg: theme.textMuted }}>
               {confirm() ? "submit" : multi() ? "toggle" : single() ? "submit" : "confirm"}
             </span>

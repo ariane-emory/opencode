@@ -73,7 +73,7 @@ import { sessionEpilogue } from "../../util/presentation"
 import { setPreLayoutSiblingMargin } from "../../util/layout"
 import { useTuiConfig } from "../../config"
 import { useClipboard } from "../../context/clipboard"
-import { nextThinkingMode, reasoningSummary, useThinkingMode, type ThinkingMode } from "../../context/thinking"
+import { reasoningSummary, useThinkingMode, type ThinkingMode } from "../../context/thinking"
 import { getScrollAcceleration } from "../../util/scroll"
 import { collapseToolOutput } from "../../util/collapse-tool-output"
 import { usePluginRuntime } from "../../plugin/runtime"
@@ -125,7 +125,6 @@ const sessionBindingCommands = [
   "session.sidebar.toggle",
   "session.toggle.conceal",
   "session.toggle.timestamps",
-  "session.toggle.thinking",
   "session.toggle.actions",
   "session.toggle.scrollbar",
   "session.toggle.generic_tool_output",
@@ -695,23 +694,6 @@ export function Session() {
       },
       run: () => {
         setTimestamps((prev) => (prev === "show" ? "hide" : "show"))
-        dialog.clear()
-      },
-    },
-    {
-      title: (() => {
-        const next = nextThinkingMode(thinkingMode())
-        if (next === "hide") return "Collapse thinking"
-        return "Expand thinking"
-      })(),
-      value: "session.toggle.thinking",
-      category: "Session",
-      slash: {
-        name: "thinking",
-        aliases: ["toggle-thinking"],
-      },
-      run: () => {
-        thinking.set(nextThinkingMode(thinkingMode()))
         dialog.clear()
       },
     },
@@ -1605,15 +1587,17 @@ function ReasoningPart(props: { last: boolean; part: ReasoningPart; message: Ass
         flexDirection="column"
         flexShrink={0}
       >
-        <box onMouseUp={toggle}>
-          <ReasoningHeader
-            toggleable={inMinimal()}
-            open={!inMinimal() || expanded()}
-            done={isDone()}
-            title={summary().title}
-            duration={isDone() ? Locale.duration(duration()) : undefined}
-          />
-        </box>
+        <Show when={!isDone()}>
+          <box onMouseUp={toggle}>
+            <ReasoningHeader
+              toggleable={inMinimal()}
+              open={!inMinimal() || expanded()}
+              done={isDone()}
+              title={summary().title}
+              duration={isDone() ? Locale.duration(duration()) : undefined}
+            />
+          </box>
+        </Show>
         <Show when={(!inMinimal() || expanded()) && summary().body}>
           <box paddingLeft={inMinimal() ? 2 : 0} marginTop={1}>
             <code

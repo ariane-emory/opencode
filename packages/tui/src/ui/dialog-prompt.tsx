@@ -4,7 +4,7 @@ import { useDialog, type DialogContext } from "./dialog"
 import { Show, createEffect, createSignal, onMount, type JSX } from "solid-js"
 import { Spinner } from "../component/spinner"
 import { useTuiConfig } from "../config"
-import { useBindings, useCommandShortcut } from "../keymap"
+import { useBindings, useCommandShortcuts } from "../keymap"
 
 export type DialogPromptProps = {
   title: string
@@ -21,7 +21,7 @@ export function DialogPrompt(props: DialogPromptProps) {
   const dialog = useDialog()
   const { theme } = useTheme()
   const tuiConfig = useTuiConfig()
-  const submitShortcut = useCommandShortcut("dialog.prompt.submit")
+  const submitShortcuts = useCommandShortcuts("dialog.prompt.submit")
   const [textareaTarget, setTextareaTarget] = createSignal<TextareaRenderable>()
   let textarea: TextareaRenderable
 
@@ -103,9 +103,9 @@ export function DialogPrompt(props: DialogPromptProps) {
       </box>
       <box paddingBottom={1} gap={1} flexDirection="row">
         <Show when={!props.busy} fallback={<text fg={theme.textMuted}>processing...</text>}>
-          <Show when={submitShortcut()}>
+          <Show when={submitShortcuts().length > 0}>
             <text fg={theme.text}>
-              {submitShortcut()} <span style={{ fg: theme.textMuted }}>submit</span>
+              {submitShortcuts().join("/")} <span style={{ fg: theme.textMuted }}>submit</span>
             </text>
           </Show>
         </Show>

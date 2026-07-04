@@ -22,6 +22,7 @@ import { Context, Duration, Effect, Exit, Fiber, Layer, Option, Schema } from "e
 import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/unstable/http"
 import { EffectFlock } from "@opencode-ai/core/util/effect-flock"
 import { makeRuntime } from "@/effect/run-service"
+import { AppNodeBuilder } from "@opencode-ai/core/effect/app-node-builder"
 import { containsPath, type InstanceContext } from "../project/instance-context"
 import { ConfigV1 } from "@opencode-ai/core/v1/config/config"
 import { RemoteAuthError } from "@opencode-ai/core/v1/config/error"
@@ -678,7 +679,7 @@ export const node = LayerNode.make({
   deps: [FSUtil.node, Auth.node, Account.node, Env.node, Npm.node, httpClient],
 })
 
-const { runPromise } = makeRuntime(Service, defaultLayer)
+const { runPromise } = makeRuntime(Service, AppNodeBuilder.build(node))
 
 export async function experimentalEnableExa(): Promise<boolean> {
   if (envTruthy("OPENCODE_EXPERIMENTAL") || envTruthy("OPENCODE_ENABLE_EXA") || envTruthy("OPENCODE_EXPERIMENTAL_EXA")) {

@@ -21,6 +21,8 @@ import { InstanceState } from "@/effect/instance-state"
 import { Context, Duration, Effect, Exit, Fiber, Layer, Option, Schema } from "effect"
 import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/unstable/http"
 import { EffectFlock } from "@opencode-ai/core/util/effect-flock"
+import { makeRuntime } from "@/effect/run-service"
+import { AppNodeBuilder } from "@opencode-ai/core/effect/app-node-builder"
 import { containsPath, type InstanceContext } from "../project/instance-context"
 import { ConfigV1 } from "@opencode-ai/core/v1/config/config"
 import { RemoteAuthError } from "@opencode-ai/core/v1/config/error"
@@ -676,5 +678,20 @@ export const node = LayerNode.make({
   layer: layer,
   deps: [FSUtil.node, Auth.node, Account.node, Env.node, Npm.node, httpClient],
 })
+
+const { runPromise } = makeRuntime(Service, AppNodeBuilder.build(node))
+
+export async function experimentalEnableExa(): Promise<boolean> {
+  if (envTruthy("OPENCODE_EXPERIMENTAL") || envTruthy("OPENCODE_ENABLE_EXA") || envTruthy("OPENCODE_EXPERIMENTAL_EXA")) {
+    return true
+  }
+  const config = await runPromise((svc) => svc.get())
+  return config.experimental?.enable_exa === true
+}
+
+function envTruthy(key: string) {
+  const value = process.env[key]?.toLowerCase()
+  return value === "true" || value === "1"
+}
 
 export * as Config from "./config"

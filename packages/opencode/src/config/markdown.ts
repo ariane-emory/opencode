@@ -17,11 +17,30 @@ export function shell(template: string) {
 // frontmatter, we need to fallback to a more permissive parser for those cases
 export const fallbackSanitization = ConfigMarkdownCore.sanitize
 
+function interpolateEnvironmentVariables(obj: any): any {
+  if (typeof obj === "string") {
+    return obj.replace(/\{env:([^}]+)\}/g, (_, varName) => {
+      return process.env[varName] || ""
+    })
+  } else if (Array.isArray(obj)) {
+    return obj.map(interpolateEnvironmentVariables)
+  } else if (obj && typeof obj === "object") {
+    const result: any = {}
+    for (const [key, value] of Object.entries(obj)) {
+      result[key] = interpolateEnvironmentVariables(value)
+    }
+    return result
+  }
+  return obj
+}
+
 export async function parse(filePath: string) {
   const template = await Filesystem.readText(filePath)
 
   try {
-    return ConfigMarkdownCore.parse(template)
+    const md = ConfigMarkdownCore.parse(template)
+    md.data = interpolateEnvironmentVariables(md.data)
+    return md
   } catch (err) {
     throw new FrontmatterError(
       {

@@ -2020,6 +2020,10 @@ export type Config = {
     primary_tools?: Array<string>
     continue_loop_on_deny?: boolean
     mcp_timeout?: number
+    /**
+     * Maximum number of lines for the prompt input text box (1-99, default: 6)
+     */
+    max_prompt_input_lines?: number
     policies?: Array<ConfigV2ExperimentalPolicy>
   }
 }

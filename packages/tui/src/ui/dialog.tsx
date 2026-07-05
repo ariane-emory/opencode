@@ -5,6 +5,7 @@ import { MouseButton, Renderable, RGBA } from "@opentui/core"
 import { createStore } from "solid-js/store"
 import { useToast } from "./toast"
 import { Flag } from "@opencode-ai/core/flag/flag"
+import { useSync } from "../context/sync"
 import { useBindings, useOpencodeModeStack } from "../keymap"
 import { useClipboard } from "../context/clipboard"
 
@@ -17,6 +18,10 @@ export function Dialog(
   const dimensions = useTerminalDimensions()
   const { theme } = useTheme()
   const renderer = useRenderer()
+  const sync = useSync()
+
+  const overlayMode = () => sync.data.config.experimental?.dialog_background_overlay ?? "full"
+  const showOverlay = () => overlayMode() === "full"
 
   let dismiss = false
   const width = () => {
@@ -45,7 +50,7 @@ export function Dialog(
       paddingTop={dimensions().height / 4}
       left={0}
       top={0}
-      backgroundColor={RGBA.fromInts(0, 0, 0, 150)}
+      backgroundColor={showOverlay() ? RGBA.fromInts(0, 0, 0, 150) : undefined}
     >
       <box
         onMouseUp={(e: { stopPropagation(): void }) => {

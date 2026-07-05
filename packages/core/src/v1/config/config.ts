@@ -179,6 +179,10 @@ export const Info = Schema.Struct({
       mcp_timeout: Schema.optional(PositiveInt).annotate({
         description: "Timeout in milliseconds for model context protocol (MCP) requests",
       }),
+      dialog_background_overlay: Schema.optional(Schema.Literals(["full", "limited", "none"])).annotate({
+        description:
+          "Control dialog background overlay: 'full' = semi-transparent overlay (default), 'limited' = overlay only within dialog bounds, 'none' = no overlay",
+      }),
       policies: Schema.optional(Schema.mutable(Schema.Array(ConfigExperimental.Policy))).annotate({
         description: "Policy statements applied to supported resources, such as provider access",
       }),

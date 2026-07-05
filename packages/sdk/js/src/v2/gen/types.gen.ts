@@ -2020,6 +2020,10 @@ export type Config = {
     primary_tools?: Array<string>
     continue_loop_on_deny?: boolean
     mcp_timeout?: number
+    /**
+     * Control dialog background overlay: 'full' = semi-transparent overlay (default), 'limited' = overlay only within dialog bounds, 'none' = no overlay
+     */
+    dialog_background_overlay?: 'full' | 'limited' | 'none'
     policies?: Array<ConfigV2ExperimentalPolicy>
   }
 }

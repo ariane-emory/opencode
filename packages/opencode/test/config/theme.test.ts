@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeAll, afterAll } from "bun:test"
 import { tmpdir } from "os"
 import { join } from "path"
-import { loadThemeFile } from "../../src/config/config"
+import { loadThemeFile } from "@opencode-ai/tui/theme"
 import { writeFileSync, mkdirSync, rmSync } from "fs"
 
 describe("Theme Loading", () => {

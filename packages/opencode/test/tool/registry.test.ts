@@ -588,7 +588,7 @@ describe("tool.registry", () => {
           const svc = yield* ToolRegistry.Service
           return yield* svc.ids()
         }).pipe(
-          Effect.provide(ToolRegistry.defaultLayer),
+          Effect.provide(LayerNode.compile(ToolRegistry.node, [])),
           Effect.provideService(InstanceRef, ctx),
           Effect.runPromise,
         )

@@ -1,6 +1,7 @@
 import { LayerNode } from "@opencode-ai/core/effect/layer-node"
 import { PermissionV1 } from "@opencode-ai/core/v1/permission"
 import path from "path"
+import { substituteArguments } from "../config/substitute"
 import { SessionV1 } from "@opencode-ai/core/v1/session"
 import os from "os"
 import { SessionID, MessageID, PartID } from "./schema"
@@ -1373,24 +1374,15 @@ const layer = Layer.effect(
       const args = raw.map((arg) => arg.replace(quoteTrimRegex, ""))
       const templateCommand = yield* Effect.promise(async () => cmd.template)
 
-      const placeholders = templateCommand.match(placeholderRegex) ?? []
-      let last = 0
-      for (const item of placeholders) {
-        const value = Number(item.slice(1))
-        if (value > last) last = value
-      }
+      const { result: withArgs, hasPlaceholders } = substituteArguments(
+        templateCommand,
+        args,
+      )
 
-      const withArgs = templateCommand.replaceAll(placeholderRegex, (_, index) => {
-        const position = Number(index)
-        const argIndex = position - 1
-        if (argIndex >= args.length) return ""
-        if (position === last) return args.slice(argIndex).join(" ")
-        return args[argIndex]
-      })
       const usesArgumentsPlaceholder = templateCommand.includes("$ARGUMENTS")
       let template = withArgs.replaceAll("$ARGUMENTS", input.arguments)
 
-      if (placeholders.length === 0 && !usesArgumentsPlaceholder && input.arguments.trim()) {
+      if (!hasPlaceholders && !usesArgumentsPlaceholder && input.arguments.trim()) {
         template = template + "\n\n" + input.arguments
       }
 
@@ -1627,5 +1619,6 @@ export const node = LayerNode.make({
     Database.node,
   ],
 })
+export { substituteArguments }
 
 export * as SessionPrompt from "./prompt"

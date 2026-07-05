@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, mock, test } from "bun:test"
+import { LayerNode } from "@opencode-ai/core/effect/layer-node"
 import { Cause, Effect, Layer, Exit } from "effect"
 import { SessionV1 } from "@opencode-ai/core/v1/session"
 import { Session as SessionNs, NothingToContinueError, InvalidContinueAgentError } from "@/session/session"
@@ -7,15 +8,12 @@ import { ModelV2 } from "@opencode-ai/core/model"
 import { ProviderV2 } from "@opencode-ai/core/provider"
 import { MessageID, PartID, type SessionID } from "../../src/session/schema"
 import { SessionPrompt } from "../../src/session/prompt"
-import * as Log from "@opencode-ai/core/util/log"
 import { AppLayer } from "@/effect/app-runtime"
 import { disposeAllInstances, TestInstance } from "../fixture/fixture"
 import { testEffect, testEffectShared } from "../lib/effect"
 import { httpApiLayer, requestInDirectory } from "./httpapi-layer"
 
-void Log.init({ print: false })
-
-const it = testEffect(Layer.mergeAll(SessionNs.defaultLayer, httpApiLayer))
+const it = testEffect(Layer.mergeAll(LayerNode.compile(SessionNs.node), httpApiLayer))
 
 const itContinue = testEffectShared(AppLayer)
 
@@ -423,6 +421,25 @@ describe("session action routes", () => {
 
         expect(res.status).toBe(200)
         expect(yield* res.json).toBe(true)
+      }),
+    { git: true },
+  )
+
+  it.instance(
+    "experimental background route is a no-op without synchronous subagents",
+    () =>
+      Effect.gen(function* () {
+        const test = yield* TestInstance
+        const session = yield* Effect.acquireRelease(SessionNs.use.create({}), (created) =>
+          SessionNs.use.remove(created.id).pipe(Effect.ignore),
+        )
+
+        const res = yield* requestInDirectory(`/experimental/session/${session.id}/background`, test.directory, {
+          method: "POST",
+        })
+
+        expect(res.status).toBe(200)
+        expect(yield* res.json).toBe(false)
       }),
     { git: true },
   )

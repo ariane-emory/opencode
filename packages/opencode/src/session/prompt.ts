@@ -105,6 +105,7 @@ export interface Interface {
   readonly loop: (input: LoopInput) => Effect.Effect<SessionV1.WithParts>
   readonly shell: (input: ShellInput) => Effect.Effect<SessionV1.WithParts, Session.BusyError>
   readonly command: (input: CommandInput) => Effect.Effect<SessionV1.WithParts, Image.Error>
+  readonly continue: (input: ContinueInput) => Effect.Effect<SessionV1.WithParts, Session.BusyError | Image.Error>
   readonly resolvePromptParts: (template: string) => Effect.Effect<PromptInput["parts"]>
 }
 
@@ -1078,8 +1079,14 @@ const layer = Layer.effect(
       throw new Error("Impossible")
     })
 
-    const runLoop: (sessionID: SessionID) => Effect.Effect<SessionV1.WithParts> = Effect.fn("SessionPrompt.run")(
-      function* (sessionID: SessionID) {
+    const runLoop: (
+      sessionID: SessionID,
+      overrides?: { agent?: string; model?: { providerID: ProviderV2.ID; modelID: ModelV2.ID } },
+    ) => Effect.Effect<SessionV1.WithParts> = Effect.fn("SessionPrompt.run")(
+      function* (
+        sessionID: SessionID,
+        overrides?: { agent?: string; model?: { providerID: ProviderV2.ID; modelID: ModelV2.ID } },
+      ) {
         const ctx = yield* InstanceState.context
         let structured: unknown
         let step = 0
@@ -1096,6 +1103,14 @@ const layer = Layer.effect(
           const { user: lastUser, assistant: lastAssistant, finished: lastFinished, tasks } = MessageV2.latest(msgs)
 
           if (!lastUser) throw new Error("No user message found in stream. This should never happen.")
+
+          const agentToUse = overrides?.agent ?? lastUser.agent
+          const modelToUse = overrides?.model ?? lastUser.model
+          if (overrides?.agent || overrides?.model) {
+            yield* sessions.updateMessage({ ...lastUser, agent: agentToUse, model: modelToUse })
+            lastUser.agent = agentToUse
+            lastUser.model = modelToUse
+          }
 
           const lastAssistantMsg = msgs.findLast(
             (msg) => msg.info.role === "assistant" && msg.info.id === lastAssistant?.id,
@@ -1343,7 +1358,11 @@ const layer = Layer.effect(
     const loop: (input: LoopInput) => Effect.Effect<SessionV1.WithParts> = Effect.fn("SessionPrompt.loop")(function* (
       input: LoopInput,
     ) {
-      return yield* state.ensureRunning(input.sessionID, lastAssistant(input.sessionID), runLoop(input.sessionID))
+      return yield* state.ensureRunning(
+        input.sessionID,
+        lastAssistant(input.sessionID),
+        runLoop(input.sessionID, { agent: input.agent, model: input.model }),
+      )
     })
 
     const shell: (input: ShellInput) => Effect.Effect<SessionV1.WithParts, Session.BusyError> = Effect.fn(
@@ -1480,12 +1499,56 @@ const layer = Layer.effect(
       return result
     })
 
+    const continue_: (input: ContinueInput) => Effect.Effect<SessionV1.WithParts, Session.BusyError | Image.Error> = Effect.fn("SessionPrompt.continue")(function* (input: ContinueInput) {
+      yield* state.assertNotBusy(input.sessionID)
+      if (input.agent) {
+        const agent = yield* agents.get(input.agent)
+        if (!agent || agent.mode === "subagent" || agent.hidden) throw new Session.InvalidContinueAgentError(input.agent)
+      }
+
+      const last = (yield* MessageV2.filterCompactedEffect(input.sessionID).pipe(
+        Effect.provideService(Database.Service, database),
+      )).findLast(
+        (msg): msg is SessionV1.WithParts & { info: SessionV1.Assistant } => msg.info.role === "assistant",
+      )
+      if (!last) throw new Session.NothingToContinueError(input.sessionID)
+
+      if (
+        last.info.finish &&
+        last.info.finish !== "tool-calls" &&
+        !last.parts.some(
+          (part) => part.type === "tool" && (part.state.status === "pending" || part.state.status === "running"),
+        ) &&
+        !last.info.error
+      ) {
+        return yield* prompt({
+          sessionID: input.sessionID,
+          agent: input.agent,
+          model: input.model,
+          parts: [{ type: "text", text: "continue" }],
+        })
+      }
+
+      last.info.error = undefined
+      last.info.finish = "tool-calls"
+      last.info.time.completed ??= Date.now()
+      yield* sessions.updateMessage(last.info)
+
+      yield* sessions.touch(input.sessionID)
+      return yield* state.ensureRunning(
+        input.sessionID,
+        lastAssistant(input.sessionID),
+        runLoop(input.sessionID, { agent: input.agent, model: input.model }),
+      )
+    })
+
     return Service.of({
       cancel,
       prompt,
       loop,
       shell,
       command,
+      continue: continue_,
       resolvePromptParts,
     })
   }),
@@ -1522,7 +1585,16 @@ export type PromptInput = Schema.Schema.Type<typeof PromptInput>
 
 export class LoopInput extends Schema.Class<LoopInput>("SessionPrompt.LoopInput")({
   sessionID: SessionID,
+  agent: Schema.optional(Schema.String),
+  model: Schema.optional(ModelRef),
 }) {}
+
+export const ContinueInput = Schema.Struct({
+  sessionID: SessionID,
+  agent: Schema.optional(Schema.String),
+  model: Schema.optional(ModelRef),
+})
+export type ContinueInput = Schema.Schema.Type<typeof ContinueInput>
 
 export const ShellInput = Schema.Struct({
   sessionID: SessionID,

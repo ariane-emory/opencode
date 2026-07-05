@@ -119,6 +119,7 @@ const sessionBindingCommands = [
   "session.timeline",
   "session.fork",
   "session.compact",
+  "session.continue",
   "session.unshare",
   "session.undo",
   "session.redo",
@@ -661,6 +662,45 @@ export function Session() {
           sessionID: route.sessionID,
           messageID: message.id,
         })
+      },
+    },
+    {
+      title: "Continue interrupted conversation",
+      value: "session.continue",
+      keybind: "session_continue",
+      category: "Session",
+      slash: {
+        name: "continue",
+      },
+      onSelect: async (dialog: ReturnType<typeof useDialog>) => {
+        const currentAgent = local.agent.current()?.name
+        const currentModel = local.model.current()
+        const result = await sdk.client.session.continue({
+          sessionID: route.sessionID,
+          agent: currentAgent,
+          model: currentModel ? {
+            providerID: currentModel.providerID,
+            modelID: currentModel.modelID,
+          } : undefined,
+        })
+
+        dialog.clear()
+        if (result.data) toBottom()
+      },
+      run: async () => {
+        const currentAgent = local.agent.current()?.name
+        const currentModel = local.model.current()
+        const result = await sdk.client.session.continue({
+          sessionID: route.sessionID,
+          agent: currentAgent,
+          model: currentModel ? {
+            providerID: currentModel.providerID,
+            modelID: currentModel.modelID,
+          } : undefined,
+        })
+
+        dialog.clear()
+        if (result.data) toBottom()
       },
     },
     {

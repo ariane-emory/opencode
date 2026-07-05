@@ -3,6 +3,7 @@ export * as ConfigCommandV1 from "./command"
 import { Schema } from "effect"
 
 export const Info = Schema.Struct({
+  name: Schema.optional(Schema.String),
   template: Schema.String,
   description: Schema.optional(Schema.String),
   agent: Schema.optional(Schema.String),

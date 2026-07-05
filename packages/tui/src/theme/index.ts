@@ -1,4 +1,9 @@
 import { SyntaxStyle, RGBA, type TerminalColors } from "@opentui/core"
+import {
+  type ParseError as JsoncParseError,
+  parse as parseJsonc,
+  printParseErrorCode,
+} from "jsonc-parser"
 import aura from "./assets/aura.json" with { type: "json" }
 import ayu from "./assets/ayu.json" with { type: "json" }
 import carbonfox from "./assets/carbonfox.json" with { type: "json" }
@@ -195,6 +200,35 @@ export function isTheme(theme: unknown): theme is ThemeJson {
   if (typeof theme !== "object" || theme === null || Array.isArray(theme)) return false
   const value = Reflect.get(theme, "theme")
   return typeof value === "object" && value !== null && !Array.isArray(value)
+}
+
+export async function loadThemeFile(filepath: string): Promise<ThemeJson> {
+  const text = await Bun.file(filepath).text()
+  if (!text) throw new Error("Empty theme file")
+
+  const errors: JsoncParseError[] = []
+  const data = parseJsonc(text, errors, { allowTrailingComma: true })
+
+  if (errors.length) {
+    const lines = text.split("\n")
+    const errorDetails = errors
+      .map((e) => {
+        const beforeOffset = text.substring(0, e.offset).split("\n")
+        const line = beforeOffset.length
+        const column = beforeOffset[beforeOffset.length - 1].length + 1
+        const problemLine = lines[line - 1]
+
+        const error = `${printParseErrorCode(e.error)} at line ${line}, column ${column}`
+        if (!problemLine) return error
+
+        return `${error}\n   Line ${line}: ${problemLine}\n${"".padStart(column + 9)}^`
+      })
+      .join("\n")
+
+    throw new Error(`Failed to parse theme ${filepath}:\n${errorDetails}`)
+  }
+
+  return data as ThemeJson
 }
 
 export function subscribeThemes(listener: (themes: Record<string, ThemeJson>) => void) {

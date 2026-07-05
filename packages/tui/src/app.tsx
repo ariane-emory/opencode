@@ -944,6 +944,15 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
         },
       },
       {
+        name: "app.toggle.sidebar_scrollbar",
+        title: kv.get("sidebar_scrollbar_visible", true) ? "Hide sidebar scrollbar" : "Show sidebar scrollbar",
+        category: "System",
+        run: () => {
+          kv.set("sidebar_scrollbar_visible", !kv.get("sidebar_scrollbar_visible", true))
+          dialog.clear()
+        },
+      },
+      {
         name: "permission.mode",
         title:
           local.permission.mode === "auto" ? "Disable auto-approve permissions" : "Enable auto-approve permissions",

@@ -256,6 +256,7 @@ export function Session() {
   const [showDetails, setShowDetails] = kv.signal("tool_details_visibility", true)
   const [showAssistantMetadata, _setShowAssistantMetadata] = kv.signal("assistant_metadata_visibility", true)
   const [showScrollbar, setShowScrollbar] = kv.signal("scrollbar_visible", false)
+  const [showSidebarScrollbar, setShowSidebarScrollbar] = kv.signal("sidebar_scrollbar_visible", true)
   const [diffWrapMode] = kv.signal<"word" | "none">("diff_wrap_mode", "word")
   const [_animationsEnabled, _setAnimationsEnabled] = kv.signal("animations_enabled", true)
   const [showGenericToolOutput, setShowGenericToolOutput] = kv.signal("generic_tool_output_visibility", false)
@@ -1324,7 +1325,7 @@ export function Session() {
           <Show when={sidebarVisible()}>
             <Switch>
               <Match when={wide()}>
-                <Sidebar sessionID={route.sessionID} />
+                <Sidebar sessionID={route.sessionID} showScrollbar={showSidebarScrollbar()} />
               </Match>
               <Match when={!wide()}>
                 <box
@@ -1336,7 +1337,7 @@ export function Session() {
                   alignItems="flex-end"
                   backgroundColor={RGBA.fromInts(0, 0, 0, 70)}
                 >
-                  <Sidebar sessionID={route.sessionID} />
+                  <Sidebar sessionID={route.sessionID} showScrollbar={showSidebarScrollbar()} />
                 </box>
               </Match>
             </Switch>

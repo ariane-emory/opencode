@@ -54,7 +54,7 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean }) {
               share_url={session()!.share?.url}
             >
               <box paddingRight={1}>
-                <text fg={theme.text}>
+                <text fg={theme.sessionTitle}>
                   <b>{session()!.title}</b>
                 </text>
                 <Show when={InstallationChannel !== "latest"}>

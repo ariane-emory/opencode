@@ -33,7 +33,7 @@ function View(props: { api: TuiPluginApi }) {
           <Show when={list().length > 2}>
             <text fg={theme().text}>{open() ? "▼" : "▶"}</text>
           </Show>
-          <text fg={theme().text}>
+          <text fg={theme().accent}>
             <b>MCP</b>
             <Show when={!open()}>
               <span style={{ fg: theme().textMuted }}>

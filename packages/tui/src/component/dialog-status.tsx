@@ -3,7 +3,9 @@ import { fileURLToPath } from "bun"
 import { useTheme } from "../context/theme"
 import { useDialog } from "../ui/dialog"
 import { useSync } from "../context/sync"
-import { For, Match, Switch, Show, createMemo } from "solid-js"
+import { useLocal } from "../context/local"
+import { useSDK } from "../context/sdk"
+import { For, Match, Switch, Show, createMemo, createSignal } from "solid-js"
 
 export type DialogStatusProps = {}
 
@@ -11,6 +13,23 @@ export function DialogStatus() {
   const sync = useSync()
   const { theme } = useTheme()
   const dialog = useDialog()
+  const local = useLocal()
+  const sdk = useSDK()
+  const [loading, setLoading] = createSignal<string | null>(null)
+
+  async function handleToggle(name: string) {
+    if (loading() !== null) return
+    setLoading(name)
+    try {
+      await local.mcp.toggle(name)
+      const status = await sdk.client.mcp.status()
+      if (status.data) sync.set("mcp", status.data)
+    } catch (error) {
+      console.error("Failed to toggle MCP", error)
+    } finally {
+      setLoading(null)
+    }
+  }
 
   const enabledFormatters = createMemo(() => sync.data.formatter.filter((f) => f.enabled))
 
@@ -55,7 +74,7 @@ export function DialogStatus() {
           <text fg={theme.text}>{Object.keys(sync.data.mcp).length} MCP Servers</text>
           <For each={Object.entries(sync.data.mcp)}>
             {([key, item]) => (
-              <box flexDirection="row" gap={1}>
+              <box flexDirection="row" gap={1} onMouseDown={() => handleToggle(key)}>
                 <text
                   flexShrink={0}
                   style={{
@@ -72,10 +91,13 @@ export function DialogStatus() {
                 >
                   •
                 </text>
-                <text fg={theme.text} wrapMode="word">
+                <text fg={loading() === key ? theme.textMuted : theme.text} wrapMode="word">
                   <b>{key}</b>{" "}
                   <span style={{ fg: theme.textMuted }}>
                     <Switch fallback={item.status}>
+                      <Match when={loading() === key}>
+                        <i>Loading…</i>
+                      </Match>
                       <Match when={item.status === "connected"}>Connected</Match>
                       <Match when={item.status === "failed" && item}>{(val) => val().error}</Match>
                       <Match when={item.status === "disabled"}>Disabled in configuration</Match>

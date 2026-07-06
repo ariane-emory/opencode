@@ -42,7 +42,7 @@ export function loadDialogSessionList<T>(input: {
   )
 }
 
-export function DialogSessionList() {
+export function DialogSessionList(props: { initialSessionID?: string } = {}) {
   const dialog = useDialog()
   const route = useRoute()
   const sync = useSync()
@@ -75,7 +75,7 @@ export function DialogSessionList() {
     },
   )
 
-  const currentSessionID = createMemo(() => (route.data.type === "session" ? route.data.sessionID : undefined))
+  const currentSessionID = createMemo(() => props.initialSessionID ?? (route.data.type === "session" ? route.data.sessionID : undefined))
   const sessions = createMemo(() => {
     const result = searchResults() ?? browseResults() ?? sync.data.session
     const synced = new Map(sync.data.session.map((session) => [session.id, session]))
@@ -348,7 +348,8 @@ export function DialogSessionList() {
           command: "session.rename",
           title: "rename",
           onTrigger: async (option) => {
-            dialog.replace(() => <DialogSessionRename session={option.value} />)
+            const back = () => dialog.replace(() => <DialogSessionList initialSessionID={option.value} />)
+            dialog.replace(() => <DialogSessionRename session={option.value} onSuccess={back} onCancel={back} />)
           },
         },
       ]}

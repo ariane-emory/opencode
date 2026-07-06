@@ -10,12 +10,53 @@ IMPORTANT: This tool is for terminal operations like git, npm, docker, etc. DO N
 
 ${commandSection}
 
-# Git and GitHub
-- Only commit, amend, push, or create PRs when explicitly requested.
-- Before committing, inspect `git status`, `git diff`, and `git log --oneline -10`; stage only intended files and never commit secrets.
-- Write a concise commit message that matches the repo style.
-- Do not update git config, skip hooks, use interactive `-i`, force-push, or create empty commits unless explicitly requested.
-- If a commit fails or hooks reject it, fix the issue and create a new commit; do not amend the failed commit.
-- Before creating a PR, inspect status, diff, remote tracking, recent commits, and the diff from the base branch.
-- Review all commits included in the PR, not just the latest commit.
-- Use `gh` for GitHub tasks, including PRs, issues, checks, and releases; return the PR URL when done.
+# Committing changes with git
+
+You SHOULD create new commits and push your changes to origin after making any substantial changes to a file. When you are creating a new git commit, you MUST follow these steps carefully:
+
+# Git Safety Protocol:
+- You SHOULD only update the git config when explicitly asks you to do so
+- You SHOULD NOT run destructive/irreversible git commands (like hard reset, etc) unless the user explicitly requests them
+- You SHOULD only skip hooks (--no-verify, --no-gpg-sign, etc) to avoid push failures due to pre-existing errors in the base branch or when user explicitly requests it
+- You MUST NOT ever use `git push --delete` commands unless it is explicitly and clearly requested by the user!
+- NEVER run force push to main/master, warn the user if they request it
+- Avoid git commit --amend. ONLY use --amend when ALL conditions are met:
+  (1) User explicitly requested amend, OR the commit succeeded and pre-commit hooks auto-modified files that need including — verify by checking `git log` that HEAD is the new commit before amending
+  (2) HEAD commit was created by you in this conversation (verify: git log -1 --format='%an %ae')
+  (3) Commit has NOT been pushed to remote (verify: git status shows "Your branch is ahead")
+- CRITICAL: If you already pushed to remote, you may need to amend and use force push
+- CRITICAL: If commit FAILED or was REJECTED by hook, NEVER amend - fix the issue and create a NEW commit
+- CRITICAL: If you already pushed to remote, NEVER amend unless user explicitly requests it (requires force push)
+- CRITICAL: You MUST NOT EVER forget to commit changes and push changes to origin unless the user explicitly instructs you not to do. It is VERY IMPORTANT that you NEVER forget to push changes you have made to origin, otherwise the user will feel that you are being lazy and forgetful.
+- CRITICAL: You MUST NOT EVER use any git worktree commands. 
+
+1. You can call multiple tools in a single response. When multiple independent pieces are requested and all commands are likely to succeed, run multiple tool calls in parallel for optimal performance. run the following ${gitCommands} in parallel, each using the ${toolName} tool:
+   - Run a git status command to see all untracked files.
+   - Run a git diff command to see both staged and unstaged changes that will be committed.
+   - Run a git log command to see recent commit messages, so that you can follow this repository's commit message style.
+2. Analyze all staged changes (both previously staged and newly added) and draft a commit message:
+   - Summarize the nature of the changes (eg. new feature, enhancement to an existing feature, bug fix, refactoring, test, docs, etc.). Ensure the message accurately reflects the changes and their purpose (i.e. "add" means a wholly new feature, "update" means an enhancement to an existing feature, "fix" means a bug fix, etc.).
+   - Do not commit files that likely contain secrets (.env, credentials.json, etc.). Warn the user if they specifically request to commit those files
+   - Draft a concise (1-2 sentences) commit message that focuses on the "why" rather than the "what"
+   - Ensure it accurately reflects the changes and their purpose
+3. You can call multiple tools in a single response. When multiple independent pieces are requested and all commands are likely to succeed, run multiple tool calls in parallel for optimal performance. run the following commands:
+   - Add relevant untracked files to the staging area.
+   - Create the commit with a message
+   - Run git status after the commit completes to verify success.
+   Note: git status depends on the commit completing, so run it sequentially after the commit.
+4. If the commit fails due to pre-commit hook, fix the issue and create a NEW commit (see amend rules above) UNLESS the failure is due to a pre-existing test failure in the base branch (in which case you SHOULD use the --no-verify flag to ensure that the push succeeds)
+
+Important notes:
+- NEVER run additional commands to read or explore code, besides ${gitCommandRestriction}
+- NEVER use the TodoWrite or Task tools
+- You SHOULD push to the remote repository after making any substantial changes to a file
+- IMPORTANT: Never use git commands with the -i flag (like git rebase -i or git add -i) since they require interactive input which is not supported.
+- If there are no changes to commit (i.e., no untracked files and no modifications), do not create an empty commit
+
+# Creating pull requests
+Use the gh command via the ${toolName} tool for ALL GitHub-related tasks including working with issues, pull requests, checks, and releases. If given a GitHub URL use the gh command to get the information needed.
+
+You MUST NOT create pull requests unless the user explicitly requests that you do so!
+
+# Other common operations
+- View comments on a GitHub PR: gh api repos/foo/bar/pulls/123/comments

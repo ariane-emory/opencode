@@ -33,9 +33,6 @@ type Shortcuts = {
   sessionList: TipShortcut
   sessionNew: TipShortcut
   sessionParent: TipShortcut
-  sessionPinToggle: TipShortcut
-  sessionQuickSwitch1: TipShortcut
-  sessionQuickSwitch9: TipShortcut
   sessionSidebarToggle: TipShortcut
   sessionTimeline: TipShortcut
   statusView: TipShortcut
@@ -123,9 +120,6 @@ export function Tips(props: { api: TuiPluginApi; connected?: boolean }) {
     sessionList: useCommandShortcut("session.list"),
     sessionNew: useCommandShortcut("session.new"),
     sessionParent: configShortcut(props.api, "session.parent"),
-    sessionPinToggle: configShortcut(props.api, "session.pin.toggle"),
-    sessionQuickSwitch1: useCommandShortcut("session.quick_switch.1"),
-    sessionQuickSwitch9: useCommandShortcut("session.quick_switch.9"),
     sessionSidebarToggle: configShortcut(props.api, "session.sidebar.toggle"),
     sessionTimeline: configShortcut(props.api, "session.timeline"),
     statusView: useCommandShortcut("opencode.status"),
@@ -175,12 +169,7 @@ const TIPS: Tip[] = [
   (shortcuts) => `Use ${commandText("/models", shortcuts.modelList())} to see and switch between available AI models`,
   (shortcuts) => `Use ${commandText("/themes", shortcuts.themeList())} to switch between ${themeCount} built-in themes`,
   (shortcuts) => `Use ${commandText("/new", shortcuts.sessionNew())} to start a fresh conversation session`,
-  (shortcuts) => `Use ${commandText("/sessions", shortcuts.sessionList())} to list, pin, and continue sessions`,
-  (shortcuts) => press(shortcuts.sessionPinToggle(), "in the session list to pin a session so it stays at the top"),
-  (shortcuts) =>
-    shortcuts.sessionQuickSwitch1() && shortcuts.sessionQuickSwitch9()
-      ? `Pinned sessions are assigned quick slots; use ${shortcutText(shortcuts.sessionQuickSwitch1())} through ${shortcutText(shortcuts.sessionQuickSwitch9())} to switch`
-      : undefined,
+  (shortcuts) => `Use ${commandText("/sessions", shortcuts.sessionList())} to list and continue sessions`,
   "Run {highlight}/compact{/highlight} to summarize long sessions near context limits",
   (shortcuts) => `Use ${commandText("/export", shortcuts.sessionExport())} to save the conversation as Markdown`,
   (shortcuts) => press(shortcuts.messagesCopy(), "to copy the assistant's last message to clipboard"),

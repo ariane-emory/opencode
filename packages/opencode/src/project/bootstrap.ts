@@ -6,10 +6,12 @@ import * as Project from "./project"
 import * as Vcs from "./vcs"
 import { InstanceState } from "@/effect/instance-state"
 import { ShareNext } from "@/share/share-next"
-import { Effect, Layer } from "effect"
+import { Effect, Layer, Scope } from "effect"
 import { Config } from "@/config/config"
 import { Service } from "./bootstrap-service"
 import { Reference } from "@/reference/reference"
+import { LocationServiceMap } from "@opencode-ai/core/location-layer"
+import { AbsolutePath } from "@opencode-ai/core/schema"
 
 export { Service } from "./bootstrap-service"
 export type { Interface } from "./bootstrap-service"
@@ -29,6 +31,8 @@ export const layer = Layer.effect(
     const shareNext = yield* ShareNext.Service
     const snapshot = yield* Snapshot.Service
     const vcs = yield* Vcs.Service
+    const locations = yield* LocationServiceMap
+    const scope = yield* Scope.Scope
 
     const run = Effect.gen(function* () {
       const ctx = yield* InstanceState.context
@@ -44,6 +48,14 @@ export const layer = Layer.effect(
         (s) => s.init().pipe(Effect.catchCause((cause) => Effect.logWarning("init failed", { cause }))),
         { concurrency: "unbounded", discard: true },
       ).pipe(Effect.withSpan("InstanceBootstrap.init"))
+      // Eagerly build location services so the file Watcher subscribes to
+      // .git/HEAD and the vcs listener receives Watcher.Event.Updated. The
+      // never-completing fiber holds the LayerMap reference, preventing idle
+      // disposal for the bootstrap scope's lifetime.
+      yield* Effect.never.pipe(
+        Effect.provide(locations.get({ directory: AbsolutePath.make(ctx.directory) })),
+        Effect.forkIn(scope),
+      )
     }).pipe(Effect.withSpan("InstanceBootstrap"))
 
     return Service.of({ run })
@@ -61,6 +73,7 @@ export const defaultLayer: Layer.Layer<Service> = layer.pipe(
     ShareNext.defaultLayer,
     Snapshot.defaultLayer,
     Vcs.defaultLayer,
+    LocationServiceMap.layer,
   ]),
 )
 

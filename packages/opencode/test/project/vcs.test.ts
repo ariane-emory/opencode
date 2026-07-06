@@ -14,6 +14,8 @@ import {
 } from "../fixture/fixture"
 import { EventV2Bridge } from "../../src/event-v2-bridge"
 import { Watcher } from "@opencode-ai/core/filesystem/watcher"
+import { LocationServiceMap } from "@opencode-ai/core/location-layer"
+import { AbsolutePath } from "@opencode-ai/core/schema"
 import { Git } from "../../src/git"
 import { Vcs } from "@/project/vcs"
 import { testEffect } from "../lib/effect"
@@ -31,6 +33,9 @@ const layer = Layer.mergeAll(
 )
 const it = testEffect(layer)
 const worktreeIt = testEffect(Layer.mergeAll(layer, testInstanceStoreLayer))
+// Integration layer includes LocationServiceMap so the test can build the
+// real Watcher (a location-scoped service) via locations.get(ref).
+const integrationIt = testEffect(Layer.mergeAll(layer, LocationServiceMap.layer))
 
 const git = Effect.fn("VcsTest.git")(function* (cwd: string, args: string[]) {
   const result = yield* Git.Service.use((git) => git.run(args, { cwd }))
@@ -153,6 +158,59 @@ describe("Vcs", () => {
         expect(current).toBe(branch)
       }),
     { git: true },
+  )
+})
+
+// ---------------------------------------------------------------------------
+// Real-watcher integration — verifies the full chain that was broken when the
+// Watcher (a location-scoped service) was never built during normal sessions.
+// The fix builds location services in InstanceBootstrap.run(); this test
+// exercises the same Watcher → Vcs listener → BranchUpdated path end-to-end.
+// ---------------------------------------------------------------------------
+
+const describeIntegration = Watcher.hasNativeBinding() && !process.env.CI ? describe : describe.skip
+
+describeIntegration("Vcs watcher integration", () => {
+  afterEach(async () => {
+    await disposeAllInstances()
+  })
+
+  integrationIt.instance(
+    "publishes BranchUpdated from the real file watcher when .git/HEAD changes",
+    () =>
+      Effect.gen(function* () {
+        const test = yield* TestInstance
+        const locations = yield* LocationServiceMap
+
+        // Build location services (including Watcher) for the instance directory.
+        // The never-fiber holds the LayerMap reference, keeping the watcher alive.
+        yield* Effect.never.pipe(
+          Effect.provide(locations.get({ directory: AbsolutePath.make(test.directory) })),
+          Effect.forkScoped,
+        )
+
+        const branch = `test-${Math.random().toString(36).slice(2)}`
+        yield* git(test.directory, ["branch", branch])
+
+        const vcs = yield* init()
+        yield* vcs.branch()
+        const pending = yield* nextBranchUpdate()
+
+        const head = path.join(test.directory, ".git", "HEAD")
+        // Retry the HEAD change until the watcher subscription is active.
+        for (let i = 0; i < 40; i++) {
+          yield* write(head, `ref: refs/heads/${branch}\n`)
+          if (yield* Deferred.isDone(pending)) break
+          yield* write(head, `ref: refs/heads/${branch}\n\n`)
+          if (yield* Deferred.isDone(pending)) break
+          yield* Effect.sleep("100 millis")
+        }
+
+        const updated = yield* Deferred.await(pending).pipe(Effect.timeout("2 seconds"))
+        expect(updated).toBe(branch)
+      }),
+    { git: true },
+    30_000,
   )
 })
 

@@ -1,8 +1,8 @@
 import type { BoxRenderable, TextareaRenderable, ScrollBoxRenderable } from "@opentui/core"
 import { pathToFileURL } from "bun"
-import fuzzysort from "fuzzysort"
 import path from "path"
 import { firstBy } from "remeda"
+import { smartCompare } from "../../util/smart-sort"
 import { createMemo, createResource, createEffect, onMount, onCleanup, Index, Show, createSignal } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useEditorContext } from "../../context/editor"
@@ -70,6 +70,41 @@ export type AutocompleteOption = {
   isDirectory?: boolean
   onSelect?: () => void
   path?: string
+}
+
+function tieredMatch(
+  items: AutocompleteOption[],
+  needle: string,
+  prefix: string,
+  limit: number = 100,
+): AutocompleteOption[] {
+  const lowerNeedle = needle.toLowerCase()
+  const fullNeedle = (prefix + needle).toLowerCase()
+
+  const tier1: AutocompleteOption[] = []
+  const tier2: AutocompleteOption[] = []
+  const tier3: AutocompleteOption[] = []
+
+  for (const item of items) {
+    const display = item.display.trimEnd().toLowerCase()
+
+    if (display.startsWith(fullNeedle)) {
+      tier1.push(item)
+    } else if (display.includes(lowerNeedle)) {
+      tier2.push(item)
+    } else {
+      const descMatch = item.description?.toLowerCase().includes(lowerNeedle)
+      const aliasMatch = item.aliases?.some((a) => a.toLowerCase().includes(lowerNeedle))
+      if (descMatch || aliasMatch) {
+        tier3.push(item)
+      }
+    }
+  }
+
+  const sortByDisplay = (a: AutocompleteOption, b: AutocompleteOption) =>
+    smartCompare(a.display.trimEnd(), b.display.trimEnd())
+
+  return [...tier1.sort(sortByDisplay), ...tier2.sort(sortByDisplay), ...tier3.sort(sortByDisplay)].slice(0, limit)
 }
 
 export function Autocomplete(props: {
@@ -463,7 +498,7 @@ export function Autocomplete(props: {
       })
     }
 
-    results.sort((a, b) => a.display.localeCompare(b.display))
+    results.sort((a, b) => smartCompare(a.display, b.display))
 
     const max = firstBy(results, [(x) => x.display.length, "desc"])?.display.length
     if (!max) return results
@@ -499,29 +534,7 @@ export function Autocomplete(props: {
       return prev
     }
 
-    const fuzziedNonFiles = fuzzysort
-      .go(removeLineRange(searchValue), nonFileOptions, {
-        keys: [
-          (obj) => removeLineRange((obj.value ?? obj.display).trimEnd()),
-          // Match description for slash commands only; for "@" it surfaced unrelated items.
-          ...(store.visible === "/" ? ["description" as const] : []),
-          (obj) => obj.aliases?.join(" ") ?? "",
-        ],
-        threshold: store.visible === "@" ? 0.5 : 0,
-        limit: 10,
-        scoreFn: (objResults) => {
-          const displayResult = objResults[0]
-          let score = objResults.score
-          if (displayResult && displayResult.target.startsWith(store.visible + searchValue)) {
-            score *= 2
-          }
-          const frecencyScore = objResults.obj.path ? frecency.getFrecency(objResults.obj.path) : 0
-          return score * (1 + frecencyScore)
-        },
-      })
-      .map((arr) => arr.obj)
-
-    return [...fuzziedNonFiles, ...fileOptions].slice(0, 10)
+    return [...tieredMatch(nonFileOptions, searchValue, store.visible || "/", 100), ...fileOptions].slice(0, 10)
   })
 
   createEffect(() => {

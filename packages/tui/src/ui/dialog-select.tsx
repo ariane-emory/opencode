@@ -8,7 +8,7 @@ import {
 } from "@opentui/core"
 import type { Binding } from "@opentui/keymap"
 import { useTheme, selectedForeground } from "../context/theme"
-import { entries, filter, flatMap, groupBy, pipe } from "remeda"
+import { entries, filter, flatMap, groupBy, mapValues, pipe } from "remeda"
 import { batch, createEffect, createMemo, createSignal, For, Show, type JSX, on, onCleanup } from "solid-js"
 import { createStore } from "solid-js/store"
 import { useTerminalDimensions } from "@opentui/solid"
@@ -27,6 +27,7 @@ export interface DialogSelectProps<T> {
   footer?: JSX.Element
   emptyView?: JSX.Element
   options: DialogSelectOption<T>[]
+  sort?: boolean
   flat?: boolean
   ref?: (ref: DialogSelectRef<T>) => void
   onMove?: (option: DialogSelectOption<T>) => void
@@ -188,7 +189,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     const result = pipe(
       filtered(),
       groupBy((x) => x.category ?? ""),
-      // mapValues((x) => x.sort((a, b) => a.title.localeCompare(b.title))),
+      mapValues((x) => (props.sort ? x.sort((a, b) => a.title.localeCompare(b.title)) : x)),
       entries(),
     )
     return result

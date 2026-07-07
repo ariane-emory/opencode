@@ -12,6 +12,7 @@ export interface FilteredListProps<T> {
   groupBy?: (x: T) => string
   sortBy?: (a: T, b: T) => number
   sortGroupsBy?: (a: { category: string; items: T[] }, b: { category: string; items: T[] }) => number
+  skipFilter?: (item: T) => boolean
   onSelect?: (value: T | undefined, index: number) => void
   sortKey?: keyof T
   noInitialSelection?: boolean
@@ -36,11 +37,14 @@ export function useFilteredList<T>(props: FilteredListProps<T>) {
         all,
         (x) => {
           if (!needle) return x
+          const skipFilter = props.skipFilter
+          const filterable = skipFilter ? x.filter((item) => !skipFilter(item)) : x
+          const skipped = skipFilter ? x.filter(skipFilter) : []
           let filtered: T[]
-          if (!props.filterKeys && Array.isArray(x) && x.every((e) => typeof e === "string")) {
-            filtered = fuzzysort.go(needle, x).map((x) => x.target) as T[]
+          if (!props.filterKeys && Array.isArray(filterable) && filterable.every((e) => typeof e === "string")) {
+            filtered = fuzzysort.go(needle, filterable).map((x) => x.target) as T[]
           } else {
-            filtered = fuzzysort.go(needle, x, { keys: props.filterKeys! }).map((x) => x.obj)
+            filtered = fuzzysort.go(needle, filterable, { keys: props.filterKeys! }).map((x) => x.obj)
           }
           if (props.sortKey) {
             const key = props.sortKey
@@ -55,7 +59,7 @@ export function useFilteredList<T>(props: FilteredListProps<T>) {
               return aVal.localeCompare(bVal)
             })
           }
-          return filtered
+          return skipped.length ? [...filtered, ...skipped] : filtered
         },
         groupBy((x) => (props.groupBy ? props.groupBy(x) : "")),
         entries(),

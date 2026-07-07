@@ -13,7 +13,6 @@ import {
   Switch,
   untrack,
   useContext,
-  onCleanup,
 } from "solid-js"
 import { Dynamic } from "solid-js/web"
 import path from "node:path"

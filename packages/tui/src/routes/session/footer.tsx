@@ -5,6 +5,8 @@ import { useDirectory } from "../../context/directory"
 import { useConnected } from "../../component/use-connected"
 import { createStore } from "solid-js/store"
 import { useRoute } from "../../context/route"
+import type { AssistantMessage } from "@opencode-ai/sdk/v2"
+import { Locale } from "../../util/locale"
 
 export function Footer() {
   const { theme } = useTheme()
@@ -13,12 +15,29 @@ export function Footer() {
   const mcp = createMemo(() => Object.values(sync.data.mcp).filter((x) => x.status === "connected").length)
   const mcpError = createMemo(() => Object.values(sync.data.mcp).some((x) => x.status === "failed"))
   const lsp = createMemo(() => Object.keys(sync.data.lsp))
+  const off = createMemo(() => sync.data.config.lsp === false)
   const permissions = createMemo(() => {
     if (route.data.type !== "session") return []
     return sync.data.permission[route.data.sessionID] ?? []
   })
   const directory = useDirectory()
   const connected = useConnected()
+
+  const usage = createMemo(() => {
+    if (route.data.type !== "session") return
+    const msg = sync.data.message[route.data.sessionID] ?? []
+    const last = msg.findLast((item): item is AssistantMessage => item.role === "assistant" && item.tokens.output > 0)
+    if (!last) return
+
+    const tokens =
+      last.tokens.input + last.tokens.output + last.tokens.reasoning + last.tokens.cache.read + last.tokens.cache.write
+    if (tokens <= 0) return
+
+    const model = sync.data.provider.find((item) => item.id === last.providerID)?.models[last.modelID]
+    const pct = model?.limit.context ? `${Math.round((tokens / model.limit.context) * 100)}%` : undefined
+
+    return pct ? `${Locale.number(tokens)} (${pct})` : Locale.number(tokens)
+  })
 
   const [store, setStore] = createStore({
     welcome: false,
@@ -51,7 +70,9 @@ export function Footer() {
 
   return (
     <box flexDirection="row" justifyContent="space-between" gap={1} flexShrink={0}>
-      <text fg={theme.textMuted}>{directory()}</text>
+      <box flexDirection="row" gap={1}>
+        <text fg={theme.textMuted}>{directory()}</text>
+      </box>
       <box gap={2} flexDirection="row" flexShrink={0}>
         <Switch>
           <Match when={store.welcome}>
@@ -66,9 +87,14 @@ export function Footer() {
                 {permissions().length > 1 ? "s" : ""}
               </text>
             </Show>
-            <text fg={theme.text}>
-              <span style={{ fg: lsp().length > 0 ? theme.success : theme.textMuted }}>•</span> {lsp().length} LSP
-            </text>
+            <Show when={usage()}>
+              <text fg={theme.textMuted}>{usage()}</text>
+            </Show>
+            <Show when={!off()}>
+              <text fg={theme.text}>
+                <span style={{ fg: lsp().length > 0 ? theme.success : theme.textMuted }}>•</span> {lsp().length} LSP
+              </text>
+            </Show>
             <Show when={mcp()}>
               <text fg={theme.text}>
                 <Switch>
@@ -82,7 +108,6 @@ export function Footer() {
                 {mcp()} MCP
               </text>
             </Show>
-            <text fg={theme.textMuted}>/status</text>
           </Match>
         </Switch>
       </box>

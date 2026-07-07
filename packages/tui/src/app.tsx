@@ -944,6 +944,17 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
         },
       },
       {
+        name: "app.toggle.sidebar_session_id",
+        title: kv.get("sidebar_session_id_visible", false)
+          ? "Hide session ID in sidebar"
+          : "Show session ID in sidebar",
+        category: "System",
+        run: () => {
+          kv.set("sidebar_session_id_visible", !kv.get("sidebar_session_id_visible", false))
+          dialog.clear()
+        },
+      },
+      {
         name: "permission.mode",
         title:
           local.permission.mode === "auto" ? "Disable auto-approve permissions" : "Enable auto-approve permissions",

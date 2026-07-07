@@ -137,6 +137,7 @@ const appBindingCommands = [
   "app.toggle.diffwrap",
   "app.toggle.paste_summary",
   "app.toggle.session_directory_filter",
+  "app.toggle.tps",
 ] as const
 
 export type TuiInput = {
@@ -874,6 +875,15 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
           renderer.suspend()
           process.once("SIGCONT", () => renderer.resume())
           process.kill(0, "SIGTSTP")
+        },
+      },
+      {
+        name: "app.toggle.tps",
+        title: kv.get("tps_visibility", false) ? "Hide message TPS" : "Show message TPS",
+        category: "System",
+        run: () => {
+          kv.set("tps_visibility", !kv.get("tps_visibility", false))
+          dialog.clear()
         },
       },
       {

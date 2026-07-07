@@ -5,7 +5,7 @@ import { DialogSelect } from "../ui/dialog-select"
 import { useDialog } from "../ui/dialog"
 import { createDialogProviderOptions, DialogProvider } from "./dialog-provider"
 import { DialogVariant } from "./dialog-variant"
-import * as fuzzysort from "fuzzysort"
+import { compareTieredTitles } from "../util/tiered-match"
 import { useConnected } from "./use-connected"
 import { useSync } from "../context/sync"
 
@@ -117,12 +117,36 @@ export function DialogModel(props: { providerID?: string }) {
       : []
 
     if (needle) {
+      const lowerNeedle = needle.toLowerCase()
+
+      // **CRITICAL**: This tieredFilter function is the core feature of fix/modal-menus-filtered-order.
+      // It ensures prefix matches appear first, then substring matches, then category matches,
+      // with smartCompare sorting within each tier. DO NOT replace with fuzzysort during merges!
+      const tieredFilter = <T extends { title: string; category?: string }>(items: T[]) => {
+        const tier1: T[] = []
+        const tier2: T[] = []
+        const tier3: T[] = []
+
+        for (const item of items) {
+          const title = item.title.toLowerCase()
+          const category = item.category?.toLowerCase() ?? ""
+
+          if (title.startsWith(lowerNeedle)) {
+            tier1.push(item)
+          } else if (title.includes(lowerNeedle) || category.startsWith(lowerNeedle)) {
+            tier2.push(item)
+          } else if (category.includes(lowerNeedle)) {
+            tier3.push(item)
+          }
+        }
+
+        const sortByTitle = (a: T, b: T) => compareTieredTitles(a.title, b.title, lowerNeedle)
+        return [...tier1.sort(sortByTitle), ...tier2.sort(sortByTitle), ...tier3.sort(sortByTitle)]
+      }
+
       return [
-        ...sortModelOptions(
-          fuzzysort.go(needle, providerOptions, { keys: ["title", "category"] }).map((x) => x.obj),
-          false,
-        ),
-        ...fuzzysort.go(needle, popularProviders, { keys: ["title"] }).map((x) => x.obj),
+        ...tieredFilter(providerOptions),
+        ...tieredFilter(popularProviders),
       ]
     }
 

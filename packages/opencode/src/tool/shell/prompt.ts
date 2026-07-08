@@ -256,12 +256,12 @@ function profile(name: string, platform: NodeJS.Platform, limits: Limits, defaul
   }
   return {
     intro:
-      "Executes a given bash command in a persistent shell session with optional timeout, ensuring proper handling and security measures.",
+      `Executes a given ${name} command in a persistent shell session with optional timeout, ensuring proper handling and security measures.`,
     workdirSection:
       "All commands run in the current working directory by default. Use the `workdir` parameter if you need to run a command in a different directory. AVOID using `cd <directory> && <command>` patterns - use `workdir` instead.",
     commandSection: bashCommandSection(chain, limits, defaultTimeoutMs),
-    gitCommands: "bash commands",
-    gitCommandRestriction: "git bash commands",
+    gitCommands: `${name} commands`,
+    gitCommandRestriction: `git ${name} commands`,
     createPrInstruction:
       "Create PR using gh pr create with the format below. Use a HEREDOC to pass the body to ensure correct formatting.",
     createPrExample: `gh pr create --title "the pr title" --body "$(cat <<'EOF'

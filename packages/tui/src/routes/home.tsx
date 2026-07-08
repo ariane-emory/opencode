@@ -8,6 +8,7 @@ import { useRouteData } from "../context/route"
 import { usePromptRef } from "../context/prompt"
 import { useLocal } from "../context/local"
 import { usePluginRuntime } from "../plugin/runtime"
+import { SINISTER_PLACEHOLDERS } from "@opencode-ai/ui/constants/placeholders"
 import { useEditorContext } from "../context/editor"
 import { useTerminalDimensions } from "@opentui/solid"
 import { useTuiConfig } from "../config"
@@ -15,7 +16,7 @@ import { HomeSessionDestinationProvider } from "./home/session-destination"
 
 let once = false
 const placeholder = {
-  normal: ["Fix a TODO in the codebase", "What is the tech stack of this project?", "Fix broken tests"],
+  normal: [...SINISTER_PLACEHOLDERS],
   shell: ["ls -la", "git status", "pwd"],
 }
 

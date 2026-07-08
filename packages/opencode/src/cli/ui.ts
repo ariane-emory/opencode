@@ -1,7 +1,7 @@
 import { EOL } from "os"
 import { Schema } from "effect"
 import { logo as glyphs } from "./logo"
-import { renderMarkdown, type MarkdownTheme } from "./markdown-renderer"
+import { renderMarkdown, type MarkdownTheme } from "@opencode-ai/tui/markdown-renderer"
 
 const wordmark = [
   `⠀                                ▄     `,

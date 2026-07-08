@@ -5,18 +5,18 @@ import { join } from "path"
 describe("command palette consistency", () => {
   const sessionPath = join(
     __dirname,
-    "../../../../src/cli/cmd/tui/routes/session/index.tsx",
+    "../../../../../../packages/tui/src/routes/session/index.tsx",
   )
   const appPath = join(
     __dirname,
-    "../../../../src/cli/cmd/tui/app.tsx",
+    "../../../../../../packages/tui/src/app.tsx",
   )
 
   test("session/index.tsx should not have session.toggle.* or session.sidebar.toggle commands", () => {
     const content = readFileSync(sessionPath, "utf-8")
 
-    // These patterns should NOT exist in session/index.tsx
-    // They should be in app.tsx as app.toggle.*
+    // These patterns should NOT exist in session/index.tsx.
+    // They live in app.tsx as System-category commands instead.
     const forbiddenPatterns = [
       'value: "session.toggle.timestamps"',
       'value: "session.toggle.thinking"',
@@ -31,17 +31,18 @@ describe("command palette consistency", () => {
     }
   })
 
-  test("app.tsx should have corresponding app.toggle.* commands", () => {
+  test("app.tsx should have corresponding System-category toggle commands", () => {
     const content = readFileSync(appPath, "utf-8")
 
-    // These patterns should exist in app.tsx
+    // These toggles persist across sessions, so they belong in the System
+    // category. Their names are unchanged from the original Session versions.
     const expectedPatterns = [
-      'name: "app.toggle.timestamps"',
-      'name: "app.toggle.thinking"',
-      'name: "app.toggle.tooldetails"',
-      'name: "app.toggle.scrollbar"',
-      'name: "app.toggle.generic_tool_output"',
-      'name: "app.toggle.sidebar"',
+      'name: "session.toggle.timestamps"',
+      'name: "session.toggle.thinking"',
+      'name: "session.toggle.actions"',
+      'name: "session.toggle.scrollbar"',
+      'name: "session.toggle.generic_tool_output"',
+      'name: "session.sidebar.toggle"',
     ]
 
     for (const pattern of expectedPatterns) {

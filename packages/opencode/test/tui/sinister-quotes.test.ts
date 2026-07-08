@@ -19,7 +19,7 @@ describe("sinister-quotes placeholder format", () => {
   test("TUI prompt should NOT contain 'Ask anything' prefix in placeholder", () => {
     const path = join(
       import.meta.dir,
-      "../../src/cli/cmd/tui/component/prompt/index.tsx",
+      "../../../tui/src/component/prompt/index.tsx",
     )
     const content = readFileSync(path, "utf-8")
 
@@ -48,7 +48,7 @@ describe("sinister-quotes placeholder format", () => {
   test("TUI home route should use sinister placeholders", () => {
     const path = join(
       import.meta.dir,
-      "../../src/cli/cmd/tui/routes/home.tsx",
+      "../../../tui/src/routes/home.tsx",
     )
     const content = readFileSync(path, "utf-8")
 
@@ -72,7 +72,7 @@ describe("sinister-quotes placeholder format", () => {
   test("Both TUI and web app should import from shared module", () => {
     const tuiPath = join(
       import.meta.dir,
-      "../../src/cli/cmd/tui/component/prompt/index.tsx",
+      "../../../tui/src/component/prompt/index.tsx",
     )
     const webPath = join(
       import.meta.dir,

@@ -944,6 +944,17 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
         },
       },
       {
+        name: "app.toggle.markdown_all",
+        title: kv.get("markdown_all_messages", false)
+          ? "Render markdown: agent messages only"
+          : "Render markdown: all messages",
+        category: "System",
+        run: () => {
+          kv.set("markdown_all_messages", !kv.get("markdown_all_messages", false))
+          dialog.clear()
+        },
+      },
+      {
         name: "permission.mode",
         title:
           local.permission.mode === "auto" ? "Disable auto-approve permissions" : "Enable auto-approve permissions",

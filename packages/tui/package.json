@@ -45,7 +45,9 @@
     "./ui/spinner": "./src/ui/spinner.ts",
     "./ui/toast": "./src/ui/toast.tsx",
     "./component/spinner": "./src/component/spinner.tsx",
-    "./component/register-spinner": "./src/component/register-spinner.ts"
+    "./component/register-spinner": "./src/component/register-spinner.ts",
+    "./markdown-renderer": "./src/markdown-renderer.ts",
+    "./theme-loader": "./src/theme-loader.ts"
   },
   "dependencies": {
     "@opencode-ai/core": "workspace:*",

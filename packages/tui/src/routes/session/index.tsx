@@ -368,6 +368,8 @@ export function Session() {
   })
 
   // Helper: Find next visible message boundary in direction
+
+  // Helper: Find next visible message boundary in direction
   const findNextVisibleMessage = (direction: "next" | "prev"): string | null => {
     const children = scroll.getChildren()
     const messagesList = messages()

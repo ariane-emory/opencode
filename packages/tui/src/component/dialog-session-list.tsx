@@ -1,5 +1,5 @@
 import { useDialog } from "../ui/dialog"
-import { DialogSelect } from "../ui/dialog-select"
+import { DialogSelect, type DialogSelectRef } from "../ui/dialog-select"
 import { useRoute } from "../context/route"
 import { useSync } from "../context/sync"
 import { createMemo, createResource, createSignal, onCleanup, onMount } from "solid-js"
@@ -55,6 +55,7 @@ export function DialogSessionList() {
   const [toDelete, setToDelete] = createSignal<string>()
   const [deleted, setDeleted] = createSignal(new Set<string>())
   const [search, setSearch] = createDebouncedSignal("", 150)
+  const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()
   const deleteHint = useCommandShortcut("session.delete")
   const quickSwitch1 = useCommandShortcut("session.quick_switch.1")
   const quickSwitch9 = useCommandShortcut("session.quick_switch.9")
@@ -271,13 +272,15 @@ export function DialogSessionList() {
 
   return (
     <DialogSelect
+      ref={setSelectRef}
       title="Sessions"
       options={options()}
       skipFilter={true}
       preserveSelection={true}
       current={currentSessionID()}
       onFilter={setSearch}
-      onMove={() => {
+      onMove={(option) => {
+        if (toDelete() === option.value) return
         setToDelete(undefined)
       }}
       onSelect={(option) => {
@@ -300,8 +303,16 @@ export function DialogSessionList() {
           title: "delete",
           onTrigger: async (option) => {
             if (toDelete() === option.value) {
+              const ref = selectRef()
+              const currentIndex = ref?.filtered.findIndex((opt) => opt.value === option.value) ?? -1
+              const adjacentID =
+                currentIndex < 0
+                  ? undefined
+                  : currentIndex < (ref?.filtered.length ?? 0) - 1
+                    ? ref?.filtered[currentIndex + 1]?.value
+                    : ref?.filtered[currentIndex - 1]?.value
               const session = sessions().find((item) => item.id === option.value)
-              const status = session?.workspaceID ? project.workspace.status(session.workspaceID) : undefined
+              const wsStatus = session?.workspaceID ? project.workspace.status(session.workspaceID) : undefined
 
               try {
                 const result = await sdk.client.session.delete({
@@ -333,12 +344,22 @@ export function DialogSessionList() {
                 setToDelete(undefined)
                 return
               }
-              if (status && status !== "connected") {
+              if (ref) ref.skipAutoScroll = true
+              if (wsStatus && wsStatus !== "connected") {
                 await sync.session.refresh()
               }
               await refetchBrowse()
               if (search()) await refetch()
               setToDelete(undefined)
+
+              if (ref && adjacentID) {
+                setTimeout(() => {
+                  ref.scrollToValue(adjacentID, true)
+                }, 50)
+              }
+              setTimeout(() => {
+                if (ref) ref.skipAutoScroll = false
+              }, 100)
               return
             }
             setToDelete(option.value)

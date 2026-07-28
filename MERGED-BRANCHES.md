@@ -5,7 +5,7 @@
 | Status | # | Branch Name | PR | Remote | Commit Hash | Description |
 |--------|---|-------------|----|--------|-------------|-------------|
 | ☑ | 1 | feat/gignit--markdown-renderer | 273 | origin | 9e8d9399d6 |  |
-| ☑ | 2 | feat/rcdailey--thinking-indicator-hidden | 274 | origin | e7807622ec |  |
+| ☑ | 2 | feat/rcdailey--thinking-indicator-hidden | 274 | origin | 13bf8acedd |  |
 | ☐ | 3 | feat/aspiers--readline-additions | 211 | origin | TBD |  |
 | ☐ | 4 | feat/base-one-rebrand | 52 | origin | TBD | **MERGE ADVICE:** remember that, amongst it's many other changes, this branch is meant to **REMOVE** the animation effects on the art on the startup screen, and that you **MUST NOT** do anything that could mess with the background colouring of the art that is displayed after exiting the program! |
 | ☐ | 5 | feat/sinister-quotes | 73 | origin | TBD | **MERGE ADVICE:** the placeholders used **MUST** be the SINISTER_PLACEHOLDERS array in this branch's packages/ui/src/constants/placeholders.ts file, **NO OTHER PLACEHOLDER SOURCE/LOCATION IS PERMISSIBLE!** |

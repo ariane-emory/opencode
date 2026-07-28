@@ -12,7 +12,7 @@
 | ☑ | 6 | feat/session-grouping | 194 | origin | 8e5f39713a |  |
 | ☑ | 7 | feat/session-bookmarks | 102 | origin | a263aa1a80 |  |
 | ☑ | 8 | fix/dialog-datetime-alignment | 113 | origin | a263aa1a80 | **MERGE ADVICE:** for best results, merge this one immediately after feat/session-bookmarks. This feature **MUST** not be clobbered; if there is a conflict, it **MUST** be combined with the other feature with which it is conflicting! |
-| ☐ | 9 | feat/keybindable-commands | 48 | origin | TBD |  |
+| ☑ | 9 | feat/keybindable-commands | 48 | origin | 2ecfcfbe8b |  |
 | ☐ | 10 | feat/automatic-list-continuation | 112 | origin | TBD |  |
 | ☐ | 11 | feat/continue-command | 11 | origin | TBD |  |
 | ☐ | 12 | feat/configurable-snapshot-lifespan | 157 | origin | TBD |  |

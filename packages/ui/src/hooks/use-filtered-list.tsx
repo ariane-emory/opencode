@@ -14,6 +14,7 @@ export interface FilteredListProps<T> {
   sortGroupsBy?: (a: { category: string; items: T[] }, b: { category: string; items: T[] }) => number
   skipFilter?: (item: T) => boolean
   onSelect?: (value: T | undefined, index: number) => void
+  sortKey?: keyof T
   noInitialSelection?: boolean
 }
 
@@ -39,10 +40,25 @@ export function useFilteredList<T>(props: FilteredListProps<T>) {
           const skipFilter = props.skipFilter
           const filterable = skipFilter ? x.filter((item) => !skipFilter(item)) : x
           const skipped = skipFilter ? x.filter(skipFilter) : []
-          const filtered =
-            !props.filterKeys && Array.isArray(filterable) && filterable.every((e) => typeof e === "string")
-              ? (fuzzysort.go(needle, filterable).map((x) => x.target) as T[])
-              : fuzzysort.go(needle, filterable, { keys: props.filterKeys! }).map((x) => x.obj)
+          let filtered: T[]
+          if (!props.filterKeys && Array.isArray(filterable) && filterable.every((e) => typeof e === "string")) {
+            filtered = fuzzysort.go(needle, filterable).map((x) => x.target) as T[]
+          } else {
+            filtered = fuzzysort.go(needle, filterable, { keys: props.filterKeys! }).map((x) => x.obj)
+          }
+          if (props.sortKey) {
+            const key = props.sortKey
+            const lowerNeedle = needle.toLowerCase()
+            filtered.sort((a, b) => {
+              const aVal = String(a[key]).toLowerCase()
+              const bVal = String(b[key]).toLowerCase()
+              const aPrefix = aVal.startsWith(lowerNeedle)
+              const bPrefix = bVal.startsWith(lowerNeedle)
+              if (aPrefix && !bPrefix) return -1
+              if (!aPrefix && bPrefix) return 1
+              return aVal.localeCompare(bVal)
+            })
+          }
           return skipped.length ? [...filtered, ...skipped] : filtered
         },
         groupBy((x) => (props.groupBy ? props.groupBy(x) : "")),

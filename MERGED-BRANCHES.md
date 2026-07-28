@@ -28,7 +28,7 @@
 | ☑ | 22 | fix/history-navigation-key-commands | 237 | origin | 83587e8b18 |  |
 | ☑ | 23 | fix/build-with-short-version | 240 | origin | e2124d8b6d | **MERGE ADVICE:** Automatically uses short timestamp version for integration branches without requiring OPENCODE_VERSION to be set |
 | ☑ | 24 | fix/autocompletion-filtered-order | 76 | origin | 4439faee88 |  |
-| ☐ | 25 | fix/modal-menus-filtered-order | 77 | origin | TBD |  |
+| ☑ | 25 | fix/modal-menus-filtered-order | 77 | origin | 39484336db |  |
 | ☐ | 26 | fix/config-package-json-pollution | 176 | origin | TBD | **MERGE ADVICE:** This branch **MUST** be included in integration branches to prevent package.json pollution with non-SemVer versions |
 | ☐ | 27 | fix/session-list-viewport-jumping | 197 | origin | TBD |  |
 | ☐ | 28 | fix/markdown-codeblock-theme-property | 222 | origin | TBD |  |

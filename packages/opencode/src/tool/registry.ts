@@ -29,6 +29,7 @@ import { Provider } from "@/provider/provider"
 import { WebSearchTool } from "./websearch"
 import { LspTool } from "./lsp"
 import * as Truncate from "./truncate"
+import { SetCurrentSessionTitleTool } from "./set-current-session-title"
 import { ApplyPatchTool } from "./apply_patch"
 import { GetCurrentSessionTitleTool } from "./session-title"
 import { Glob } from "@opencode-ai/core/util/glob"
@@ -114,6 +115,7 @@ const layer = Layer.effect(
     const skilltool = yield* SkillTool
     const bookmarktool = yield* BookmarkCurrentSessionTool
     const sessiontitle = yield* GetCurrentSessionTitleTool
+    const setsessiontitle = yield* SetCurrentSessionTitleTool
     const agent = yield* Agent.Service
     const codeMode = flags.experimentalCodeMode ? yield* Effect.promise(() => import("./code-mode")) : undefined
     const codeModeTool = codeMode ? yield* codeMode.CodeModeTool : undefined
@@ -226,6 +228,7 @@ const layer = Layer.effect(
           lsp: Tool.init(lsptool),
           plan: Tool.init(plan),
           planEnter: Tool.init(planEnter),
+          setsessiontitle: Tool.init(setsessiontitle),
           ...(codeModeTool ? { execute: Tool.init(codeModeTool) } : {}),
         })
 
@@ -253,6 +256,7 @@ const layer = Layer.effect(
             ...((flags.experimentalPlanMode || (yield* config.experimentalPlanMode())) && flags.client === "cli"
               ? [tool.plan, tool.planEnter]
               : []),
+            tool.setsessiontitle,
           ],
           task: tool.task,
           read: tool.read,

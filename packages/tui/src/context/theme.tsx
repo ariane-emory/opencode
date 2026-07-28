@@ -9,6 +9,7 @@ import {
   generateSystem,
   hasTheme,
   isTheme,
+  loadThemeFile,
   resolveTheme,
   selectedForeground,
   setCustomThemes,
@@ -26,7 +27,6 @@ import { useKV } from "./kv"
 import { useTuiConfig } from "../config"
 import { Global } from "@opencode-ai/core/global"
 import { Glob } from "@opencode-ai/core/util/glob"
-import { readFile } from "node:fs/promises"
 import path from "node:path"
 
 export type ThemeSource = Readonly<{
@@ -52,9 +52,10 @@ const themeSource: ThemeSource = {
 export async function discoverThemes(directories: string[]) {
   const result: Record<string, unknown> = {}
   for (const directory of directories) {
-    const files = await Glob.scan("themes/*.json", { cwd: directory, absolute: true, dot: true, symlink: true })
+    const files = await Glob.scan("themes/*.{json,jsonc}", { cwd: directory, absolute: true, dot: true, symlink: true })
     for (const file of files) {
-      result[path.basename(file, ".json")] = JSON.parse(await readFile(file, "utf8")) as unknown
+      const ext = path.extname(file)
+      result[path.basename(file, ext)] = await loadThemeFile(file)
     }
   }
   return result

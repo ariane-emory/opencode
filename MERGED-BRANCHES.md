@@ -65,7 +65,7 @@
 | ☑ | 59 | feat/clickable-status-mcps | 241 | origin | 989cd83f23 |  |
 | ☑ | 60 | feat/ignored-commands | 216 | origin | ce6a9011f6 |  |
 | ☑ | 61 | feat/dialogue-background-overlay-setting | 249 | origin | feced8d935 |  |
-| ☐ | 62 | fix/no-split-database | 235 | origin | TBD |  |
+| ☑ | 62 | fix/no-split-database | 235 | origin | 093e05d0de |  |
 | ☐ | 63 | feat/elapsed-timer | 54 | origin | TBD |  |
 | ☐ | 64 | fix/rfc2119-question-tool | 118 | origin | TBD |  |
 | ☐ | 65 | feat/sidebar-header-accent-colours | 229 | origin | TBD |  |

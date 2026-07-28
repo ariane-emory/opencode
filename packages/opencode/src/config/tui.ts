@@ -231,6 +231,7 @@ const layer = Layer.effect(
     const directory = yield* CurrentWorkingDirectory
     const npm = yield* Npm.Service
     const data = yield* loadState({ directory })
+    const isValidSemVer = /^\d+\.\d+\.\d+/.test(InstallationVersion)
     const deps = yield* Effect.forEach(
       data.dirs,
       (dir) =>
@@ -239,7 +240,7 @@ const layer = Layer.effect(
             add: [
               {
                 name: "@opencode-ai/plugin",
-                version: InstallationLocal ? undefined : InstallationVersion,
+                version: InstallationLocal || !isValidSemVer ? undefined : InstallationVersion,
               },
             ],
           })

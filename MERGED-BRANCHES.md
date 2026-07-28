@@ -55,7 +55,7 @@
 | ☑ | 49 | feat/alphabetize-command-palette-groups | 195 | origin | 8f19a7bff1 |  |
 | ☑ | 50 | feat/taller-dialogs | 196 | origin | 2d967be592 |  |
 | ☑ | 51 | feat/add-arianes-themes | 212 | origin | da222b9b9c |  |
-| ☐ | 52 | feat/sidebar-clock | 207 | origin | TBD |  |
+| ☑ | 52 | feat/sidebar-clock | 207 | origin | b1c12b3cf4 |  |
 | ☐ | 53 | feat/alphabetical-message-modal | 219 | origin | TBD |  |
 | ☐ | 54 | feat/toggle-sidebar-scrollbar | 224 | origin | TBD |  |
 | ☐ | 55 | feat/full-datetimes-in-fork-and-timeline-dialogues | 223 | origin | TBD |  |

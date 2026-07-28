@@ -196,6 +196,7 @@ function formatOptions(config: FormatConfig) {
       pageup: "pgup",
       pagedown: "pgdn",
       delete: "del",
+      enter: "return",
     },
     modifierAliases: {
       meta: "alt",
@@ -255,6 +256,15 @@ export function useCommandShortcut(command: string): Accessor<string> {
       config,
     ),
   )
+}
+
+export function useCommandShortcuts(command: string): Accessor<readonly string[]> {
+  const config = useTuiConfig()
+  return useKeymapSelector((keymap) => {
+    const bindings = keymap.getCommandBindings({ visibility: "registered", commands: [command] }).get(command)
+    if (!bindings) return []
+    return bindings.map((b) => formatKeySequence(b.sequence, config)).filter(Boolean)
+  })
 }
 
 export function useCommandSlashes(): Accessor<readonly CommandSlashEntry[]> {

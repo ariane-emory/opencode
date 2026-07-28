@@ -10,8 +10,8 @@
 | ☑ | 4 | feat/base-one-rebrand | 52 | origin | db4aee7497 | **MERGE ADVICE:** remember that, amongst it's many other changes, this branch is meant to **REMOVE** the animation effects on the art on the startup screen, and that you **MUST NOT** do anything that could mess with the background colouring of the art that is displayed after exiting the program! |
 | ☑ | 5 | feat/sinister-quotes | 73 | origin | e535c3d9a1 | **MERGE ADVICE:** the placeholders used **MUST** be the SINISTER_PLACEHOLDERS array in this branch's packages/ui/src/constants/placeholders.ts file, **NO OTHER PLACEHOLDER SOURCE/LOCATION IS PERMISSIBLE!** |
 | ☑ | 6 | feat/session-grouping | 194 | origin | 8e5f39713a |  |
-| ☐ | 7 | feat/session-bookmarks | 102 | origin | TBD |  |
-| ☐ | 8 | fix/dialog-datetime-alignment | 113 | origin | TBD | **MERGE ADVICE:** for best results, merge this one immediately after feat/session-bookmarks. This feature **MUST** not be clobbered; if there is a conflict, it **MUST** be combined with the other feature with which it is conflicting! |
+| ☑ | 7 | feat/session-bookmarks | 102 | origin | a263aa1a80 |  |
+| ☑ | 8 | fix/dialog-datetime-alignment | 113 | origin | a263aa1a80 | **MERGE ADVICE:** for best results, merge this one immediately after feat/session-bookmarks. This feature **MUST** not be clobbered; if there is a conflict, it **MUST** be combined with the other feature with which it is conflicting! |
 | ☐ | 9 | feat/keybindable-commands | 48 | origin | TBD |  |
 | ☐ | 10 | feat/automatic-list-continuation | 112 | origin | TBD |  |
 | ☐ | 11 | feat/continue-command | 11 | origin | TBD |  |

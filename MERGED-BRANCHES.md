@@ -59,7 +59,7 @@
 | ☑ | 53 | feat/alphabetical-message-modal | 219 | origin | d8f2a2f0bd |  |
 | ☑ | 54 | feat/toggle-sidebar-scrollbar | 224 | origin | aa58e3945d |  |
 | ☑ | 55 | feat/full-datetimes-in-fork-and-timeline-dialogues | 223 | origin | 8f4925b857 |  |
-| ☐ | 56 | feat/configurable-maximum-prompt-input-size | 242 | origin | TBD |  |
+| ☑ | 56 | feat/configurable-maximum-prompt-input-size | 242 | origin | 6fd377b14d |  |
 | ☐ | 57 | feat/clickable-sidebar-mcps | 227 | origin | TBD |  |
 | ☐ | 58 | feat/clickable-dialogue-mcps | 225 | origin | TBD |  |
 | ☐ | 59 | feat/clickable-status-mcps | 241 | origin | TBD |  |

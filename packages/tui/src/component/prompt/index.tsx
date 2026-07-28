@@ -1390,7 +1390,7 @@ export function Prompt(props: PromptProps) {
                 // Readline-style keybindings for prompt editing
                 if (e.ctrl && e.name === "v") {
                   void (async () => {
-                    const content = await Clipboard.read()
+                    const content = await clipboard.read?.()
                     if (content?.mime.startsWith("image/")) {
                       e.preventDefault()
                       await pasteAttachment({

@@ -22,7 +22,7 @@
 | ☑ | 16 | feat/canceled-prompts-in-history | 151 | origin | 316f78482b | **MERGE ADVICE:** Careful not to clobber this while merging! Merging this branch **MUST** add the new item to the command palette. |
 | ☑ | 17 | feat/permission-spinner | 36 | origin | ade8ff1bd6 |  |
 | ☑ | 18 | feat/opencode-expand | 67 | origin | 138533a7da |  |
-| ☐ | 19 | refactor/shared-substitute | 203 | origin | TBD |  |
+| ☑ | 19 | refactor/shared-substitute | 203 | origin | f974b1463a |  |
 | ☐ | 20 | feat/argument-range-syntax | 149 | origin | TBD |  |
 | ☐ | 21 | feat/default-arguments | 217 | origin | TBD | **MERGE ADVICE:** When merging this branch, make sure that you don't accidentally reintroduce the swallowing behaviour that the feat/argument-range-syntax branch was meant to eliminate. |
 | ☐ | 22 | fix/history-navigation-key-commands | 237 | origin | TBD |  |

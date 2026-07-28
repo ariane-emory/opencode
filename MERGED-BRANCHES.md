@@ -25,7 +25,7 @@
 | ☑ | 19 | refactor/shared-substitute | 203 | origin | f974b1463a |  |
 | ☑ | 20 | feat/argument-range-syntax | 149 | origin | a0525f508d |  |
 | ☑ | 21 | feat/default-arguments | 217 | origin | ed078b0c0e | **MERGE ADVICE:** When merging this branch, make sure that you don't accidentally reintroduce the swallowing behaviour that the feat/argument-range-syntax branch was meant to eliminate. |
-| ☐ | 22 | fix/history-navigation-key-commands | 237 | origin | TBD |  |
+| ☑ | 22 | fix/history-navigation-key-commands | 237 | origin | 83587e8b18 |  |
 | ☐ | 23 | fix/build-with-short-version | 240 | origin | TBD | **MERGE ADVICE:** Automatically uses short timestamp version for integration branches without requiring OPENCODE_VERSION to be set |
 | ☐ | 24 | fix/autocompletion-filtered-order | 76 | origin | TBD |  |
 | ☐ | 25 | fix/modal-menus-filtered-order | 77 | origin | TBD |  |

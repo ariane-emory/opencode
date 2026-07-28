@@ -1050,7 +1050,6 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
   }))
 
   useBindings(() => ({
-    enabled: command.matcher,
     bindings: customSlashBindings(),
   }))
 

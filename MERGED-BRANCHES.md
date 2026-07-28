@@ -86,7 +86,7 @@
 | ☑ | 80 | fix/hide-session-pinning-feature | 282 | origin | 53d2097d4f |  |
 | ☑ | 81 | fix/dev-mode-version-fallback | 284 | origin | d934d96d3e |  |
 | ☑ | 82 | fix/embed-skill-file-in-binary | 285 | origin | c91d1cddcd |  |
-| ☐ | 83 | fix/dialog-prompt-submit-hints | 287 | origin | TBD |  |
+| ☑ | 83 | fix/dialog-prompt-submit-hints | 287 | origin | 61d65a9faf |  |
 
 ## Merge Log
 

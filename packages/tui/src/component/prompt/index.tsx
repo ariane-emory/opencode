@@ -43,7 +43,7 @@ import type { AssistantMessage, FilePart, UserMessage } from "@opencode-ai/sdk/v
 import { Locale } from "../../util/locale"
 import { errorMessage } from "../../util/error"
 import { formatDuration } from "../../util/format"
-import { createColors, createFrames } from "../../ui/spinner"
+import { createColors, createFrames, createPulseFrames, createPulseColors } from "../../ui/spinner"
 import { useDialog } from "../../ui/dialog"
 import { DialogProvider as DialogProviderConnect } from "../dialog-provider"
 import { DialogAlert } from "../../ui/dialog-alert"
@@ -1429,6 +1429,8 @@ export function Prompt(props: PromptProps) {
       frames: createFrames({
         color,
         style: "blocks",
+        width: 8,
+        trailSteps: 4,
         inactiveFactor: 0.6,
         // enableFading: false,
         minAlpha: 0.3,
@@ -1436,6 +1438,7 @@ export function Prompt(props: PromptProps) {
       color: createColors({
         color,
         style: "blocks",
+        trailSteps: 4,
         inactiveFactor: 0.6,
         // enableFading: false,
         minAlpha: 0.3,
@@ -1444,6 +1447,35 @@ export function Prompt(props: PromptProps) {
   })
   const maxHeight = createMemo(() => tuiConfig.prompt?.max_height ?? Math.max(6, Math.floor(dimensions().height / 3)))
   const moveLabelWidth = createMemo(() => Math.max(12, Math.min(44, dimensions().width - 48)))
+
+  // Check if current session has pending permissions
+  const hasPermission = createMemo(() => {
+    const sessionID = props.sessionID
+    if (!sessionID) return false
+    const count = sync.data.permission[sessionID]?.length ?? 0
+    return count > 0
+  })
+
+  // Create pulse spinner definition for permission-awaiting state
+  const pulseSpinnerDef = createMemo(() => {
+    const current = local.agent.current()
+    const color = current ? local.agent.color(current.name) : theme.primary
+    return {
+      frames: createPulseFrames({
+        color,
+        style: "blocks",
+      }),
+      color: createPulseColors({
+        color,
+        minAlpha: 0.15,
+      }),
+    }
+  })
+
+  // Select active spinner based on permission state
+  const activeSpinner = createMemo(() => {
+    return hasPermission() ? pulseSpinnerDef() : spinnerDef()
+  })
 
   return (
     <>
@@ -1785,7 +1817,8 @@ export function Prompt(props: PromptProps) {
                 <box flexShrink={0} flexDirection="row" gap={1}>
                   <box marginLeft={1}>
                     <Show when={kv.get("animations_enabled", true)} fallback={<text fg={theme.textMuted}>[⋯]</text>}>
-                      <spinner color={spinnerDef().color} frames={spinnerDef().frames} interval={40} />
+                      {/* @ts-ignore // SpinnerOptions doesn't support marginLeft */}
+                      <spinner color={activeSpinner().color} frames={activeSpinner().frames} interval={40} />
                     </Show>
                   </box>
                   <box flexDirection="row" gap={1} flexShrink={0}>

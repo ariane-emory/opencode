@@ -77,7 +77,7 @@
 | ☑ | 71 | fix/session-list-delete-selection | 255 | origin | c3fc2f6921 |  |
 | ☑ | 72 | feat/kimi-with-claude-system-prompt | 246 | origin | 54ae398c89 |  |
 | ☑ | 73 | fix/less-bottom-padding | 263 | origin | d85d73e1bd |  |
-| ☐ | 74 | fix/session-timestamp-regression | 268 | origin | TBD |  |
+| ☑ | 74 | fix/session-timestamp-regression | 268 | origin | 416087efe2 |  |
 | ☐ | 75 | feat/persistent-session-id-in-sidebar-toggle | 276 | origin | TBD |  |
 | ☐ | 76 | fix/preserve-quotes-in-arguments | 239 | origin | TBD |  |
 | ☐ | 77 | feat/command-palette-consistency | 244 | origin | TBD | **MERGE ADVICE:** to prevent recurence of a past mistake: this branch is meant to **MOVE** several items from the Session category to the System category in the command palette. You **MUST NOT** duplicate them into both categories when resolving merge conflicts! Additionally, if fix/persist-sidebar was merged previously, be sue to properly move the new logic for the sidebar that it added: no return to "auto" after leaving, et cetera |

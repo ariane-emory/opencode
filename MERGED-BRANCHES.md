@@ -46,7 +46,7 @@
 | ☑ | 40 | feat/edit-tool-description | 142 | origin | 86c50efcc0 |  |
 | ☑ | 41 | feat/renaming-doesnt-close-session-list | 233 | origin | 8f49c83759 |  |
 | ☑ | 42 | feat/session-child-toggle-key | 238 | origin | 3b988c33a7 |  |
-| ☐ | 43 | feat/get-session-title | 144 | origin | TBD |  |
+| ☑ | 43 | feat/get-session-title | 144 | origin | cb6c410357 |  |
 | ☐ | 44 | feat/set-session-title | 106 | origin | TBD |  |
 | ☐ | 45 | feat/no-disabled-lsps-in-sidebar | 186 | origin | TBD | **MERGE ADVICE**: Remember, the whole purpose of this branch is to cause the LSPs to not be displayed in the sidebar at all when the LSPs have been disabled in the configuration. Make sure that you don't clobber this while merging! |
 | ☐ | 46 | fix/inline-datetime-no-padding | 275 | origin | TBD | **MERGE ADVICE:** This branch adds `datetimeCompact()` and `todayTimeOrDateTimeCompact()` to `packages/opencode/src/util/locale.ts`. It **MUST** be merged before `feat/agent-timestamps` so that the compact datetime functions are available for inline timestamps. |

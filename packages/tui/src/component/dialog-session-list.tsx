@@ -223,6 +223,7 @@ export function DialogSessionList() {
   })
 
   const options = createMemo(() => {
+    if (!sync.ready) return []
     const today = new Date().toDateString()
 
     function parseSessionTitle(title: string): { group?: string; displayTitle: string } {
@@ -239,6 +240,9 @@ export function DialogSessionList() {
     const pinned = all
       .filter((x) => x.time.pinned !== undefined)
       .toSorted((a, b) => (b.time.pinned ?? 0) - (a.time.pinned ?? 0))
+
+    const sessionsListLimit = sync.data.config.experimental?.session_list_limit
+    const limit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
 
     const sessionMap = new Map(all.map((x) => [x.id, x]))
 
@@ -310,7 +314,8 @@ export function DialogSessionList() {
           const parsed = parseSessionTitle(x.title)
           const date = new Date(x.time.updated)
           return item(x, parsed.group ?? (date.toDateString() === today ? "Today" : date.toDateString()), false)
-        }),
+        })
+        .slice(0, limit),
     ]
   })
 

@@ -189,6 +189,18 @@ export const Info = Schema.Struct({
       plan_mode: Schema.optional(Schema.Boolean).annotate({
         description: "Enable experimental plan mode",
       }),
+      messages_limit: Schema.optional(
+        Schema.Union([PositiveInt, Schema.Literal("none")]),
+      ).annotate({
+        description:
+          "Maximum number of message parts to load per session when syncing, or 'none' to load all messages",
+      }),
+      session_list_limit: Schema.optional(
+        Schema.Union([PositiveInt, Schema.Literal("none")]),
+      ).annotate({
+        description:
+          "Maximum number of sessions to display in session list, or 'none' to show all sessions",
+      }),
       policies: Schema.optional(Schema.mutable(Schema.Array(ConfigExperimental.Policy))).annotate({
         description: "Policy statements applied to supported resources, such as provider access",
       }),

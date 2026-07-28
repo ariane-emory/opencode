@@ -127,12 +127,13 @@ const sessionBindingCommands = [
   "session.unshare",
   "session.undo",
   "session.redo",
-  "session.sidebar.toggle",
   "session.toggle.conceal",
-  "session.toggle.timestamps",
-  "session.toggle.actions",
-  "session.toggle.scrollbar",
-  "session.toggle.generic_tool_output",
+  "session.page.up",
+  "session.page.down",
+  "session.line.up",
+  "session.line.down",
+  "session.half.page.up",
+  "session.half.page.down",
   "session.first",
   "session.last",
   "session.messages_last_user",
@@ -739,66 +740,11 @@ export function Session() {
       },
     },
     {
-      title: sidebarVisible() ? "Hide sidebar" : "Show sidebar",
-      value: "session.sidebar.toggle",
-      category: "Session",
-      run: () => {
-        const prev = sidebar()
-        let newValue: "show" | "hide" | "auto"
-        if (prev === "auto") newValue = sidebarVisible() ? "hide" : "show"
-        else if (prev === "show") newValue = "hide"
-        else newValue = "show"
-        setSidebar(newValue)
-        setSidebarOpen(newValue === "show")
-        dialog.clear()
-      },
-    },
-    {
       title: conceal() ? "Disable code concealment" : "Enable code concealment",
       value: "session.toggle.conceal",
       category: "Session",
       run: () => {
         setConceal((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
-      title: showTimestamps() ? "Hide timestamps" : "Show timestamps",
-      value: "session.toggle.timestamps",
-      category: "Session",
-      slash: {
-        name: "timestamps",
-        aliases: ["toggle-timestamps"],
-      },
-      run: () => {
-        setTimestamps((prev) => (prev === "show" ? "hide" : "show"))
-        dialog.clear()
-      },
-    },
-    {
-      title: showDetails() ? "Hide tool details" : "Show tool details",
-      value: "session.toggle.actions",
-      category: "Session",
-      run: () => {
-        setShowDetails((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
-      title: "Toggle session scrollbar",
-      value: "session.toggle.scrollbar",
-      category: "Session",
-      run: () => {
-        setShowScrollbar((prev) => !prev)
-        dialog.clear()
-      },
-    },
-    {
-      title: showGenericToolOutput() ? "Hide generic tool output" : "Show generic tool output",
-      value: "session.toggle.generic_tool_output",
-      category: "Session",
-      run: () => {
-        setShowGenericToolOutput((prev) => !prev)
         dialog.clear()
       },
     },

@@ -80,7 +80,7 @@
 | ☑ | 74 | fix/session-timestamp-regression | 268 | origin | 416087efe2 |  |
 | ☑ | 75 | feat/persistent-session-id-in-sidebar-toggle | 276 | origin | 59e65d4561 |  |
 | ☑ | 76 | fix/preserve-quotes-in-arguments | 239 | origin | 7422e6053f |  |
-| ☐ | 77 | feat/command-palette-consistency | 244 | origin | TBD | **MERGE ADVICE:** to prevent recurence of a past mistake: this branch is meant to **MOVE** several items from the Session category to the System category in the command palette. You **MUST NOT** duplicate them into both categories when resolving merge conflicts! Additionally, if fix/persist-sidebar was merged previously, be sue to properly move the new logic for the sidebar that it added: no return to "auto" after leaving, et cetera |
+| ☑ | 77 | feat/command-palette-consistency | 244 | origin | 934001e0a1 | **MERGE ADVICE:** to prevent recurence of a past mistake: this branch is meant to **MOVE** several items from the Session category to the System category in the command palette. You **MUST NOT** duplicate them into both categories when resolving merge conflicts! Additionally, if fix/persist-sidebar was merged previously, be sue to properly move the new logic for the sidebar that it added: no return to "auto" after leaving, et cetera |
 | ☐ | 78 | fix/model-selection-follows-favorite | 280 | origin | TBD |  |
 | ☐ | 79 | fix/integration-version-plugin-compatibility | 281 | origin | TBD |  |
 | ☐ | 80 | fix/hide-session-pinning-feature | 282 | origin | TBD |  |

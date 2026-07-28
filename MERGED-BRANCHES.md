@@ -18,7 +18,7 @@
 | ☑ | 12 | feat/configurable-snapshot-lifespan | 157 | origin | 659a28ec81 |  |
 | ☑ | 13 | feat/configurable-new-plan-mode | 143 | origin | e1f3da296f |  |
 | ☑ | 14 | feat/improve-experimental-plan-mode-prompt | 232 | origin | b383ecac32 |  |
-| ☐ | 15 | feat/enable-exa-setting | 257 | origin | TBD |  |
+| ☑ | 15 | feat/enable-exa-setting | 257 | origin | b35ff7e9b9 |  |
 | ☐ | 16 | feat/canceled-prompts-in-history | 151 | origin | TBD | **MERGE ADVICE:** Careful not to clobber this while merging! Merging this branch **MUST** add the new item to the command palette. |
 | ☐ | 17 | feat/permission-spinner | 36 | origin | TBD |  |
 | ☐ | 18 | feat/opencode-expand | 67 | origin | TBD |  |

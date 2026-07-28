@@ -60,8 +60,6 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
   const [search, setSearch] = createDebouncedSignal("", 150)
   const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()
   const deleteHint = useCommandShortcut("session.delete")
-  const quickSwitch1 = useCommandShortcut("session.quick_switch.1")
-  const quickSwitch9 = useCommandShortcut("session.quick_switch.9")
 
   const [browseResults, { refetch: refetchBrowse }] = createResource(
     () => sync.session.query(),
@@ -210,16 +208,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
 
   const browseOrder = createMemo(() => orderByRecency(browseResults() ?? sync.data.session))
 
-  const quickSwitchHint = createMemo(() => {
-    const first = quickSwitch1()
-    const last = quickSwitch9()
-    if (!first || !last) return undefined
-    return quickSwitchRange(first, last)
-  })
-  const quickSwitchFooterHints = createMemo(() => {
-    const hint = quickSwitchHint()
-    return hint && local.session.slots().length > 0 ? [{ title: "switch", label: hint }] : []
-  })
+
 
   const options = createMemo(() => {
     if (!sync.ready) return []
@@ -252,7 +241,8 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
       .map((id) => sessionMap.get(id))
       .filter((x): x is (typeof all)[number] => x !== undefined && x.time.pinned === undefined)
 
-    const slotByID = new Map<string, number>(local.session.slots().map((id, i) => [id, i + 1]))
+
+
 
     const foot = (session: (typeof all)[number], showDate: boolean): JSX.Element | string => {
       if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES && session.workspaceID) {
@@ -278,12 +268,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
       const parsed = parseSessionTitle(session.title)
       const status = sync.data.session_status?.[session.id]
       const isWorking = status?.type === "busy" || status?.type === "retry"
-      const slot = slotByID.get(session.id)
-      const gutter = isWorking
-        ? () => <Spinner />
-        : slot !== undefined
-          ? () => <text fg={theme.accent}>{slot}</text>
-          : undefined
+      const gutter = isWorking ? () => <Spinner /> : undefined
       return {
         title: deleting ? `Press ${deleteHint()} again to confirm` : (parsed.displayTitle || session.title),
         bg: deleting ? theme.error : undefined,
@@ -351,15 +336,7 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
         })
         dialog.clear()
       }}
-      actions={[
-        {
-          command: "session.pin.toggle",
-          title: "pin/unpin",
-          onTrigger: (option: { value: string }) => {
-            local.session.togglePin(option.value)
-          },
-        },
-        {
+      actions={[{
           command: "session.delete",
           title: "delete",
           onTrigger: async (option) => {
@@ -448,13 +425,6 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
           },
         },
       ]}
-      footerHints={quickSwitchFooterHints()}
     />
   )
-}
-
-function quickSwitchRange(first: string, last: string) {
-  const prefix = first.slice(0, -1)
-  if (first.endsWith("1") && last === `${prefix}9`) return `${prefix}1-9`
-  return `${first} through ${last}`
 }

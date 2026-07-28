@@ -67,7 +67,7 @@
 | ☑ | 61 | feat/dialogue-background-overlay-setting | 249 | origin | feced8d935 |  |
 | ☑ | 62 | fix/no-split-database | 235 | origin | 093e05d0de |  |
 | ☑ | 63 | feat/elapsed-timer | 54 | origin | 20e7aae3b9 |  |
-| ☐ | 64 | fix/rfc2119-question-tool | 118 | origin | TBD |  |
+| ☑ | 64 | fix/rfc2119-question-tool | 118 | origin | 75627a4e31 |  |
 | ☐ | 65 | feat/sidebar-header-accent-colours | 229 | origin | TBD |  |
 | ☑ | 66 | feat/distinct-title-colour | 226 | origin | 8e5f39713a | **MERGE ADVICE:** Make sure that this change in the title's colouring is made compatible with the reformatting in grouped session titles that comes from the feat/session-grouping branch, **BOTH** the distinct colour for the titles **AND** the formatting of grouped sessions' titles |
 | ☐ | 67 | feat/tool-output-colour | 230 | origin | TBD |  |

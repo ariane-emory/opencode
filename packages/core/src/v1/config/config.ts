@@ -204,6 +204,11 @@ export const Info = Schema.Struct({
         description:
           "Maximum number of sessions to display in session list, or 'none' to show all sessions",
       }),
+      max_prompt_input_lines: Schema.optional(
+        Schema.Number.check(Schema.isInt(), Schema.isGreaterThanOrEqualTo(1), Schema.isLessThanOrEqualTo(99)),
+      ).annotate({
+        description: "Maximum number of lines for the prompt input text box (1-99, default: 6)",
+      }),
       policies: Schema.optional(Schema.mutable(Schema.Array(ConfigExperimental.Policy))).annotate({
         description: "Policy statements applied to supported resources, such as provider access",
       }),

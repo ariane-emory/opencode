@@ -62,7 +62,7 @@
 | ☑ | 56 | feat/configurable-maximum-prompt-input-size | 242 | origin | 6fd377b14d |  |
 | ☑ | 57 | feat/clickable-sidebar-mcps | 227 | origin | 7814fa088c |  |
 | ☑ | 58 | feat/clickable-dialogue-mcps | 225 | origin | 0b46554428 |  |
-| ☐ | 59 | feat/clickable-status-mcps | 241 | origin | TBD |  |
+| ☑ | 59 | feat/clickable-status-mcps | 241 | origin | 989cd83f23 |  |
 | ☐ | 60 | feat/ignored-commands | 216 | origin | TBD |  |
 | ☐ | 61 | feat/dialogue-background-overlay-setting | 249 | origin | TBD |  |
 | ☐ | 62 | fix/no-split-database | 235 | origin | TBD |  |

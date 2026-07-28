@@ -56,7 +56,7 @@
 | ☑ | 50 | feat/taller-dialogs | 196 | origin | 2d967be592 |  |
 | ☑ | 51 | feat/add-arianes-themes | 212 | origin | da222b9b9c |  |
 | ☑ | 52 | feat/sidebar-clock | 207 | origin | b1c12b3cf4 |  |
-| ☐ | 53 | feat/alphabetical-message-modal | 219 | origin | TBD |  |
+| ☑ | 53 | feat/alphabetical-message-modal | 219 | origin | d8f2a2f0bd |  |
 | ☐ | 54 | feat/toggle-sidebar-scrollbar | 224 | origin | TBD |  |
 | ☐ | 55 | feat/full-datetimes-in-fork-and-timeline-dialogues | 223 | origin | TBD |  |
 | ☐ | 56 | feat/configurable-maximum-prompt-input-size | 242 | origin | TBD |  |

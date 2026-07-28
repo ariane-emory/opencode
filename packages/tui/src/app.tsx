@@ -1027,56 +1027,23 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
         },
       },
       {
-        name: "app.toggle.markdown_all",
-        title: kv.get("markdown_all_messages", false)
-          ? "Render markdown: agent messages only"
-          : "Render markdown: all messages",
-        category: "System",
-        run: () => {
-          kv.set("markdown_all_messages", !kv.get("markdown_all_messages", false))
-          dialog.clear()
-        },
-      },
-      {
-        name: "session.toggle.thinking",
-        title: kv.get("thinking_mode", "hide") === "show" ? "Collapse thinking" : "Expand thinking",
-        category: "System",
-        run: () => {
-          const current = kv.get("thinking_mode", "hide")
-          kv.set("thinking_mode", current === "show" ? "hide" : "show")
-          dialog.clear()
-        },
-      },
-      {
-        name: "app.toggle.clear_prompt_history",
-        title: kv.get("clear_prompt_save_history", false)
-          ? "Don't include cleared prompts in history"
-          : "Include cleared prompts in history",
-        category: "System",
-        run: () => {
-          kv.set("clear_prompt_save_history", !kv.get("clear_prompt_save_history", false))
-          dialog.clear()
-        },
-      },
-      {
-        name: "app.toggle.sidebar_clock",
-        title: sidebarClockEnabled() ? "Hide sidebar clock" : "Show sidebar clock",
-        category: "System",
-        run: () => {
-          setSidebarClockEnabled((prev) => {
-            const next = !prev
-            kv.set("sidebar_clock_visible", next)
-            return next
-          })
-          dialog.clear()
-        },
-      },
-      {
         name: "app.toggle.sidebar_scrollbar",
         title: kv.get("sidebar_scrollbar_visible", true) ? "Hide sidebar scrollbar" : "Show sidebar scrollbar",
         category: "System",
         run: () => {
           kv.set("sidebar_scrollbar_visible", !kv.get("sidebar_scrollbar_visible", true))
+          dialog.clear()
+        },
+      },
+      {
+        name: "app.toggle.sidebar_session_id",
+        title: kv.get("sidebar_session_id_visible", false)
+          ? "Hide session ID in sidebar"
+          : "Show session ID in sidebar",
+        category: "System",
+        run: () => {
+          kv.set("sidebar_session_id_visible", !kv.get("sidebar_session_id_visible", false))
+          dialog.clear()
           dialog.clear()
         },
       },

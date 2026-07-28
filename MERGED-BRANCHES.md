@@ -44,7 +44,7 @@
 | ☑ | 38 | feat/improve-shell-tool-git-advice | 279 | origin | f547c3566c | **MERGE ADVICE**: Make sure to combine this properly with the changes to the shell tool's description that are made in the feat/shell-advice branch, both sets of changes must be synthesized! |
 | ☑ | 39 | feat/shell-tool-unblacklist-fish-and-extend-dynamic-naming | 278 | origin | c5e977bc94 | **MERGE ADVICE**: Make sure to combine this properly with the changes to the shell tool's description that are made in the feat/improve-shell-tool-git-advice branch, both sets of changes must be synthesized! **NO** shells must be blacklisted! |
 | ☑ | 40 | feat/edit-tool-description | 142 | origin | 86c50efcc0 |  |
-| ☐ | 41 | feat/renaming-doesnt-close-session-list | 233 | origin | TBD |  |
+| ☑ | 41 | feat/renaming-doesnt-close-session-list | 233 | origin | 8f49c83759 |  |
 | ☐ | 42 | feat/session-child-toggle-key | 238 | origin | TBD |  |
 | ☐ | 43 | feat/get-session-title | 144 | origin | TBD |  |
 | ☐ | 44 | feat/set-session-title | 106 | origin | TBD |  |

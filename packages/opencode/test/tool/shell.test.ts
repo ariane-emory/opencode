@@ -194,25 +194,106 @@ describe("tool.shell", () => {
     ),
   )
 
-  it.live("falls back from terminal-only configured shell", () =>
+  it.live("description includes shell information", () =>
+    runIn(
+      projectRoot,
+      Effect.gen(function* () {
+        const bash = yield* initBash()
+        expect(bash.description).toContain("Be aware: OS:")
+        expect(bash.description).toContain("Shell:")
+        const shellMatch = bash.description.match(/Shell: ([^\n]+)/)
+        expect(shellMatch).toBeTruthy()
+        expect(shellMatch?.[1]).toBeTruthy()
+      }),
+    ),
+  )
+
+  it.live("shell name detection is platform-aware", () =>
+    runIn(
+      projectRoot,
+      Effect.gen(function* () {
+        const bash = yield* initBash()
+        const detectedShell = bash.description.match(/Shell: ([^\n]+)/)?.[1]?.trim()
+
+        expect(detectedShell).toBeTruthy()
+
+        if (process.platform === "win32") {
+          expect(["cmd", "powershell"]).toContain(detectedShell!)
+        } else {
+          expect(["bash", "zsh", "fish", "ksh", "csh", "tcsh", "dash"]).toContain(detectedShell!)
+        }
+      }),
+    ),
+  )
+
+  it.live("description uses dynamic shell-specific language", () =>
+    runIn(
+      projectRoot,
+      Effect.gen(function* () {
+        const bash = yield* initBash()
+        const detectedShell = bash.description.match(/Shell: ([^\n]+)/)?.[1]?.trim()
+
+        expect(detectedShell).toBeTruthy()
+
+        if (detectedShell) {
+          expect(bash.description).toContain(`${detectedShell} command`)
+        }
+
+        expect(bash.description).toContain("persistent shell session")
+      }),
+    ),
+  )
+
+  it.live("shell-specific language works for different shell types", () =>
+    runIn(
+      projectRoot,
+      Effect.gen(function* () {
+        yield* withShell({ label: "zsh", shell: "/bin/zsh" }, Effect.gen(function* () {
+          const bash = yield* initBash()
+          expect(bash.description).toContain("zsh command")
+        }))
+
+        yield* withShell({ label: "bash", shell: "/bin/bash" }, Effect.gen(function* () {
+          const bash = yield* initBash()
+          expect(bash.description).toContain("bash command")
+        }))
+
+        yield* withShell({ label: "ksh", shell: "/bin/ksh" }, Effect.gen(function* () {
+          const bash = yield* initBash()
+          expect(bash.description).toContain("ksh command")
+        }))
+
+        yield* withShell({ label: "fish", shell: "fish" }, Effect.gen(function* () {
+          const bash = yield* initBash()
+          expect(bash.description).toContain("fish command")
+        }))
+
+        yield* withShell({ label: "nu", shell: "nu" }, Effect.gen(function* () {
+          const bash = yield* initBash()
+          expect(bash.description).toContain("nu command")
+        }))
+      }),
+    ),
+  )
+
+  it.live("uses configured fish shell", () =>
     Effect.gen(function* () {
       const tmp = yield* tmpdirScoped({ config: { shell: "fish" } })
       yield* runIn(
         tmp,
         Effect.gen(function* () {
           const bash = yield* initBash()
-          const fallback = Shell.name(Shell.acceptable("fish"))
-          expect(fallback).not.toBe("fish")
-          expect(bash.description).toContain(fallback)
+          expect(Shell.name(Shell.acceptable("fish"))).toBe("fish")
+          expect(bash.description).toContain("fish")
 
           const result = yield* bash.execute(
             {
-              command: "echo fallback",
+              command: "echo fish",
             },
             ctx,
           )
           expect(result.metadata.exit).toBe(0)
-          expect(result.output).toContain("fallback")
+          expect(result.output).toContain("fish")
         }),
       )
     }),

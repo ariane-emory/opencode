@@ -1,4 +1,4 @@
-import { Schema } from "effect"
+import { Schema, SchemaGetter } from "effect"
 import {
   AbsolutePath,
   DateTimeUtcFromMillis,
@@ -10,6 +10,16 @@ import {
 } from "@opencode-ai/schema/schema"
 
 export { AbsolutePath, DateTimeUtcFromMillis, NonNegativeInt, optional, PositiveInt, RelativePath, statics }
+
+/**
+ * Boolean that also accepts 1/0 for compatibility with numeric config values.
+ */
+export const ConfigBoolean = Schema.Union([Schema.Boolean, Schema.Literals([1, 0])]).pipe(
+  Schema.decodeTo(Schema.Boolean, {
+    decode: SchemaGetter.transform((value) => (typeof value === "boolean" ? value : value === 1)),
+    encode: SchemaGetter.transform((value) => value),
+  }),
+)
 
 /**
  * Strip `readonly` from a nested type. Stand-in for `effect`'s `Types.DeepMutable`

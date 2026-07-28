@@ -22,6 +22,7 @@ import { Context, Duration, Effect, Exit, Fiber, Layer, Option, Schema } from "e
 import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/unstable/http"
 import { EffectFlock } from "@opencode-ai/core/util/effect-flock"
 import { containsPath, type InstanceContext } from "../project/instance-context"
+import { makeRuntime } from "@/effect/run-service"
 import { ConfigV1 } from "@opencode-ai/core/v1/config/config"
 import { RemoteAuthError } from "@opencode-ai/core/v1/config/error"
 import { ConfigPermissionV1 } from "@opencode-ai/core/v1/config/permission"
@@ -676,5 +677,41 @@ export const node = LayerNode.make({
   layer: layer,
   deps: [FSUtil.node, Auth.node, Account.node, Env.node, Npm.node, httpClient],
 })
+
+export const defaultLayer = LayerNode.compile(node)
+
+const { runPromise } = makeRuntime(Service, defaultLayer)
+
+export async function get() {
+  return runPromise((svc) => svc.get())
+}
+
+export async function getGlobal() {
+  return runPromise((svc) => svc.getGlobal())
+}
+
+export async function getConsoleState() {
+  return runPromise((svc) => svc.getConsoleState())
+}
+
+export async function update(config: Info) {
+  return runPromise((svc) => svc.update(config))
+}
+
+export async function updateGlobal(config: Info) {
+  return runPromise((svc) => svc.updateGlobal(config))
+}
+
+export async function invalidate() {
+  return runPromise((svc) => svc.invalidate())
+}
+
+export async function directories() {
+  return runPromise((svc) => svc.directories())
+}
+
+export async function waitForDependencies() {
+  return runPromise((svc) => svc.waitForDependencies())
+}
 
 export * as Config from "./config"

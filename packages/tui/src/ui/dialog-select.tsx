@@ -279,6 +279,23 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     }),
   )
 
+  // Preserve highlighted selection when options reorder (e.g., favorite/unfavorite)
+  createEffect(
+    on(
+      () => flat(),
+      (newFlat, prevFlat) => {
+        if (store.filter.length > 0) return
+        if (!prevFlat) return
+        const prevSelected = prevFlat[store.selected]
+        if (!prevSelected) return
+        const newIndex = newFlat.findIndex((opt) => isDeepEqual(opt.value, prevSelected.value))
+        if (newIndex >= 0 && newIndex !== store.selected) {
+          moveTo(newIndex, false)
+        }
+      },
+    ),
+  )
+
   function move(direction: number) {
     if (props.locked) return
     if (flat().length === 0) return

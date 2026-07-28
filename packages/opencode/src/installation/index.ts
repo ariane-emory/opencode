@@ -22,14 +22,18 @@ export type ReleaseType = "patch" | "minor" | "major"
 export const Event = InstallationEvent
 
 export function getReleaseType(current: string, latest: string): ReleaseType {
-  const currMajor = semver.major(current)
-  const currMinor = semver.minor(current)
-  const newMajor = semver.major(latest)
-  const newMinor = semver.minor(latest)
+  try {
+    const currMajor = semver.major(current)
+    const currMinor = semver.minor(current)
+    const newMajor = semver.major(latest)
+    const newMinor = semver.minor(latest)
 
-  if (newMajor > currMajor) return "major"
-  if (newMinor > currMinor) return "minor"
-  return "patch"
+    if (newMajor > currMajor) return "major"
+    if (newMinor > currMinor) return "minor"
+    return "patch"
+  } catch {
+    return "patch"
+  }
 }
 
 export const Info = Schema.Struct({

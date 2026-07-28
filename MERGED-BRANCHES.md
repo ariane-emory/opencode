@@ -71,7 +71,7 @@
 | ☑ | 65 | feat/sidebar-header-accent-colours | 229 | origin | e7d4ede053 |  |
 | ☑ | 66 | feat/distinct-title-colour | 226 | origin | 8e5f39713a | **MERGE ADVICE:** Make sure that this change in the title's colouring is made compatible with the reformatting in grouped session titles that comes from the feat/session-grouping branch, **BOTH** the distinct colour for the titles **AND** the formatting of grouped sessions' titles |
 | ☑ | 67 | feat/tool-output-colour | 230 | origin | 02a85b9a6c |  |
-| ☐ | 68 | fix/textarea-input-enter-keybindings | 286 | origin | TBD |  |
+| ☑ | 68 | fix/textarea-input-enter-keybindings | 286 | origin | ee49072a46 |  |
 | ☐ | 69 | fix/escape-from-status | 245 | origin | TBD |  |
 | ☐ | 70 | fix/restore-footer | 175 | origin | TBD | **MERGE ADVICE:** As its name suggests, this feature restores the footer it was removed in a previous version; it must not be allowed to be clobbered by other branches when merging! |
 | ☐ | 71 | fix/session-list-delete-selection | 255 | origin | TBD |  |

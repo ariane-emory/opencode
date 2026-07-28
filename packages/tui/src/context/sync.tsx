@@ -362,13 +362,14 @@ export const {
         case "message.removed": {
           touchMessage(event.properties.sessionID, event.properties.messageID)
           const messages = store.message[event.properties.sessionID]
-          const result = search(messages, event.properties.messageID, (m) => m.id)
-          if (result.found) {
+          if (!messages) break
+          const idx = messages.findIndex((m) => m.id === event.properties.messageID)
+          if (idx >= 0) {
             setStore(
               "message",
               event.properties.sessionID,
               produce((draft) => {
-                draft.splice(result.index, 1)
+                draft.splice(idx, 1)
               }),
             )
           }
@@ -675,6 +676,12 @@ export const {
           })
           syncingSessions.set(sessionID, task)
           return task
+        },
+        async forceSync(sessionID: string) {
+          fullSyncedSessions.delete(sessionID)
+          const syncing = syncingSessions.get(sessionID)
+          if (syncing) await syncing
+          await this.sync(sessionID)
         },
       },
       bootstrap,

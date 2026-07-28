@@ -453,6 +453,7 @@ export interface Interface {
     workspaceID?: WorkspaceV2.ID
   }) => Effect.Effect<Info>
   readonly fork: (input: { sessionID: SessionID; messageID?: MessageID }) => Effect.Effect<Info, NotFound>
+  readonly rewind: (input: { sessionID: SessionID; messageID: MessageID }) => Effect.Effect<Info, NotFound>
   readonly touch: (sessionID: SessionID) => Effect.Effect<void>
   readonly get: (id: SessionID) => Effect.Effect<Info, NotFound>
   readonly setTitle: (input: { sessionID: SessionID; title: string }) => Effect.Effect<void>
@@ -732,9 +733,11 @@ const layer: Layer.Layer<
       })
       const msgs = yield* messages({ sessionID: input.sessionID })
       const idMap = new Map<string, MessageID>()
+      let reachedTarget = false
 
       for (const msg of msgs) {
-        if (input.messageID && msg.info.id >= input.messageID) break
+        if (input.messageID && msg.info.id === input.messageID) reachedTarget = true
+        if (reachedTarget) break
         const newID = MessageID.ascending()
         idMap.set(msg.info.id, newID)
 
@@ -912,6 +915,26 @@ const layer: Layer.Layer<
       return input.partID
     })
 
+    const rewind = Effect.fn("Session.rewind")(function* (input: {
+      sessionID: SessionID
+      messageID: MessageID
+    }) {
+      const msgs = yield* messages({ sessionID: input.sessionID })
+      let remove = false
+      for (const msg of msgs) {
+        if (msg.info.id === input.messageID) remove = true
+        if (!remove) continue
+        yield* removeMessage({
+          sessionID: input.sessionID,
+          messageID: msg.info.id,
+        })
+      }
+      if (!remove) {
+        throw new NotFoundError({ message: `Message not found in session: ${input.messageID}` })
+      }
+      return yield* get(input.sessionID)
+    })
+
     const updatePartDelta = Effect.fnUntraced(function* (input: {
       sessionID: SessionID
       messageID: MessageID
@@ -946,6 +969,7 @@ const layer: Layer.Layer<
       listGlobal,
       create,
       fork,
+      rewind,
       touch,
       get,
       setTitle,

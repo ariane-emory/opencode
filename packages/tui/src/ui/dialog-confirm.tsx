@@ -1,9 +1,6 @@
 import { TextAttributes } from "@opentui/core"
 import { useTheme } from "../context/theme"
 import { useDialog, type DialogContext } from "./dialog"
-import { createStore } from "solid-js/store"
-import { For } from "solid-js"
-import { Locale } from "../util/locale"
 import { useBindings } from "../keymap"
 
 export type DialogConfirmProps = {
@@ -19,36 +16,16 @@ export type DialogConfirmResult = boolean | undefined
 export function DialogConfirm(props: DialogConfirmProps) {
   const dialog = useDialog()
   const { theme } = useTheme()
-  const [store, setStore] = createStore({
-    active: "confirm" as "confirm" | "cancel",
-  })
 
   useBindings(() => ({
     bindings: [
       {
         key: "return",
-        desc: "Confirm dialog selection",
+        desc: "Confirm",
         group: "Dialog",
         cmd: () => {
-          if (store.active === "confirm") props.onConfirm?.()
-          if (store.active === "cancel") props.onCancel?.()
+          props.onConfirm?.()
           dialog.clear()
-        },
-      },
-      {
-        key: "left",
-        desc: "Previous dialog option",
-        group: "Dialog",
-        cmd: () => {
-          setStore("active", store.active === "confirm" ? "cancel" : "confirm")
-        },
-      },
-      {
-        key: "right",
-        desc: "Next dialog option",
-        group: "Dialog",
-        cmd: () => {
-          setStore("active", store.active === "confirm" ? "cancel" : "confirm")
         },
       },
     ],
@@ -59,32 +36,30 @@ export function DialogConfirm(props: DialogConfirmProps) {
         <text attributes={TextAttributes.BOLD} fg={theme.text}>
           {props.title}
         </text>
-        <text fg={theme.textMuted} onMouseUp={() => dialog.clear()}>
-          esc
-        </text>
+        <box flexDirection="row" gap={2}>
+          <text onMouseUp={() => { props.onConfirm?.(); dialog.clear() }}>
+            <span style={{ fg: theme.text }}>
+              <b>confirm</b>{" "}
+            </span>
+            <span style={{ fg: theme.textMuted }}>enter</span>
+          </text>
+          <text onMouseUp={() => dialog.clear()}>
+            <span style={{ fg: theme.text }}>
+              <b>cancel</b>{" "}
+            </span>
+            <span style={{ fg: theme.textMuted }}>esc</span>
+          </text>
+        </box>
       </box>
-      <box paddingBottom={1}>
-        <text fg={theme.textMuted}>{props.message}</text>
-      </box>
-      <box flexDirection="row" justifyContent="flex-end" paddingBottom={1}>
-        <For each={["cancel", "confirm"] as const}>
-          {(key) => (
-            <box
-              paddingLeft={1}
-              paddingRight={1}
-              backgroundColor={key === store.active ? theme.primary : undefined}
-              onMouseUp={() => {
-                if (key === "confirm") props.onConfirm?.()
-                if (key === "cancel") props.onCancel?.()
-                dialog.clear()
-              }}
-            >
-              <text fg={key === store.active ? theme.selectedListItemText : theme.textMuted}>
-                {Locale.titlecase(key === "cancel" ? (props.label ?? key) : key)}
-              </text>
-            </box>
-          )}
-        </For>
+      <box paddingBottom={1} flexDirection="column">
+        {props.message.split("\n").map((line, i) => (
+          <text
+            fg={i === 0 ? theme.text : theme.textMuted}
+            attributes={i === 0 ? TextAttributes.BOLD : undefined}
+          >
+            {line}
+          </text>
+        ))}
       </box>
     </box>
   )

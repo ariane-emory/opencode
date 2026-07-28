@@ -53,7 +53,7 @@
 | ☑ | 47 | feat/agent-timestamps | 191 | origin | dd8e6fe96f | **MERGE ADVICE:** This branch adds inline timestamps to agent messages. It **MUST** use `Locale.todayTimeOrDateTimeCompact()` instead of `Locale.todayTimeOrDateTime()` for inline timestamps to avoid space-padding on single-digit days (e.g., "5/ 6/2026"). The compact variant is defined in `packages/opencode/src/util/locale.ts` and must be available before this branch is merged. |
 | ☑ | 48 | feat/rewind-modal-option | 192 | origin | b716861908 |  |
 | ☑ | 49 | feat/alphabetize-command-palette-groups | 195 | origin | 8f19a7bff1 |  |
-| ☐ | 50 | feat/taller-dialogs | 196 | origin | TBD |  |
+| ☑ | 50 | feat/taller-dialogs | 196 | origin | 2d967be592 |  |
 | ☐ | 51 | feat/add-arianes-themes | 212 | origin | TBD |  |
 | ☐ | 52 | feat/sidebar-clock | 207 | origin | TBD |  |
 | ☐ | 53 | feat/alphabetical-message-modal | 219 | origin | TBD |  |

@@ -192,6 +192,9 @@ export async function resolvePathPluginTarget(spec: string) {
 }
 
 export async function checkPluginCompatibility(target: string, opencodeVersion: string, pkg?: PluginPackage) {
+  // Allow integration branch versions (YYYY-MM-DD-HH-MM format) in addition to SemVer
+  const isIntegrationVersion = /^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}$/.test(opencodeVersion)
+  if (isIntegrationVersion) return
   if (!semver.valid(opencodeVersion) || semver.major(opencodeVersion) === 0) return
   const hit = pkg ?? (await readPluginPackage(target).catch(() => undefined))
   if (!hit) return

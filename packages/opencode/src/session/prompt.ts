@@ -1,6 +1,7 @@
 import { LayerNode } from "@opencode-ai/core/effect/layer-node"
 import { PermissionV1 } from "@opencode-ai/core/v1/permission"
 import path from "path"
+import { substituteArguments } from "../config/substitute"
 import { SessionV1 } from "@opencode-ai/core/v1/session"
 import os from "os"
 import { SessionID, MessageID, PartID } from "./schema"
@@ -1710,5 +1711,6 @@ export const node = LayerNode.make({
     Database.node,
   ],
 })
+export { substituteArguments }
 
 export * as SessionPrompt from "./prompt"

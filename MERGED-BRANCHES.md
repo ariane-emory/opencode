@@ -23,8 +23,8 @@
 | ☑ | 17 | feat/permission-spinner | 36 | origin | ade8ff1bd6 |  |
 | ☑ | 18 | feat/opencode-expand | 67 | origin | 138533a7da |  |
 | ☑ | 19 | refactor/shared-substitute | 203 | origin | f974b1463a |  |
-| ☐ | 20 | feat/argument-range-syntax | 149 | origin | TBD |  |
-| ☐ | 21 | feat/default-arguments | 217 | origin | TBD | **MERGE ADVICE:** When merging this branch, make sure that you don't accidentally reintroduce the swallowing behaviour that the feat/argument-range-syntax branch was meant to eliminate. |
+| ☑ | 20 | feat/argument-range-syntax | 149 | origin | a0525f508d |  |
+| ☑ | 21 | feat/default-arguments | 217 | origin | a0525f508d | **MERGE ADVICE:** When merging this branch, make sure that you don't accidentally reintroduce the swallowing behaviour that the feat/argument-range-syntax branch was meant to eliminate. |
 | ☐ | 22 | fix/history-navigation-key-commands | 237 | origin | TBD |  |
 | ☐ | 23 | fix/build-with-short-version | 240 | origin | TBD | **MERGE ADVICE:** Automatically uses short timestamp version for integration branches without requiring OPENCODE_VERSION to be set |
 | ☐ | 24 | fix/autocompletion-filtered-order | 76 | origin | TBD |  |

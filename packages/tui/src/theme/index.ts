@@ -37,6 +37,56 @@ import tokyonight from "./assets/tokyonight.json" with { type: "json" }
 import vercel from "./assets/vercel.json" with { type: "json" }
 import vesper from "./assets/vesper.json" with { type: "json" }
 import zenburn from "./assets/zenburn.json" with { type: "json" }
+import mellow from "./assets/mellow.json" with { type: "json" }
+import midnight from "./assets/midnight.json" with { type: "json" }
+import moonlight from "./assets/moonlight.json" with { type: "json" }
+import moonlightEclipse from "./assets/moonlight-eclipse.json" with { type: "json" }
+import moonlightIi from "./assets/moonlight-ii.json" with { type: "json" }
+import moonlightIii from "./assets/moonlight-iii.json" with { type: "json" }
+import cyberpunk2077 from "./assets/cyberpunk2077.json" with { type: "json" }
+import toxikat from "./assets/toxikat.json" with { type: "json" }
+import toxikatUltratransparent from "./assets/toxikat--ultratransparent.json" with { type: "json" }
+import auraTransparent from "./assets/aura--transparent.json" with { type: "json" }
+import ayuTransparent from "./assets/ayu--transparent.json" with { type: "json" }
+import catppuccinTransparent from "./assets/catppuccin--transparent.json" with { type: "json" }
+import cyberpunk2077Transparent from "./assets/cyberpunk2077--transparent.json" with { type: "json" }
+import draculaTransparent from "./assets/dracula--transparent.json" with { type: "json" }
+import everforestTransparent from "./assets/everforest--transparent.json" with { type: "json" }
+import githubTransparent from "./assets/github--transparent.json" with { type: "json" }
+import gruvboxTransparent from "./assets/gruvbox--transparent.json" with { type: "json" }
+import kanagawaTransparent from "./assets/kanagawa--transparent.json" with { type: "json" }
+import materialTransparent from "./assets/material--transparent.json" with { type: "json" }
+import matrixTransparent from "./assets/matrix--transparent.json" with { type: "json" }
+import mellowTransparent from "./assets/mellow--transparent.json" with { type: "json" }
+import midnightTransparent from "./assets/midnight--transparent.json" with { type: "json" }
+import monokaiTransparent from "./assets/monokai--transparent.json" with { type: "json" }
+import moonlightTransparent from "./assets/moonlight--transparent.json" with { type: "json" }
+import moonlightEclipseTransparent from "./assets/moonlight-eclipse--transparent.json" with { type: "json" }
+import moonlightIiTransparent from "./assets/moonlight-ii--transparent.json" with { type: "json" }
+import moonlightIiiTransparent from "./assets/moonlight-iii--transparent.json" with { type: "json" }
+import nightowlTransparent from "./assets/nightowl--transparent.json" with { type: "json" }
+import nordTransparent from "./assets/nord--transparent.json" with { type: "json" }
+import onedarkTransparent from "./assets/one-dark--transparent.json" with { type: "json" }
+import opencodeTransparent from "./assets/opencode--transparent.json" with { type: "json" }
+import palenightTransparent from "./assets/palenight--transparent.json" with { type: "json" }
+import rosepineTransparent from "./assets/rosepine--transparent.json" with { type: "json" }
+import solarizedTransparent from "./assets/solarized--transparent.json" with { type: "json" }
+import synthwave84Transparent from "./assets/synthwave84--transparent.json" with { type: "json" }
+import vesperTransparent from "./assets/vesper--transparent.json" with { type: "json" }
+import zenburnTransparent from "./assets/zenburn--transparent.json" with { type: "json" }
+import carbonfoxTransparent from "./assets/carbonfox--transparent.json" with { type: "json" }
+import catppuccinFrappeTransparent from "./assets/catppuccin-frappe--transparent.json" with { type: "json" }
+import catppuccinMacchiatoTransparent from "./assets/catppuccin-macchiato--transparent.json" with { type: "json" }
+import cobalt2Transparent from "./assets/cobalt2--transparent.json" with { type: "json" }
+import cursorTransparent from "./assets/cursor--transparent.json" with { type: "json" }
+import flexokiTransparent from "./assets/flexoki--transparent.json" with { type: "json" }
+import lucentOrngTransparent from "./assets/lucent-orng--transparent.json" with { type: "json" }
+import mercuryTransparent from "./assets/mercury--transparent.json" with { type: "json" }
+import orngTransparent from "./assets/orng--transparent.json" with { type: "json" }
+import osakaJadeTransparent from "./assets/osaka-jade--transparent.json" with { type: "json" }
+import tokyonightTransparent from "./assets/tokyonight--transparent.json" with { type: "json" }
+import vercelTransparent from "./assets/vercel--transparent.json" with { type: "json" }
+import toxikatTransparent from "./assets/toxikat--transparent.json" with { type: "json" }
 
 export type Theme = {
   readonly primary: RGBA
@@ -166,6 +216,56 @@ export const DEFAULT_THEMES: Record<string, ThemeJson> = {
   vercel,
   zenburn,
   carbonfox,
+  ["aura--transparent"]: auraTransparent,
+  ["ayu--transparent"]: ayuTransparent,
+  ["catppuccin--transparent"]: catppuccinTransparent,
+  cyberpunk2077,
+  ["cyberpunk2077--transparent"]: cyberpunk2077Transparent,
+  ["dracula--transparent"]: draculaTransparent,
+  ["everforest--transparent"]: everforestTransparent,
+  ["github--transparent"]: githubTransparent,
+  ["gruvbox--transparent"]: gruvboxTransparent,
+  ["kanagawa--transparent"]: kanagawaTransparent,
+  ["material--transparent"]: materialTransparent,
+  ["matrix--transparent"]: matrixTransparent,
+  ["mellow"]: mellow,
+  ["mellow--transparent"]: mellowTransparent,
+  ["midnight"]: midnight,
+  ["midnight--transparent"]: midnightTransparent,
+  ["monokai--transparent"]: monokaiTransparent,
+  moonlight,
+  ["moonlight--transparent"]: moonlightTransparent,
+  ["moonlight-eclipse"]: moonlightEclipse,
+  ["moonlight-eclipse--transparent"]: moonlightEclipseTransparent,
+  ["moonlight-ii"]: moonlightIi,
+  ["moonlight-ii--transparent"]: moonlightIiTransparent,
+  ["moonlight-iii"]: moonlightIii,
+  ["moonlight-iii--transparent"]: moonlightIiiTransparent,
+  ["nightowl--transparent"]: nightowlTransparent,
+  ["nord--transparent"]: nordTransparent,
+  ["one-dark--transparent"]: onedarkTransparent,
+  ["opencode--transparent"]: opencodeTransparent,
+  ["palenight--transparent"]: palenightTransparent,
+  ["rosepine--transparent"]: rosepineTransparent,
+  ["solarized--transparent"]: solarizedTransparent,
+  ["synthwave84--transparent"]: synthwave84Transparent,
+  ["vesper--transparent"]: vesperTransparent,
+  ["zenburn--transparent"]: zenburnTransparent,
+  ["carbonfox--transparent"]: carbonfoxTransparent,
+  ["catppuccin-frappe--transparent"]: catppuccinFrappeTransparent,
+  ["catppuccin-macchiato--transparent"]: catppuccinMacchiatoTransparent,
+  ["cobalt2--transparent"]: cobalt2Transparent,
+  ["cursor--transparent"]: cursorTransparent,
+  ["flexoki--transparent"]: flexokiTransparent,
+  ["lucent-orng--transparent"]: lucentOrngTransparent,
+  ["mercury--transparent"]: mercuryTransparent,
+  ["orng--transparent"]: orngTransparent,
+  ["osaka-jade--transparent"]: osakaJadeTransparent,
+  ["tokyonight--transparent"]: tokyonightTransparent,
+  ["vercel--transparent"]: vercelTransparent,
+  ["toxikat"]: toxikat,
+  ["toxikat--transparent"]: toxikatTransparent,
+  ["toxikat--ultratransparent"]: toxikatUltratransparent,
 }
 
 const pluginThemes: Record<string, ThemeJson> = {}

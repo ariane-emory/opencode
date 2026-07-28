@@ -52,7 +52,7 @@
 | ☑ | 46 | fix/inline-datetime-no-padding | 275 | origin | d559772e1a | **MERGE ADVICE:** This branch adds `datetimeCompact()` and `todayTimeOrDateTimeCompact()` to `packages/opencode/src/util/locale.ts`. It **MUST** be merged before `feat/agent-timestamps` so that the compact datetime functions are available for inline timestamps. |
 | ☑ | 47 | feat/agent-timestamps | 191 | origin | dd8e6fe96f | **MERGE ADVICE:** This branch adds inline timestamps to agent messages. It **MUST** use `Locale.todayTimeOrDateTimeCompact()` instead of `Locale.todayTimeOrDateTime()` for inline timestamps to avoid space-padding on single-digit days (e.g., "5/ 6/2026"). The compact variant is defined in `packages/opencode/src/util/locale.ts` and must be available before this branch is merged. |
 | ☑ | 48 | feat/rewind-modal-option | 192 | origin | b716861908 |  |
-| ☐ | 49 | feat/alphabetize-command-palette-groups | 195 | origin | TBD |  |
+| ☑ | 49 | feat/alphabetize-command-palette-groups | 195 | origin | 8f19a7bff1 |  |
 | ☐ | 50 | feat/taller-dialogs | 196 | origin | TBD |  |
 | ☐ | 51 | feat/add-arianes-themes | 212 | origin | TBD |  |
 | ☐ | 52 | feat/sidebar-clock | 207 | origin | TBD |  |

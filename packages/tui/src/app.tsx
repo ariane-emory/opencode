@@ -137,6 +137,7 @@ const appBindingCommands = [
   "app.toggle.diffwrap",
   "app.toggle.paste_summary",
   "app.toggle.session_directory_filter",
+  "session.toggle.thinking",
 ] as const
 
 export type TuiInput = {
@@ -951,6 +952,16 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
         category: "System",
         run: () => {
           kv.set("markdown_all_messages", !kv.get("markdown_all_messages", false))
+          dialog.clear()
+        },
+      },
+      {
+        name: "session.toggle.thinking",
+        title: kv.get("thinking_mode", "hide") === "show" ? "Collapse thinking" : "Expand thinking",
+        category: "System",
+        run: () => {
+          const current = kv.get("thinking_mode", "hide")
+          kv.set("thinking_mode", current === "show" ? "hide" : "show")
           dialog.clear()
         },
       },

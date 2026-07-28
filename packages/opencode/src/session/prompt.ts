@@ -1462,6 +1462,13 @@ const layer = Layer.effect(
       }
 
       const templateParts = yield* resolvePromptParts(template)
+      if (cmd.ignored) {
+        for (const part of templateParts) {
+          if (part.type === "text") {
+            part.ignored = true
+          }
+        }
+      }
       const inputFiles = new Set(
         input.parts?.filter((part) => new URL(part.url).protocol === "file:").map((part) => fileURLToPath(part.url)),
       )
@@ -1502,6 +1509,7 @@ const layer = Layer.effect(
         agent: userAgent,
         parts,
         variant: input.variant,
+        noReply: cmd.ignored,
       })
       yield* events.publish(Command.Event.Executed, {
         name: input.command,

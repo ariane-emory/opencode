@@ -74,7 +74,7 @@
 | ☑ | 68 | fix/textarea-input-enter-keybindings | 286 | origin | ee49072a46 |  |
 | ☑ | 69 | fix/escape-from-status | 245 | origin | 43d59ac921 |  |
 | ☑ | 70 | fix/restore-footer | 175 | origin | ccf27019a5 | **MERGE ADVICE:** As its name suggests, this feature restores the footer it was removed in a previous version; it must not be allowed to be clobbered by other branches when merging! |
-| ☐ | 71 | fix/session-list-delete-selection | 255 | origin | TBD |  |
+| ☑ | 71 | fix/session-list-delete-selection | 255 | origin | c3fc2f6921 |  |
 | ☐ | 72 | feat/kimi-with-claude-system-prompt | 246 | origin | TBD |  |
 | ☐ | 73 | fix/less-bottom-padding | 263 | origin | TBD |  |
 | ☐ | 74 | fix/session-timestamp-regression | 268 | origin | TBD |  |

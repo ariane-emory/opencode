@@ -81,6 +81,7 @@ export type DialogSelectRef<T> = {
   filtered: DialogSelectOption<T>[]
   scrollToValue: (value: T, center?: boolean) => void
   selected: DialogSelectOption<T> | undefined
+  skipAutoScroll: boolean
   moveTo(value: T): void
 }
 
@@ -267,7 +268,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
       setTimeout(() => {
         if (filter.length > 0) {
           moveTo(0, true, false)
-        } else if (current) {
+        } else if (current && !ref.skipAutoScroll) {
           if (isDeepEqual(selected()?.value, current)) return
           const currentIndex = flat().findIndex((opt) => isDeepEqual(opt.value, current))
           if (currentIndex >= 0) {
@@ -475,6 +476,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
 
   let scroll: ScrollBoxRenderable | undefined
   const ref: DialogSelectRef<T> = {
+    skipAutoScroll: false,
     get filter() {
       return store.filter
     },

@@ -340,7 +340,8 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
       current={currentSessionID() ?? defaultSessionID()}
       preserveSelection={true}
       onFilter={setSearch}
-      onMove={() => {
+      onMove={(option) => {
+        if (toDelete() === option.value) return
         setToDelete(undefined)
       }}
       onSelect={(option) => {
@@ -363,8 +364,16 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
           title: "delete",
           onTrigger: async (option) => {
             if (toDelete() === option.value) {
+              const ref = selectRef()
+              const currentIndex = ref?.filtered.findIndex((opt) => opt.value === option.value) ?? -1
+              const adjacentID =
+                currentIndex < 0
+                  ? undefined
+                  : currentIndex < (ref?.filtered.length ?? 0) - 1
+                    ? ref?.filtered[currentIndex + 1]?.value
+                    : ref?.filtered[currentIndex - 1]?.value
               const session = sessions().find((item) => item.id === option.value)
-              const status = session?.workspaceID ? project.workspace.status(session.workspaceID) : undefined
+              const wsStatus = session?.workspaceID ? project.workspace.status(session.workspaceID) : undefined
 
               try {
                 const result = await sdk.client.session.delete({
@@ -396,12 +405,22 @@ export function DialogSessionList(props: { initialSessionID?: string } = {}) {
                 setToDelete(undefined)
                 return
               }
-              if (status && status !== "connected") {
+              if (ref) ref.skipAutoScroll = true
+              if (wsStatus && wsStatus !== "connected") {
                 await sync.session.refresh()
               }
               await refetchBrowse()
               if (search()) await refetch()
               setToDelete(undefined)
+
+              if (ref && adjacentID) {
+                setTimeout(() => {
+                  ref.scrollToValue(adjacentID, true)
+                }, 50)
+              }
+              setTimeout(() => {
+                if (ref) ref.skipAutoScroll = false
+              }, 100)
               return
             }
             setToDelete(option.value)

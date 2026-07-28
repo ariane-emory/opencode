@@ -16,6 +16,7 @@ export const { use: useKV, provider: KVProvider } = createSimpleContext({
     const lock = `tui-kv:${file}`
     const [ready, setReady] = createSignal(false)
     const [store, setStore] = createStore<Record<string, any>>()
+    const ephemeral: Record<string, any> = {}
     // Queue same-process writes so rapid updates persist in order.
     let write = Promise.resolve()
 
@@ -59,6 +60,12 @@ export const { use: useKV, provider: KVProvider } = createSimpleContext({
           .catch((error) => {
             console.error("Failed to write KV state", { error })
           })
+      },
+      getEphemeral(key: string, defaultValue?: any) {
+        return ephemeral[key] ?? defaultValue
+      },
+      setEphemeral(key: string, value: any) {
+        ephemeral[key] = value
       },
     }
     return result

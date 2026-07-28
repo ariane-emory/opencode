@@ -28,6 +28,7 @@ export interface DialogSelectProps<T> {
   footer?: JSX.Element
   emptyView?: JSX.Element
   options: DialogSelectOption<T>[]
+  sort?: boolean
   flat?: boolean
   ref?: (ref: DialogSelectRef<T>) => void
   onMove?: (option: DialogSelectOption<T>) => void

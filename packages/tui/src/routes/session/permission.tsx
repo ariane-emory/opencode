@@ -27,7 +27,8 @@ function EditBody(props: { request: PermissionRequest }) {
   const themeState = useTheme()
   const theme = themeState.theme
   const syntax = themeState.syntax
-  const config = useTuiConfig()
+  const kv = useKV()
+  const tuiConfig = useTuiConfig()
   const dimensions = useTerminalDimensions()
 
   const filepath = createMemo(() => {
@@ -40,13 +41,13 @@ function EditBody(props: { request: PermissionRequest }) {
   })
 
   const view = createMemo(() => {
-    const diffStyle = config.diff_style
-    if (diffStyle === "stacked") return "unified"
+    const diffStyle = kv.get("diff_style", "auto")
+    if (diffStyle === "unified") return "unified"
     return dimensions().width > 120 ? "split" : "unified"
   })
 
   const ft = createMemo(() => filetype(filepath()))
-  const scrollAcceleration = createMemo(() => getScrollAcceleration(config))
+  const scrollAcceleration = createMemo(() => getScrollAcceleration(tuiConfig))
 
   return (
     <box flexDirection="column" gap={1}>

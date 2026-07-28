@@ -20,7 +20,7 @@
 | ☑ | 14 | feat/improve-experimental-plan-mode-prompt | 232 | origin | b383ecac32 |  |
 | ☑ | 15 | feat/enable-exa-setting | 257 | origin | b35ff7e9b9 |  |
 | ☑ | 16 | feat/canceled-prompts-in-history | 151 | origin | 316f78482b | **MERGE ADVICE:** Careful not to clobber this while merging! Merging this branch **MUST** add the new item to the command palette. |
-| ☐ | 17 | feat/permission-spinner | 36 | origin | TBD |  |
+| ☑ | 17 | feat/permission-spinner | 36 | origin | ade8ff1bd6 |  |
 | ☐ | 18 | feat/opencode-expand | 67 | origin | TBD |  |
 | ☐ | 19 | refactor/shared-substitute | 203 | origin | TBD |  |
 | ☐ | 20 | feat/argument-range-syntax | 149 | origin | TBD |  |

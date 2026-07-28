@@ -35,7 +35,7 @@
 | ☑ | 29 | fix/persist-sidebar | 80 | origin | f209bf47b0 | **MERGE ADVICE:** This branch is meant not only to make the sidebar display state persistent across bestarts if the progran but also  to remove the normal behaviour where the sidebar is hidden when the terminal is not wide enough! There **MUST NOT** be a way to return to the auto state after transitioning to the "show" or "hide" state. This change in the sidebar behaviour **MUST NOT** be clobbered while merging! Also this branch is meant to remove the behaviour where the sidebar is automatically hidden if the window becomes too narrow. You **MUST NOT** remove this behaviour. This behaviour **MUST** be preserved, whether the sidebar is displayed or not **MUST NOT** be affected by how wide the window is! |
 | ☑ | 30 | feat/persist-sidebar-group-folding-states | 98 | origin | db34980225 | **MERGE ADVICE**: Be sure not to let this feature get clobbered by subsequent merges! |
 | ☑ | 31 | feat/persistant-sidebar-overlay-behaviour | 71 | origin | a410807f89 |  |
-| ☐ | 32 | feat/opeoginni--display-message-tps | 83 | origin | TBD |  |
+| ☑ | 32 | feat/opeoginni--display-message-tps | 83 | origin | d93a441a86 |  |
 | ☐ | 33 | feat/kv-diff-style-clean | 134 | origin | TBD |  |
 | ☐ | 34 | feat/global-compaction-threshold | 63 | origin | TBD |  |
 | ☐ | 35 | feat/configurable-message-and-session-limit | 177 | origin | TBD | **MERGE ADVICE:** Don't forget that both the `experimental._message__limit` and `experimental.session_list_limit` settings should accept either positive integers or the string value "none"! |

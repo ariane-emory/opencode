@@ -265,6 +265,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
         if (filter.length > 0) {
           moveTo(0, true, false)
         } else if (current) {
+          if (isDeepEqual(selected()?.value, current)) return
           const currentIndex = flat().findIndex((opt) => isDeepEqual(opt.value, current))
           if (currentIndex >= 0) {
             moveTo(currentIndex, true)
@@ -292,7 +293,7 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
       resetSelection = !preserve
     }
     if (option) props.onMove?.(option)
-    scrollToSelection(center)
+    setTimeout(() => scrollToSelection(center), 0)
   }
 
   function scrollToSelection(center: boolean) {

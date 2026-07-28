@@ -994,16 +994,14 @@ function listByProject(
     conditions.push(like(SessionTable.title, `%${input.search}%`))
   }
 
-  const limit = input.limit ?? 100
-
   return db
     .select()
     .from(SessionTable)
     .where(and(...conditions))
     .orderBy(desc(SessionTable.time_updated))
-    .limit(limit)
-    .all()
     .pipe(
+      (q) => input?.limit !== undefined ? q.limit(input.limit) : q,
+      (q) => q.all(),
       Effect.orDie,
       Effect.map((rows) => rows.map(fromRow)),
     )

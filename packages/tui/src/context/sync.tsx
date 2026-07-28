@@ -162,8 +162,11 @@ export const {
     }
 
     function listSessions() {
+      const sessionsListLimit = store.config.experimental?.session_list_limit
+      const sessionsLimit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
+      const start = sessionsListLimit === "none" ? undefined : Date.now() - 30 * 24 * 60 * 60 * 1000
       return sdk.client.session
-        .list({ start: Date.now() - 30 * 24 * 60 * 60 * 1000, ...sessionListQuery() })
+        .list({ start, limit: sessionsLimit, ...sessionListQuery() })
         .then((x) => (x.data ?? []).toSorted((a, b) => a.id.localeCompare(b.id)))
     }
 
@@ -329,10 +332,17 @@ export const {
             event.properties.info.sessionID,
             produce((draft) => {
               draft.splice(result.index, 0, event.properties.info)
+              const maxMessages = store.config.experimental?.messages_limit
+              const maxMessagesCount = maxMessages === "none" ? Infinity : maxMessages ?? 100
+              if (draft.length > maxMessagesCount) {
+                draft.shift()
+              }
             }),
           )
           const updated = store.message[event.properties.info.sessionID]
-          if (updated.length > 100) {
+          const maxMessages = store.config.experimental?.messages_limit
+          const maxMessagesCount = maxMessages === "none" ? Infinity : maxMessages ?? 100
+          if (updated.length > maxMessagesCount) {
             const oldest = updated[0]
             batch(() => {
               setStore(
@@ -446,7 +456,16 @@ export const {
       const fatal = input.fatal ?? true
       const workspace = project.workspace.current()
       const projectPromise = project.sync()
-      const sessionListPromise = projectPromise.then(() => listSessions())
+      const configPromise = sdk.client.config.get({ workspace }, { throwOnError: true })
+      const sessionListPromise = projectPromise.then(async () => {
+        const config = (await configPromise).data!
+        const sessionsListLimit = config.experimental?.session_list_limit
+        const sessionsLimit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
+        const start = sessionsListLimit === "none" ? undefined : Date.now() - 30 * 24 * 60 * 60 * 1000
+        return sdk.client.session
+          .list({ start, limit: sessionsLimit, ...sessionListQuery() })
+          .then((x) => (x.data ?? []).toSorted((a, b) => a.id.localeCompare(b.id)))
+      })
 
       // blocking - include session.list when continuing a session
       const providersPromise = sdk.client.config.providers({ workspace }, { throwOnError: true })
@@ -460,7 +479,6 @@ export const {
         .then((x) => x.data)
         .catch(() => emptyConsoleState)
       const agentsPromise = sdk.client.app.agents({ workspace }, { throwOnError: true })
-      const configPromise = sdk.client.config.get({ workspace }, { throwOnError: true })
       await Promise.all([
         providersPromise,
         providerListPromise,
@@ -591,10 +609,13 @@ export const {
           if (syncing) return syncing
           const tracker = { messages: new Set<string>(), parts: new Set<string>() }
           hydratingSessions.set(sessionID, tracker)
+          const messagesLimit = store.config.experimental?.messages_limit
+          const limit = messagesLimit === "none" ? undefined : messagesLimit ?? 100
+          const visibleLimit = messagesLimit === "none" ? Infinity : messagesLimit ?? 100
           const task = (async () => {
             const [session, messages, todo, diff] = await Promise.all([
               sdk.client.session.get({ sessionID }, { throwOnError: true }),
-              sdk.client.session.messages({ sessionID, limit: 100 }),
+              sdk.client.session.messages({ sessionID, limit }),
               sdk.client.session.todo({ sessionID }),
               sdk.client.session.diff({ sessionID }),
             ])
@@ -615,8 +636,8 @@ export const {
                     (message) => tracker.messages.has(message.id) && !infos.some((item) => item.id === message.id),
                   ),
                 )
-                const removed = infos.slice(0, -100)
-                const visible = infos.slice(-100)
+                const removed = infos.slice(0, -visibleLimit)
+                const visible = infos.slice(-visibleLimit)
                 const visibleIDs = new Set(visible.map((message) => message.id))
                 for (const message of messages.data ?? []) {
                   if (!visibleIDs.has(message.info.id)) {

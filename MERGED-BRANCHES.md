@@ -30,7 +30,7 @@
 | ☑ | 24 | fix/autocompletion-filtered-order | 76 | origin | 4439faee88 |  |
 | ☑ | 25 | fix/modal-menus-filtered-order | 77 | origin | 39484336db |  |
 | ☑ | 26 | fix/config-package-json-pollution | 176 | origin | 73f4d21ae0 | **MERGE ADVICE:** This branch **MUST** be included in integration branches to prevent package.json pollution with non-SemVer versions |
-| ☐ | 27 | fix/session-list-viewport-jumping | 197 | origin | TBD |  |
+| ☑ | 27 | fix/session-list-viewport-jumping | 197 | origin | 101e9ee5a3 |  |
 | ☐ | 28 | fix/markdown-codeblock-theme-property | 222 | origin | TBD |  |
 | ☐ | 29 | fix/persist-sidebar | 80 | origin | TBD | **MERGE ADVICE:** This branch is meant not only to make the sidebar display state persistent across bestarts if the progran but also  to remove the normal behaviour where the sidebar is hidden when the terminal is not wide enough! There **MUST NOT** be a way to return to the auto state after transitioning to the "show" or "hide" state. This change in the sidebar behaviour **MUST NOT** be clobbered while merging! Also this branch is meant to remove the behaviour where the sidebar is automatically hidden if the window becomes too narrow. You **MUST NOT** remove this behaviour. This behaviour **MUST** be preserved, whether the sidebar is displayed or not **MUST NOT** be affected by how wide the window is! |
 | ☐ | 30 | feat/persist-sidebar-group-folding-states | 98 | origin | TBD | **MERGE ADVICE**: Be sure not to let this feature get clobbered by subsequent merges! |

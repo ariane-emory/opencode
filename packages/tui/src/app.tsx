@@ -985,7 +985,6 @@ function App(props: { onSnapshot?: () => Promise<string[]>; pluginHost: TuiPlugi
         },
       },
       {
-      {
         name: "app.toggle.markdown_all",
         title: kv.get("markdown_all_messages", false)
           ? "Render markdown: agent messages only"

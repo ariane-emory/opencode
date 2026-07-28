@@ -1520,7 +1520,7 @@ function UserMessage(props: {
                 <Show when={ctx.showTimestamps()}>
                   <text fg={theme.textMuted}>
                     <span style={{ fg: theme.textMuted }}>
-                      {Locale.todayTimeOrDateTime(props.message.time.created)}
+                      {Locale.todayTimeOrDateTimeCompact(props.message.time.created)}
                     </span>
                   </text>
                 </Show>

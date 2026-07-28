@@ -53,6 +53,7 @@ export const UpdatePayload = Schema.Struct({
   time: Schema.optional(
     Schema.Struct({
       archived: Schema.optional(Session.ArchivedTimestamp),
+      pinned: Schema.optional(Schema.NullOr(Schema.Number)),
     }),
   ),
 })

@@ -74,6 +74,8 @@ export interface DialogSelectOption<T = any> {
 export type DialogSelectRef<T> = {
   filter: string
   filtered: DialogSelectOption<T>[]
+  scrollToValue: (value: T, center?: boolean) => void
+  selected: DialogSelectOption<T> | undefined
   moveTo(value: T): void
 }
 
@@ -98,20 +100,6 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
   let resetSelection = false
   let visibilityGeneration = 0
 
-  createEffect(
-    on(
-      () => props.current,
-      (current) => {
-        if (current) {
-          const currentIndex = flat().findIndex((opt) => isDeepEqual(opt.value, current))
-          if (currentIndex >= 0) {
-            setStore("selected", currentIndex)
-            selection = flat()[currentIndex]
-          }
-        }
-      },
-    ),
-  )
 
   let input: InputRenderable
 
@@ -489,6 +477,15 @@ export function DialogSelect<T>(props: DialogSelectProps<T>) {
     },
     get filtered() {
       return filtered()
+    },
+    scrollToValue(value: T, center?: boolean) {
+      const index = flat().findIndex((opt) => isDeepEqual(opt.value, value))
+      if (index >= 0) {
+        moveTo(index, center)
+      }
+    },
+    get selected() {
+      return selected()
     },
     moveTo(value) {
       const index = flat().findIndex((option) => isDeepEqual(option.value, value))

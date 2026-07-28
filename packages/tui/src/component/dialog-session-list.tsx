@@ -1,9 +1,8 @@
 import { useDialog } from "../ui/dialog"
-import { DialogSelect } from "../ui/dialog-select"
+import { DialogSelect, type DialogSelectRef } from "../ui/dialog-select"
 import { useRoute } from "../context/route"
 import { useSync } from "../context/sync"
-import { createMemo, createResource, createSignal, onCleanup, onMount } from "solid-js"
-import path from "path"
+import { createEffect, createMemo, createResource, createSignal, onCleanup, onMount, type JSX } from "solid-js"
 import { Locale } from "../util/locale"
 import { useProject } from "../context/project"
 import { useTheme } from "../context/theme"
@@ -17,7 +16,10 @@ import { Spinner } from "./spinner"
 import { errorMessage } from "../util/error"
 import { DialogSessionDeleteFailed } from "./dialog-session-delete-failed"
 import { useCommandShortcut } from "../keymap"
+import { useKV } from "../context/kv"
 import { useEvent } from "../context/event"
+import { Flag } from "@opencode-ai/core/flag/flag"
+import { WorkspaceLabel } from "./workspace-label"
 
 type SessionListFilter = { scope?: "project"; path?: string }
 
@@ -52,9 +54,11 @@ export function DialogSessionList() {
   const event = useEvent()
   const local = useLocal()
   const toast = useToast()
+  const kv = useKV()
   const [toDelete, setToDelete] = createSignal<string>()
   const [deleted, setDeleted] = createSignal(new Set<string>())
   const [search, setSearch] = createDebouncedSignal("", 150)
+  const [selectRef, setSelectRef] = createSignal<DialogSelectRef<string>>()
   const deleteHint = useCommandShortcut("session.delete")
   const quickSwitch1 = useCommandShortcut("session.quick_switch.1")
   const quickSwitch9 = useCommandShortcut("session.quick_switch.9")
@@ -76,6 +80,7 @@ export function DialogSessionList() {
   )
 
   const currentSessionID = createMemo(() => (route.data.type === "session" ? route.data.sessionID : undefined))
+
   const sessions = createMemo(() => {
     const result = searchResults() ?? browseResults() ?? sync.data.session
     const synced = new Map(sync.data.session.map((session) => [session.id, session]))
@@ -90,6 +95,18 @@ export function DialogSessionList() {
     return [...result.map((session) => synced.get(session.id) ?? session), ...extra]
       .filter((session) => !deleted().has(session.id))
       .filter((session) => !query || session.title.toLowerCase().includes(query))
+  })
+
+  const defaultSessionID = createMemo(() => {
+    const last = kv.getEphemeral("last_session_id")
+    if (last) {
+      const session = sessions().find((s) => s.id === last)
+      if (session) return session.id
+    }
+
+    const all = sessions().filter((x) => x.parentID === undefined)
+    const sorted = all.filter((x) => x.time.pinned === undefined).toSorted((a, b) => b.time.updated - a.time.updated)
+    return sorted[0]?.id ?? all.toSorted((a, b) => b.time.updated - a.time.updated)[0]?.id
   })
 
   onCleanup(
@@ -207,62 +224,75 @@ export function DialogSessionList() {
 
   const options = createMemo(() => {
     const today = new Date().toDateString()
-    const sessionMap = new Map(
-      sessions()
-        .filter((x) => x.parentID === undefined)
-        .map((x) => [x.id, x]),
-    )
+    const all = sessions().filter((x) => x.parentID === undefined)
+    const pinned = all.filter((x) => x.time.pinned !== undefined).toSorted((a, b) => (b.time.pinned ?? 0) - (a.time.pinned ?? 0))
+
+    const sessionMap = new Map(all.map((x) => [x.id, x]))
 
     const searchResult = searchResults()
-    const order = searchResult ? orderByRecency(sessions()) : browseOrder()
-    const current = currentSessionID()
-    const displayOrder = current && sessionMap.has(current) && !order.includes(current) ? [...order, current] : order
+    const unpinnedOrder = searchResult ? orderByRecency(searchResult) : browseOrder()
 
-    const pinned = local.session.pinned().filter((id) => sessionMap.has(id))
-    const pinnedSet = new Set(pinned)
+    const unpinned = unpinnedOrder
+      .map((id) => sessionMap.get(id))
+      .filter((x): x is (typeof all)[number] => x !== undefined && x.time.pinned === undefined)
+
     const slotByID = new Map<string, number>(local.session.slots().map((id, i) => [id, i + 1]))
 
-    function buildOption(id: string, category: string) {
-      const x = sessionMap.get(id)
-      if (!x) return undefined
-      const directory = x.path
-        ? x.directory.endsWith(x.path)
-          ? x.directory.slice(0, -x.path.length).replace(/\/$/, "")
-          : undefined
-        : x.directory
-      const footer =
-        directory && directory !== project.data.project.mainDir ? Locale.truncate(path.basename(directory), 20) : ""
+    const foot = (session: (typeof all)[number], showDate: boolean): JSX.Element | string => {
+      if (Flag.OPENCODE_EXPERIMENTAL_WORKSPACES && session.workspaceID) {
+        const workspace = project.workspace.get(session.workspaceID)
+        const status = project.workspace.status(session.workspaceID) || "error"
+        if (workspace) {
+          return (
+            <WorkspaceLabel
+              type={workspace.type}
+              name={workspace.name}
+              status={status}
+            />
+          )
+        }
+        return <WorkspaceLabel type="unknown" name={session.workspaceID} status="error" />
+      }
 
-      const isDeleting = toDelete() === x.id
-      const status = sync.data.session_status?.[x.id]
+      return showDate ? Locale.shortDateTime(session.time.updated) : Locale.time(session.time.updated)
+    }
+
+    const item = (session: (typeof all)[number], category: string, showDate: boolean) => {
+      const deleting = toDelete() === session.id
+      const status = sync.data.session_status?.[session.id]
       const isWorking = status?.type === "busy" || status?.type === "retry"
-      const slot = slotByID.get(x.id)
+      const slot = slotByID.get(session.id)
       const gutter = isWorking
         ? () => <Spinner />
         : slot !== undefined
           ? () => <text fg={theme.accent}>{slot}</text>
           : undefined
       return {
-        title: isDeleting ? `Press ${deleteHint()} again to confirm` : x.title,
-        bg: isDeleting ? theme.error : undefined,
-        value: x.id,
+        title: deleting ? `Press ${deleteHint()} again to confirm` : session.title,
+        bg: deleting ? theme.error : undefined,
+        value: session.id,
         category,
-        footer,
+        footer: foot(session, showDate),
         gutter,
       }
     }
 
-    const remaining = displayOrder
-      .filter((id) => !pinnedSet.has(id))
-      .map((id) => {
-        const x = sessionMap.get(id)
-        if (!x) return undefined
-        const label = new Date(x.time.updated).toDateString()
-        return buildOption(id, label === today ? "Today" : label)
-      })
-      .filter((x) => x !== undefined)
+    return [
+      ...pinned.map((x) => item(x, "Bookmarks:", true)),
+      ...unpinned.map((x) => {
+        const date = new Date(x.time.updated)
+        return item(x, date.toDateString() === today ? "Today" : date.toDateString(), false)
+      }),
+    ]
+  })
 
-    return [...pinned.map((id) => buildOption(id, "Pinned")).filter((x) => x !== undefined), ...remaining]
+  createEffect(() => {
+    const id = currentSessionID() ?? defaultSessionID()
+    if (!id) return
+    options()
+    setTimeout(() => {
+      selectRef()?.scrollToValue(id, true)
+    }, 0)
   })
 
   onMount(() => {
@@ -271,11 +301,12 @@ export function DialogSessionList() {
 
   return (
     <DialogSelect
+      ref={setSelectRef}
       title="Sessions"
       options={options()}
       skipFilter={true}
+      current={currentSessionID() ?? defaultSessionID()}
       preserveSelection={true}
-      current={currentSessionID()}
       onFilter={setSearch}
       onMove={() => {
         setToDelete(undefined)
@@ -349,6 +380,19 @@ export function DialogSessionList() {
           title: "rename",
           onTrigger: async (option) => {
             dialog.replace(() => <DialogSessionRename session={option.value} />)
+          },
+        },
+        {
+          command: "session.bookmark",
+          title: "bookmark",
+          onTrigger: async (option) => {
+            const session = sessions().find((s) => s.id === option.value)
+            if (!session) return
+            await sdk.client.session.update({
+              sessionID: option.value,
+              time: { pinned: session.time.pinned === undefined ? Date.now() : null },
+            })
+            setTimeout(() => selectRef()?.scrollToValue(option.value, true), 0)
           },
         },
       ]}

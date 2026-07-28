@@ -4,7 +4,9 @@ export function titlecase(str: string) {
 
 export function time(input: number): string {
   const date = new Date(input)
-  return date.toLocaleTimeString(undefined, { timeStyle: "short" })
+  const str = date.toLocaleTimeString(undefined, { timeStyle: "short" })
+  if (/^\d:/.test(str)) return " " + str
+  return str
 }
 
 export function datetime(input: number): string {
@@ -25,6 +27,13 @@ export function todayTimeOrDateTime(input: number): string {
   } else {
     return datetime(input)
   }
+}
+
+export function shortDateTime(input: number): string {
+  const date = new Date(input)
+  const month = date.toLocaleDateString(undefined, { month: "short" })
+  const day = date.getDate().toString().padStart(2, " ")
+  return `${month} ${day}, ${time(input)}`
 }
 
 export function number(num: number): string {

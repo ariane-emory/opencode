@@ -35,9 +35,8 @@ export interface DialogSelectProps<T> {
   onFilter?: (query: string) => void
   onSelect?: (option: DialogSelectOption<T>) => void
   skipFilter?: boolean
-  sort?: boolean
   keybind?: {
-    keybind?: Keybind.Info
+    keybind?: Binding<Renderable, KeyEvent>
   }
   renderFilter?: boolean
   locked?: boolean

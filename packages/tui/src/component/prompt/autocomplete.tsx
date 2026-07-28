@@ -649,13 +649,19 @@ export function Autocomplete(props: {
         },
       },
     ],
-    bindings: tuiConfig.keybinds.gather("prompt.autocomplete", [
-      "prompt.autocomplete.prev",
-      "prompt.autocomplete.next",
-      "prompt.autocomplete.hide",
-      "prompt.autocomplete.select",
-      "prompt.autocomplete.complete",
-    ]),
+    bindings: [
+      ...tuiConfig.keybinds.gather("prompt.autocomplete", [
+        "prompt.autocomplete.prev",
+        "prompt.autocomplete.next",
+        "prompt.autocomplete.hide",
+        "prompt.autocomplete.complete",
+      ]),
+      ...tuiConfig.keybinds.get("input.submit").map((binding) => ({
+        ...binding,
+        cmd: "prompt.autocomplete.select",
+        desc: binding.desc ?? "Select autocomplete item",
+      })),
+    ],
   }))
 
   function show(mode: "@" | "/") {

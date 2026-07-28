@@ -48,7 +48,6 @@ export function Sidebar(props: { sessionID: string; overlay?: boolean; showScrol
         width={42}
         height="100%"
         paddingTop={1}
-        paddingBottom={1}
         paddingLeft={2}
         paddingRight={2}
         position={props.overlay ? "absolute" : "relative"}

@@ -83,7 +83,7 @@
 | ☑ | 77 | feat/command-palette-consistency | 244 | origin | 934001e0a1 | **MERGE ADVICE:** to prevent recurence of a past mistake: this branch is meant to **MOVE** several items from the Session category to the System category in the command palette. You **MUST NOT** duplicate them into both categories when resolving merge conflicts! Additionally, if fix/persist-sidebar was merged previously, be sue to properly move the new logic for the sidebar that it added: no return to "auto" after leaving, et cetera |
 | ☑ | 78 | fix/model-selection-follows-favorite | 280 | origin | 9b5184bbe9 |  |
 | ☑ | 79 | fix/integration-version-plugin-compatibility | 281 | origin | 0c4124e41a |  |
-| ☐ | 80 | fix/hide-session-pinning-feature | 282 | origin | TBD |  |
+| ☑ | 80 | fix/hide-session-pinning-feature | 282 | origin | 53d2097d4f |  |
 | ☐ | 81 | fix/dev-mode-version-fallback | 284 | origin | TBD |  |
 | ☐ | 82 | fix/embed-skill-file-in-binary | 285 | origin | TBD |  |
 | ☐ | 83 | fix/dialog-prompt-submit-hints | 287 | origin | TBD |  |

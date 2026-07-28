@@ -6,6 +6,7 @@ const id = "internal:sidebar-mcp"
 
 function View(props: { api: TuiPluginApi }) {
   const [open, setOpen] = createSignal(true)
+  const [loading, setLoading] = createSignal<string | null>(null)
 
   createEffect(() => {
     if (props.api.kv.ready) {
@@ -39,6 +40,24 @@ function View(props: { api: TuiPluginApi }) {
     return theme().textMuted
   }
 
+  async function handleToggle(name: string) {
+    if (loading() !== null) return
+    setLoading(name)
+    try {
+      const item = list().find((m) => m.name === name)
+      if (item?.status === "connected") {
+        await props.api.client.mcp.disconnect({ name })
+      } else {
+        await props.api.client.mcp.connect({ name })
+      }
+      await props.api.refresh.mcp()
+    } catch {
+      // silently ignore toggle errors
+    } finally {
+      setLoading(null)
+    }
+  }
+
   return (
     <Show when={list().length > 0}>
       <box>
@@ -59,7 +78,7 @@ function View(props: { api: TuiPluginApi }) {
         <Show when={list().length <= 2 || open()}>
           <For each={list()}>
             {(item) => (
-              <box flexDirection="row" gap={1}>
+              <box flexDirection="row" gap={1} onMouseDown={() => handleToggle(item.name)}>
                 <text
                   flexShrink={0}
                   style={{
@@ -68,10 +87,13 @@ function View(props: { api: TuiPluginApi }) {
                 >
                   •
                 </text>
-                <text fg={theme().text} wrapMode="word">
+                <text fg={loading() === item.name ? theme().textMuted : theme().text} wrapMode="word">
                   {item.name}{" "}
                   <span style={{ fg: theme().textMuted }}>
                     <Switch fallback={item.status}>
+                      <Match when={loading() === item.name}>
+                        <i>Loading…</i>
+                      </Match>
                       <Match when={item.status === "connected"}>Connected</Match>
                       <Match when={item.status === "failed"}>
                         <i>{item.error}</i>

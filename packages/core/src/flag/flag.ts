@@ -57,6 +57,9 @@ export const Flag = {
   get OPENCODE_EXPERIMENTAL_REFERENCES() {
     return enabledByExperimental("OPENCODE_EXPERIMENTAL_REFERENCES")
   },
+  get OPENCODE_EXPERIMENTAL_MARKDOWN() {
+    return truthy("OPENCODE_EXPERIMENTAL_MARKDOWN")
+  },
   get OPENCODE_TUI_CONFIG() {
     return process.env["OPENCODE_TUI_CONFIG"]
   },

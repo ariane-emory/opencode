@@ -87,6 +87,7 @@ type ThemeJson = {
 }
 
 type SharedSyntaxTheme = TuiThemeCurrent & {
+  readonly toolOutput: RGBA
   _hasSelectedListItemText: boolean
 }
 
@@ -680,6 +681,7 @@ export async function resolveRunTheme(renderer: CliRenderer): Promise<RunTheme> 
     const syntaxTheme: SharedSyntaxTheme = {
       ...scrollbackTheme,
       _hasSelectedListItemText: true,
+      toolOutput: scrollbackTheme.text,
     }
     const syntax = shared.generateSyntax(syntaxTheme)
     return map(

@@ -39,7 +39,7 @@
 | ☑ | 33 | feat/kv-diff-style-clean | 134 | origin | 87742cb9b5 |  |
 | ☑ | 34 | feat/global-compaction-threshold | 63 | origin | 22ad65bf35 |  |
 | ☑ | 35 | feat/configurable-message-and-session-limit | 177 | origin | bae819cb08 | **MERGE ADVICE:** Don't forget that both the `experimental._message__limit` and `experimental.session_list_limit` settings should accept either positive integers or the string value "none"! |
-| ☐ | 36 | feat/experimental-dont-cache-command-markdown | 252 | origin | TBD |  |
+| ☑ | 36 | feat/experimental-dont-cache-command-markdown | 252 | origin | 4546e13933 |  |
 | ☐ | 37 | feat/jsonc-user-themes | 97 | origin | TBD |  |
 | ☐ | 38 | feat/improve-shell-tool-git-advice | 279 | origin | TBD | **MERGE ADVICE**: Make sure to combine this properly with the changes to the shell tool's description that are made in the feat/shell-advice branch, both sets of changes must be synthesized! |
 | ☐ | 39 | feat/shell-tool-unblacklist-fish-and-extend-dynamic-naming | 278 | origin | TBD | **MERGE ADVICE**: Make sure to combine this properly with the changes to the shell tool's description that are made in the feat/improve-shell-tool-git-advice branch, both sets of changes must be synthesized! **NO** shells must be blacklisted! |

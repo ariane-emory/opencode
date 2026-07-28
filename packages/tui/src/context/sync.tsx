@@ -162,8 +162,11 @@ export const {
     }
 
     function listSessions() {
+      const sessionsListLimit = store.config.experimental?.session_list_limit
+      const sessionsLimit = sessionsListLimit === "none" ? undefined : sessionsListLimit ?? 150
+      const start = sessionsListLimit === "none" ? undefined : Date.now() - 30 * 24 * 60 * 60 * 1000
       return sdk.client.session
-        .list({ start: Date.now() - 30 * 24 * 60 * 60 * 1000, ...sessionListQuery() })
+        .list({ start, limit: sessionsLimit, ...sessionListQuery() })
         .then((x) => (x.data ?? []).toSorted((a, b) => a.id.localeCompare(b.id)))
     }
 

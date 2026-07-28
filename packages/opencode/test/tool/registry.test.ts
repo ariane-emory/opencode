@@ -1,4 +1,4 @@
-import { afterEach, describe, expect } from "bun:test"
+import { afterEach, describe, expect, test } from "bun:test"
 import path from "path"
 import fs from "fs/promises"
 import { fileURLToPath, pathToFileURL } from "url"
@@ -6,13 +6,14 @@ import { Effect, Layer, Result, Schema } from "effect"
 import { LayerNode } from "@opencode-ai/core/effect/layer-node"
 import { ToolRegistry } from "@/tool/registry"
 import { Tool } from "@/tool/tool"
-import { disposeAllInstances, TestInstance } from "../fixture/fixture"
+import { provideTestInstance, disposeAllInstances, TestInstance, tmpdir } from "../fixture/fixture"
 import { testEffect } from "../lib/effect"
 import { TestConfig } from "../fixture/config"
 import { Config } from "@/config/config"
 import { Plugin } from "@/plugin"
 import { Agent } from "@/agent/agent"
 import { InstanceState } from "@/effect/instance-state"
+import { InstanceRef } from "@/effect/instance-ref"
 
 import { ToolJsonSchema } from "@/tool/json-schema"
 import { MessageID, SessionID } from "@/session/schema"
@@ -569,4 +570,31 @@ describe("tool.registry", () => {
       expect(ids).toContain("cowsay")
     }),
   )
+
+  test("registers plan tools when experimental.plan_mode is enabled", async () => {
+    await using tmp = await tmpdir({
+      git: true,
+      config: {
+        experimental: {
+          plan_mode: true,
+        },
+      },
+    })
+
+    await provideTestInstance({
+      directory: tmp.path,
+      fn: async (ctx) => {
+        const registry = await Effect.gen(function* () {
+          const svc = yield* ToolRegistry.Service
+          return yield* svc.ids()
+        }).pipe(
+          Effect.provide(LayerNode.compile(ToolRegistry.node, [])),
+          Effect.provideService(InstanceRef, ctx),
+          Effect.runPromise,
+        )
+        expect(registry).toContain("plan_exit")
+        expect(registry).toContain("plan_enter")
+      },
+    })
+  }, 30000)
 })

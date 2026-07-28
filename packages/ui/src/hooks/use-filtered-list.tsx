@@ -40,6 +40,8 @@ export function useFilteredList<T>(props: FilteredListProps<T>) {
           const skipFilter = props.skipFilter
           const filterable = skipFilter ? x.filter((item) => !skipFilter(item)) : x
           const skipped = skipFilter ? x.filter(skipFilter) : []
+          // **CRITICAL**: The sortKey logic below is part of the core feature of fix/modal-menus-filtered-order.
+          // It sorts with prefix matches first, then alphabetically. DO NOT clobber during merges!
           let filtered: T[]
           if (!props.filterKeys && Array.isArray(filterable) && filterable.every((e) => typeof e === "string")) {
             filtered = fuzzysort.go(needle, filterable).map((x) => x.target) as T[]

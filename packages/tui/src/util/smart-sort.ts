@@ -4,14 +4,8 @@
  * Higher versions and more recent dates come first.
  */
 export function smartCompare(a: string, b: string): number {
-  // Extract version numbers (e.g., "3", "2.5", "1.5")
-  const versionA = extractVersion(a)
-  const versionB = extractVersion(b)
-
-  // Compare versions (higher = newer = comes first)
-  if (versionA !== null && versionB !== null && versionA !== versionB) {
-    return versionB - versionA // Descending
-  }
+  const versionCompare = compareVersionTokens(a, b)
+  if (versionCompare !== 0) return versionCompare
 
   // Same version or no version, check for dates
   const dateA = extractDate(a)
@@ -30,17 +24,35 @@ export function smartCompare(a: string, b: string): number {
 }
 
 /**
- * Extract version number from string like "Gemini 2.5 Flash"
- * Returns the version as a number, or null if not found
+ * Extract number tokens from model-like strings such as "gemini-2.5-flash"
+ * so that newer versions sort before older ones.
  */
-function extractVersion(str: string): number | null {
-  // Match version patterns like "2.5", "3", "2.0", "1.5"
-  // Look for numbers that likely represent versions (preceded by word boundary or space)
-  const match = str.match(/(?:^|\s)(\d+(?:\.\d+)?)(?:\s|$|[^\d])/)
-  if (match) {
-    return parseFloat(match[1])
+function compareVersionTokens(a: string, b: string): number {
+  const tokensA = extractVersionTokens(a)
+  const tokensB = extractVersionTokens(b)
+  if (tokensA.length === 0 || tokensB.length === 0) return 0
+
+  const limit = Math.max(tokensA.length, tokensB.length)
+  for (let index = 0; index < limit; index++) {
+    const tokenA = tokensA[index]
+    const tokenB = tokensB[index]
+    if (tokenA === undefined || tokenB === undefined) {
+      if (tokenA === undefined && tokenB === undefined) return 0
+      return tokenA === undefined ? 1 : -1
+    }
+    if (tokenA !== tokenB) return tokenB - tokenA
   }
-  return null
+
+  return 0
+}
+
+function extractVersionTokens(str: string) {
+  const match = str.match(/\d+(?:\.\d+)*/)
+  if (!match) return []
+  return match[0]
+    .split(".")
+    .map(Number)
+    .filter((value) => !Number.isNaN(value))
 }
 
 /**

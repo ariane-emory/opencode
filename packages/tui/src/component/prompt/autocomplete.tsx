@@ -534,7 +534,12 @@ export function Autocomplete(props: {
       return prev
     }
 
-    return [...tieredMatch(nonFileOptions, searchValue, store.visible || "/", 100), ...fileOptions].slice(0, 10)
+    // **CRITICAL**: tieredMatch is the core feature of fix/modal-menus-filtered-order.
+    // DO NOT replace with fuzzysort or frecency-based sorting during merges!
+    // Files are kept separate because fff already ranks them (see files resource above).
+    const matchedNonFiles = tieredMatch(nonFileOptions, searchValue, store.visible || "/", 100)
+
+    return [...matchedNonFiles, ...fileOptions]
   })
 
   createEffect(() => {

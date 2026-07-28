@@ -36,7 +36,7 @@
 | ☑ | 30 | feat/persist-sidebar-group-folding-states | 98 | origin | db34980225 | **MERGE ADVICE**: Be sure not to let this feature get clobbered by subsequent merges! |
 | ☑ | 31 | feat/persistant-sidebar-overlay-behaviour | 71 | origin | a410807f89 |  |
 | ☑ | 32 | feat/opeoginni--display-message-tps | 83 | origin | d93a441a86 |  |
-| ☐ | 33 | feat/kv-diff-style-clean | 134 | origin | TBD |  |
+| ☑ | 33 | feat/kv-diff-style-clean | 134 | origin | 87742cb9b5 |  |
 | ☐ | 34 | feat/global-compaction-threshold | 63 | origin | TBD |  |
 | ☐ | 35 | feat/configurable-message-and-session-limit | 177 | origin | TBD | **MERGE ADVICE:** Don't forget that both the `experimental._message__limit` and `experimental.session_list_limit` settings should accept either positive integers or the string value "none"! |
 | ☐ | 36 | feat/experimental-dont-cache-command-markdown | 252 | origin | TBD |  |
